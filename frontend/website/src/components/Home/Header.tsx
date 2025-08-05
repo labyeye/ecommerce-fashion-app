@@ -1,7 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X, Search, Heart, User, LogOut, Crown, Award, Medal } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, Heart, User, LogOut, Crown, Award, Medal, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+
+interface HeaderProps {
+  cartCount: number;
+  onCartClick: () => void;
+}
+
+interface NavigationLink {
+  _id: string;
+  name: string;
+  slug: string;
+  url: string;
+  type: string;
+  hasDropdown: boolean;
+  dropdownItems: Array<{
+    _id?: string;
+    name: string;
+    url: string;
+    category?: string;
+    isActive: boolean;
+    sortOrder: number;
+  }>;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  subcategories?: Category[];
+}
 
 interface HeaderProps {
   cartCount: number;
@@ -49,11 +80,45 @@ const getTierInfo = (tier: string) => {
 const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
   const { user, logout } = useAuth();
   const location = useLocation();
 
   // Check if we're on the home page
   const isHomePage = location.pathname === '/';
+
+  // Fetch navigation links
+  useEffect(() => {
+    const fetchNavigation = async () => {
+      try {
+        const response = await fetch('http://localhost:3500/api/navigation/public');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setNavigationLinks(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching navigation:', error);
+        // Fallback to static navigation
+        setNavigationLinks([
+          { _id: '1', name: 'Home', slug: 'home', url: '/', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 1 },
+          { _id: '2', name: 'About', slug: 'about', url: '/about', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 2 },
+          { _id: '3', name: 'Products', slug: 'products', url: '/products', type: 'category', hasDropdown: true, dropdownItems: [
+            { name: 'Jumpsuit', url: '/products?category=jumpsuit', isActive: true, sortOrder: 1 },
+            { name: 'Kaftan', url: '/products?category=kaftan', isActive: true, sortOrder: 2 },
+            { name: 'Coord Set', url: '/products?category=coord-set', isActive: true, sortOrder: 3 },
+            { name: 'Dress', url: '/products?category=dress', isActive: true, sortOrder: 4 }
+          ], isActive: true, sortOrder: 3 },
+          { _id: '4', name: 'Blogs', slug: 'blogs', url: '/blogs', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 4 },
+          { _id: '5', name: 'Contact', slug: 'contact', url: '/contact', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 5 }
+        ]);
+      }
+    };
+
+    fetchNavigation();
+  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -114,41 +179,57 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           {/* Left Navigation (Desktop) */}
           <div className="hidden md:flex items-center flex-1">
             <nav className="flex items-center space-x-8">
-              <a
-                href="/"
-                className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-              >
-                Home
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
-              </a>
-              <a
-                href="about"
-                className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-              >
-                About
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
-              </a>
-              <a
-                href="products"
-                className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-              >
-                Products
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
-              </a>
-              <a
-                href="blogs"
-                className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-              >
-                Blogs
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
-              </a>
-              <a
-                href="contact"
-                className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-              >
-                Contact
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
-              </a>
+              {navigationLinks
+                .filter(link => link.isActive)
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((link) => (
+                  link.hasDropdown ? (
+                    <div
+                      key={link._id}
+                      className="relative group"
+                      onMouseEnter={() => setIsDropdownOpen(link._id)}
+                      onMouseLeave={() => setIsDropdownOpen(null)}
+                    >
+                      <a
+                        href={link.url}
+                        className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                      >
+                        {link.name}
+                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
+                      </a>
+                      
+                      {/* Dropdown Menu */}
+                      {link.dropdownItems && link.dropdownItems.length > 0 && (
+                        <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-fashion-charcoal/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                          <div className="py-2">
+                            {link.dropdownItems
+                              .filter(item => item.isActive)
+                              .sort((a, b) => a.sortOrder - b.sortOrder)
+                              .map((item, index) => (
+                                <a
+                                  key={index}
+                                  href={item.url}
+                                  className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
+                                >
+                                  {item.name}
+                                </a>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <a
+                      key={link._id}
+                      href={link.url}
+                      className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                    >
+                      {link.name}
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
+                    </a>
+                  )
+                ))}
             </nav>
           </div>
 
@@ -278,41 +359,40 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         {isMenuOpen && (
           <div className="md:hidden glass-dark backdrop-blur-lg border-b border-fashion-charcoal/10">
             <nav className="px-6 py-6 space-y-4">
-              <a
-                href="/"
-                className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </a>
-              <a
-                href="about"
-                className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </a>
-              <a
-                href="products"
-                className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Products
-              </a>
-              <a
-                href="blogs"
-                className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Blogs
-              </a>
-              <a
-                href="contact"
-                className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </a>
+              {navigationLinks
+                .filter(link => link.isActive)
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((link) => (
+                  <div key={link._id}>
+                    <a
+                      href={link.url}
+                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide flex items-center justify-between"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                      {link.hasDropdown && <ChevronDown className="w-4 h-4" />}
+                    </a>
+                    
+                    {/* Mobile Dropdown Items */}
+                    {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 && (
+                      <div className="ml-4 mt-2 space-y-2">
+                        {link.dropdownItems
+                          .filter(item => item.isActive)
+                          .sort((a, b) => a.sortOrder - b.sortOrder)
+                          .map((item, index) => (
+                            <a
+                              key={index}
+                              href={item.url}
+                              className="block text-fashion-charcoal/70 hover:text-fashion-accent-brown transition-colors duration-300 text-sm"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              {item.name}
+                            </a>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               
               <div className="flex items-center justify-center space-x-4 pt-6 border-t border-fashion-charcoal/10">
                 <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center">

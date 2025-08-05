@@ -10,6 +10,8 @@ const adminRoutes = require('./routes/admin');
 const customerRoutes = require('./routes/customer');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
+const categoryRoutes = require('./routes/category');
+const navigationRoutes = require('./routes/navigation');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,6 +70,7 @@ mongoose.connect(process.env.MONGODB_URI,{
   require('./models/User'); // Make sure you have this file
   require('./models/Category');
   require('./models/Product');
+  require('./models/NavigationLink');
 })
 .catch(err => console.error('MongoDB connection error:', err));
 
@@ -76,6 +79,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/navigation', navigationRoutes);
 
 app.get('/api/health', (req, res) => {
   console.log('Health check request received from:', req.headers.origin);

@@ -1,6 +1,8 @@
 const express = require('express');
 const { optionalAuth } = require('../middleware/auth');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -36,7 +38,16 @@ router.get('/', async (req, res) => {
     }
 
     if (category) {
-      query.category = category;
+      // Check if category is slug or ObjectId
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        query.category = category;
+      } else {
+        // Find category by slug
+        const categoryDoc = await Category.findOne({ slug: category, isActive: true });
+        if (categoryDoc) {
+          query.category = categoryDoc._id;
+        }
+      }
     }
 
     if (minPrice > 0 || maxPrice < 999999) {
@@ -325,6 +336,73 @@ router.get('/category/:categoryId', async (req, res) => {
     });
   } catch (error) {
     console.error('Get products by category error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching products by category'
+    });
+  }
+});
+
+// @desc    Get products by category slug
+// @route   GET /api/products/category/:slug
+// @access  Public
+router.get('/category/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const sort = req.query.sort || 'createdAt';
+    const order = req.query.order || 'desc';
+
+    const skip = (page - 1) * limit;
+
+    // Find category by slug
+    const category = await Category.findOne({ slug, isActive: true });
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    // Build sort object
+    const sortObj = {};
+    sortObj[sort] = order === 'desc' ? -1 : 1;
+
+    const products = await Product.find({
+      category: category._id,
+      status: 'active'
+    })
+      .populate('category', 'name slug')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Product.countDocuments({
+      category: category._id,
+      status: 'active'
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        category: {
+          _id: category._id,
+          name: category.name,
+          slug: category.slug,
+          description: category.description
+        },
+        products,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get products by category slug error:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching products by category'

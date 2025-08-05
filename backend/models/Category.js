@@ -38,6 +38,18 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  showInDropdown: {
+    type: Boolean,
+    default: true
+  },
+  color: {
+    type: String,
+    default: '#8B7355'
+  },
+  icon: {
+    type: String,
+    default: null
+  },
   seoTitle: String,
   seoDescription: String,
   createdBy: {

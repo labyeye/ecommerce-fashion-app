@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Category = require('../../models/Category');
-const Product = require('../../models/Product');
-const auth = require('../../middleware/auth');
-const adminAuth = require('../../middleware/adminAuth');
+const Category = require('../models/Category');
+const Product = require('../models/Product');
+const { protect: auth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 // Get all categories (for dropdown and navigation)
 router.get('/', auth, adminAuth, async (req, res) => {
@@ -31,11 +31,32 @@ router.get('/navigation', async (req, res) => {
       isActive: true, 
       showInNavigation: true,
       parentCategory: null // Only root categories for main navigation
-    }).sort({ sortOrder: 1, name: 1 });
+    })
+      .populate({
+        path: 'parentCategory',
+        select: 'name slug'
+      })
+      .sort({ sortOrder: 1, name: 1 });
+
+    // Get subcategories for dropdown
+    const categoriesWithSubcategories = await Promise.all(
+      categories.map(async (category) => {
+        const subcategories = await Category.find({
+          parentCategory: category._id,
+          isActive: true,
+          showInDropdown: true
+        }).sort({ sortOrder: 1, name: 1 });
+
+        return {
+          ...category.toObject(),
+          subcategories
+        };
+      })
+    );
 
     res.json({
       success: true,
-      data: categories
+      data: categoriesWithSubcategories
     });
   } catch (error) {
     res.status(500).json({

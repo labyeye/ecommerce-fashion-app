@@ -15,6 +15,7 @@ import CampaignDetails from "./components/CampaignDetails";
 import Analytics from "./components/Analytics";
 import Login from "./components/Login";
 import EditProduct from "./components/EditProduct";
+import NavigationManagement from "./components/NavigationManagement";
 
 import { mockData } from "./data/mockData";
 
@@ -218,6 +219,8 @@ function DashboardApp() {
         );
       case "promo-codes":
         return <PromoCodes />;
+      case "navigation":
+        return <NavigationManagement />;
       case "analytics":
         return <Analytics />;
       case "alerts":
