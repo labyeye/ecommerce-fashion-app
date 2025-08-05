@@ -107,7 +107,7 @@ router.get('/dashboard', async (req, res) => {
 // @access  Admin only
 router.get('/categories', async (req, res) => {
   try {
-    const categories = await Category.find({ status: 'active' })
+    const categories = await Category.find({ isActive: true })
       .select('_id name slug description')
       .sort({ name: 1 });
 
