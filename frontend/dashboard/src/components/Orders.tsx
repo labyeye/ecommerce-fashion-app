@@ -38,6 +38,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-green-100 text-green-800';
       case 'processing': return 'bg-blue-100 text-blue-800';
       case 'shipped': return 'bg-purple-100 text-purple-800';
       case 'delivered': return 'bg-green-100 text-green-800';
@@ -49,6 +50,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return Package;
+      case 'confirmed': return CheckCircle;
       case 'processing': return Package;
       case 'shipped': return Truck;
       case 'delivered': return CheckCircle;
@@ -218,6 +220,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                   <th className="px-4 py-2 text-left font-semibold">Date</th>
                   <th className="px-4 py-2 text-left font-semibold">Items</th>
                   <th className="px-4 py-2 text-left font-semibold">Total</th>
+                  <th className="px-4 py-2 text-left font-semibold">Payment</th>
                   <th className="px-4 py-2 text-left font-semibold">Status</th>
                   <th className="px-4 py-2 text-left font-semibold">Actions</th>
               </tr>
@@ -233,11 +236,19 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                       <td className="px-4 py-2">{order.items.map((item: any) => item.product?.name).join(', ')}</td>
                       <td className="px-4 py-2 font-medium">${order.total.toFixed(2)}</td>
                       <td className="px-4 py-2">
-                      <div className="flex items-center space-x-2">
-                        <StatusIcon className="w-4 h-4 text-gray-400" />
+                        <div className="text-xs">
+                          <div className="font-medium">{order.payment?.method === 'razorpay' ? 'Razorpay' : order.payment?.method?.replace('_', ' ').toUpperCase()}</div>
+                          {order.payment?.method === 'razorpay' && order.payment?.razorpay?.paymentId && (
+                            <div className="text-green-600">ID: {order.payment.razorpay.paymentId.slice(-8)}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center space-x-2">
+                          <StatusIcon className="w-4 h-4 text-gray-400" />
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
-                      </div>
-                    </td>
+                        </div>
+                      </td>
                       <td className="px-4 py-2">
                         <button onClick={() => onViewDetails(order._id)} className="text-blue-600 hover:text-blue-900 mr-3">View</button>
                         {order.status === 'pending' && order.payment?.method !== 'cash_on_delivery' && (

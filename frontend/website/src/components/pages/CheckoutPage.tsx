@@ -3,6 +3,7 @@ import { useCartContext } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Check, Lock, Shield, Truck, CreditCard, MapPin, User, Mail, Phone, Download, Gift } from 'lucide-react';
+import razorpayService, { RazorpayResponse } from '../../services/razorpayService';
 
 const CheckoutPage: React.FC = () => {
   const { cartItems, clearCart, isLoading, promoCode, evolvPointsRedemption } = useCartContext();
@@ -134,6 +135,23 @@ const CheckoutPage: React.FC = () => {
       }
     }
 
+    // Handle Cash on Delivery orders directly
+    if (paymentMethod === 'cash_on_delivery') {
+      await processOrder();
+      return;
+    }
+
+    // Handle Razorpay payment
+    if (paymentMethod === 'razorpay') {
+      await processRazorpayPayment();
+      return;
+    }
+
+    setError('Invalid payment method selected');
+    setLoading(false);
+  };
+
+  const processOrder = async () => {
     const payload = {
       items: cartItems.map(item => ({
         product: item.id,
@@ -141,7 +159,7 @@ const CheckoutPage: React.FC = () => {
         price: item.price,
         size: item.size,
         color: item.color,
-        itemTotal: item.price * item.quantity // Add item total for verification
+        itemTotal: item.price * item.quantity
       })),
       shippingAddress: shipping,
       billingAddress: useSameAddress ? shipping : billing,
@@ -157,28 +175,6 @@ const CheckoutPage: React.FC = () => {
       evolvPointsToRedeem: evolvPointsRedemption?.pointsToRedeem || 0
     };
 
-    console.log('Complete order payload:', JSON.stringify(payload, null, 2));
-    console.log('Promo code from context:', promoCode);
-    console.log('Evolv points redemption from context:', evolvPointsRedemption);
-    console.log('Cart items:', cartItems);
-    console.log('Individual item analysis:');
-    cartItems.forEach((item, index) => {
-      console.log(`Item ${index}:`, {
-        id: item.id,
-        idType: typeof item.id,
-        idLength: item.id?.length,
-        quantity: item.quantity,
-        quantityType: typeof item.quantity,
-        price: item.price,
-        priceType: typeof item.price,
-        size: item.size,
-        sizeType: typeof item.size,
-        color: item.color,
-        colorType: typeof item.color
-      });
-    });
-
-    // In handleSubmit function of CheckoutPage.tsx
     try {
       const res = await fetch('http://localhost:3500/api/customer/orders', {
         method: 'POST',
@@ -191,13 +187,9 @@ const CheckoutPage: React.FC = () => {
       });
 
       const data = await res.json();
-      console.log('Order response:', data);
 
       if (!res.ok) {
-        console.error('Order validation failed:', data);
-        console.error('Validation errors:', data.errors);
         if (data.errors && data.errors.length > 0) {
-          console.error('First validation error:', data.errors[0]);
           setError(`Validation error: ${data.errors[0].msg} (Field: ${data.errors[0].path})`);
         } else {
           setError(data.message || 'Order failed');
@@ -207,13 +199,143 @@ const CheckoutPage: React.FC = () => {
       }
 
       setSuccess(true);
-      setOrderData(data.data); // Changed from data to data.data
+      setOrderData(data.data);
       clearCart();
-      navigate(`/profile`); // Redirect to profile instead of order page
+      navigate(`/profile`);
     } catch (err: any) {
-      console.error('Order error:', err);
       setError(err.message || 'Failed to place order');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const processRazorpayPayment = async () => {
+    try {
+      console.log('Starting Razorpay payment process...');
+      
+      // Create order data for Razorpay
+      const orderData = {
+        items: cartItems.map(item => ({
+          product: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          color: item.color,
+          itemTotal: item.price * item.quantity
+        })),
+        shippingAddress: shipping,
+        billingAddress: useSameAddress ? shipping : billing,
+        subtotal: subtotal,
+        shippingCost: shippingCost,
+        tax: tax,
+        total: total,
+        ...(promoCode?.code && { promoCode: promoCode.code }),
+        evolvPointsToRedeem: evolvPointsRedemption?.pointsToRedeem || 0
+      };
+
+      console.log('Creating Razorpay order with data:', orderData);
+
+      // Create Razorpay order
+      const razorpayOrder = await razorpayService.createOrder(orderData);
+      console.log('Razorpay order created:', razorpayOrder);
+
+      // Configure Razorpay options
+      const options = {
+        key: razorpayOrder.razorpay_key_id, // This will come from backend
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: "Vitals Fashion",
+        description: "Test Order Payment",
+        order_id: razorpayOrder.id,
+        handler: async (response: RazorpayResponse) => {
+          try {
+            console.log('Payment successful, verifying...', response);
+            
+            // Verify payment with backend
+            const verificationData = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              order_id: razorpayOrder.order_id
+            };
+
+            const verificationResult = await razorpayService.verifyPayment(verificationData);
+            console.log('Payment verification result:', verificationResult);
+            
+            // Check if verification was successful
+            if (verificationResult.success || verificationResult.paymentStatus === 'paid') {
+              setSuccess(true);
+              setOrderData(verificationResult.data || verificationResult);
+              clearCart();
+              navigate('/profile');
+            } else {
+              setError('Payment verification failed. Please contact support.');
+            }
+          } catch (verifyError: any) {
+            console.error('Payment verification error:', verifyError);
+            setError(verifyError.message || 'Payment verification failed');
+            await razorpayService.handlePaymentFailure(razorpayOrder.order_id, verifyError);
+          } finally {
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: `${shipping.firstName} ${shipping.lastName}`,
+          email: shipping.email,
+          contact: shipping.phone
+        },
+        notes: {
+          address: `${shipping.street}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}`,
+          order_type: 'test_order'
+        },
+        theme: {
+          color: "#688F4E"
+        },
+        config: {
+          display: {
+            blocks: {
+              utib: { //This key should be the bank's short name. 
+                name: 'Pay using Axis Bank', //This value will be displayed in the list of payment method icons.
+                instruments: [
+                  {
+                    method: 'upi'
+                  },
+                  {
+                    method: 'card'
+                  },
+                  {
+                    method: 'netbanking'
+                  }
+                ],
+              },
+            },
+            hide: [
+              {
+                method: 'wallet'
+              }
+            ],
+            preferences: {
+              show_default_blocks: true // Should Razorpay's default blocks be shown
+            }
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            console.log('Payment modal dismissed by user');
+            setLoading(false);
+            setError('Payment cancelled by user');
+          }
+        }
+      };
+
+      console.log('Opening Razorpay checkout with options:', options);
+
+      // Open Razorpay checkout
+      await razorpayService.openCheckout(options);
+
+    } catch (error: any) {
+      console.error('Razorpay payment error:', error);
+      setError(error.message || 'Failed to initiate payment');
       setLoading(false);
     }
   };
@@ -610,16 +732,48 @@ const CheckoutPage: React.FC = () => {
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                   >
                     <option value="cash_on_delivery">Cash on Delivery</option>
-                    <option value="credit_card">Credit Card</option>
-                    <option value="debit_card">Debit Card</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="stripe">Stripe</option>
+                    <option value="razorpay">Pay with Razorpay (UPI, Card, Wallet) - Test Mode</option>
                   </select>
+                  
+                  {paymentMethod === 'razorpay' && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="text-sm text-blue-800">
+                        <div className="font-medium mb-2">🧪 Test Mode - Use these Indian test credentials:</div>
+                        <div className="space-y-2 text-blue-700">
+                          <div className="font-medium">Credit/Debit Cards:</div>
+                          <div className="ml-2 space-y-1">
+                            <div>• Visa: 4111 1111 1111 1111</div>
+                            <div>• MasterCard: 5555 5555 5555 4444</div>
+                            <div>• Rupay: 6076 6200 0000 0007</div>
+                            <div>• Exp: Any future date (12/25), CVV: 123</div>
+                          </div>
+                          <div className="font-medium mt-2">UPI (Recommended):</div>
+                          <div className="ml-2">
+                            <div>• success@razorpay (for successful payment)</div>
+                            <div>• fail@razorpay (for testing failure)</div>
+                          </div>
+                          <div className="font-medium mt-2">Net Banking:</div>
+                          <div className="ml-2">• Select any test bank from the list</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    {error}
+                    <div className="font-medium mb-2">{error}</div>
+                    {(error.includes('cancelled') || error.includes('International cards')) && paymentMethod === 'razorpay' && (
+                      <div className="text-sm mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
+                        <div className="font-medium text-blue-800 mb-2">For Razorpay Test Mode (Indian Cards Only):</div>
+                        <div className="text-blue-700 space-y-1">
+                          <div><strong>Recommended:</strong> Use UPI - success@razorpay</div>
+                          <div><strong>Cards:</strong> Visa: 4111 1111 1111 1111, Rupay: 6076 6200 0000 0007</div>
+                          <div><strong>Exp:</strong> 12/25, <strong>CVV:</strong> 123</div>
+                          <div><strong>NetBanking:</strong> Select any test bank</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
