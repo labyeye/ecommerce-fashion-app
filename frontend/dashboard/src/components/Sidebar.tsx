@@ -13,7 +13,8 @@ import {
   LogOut,
   User,
   Percent,
-  Navigation
+  Navigation,
+  Folder
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
     { id: 'customers', icon: Users, label: 'Customers' },
     { id: 'orders', icon: ShoppingCart, label: 'Orders' },
     { id: 'products', icon: Package, label: 'Products' },
+    { id: 'categories', icon: Folder, label: 'Categories' },
     { id: 'marketing', icon: Megaphone, label: 'Marketing' },
     { id: 'promo-codes', icon: Percent, label: 'Promo Codes' },
     { id: 'navigation', icon: Navigation, label: 'Navigation' },

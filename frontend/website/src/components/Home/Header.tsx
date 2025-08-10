@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   useEffect(() => {
     const fetchNavigation = async () => {
       try {
-        const response = await fetch('http://localhost:3500/api/navigation/public');
+        const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/navigation/public');
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     >
                       <a
                         href={link.url}
-                        className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        className={`text-xl font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
@@ -210,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                 <a
                                   key={index}
                                   href={item.url}
-                                  className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
+                                  className="block px-4 py-3 text-lg text-fashion-charcoal hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
                                 >
                                   {item.name}
                                 </a>
@@ -223,7 +223,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-sm font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-xl font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -238,8 +238,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             <a href="/" className="flex items-center">
               <div className="relative">
                 <div className={`text-2xl md:text-3xl font-light tracking-wider transition-colors duration-300 ${getLogoColorClass()}`}>
-                  <span className="font-medium">Flaunt</span>
-                  <span className={`text-sm ml-2 transition-colors duration-300 ${getLogoColorClass()}`}>by Nishi</span>
+                  <span className="font-medium text-md">Flaunt</span>
+                  <span className={`text-xl ml-2 transition-colors duration-300 ${getLogoColorClass()}`}>by Nishi</span>
                 </div>
               </div>
             </a>

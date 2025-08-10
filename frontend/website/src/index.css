@@ -2,38 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Koolegant Font Face Declaration */
-@font-face {
-  font-family: 'Koolegant';
-  src: url('./assets/fonts/Koolegant.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Fashion UI Base Styles */
 @layer base {
   body {
     background-color: #FEFCF8;
     color: #2D2D2D;
-    font-family: 'Koolegant', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 400;
   }
   
   * {
-    font-family: 'Koolegant', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Koolegant', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 500;
   }
   
-  .font-koolegant {
-    font-family: 'Koolegant', Arial, sans-serif;
+  .font-poppins {
+    font-family: 'Poppins', Arial, sans-serif;
   }
   
-  /* Fallback for when Koolegant is not loaded */
+  /* Fallback for when Poppins is not loaded */
   .font-loading {
     font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   }

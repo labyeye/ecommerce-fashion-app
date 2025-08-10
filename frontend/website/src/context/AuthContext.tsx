@@ -22,6 +22,7 @@ interface User {
   loyaltyTier?: string;
   loyaltyHistory?: any[];
   avatar?: string;
+  profileImage?: string;
 }
 
 interface AuthContextType {
@@ -64,7 +65,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = 'http://localhost:3500/api';
+const API_BASE_URL = 'https://ecommerce-fashion-app.onrender.com/api';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {

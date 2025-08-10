@@ -44,12 +44,12 @@ const ProductPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = 'http://localhost:3500/api/products';
+      let url = 'https://ecommerce-fashion-app.onrender.com/api/products';
       const params = new URLSearchParams();
 
       if (categoryParam) {
         // If category is provided, use the category-specific endpoint
-        url = `http://localhost:3500/api/products/category/${categoryParam}`;
+        url = `https://ecommerce-fashion-app.onrender.com/api/products/category/${categoryParam}`;
       } else {
         // Use general products endpoint with filters
         if (searchQuery) params.append('search', searchQuery);
@@ -145,7 +145,7 @@ const ProductPage: React.FC = () => {
     <div className="min-h-screen bg-fashion-cream">
       {/* Header Section */}
       <div className="bg-white border-b border-fashion-charcoal/10">
-        <div className="container mx-auto px-4 py-16 text-center">
+        <div className="container mx-auto px-4 py-16 text-center mt-10">
           <h1 className="text-4xl md:text-5xl font-light text-fashion-charcoal mb-4 tracking-wide">
             {getPageTitle()}
           </h1>

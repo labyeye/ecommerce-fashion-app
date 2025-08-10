@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -15,7 +16,7 @@ const navigationRoutes = require('./routes/navigation');
 const paymentRoutes = require('./routes/payments');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3500;
 
 // Security middleware
 app.use(helmet());
@@ -41,10 +42,10 @@ app.use(cors({
       'http://localhost:3000', // React default (if used)
       'http://127.0.0.1:5173',
       'http://127.0.0.1:5174',
-      'https://vitals-theta.vercel.app'
+      'https://ecommerce-fashion-app.vercel.app'
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','HEAD'],
     allowedHeaders: [
       'Accept',
       'Accept-Language',
@@ -52,14 +53,37 @@ app.use(cors({
       'Authorization',
       'X-Requested-With',
       'X-CSRF-Token',
-      'x-auth-token'
+      'x-auth-token',
+      'Origin',
+      'Cache-Control',
+      'Pragma'
     ],
-    exposedHeaders: ['Set-Cookie', 'Date', 'ETag']
+    exposedHeaders: ['Set-Cookie', 'Date', 'ETag', 'Content-type']
   }));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files for uploaded images with explicit CORS headers
+app.use('/uploads', (req, res, next) => {
+  // Set CORS headers
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Set Cross-Origin-Resource-Policy header to allow cross-origin access
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Set additional security headers for images
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI,{

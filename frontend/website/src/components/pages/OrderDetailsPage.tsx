@@ -105,7 +105,7 @@ const OrderDetailsPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3500/api/customer/orders/${orderId}/details`, {
+        const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/customer/orders/${orderId}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ const OrderDetailsPage: React.FC = () => {
 
     try {
       setConfirmingDelivery(true);
-      const response = await fetch(`http://localhost:3500/api/customer/orders/${orderId}/status`, {
+      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/customer/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

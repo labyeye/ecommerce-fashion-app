@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getProducts, Product } from "../../services/productService";
 import Hero from "../Home/Hero";
 import ProductSlider from "../Home//ProductSlider";
+import CategoryCards from "../Home/CategoryCards";
 import Features from "../Home/Features";
 import Reviews from "../Home/Review";
 
@@ -60,9 +61,9 @@ const HomePage = () => {
             <ProductSlider 
                 products={products} 
                 title="Featured Collection"
-                autoPlay={true}
                 autoPlayInterval={5000}
             />
+            <CategoryCards />
             <Features />
             <Reviews />
         </>

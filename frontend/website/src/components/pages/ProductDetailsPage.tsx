@@ -50,6 +50,18 @@ const ProductDetailsPage: React.FC = () => {
     ? Math.round(((product.comparePrice - currentPrice) / product.comparePrice) * 100) 
     : 0;
 
+  // Debug logging
+  console.log('Product:', product);
+  console.log('Selected Color:', selectedColor);
+  console.log('Current Color Object:', currentColor);
+  console.log('Current Images:', currentImages);
+  console.log('Product Images:', product?.images);
+  console.log('Color Images:', currentColor?.images);
+
+  // Fallback image if no images are available
+  const fallbackImage = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+  const displayImages = currentImages.length > 0 ? currentImages : [{ url: fallbackImage, alt: product?.name || 'Product Image' }];
+
   const handleAddToCart = () => {
     if (!product || !selectedSize) return;
     
@@ -166,13 +178,13 @@ const ProductDetailsPage: React.FC = () => {
 
   const nextImage = () => {
     setSelectedImageIndex((prev) => 
-      prev === currentImages.length - 1 ? 0 : prev + 1
+      prev === displayImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
     setSelectedImageIndex((prev) => 
-      prev === 0 ? currentImages.length - 1 : prev - 1
+      prev === 0 ? displayImages.length - 1 : prev - 1
     );
   };
 
@@ -228,13 +240,13 @@ const ProductDetailsPage: React.FC = () => {
             {/* Main Image */}
             <div className="relative aspect-[4/5] bg-white shadow-soft overflow-hidden group">
               <img
-                src={currentImages[selectedImageIndex]?.url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-                alt={product.name}
+                src={displayImages[selectedImageIndex]?.url || fallbackImage}
+                alt={displayImages[selectedImageIndex]?.alt || product.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               
               {/* Navigation Arrows */}
-              {currentImages.length > 1 && (
+              {displayImages.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -281,9 +293,9 @@ const ProductDetailsPage: React.FC = () => {
               )}
 
               {/* Image indicator dots */}
-              {currentImages.length > 1 && (
+              {displayImages.length > 1 && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {currentImages.map((_, index) => (
+                  {displayImages.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
@@ -297,9 +309,9 @@ const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Thumbnail Images */}
-            {currentImages.length > 1 && (
+            {displayImages.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentImages.map((image, index) => (
+                {displayImages.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}

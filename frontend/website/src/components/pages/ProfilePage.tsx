@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ProfilePictureUpload from "../ui/ProfilePictureUpload";
 import {
   User,
   Package,
@@ -19,7 +20,6 @@ import {
   TrendingUp,
   ShoppingBag,
   Eye,
-  Edit,
   X,
   Save
 } from "lucide-react";
@@ -46,6 +46,39 @@ const ProfilePage: React.FC = () => {
   });
   const [saving, setSaving] = useState(false);
   const [orderStats, setOrderStats] = useState<any>(null);
+  const [profilePictureUploading, setProfilePictureUploading] = useState(false);
+
+  // Handle profile picture upload
+  const handleProfilePictureUpload = async (file: File) => {
+    if (!token) return;
+
+    setProfilePictureUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/customer/profile-picture', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Refresh the page to show the new profile picture
+        window.location.reload();
+      } else {
+        const data = await response.json();
+        alert('Error uploading profile picture: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Error uploading profile picture. Please try again.');
+    } finally {
+      setProfilePictureUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -85,7 +118,7 @@ const ProfilePage: React.FC = () => {
 
     setSaving(true);
     try {
-      const response = await fetch('http://localhost:3500/api/customer/profile', {
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/customer/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -130,7 +163,7 @@ const ProfilePage: React.FC = () => {
       month: 'long', 
       year: 'numeric' 
     }),
-    avatar: user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+    profileImage: user.profileImage || null,
     totalOrders: orderStats?.total || 0,
     totalSpent: orderStats?.totalSpent || 0,
     loyaltyPoints: user.loyaltyPoints || 0,
@@ -205,7 +238,7 @@ const ProfilePage: React.FC = () => {
         setOrdersLoading(true);
         setOrdersError('');
         try {
-          const response = await fetch('http://localhost:3500/api/customer/orders', {
+          const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/customer/orders', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -228,7 +261,7 @@ const ProfilePage: React.FC = () => {
     if (user && token) {
       const fetchDashboardData = async () => {
         try {
-          const response = await fetch('http://localhost:3500/api/customer/dashboard', {
+          const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/customer/dashboard', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           
@@ -253,17 +286,11 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
-              <img
-                src={userData.avatar}
-                alt={userData.name}
-                className="w-24 h-24 rounded-full object-cover border-4 border-[#688F4E]"
+              <ProfilePictureUpload
+                currentImage={userData.profileImage}
+                onUpload={handleProfilePictureUpload}
+                loading={profilePictureUploading}
               />
-              <button
-                onClick={handleEditProfile}
-                className="absolute -bottom-2 -right-2 bg-[#688F4E] text-white p-2 rounded-full hover:bg-[#5a7a42] transition-colors"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
             </div>
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold text-[#2B463C] mb-2">{userData.name}</h1>
@@ -279,6 +306,13 @@ const ProfilePage: React.FC = () => {
                   <span className="font-medium">₹{userData.totalSpent.toLocaleString('en-IN')}</span>
                 </div>
               </div>
+              <button
+                onClick={handleEditProfile}
+                className="mt-4 bg-[#688F4E] text-white px-4 py-2 rounded-lg hover:bg-[#5a7a42] transition-colors flex items-center gap-2 mx-auto md:mx-0"
+              >
+                <Settings className="w-4 h-4" />
+                Edit Profile
+              </button>
             </div>
           </div>
         </div>

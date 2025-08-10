@@ -1,6 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { protect, isCustomer } = require('../middleware/auth');
+const multer = require('multer');
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
 
 const Product = require('../models/Product');
 const Order = require('../models/Order');
@@ -1171,6 +1175,173 @@ router.get('/addresses', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching addresses'
+    });
+  }
+});
+
+// Configure multer for profile picture uploads
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  },
+});
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads/profile-pictures');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Upload and update profile picture
+router.post('/profile-picture', protect, isCustomer, upload.single('profilePicture'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    // Generate unique filename
+    const fileName = `profile-${req.user._id}-${Date.now()}.webp`;
+    const filePath = path.join(uploadsDir, fileName);
+
+    // Process image with sharp (resize and optimize)
+    await sharp(req.file.buffer)
+      .resize(300, 300, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .webp({ quality: 85 })
+      .toFile(filePath);
+
+    // Delete old profile picture if exists
+    const user = await User.findById(req.user._id);
+    if (user.profileImage) {
+      const oldImagePath = path.join(__dirname, '../uploads/profile-pictures', path.basename(user.profileImage));
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    // Update user profile image in database
+    const imageUrl = `/uploads/profile-pictures/${fileName}`;
+    await User.findByIdAndUpdate(req.user._id, { profileImage: imageUrl });
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      data: {
+        profileImage: imageUrl
+      }
+    });
+  } catch (error) {
+    console.error('Profile picture upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error uploading profile picture'
+    });
+  }
+});
+
+// Get user profile
+router.get('/profile', protect, isCustomer, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password -emailVerificationToken -passwordResetToken');
+    
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching profile'
+    });
+  }
+});
+
+// Update user profile
+router.put('/profile', protect, isCustomer, [
+  body('firstName').optional().trim().isLength({ min: 1, max: 50 }),
+  body('lastName').optional().trim().isLength({ min: 1, max: 50 }),
+  body('phone').optional().matches(/^[\+]?[1-9][\d]{0,15}$/),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: errors.array()
+      });
+    }
+
+    const allowedUpdates = ['firstName', 'lastName', 'phone', 'address'];
+    const updates = {};
+    
+    allowedUpdates.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updates,
+      { new: true, runValidators: true }
+    ).select('-password -emailVerificationToken -passwordResetToken');
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating profile'
+    });
+  }
+});
+
+// Delete profile picture
+router.delete('/profile-picture', protect, isCustomer, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (user.profileImage) {
+      // Delete file from filesystem
+      const imagePath = path.join(__dirname, '../uploads/profile-pictures', path.basename(user.profileImage));
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+      
+      // Remove from database
+      await User.findByIdAndUpdate(req.user._id, { profileImage: null });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete profile picture error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting profile picture'
     });
   }
 });

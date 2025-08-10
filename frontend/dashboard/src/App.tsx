@@ -16,6 +16,7 @@ import Analytics from "./components/Analytics";
 import Login from "./components/Login";
 import EditProduct from "./components/EditProduct";
 import NavigationManagement from "./components/NavigationManagement";
+import CategoryManagement from "./components/CategoryManagement";
 
 import { mockData } from "./data/mockData";
 
@@ -205,6 +206,8 @@ function DashboardApp() {
             }
           />
         );
+      case "categories":
+        return <CategoryManagement />;
       case "marketing":
         return (
           <Marketing

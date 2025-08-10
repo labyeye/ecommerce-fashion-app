@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Koolegant', 'Inter', 'Helvetica Neue', 'sans-serif'],
-        'koolegant': ['Koolegant', 'sans-serif'],
+        'sans': ['Poppins', 'Inter', 'Helvetica Neue', 'sans-serif'],
+        'poppins': ['Poppins', 'sans-serif'],
       },
       fontWeight: {
         'thin': '100',

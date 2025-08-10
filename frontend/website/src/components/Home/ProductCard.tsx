@@ -170,14 +170,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 space-y-3">
         {/* Product Name */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 leading-tight hover:text-gray-700 transition-colors cursor-pointer" onClick={handleViewDetails}>
+          <h3 className="text-lg font-semibold text-gray-900 font-['Poppins'] leading-tight hover:text-gray-700 transition-colors cursor-pointer" onClick={handleViewDetails}>
             {product.name}
           </h3>
         </div>
 
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-bold text-gray-900">
+          <span className="text-sm font-bold text-gray-900 font-['Poppins']">
             ₹{currentPrice.toLocaleString()}
           </span>
           {hasDiscount && product.comparePrice && (

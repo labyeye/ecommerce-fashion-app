@@ -107,21 +107,6 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`transition-all duration-300 ${
-              index === currentSlide
-                ? "w-8 h-2 bg-white"
-                : "w-2 h-2 bg-white/50 hover:bg-white/75 circle-element"
-            } rounded-full`}
-          />
-        ))}
-      </div>
-
       {/* Floating scroll indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-float">
         <div className="w-6 h-10 border-2 border-white/80 rounded-fashion flex justify-center backdrop-blur-sm bg-white/10">
