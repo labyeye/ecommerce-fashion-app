@@ -27,46 +27,46 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-16 lg:py-24 bg-fashion-cream overflow-hidden">
+    <section className="relative py-10 sm:py-16 lg:py-24 bg-background overflow-hidden">
       <FloatingElements density="light" />
       
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Brand Mark */}
-          <div className="mb-8 lg:mb-12">
-            <div className="text-3xl md:text-4xl font-light text-fashion-charcoal mb-3 tracking-[0.2em]">FASHION</div>
-            <div className="h-0.5 w-20 bg-fashion-accent-brown mx-auto"></div>
+          <div className="mb-6 sm:mb-8 lg:mb-12">
+            <div className="text-2xl sm:text-3xl md:text-4xl font-light text-primary mb-3 tracking-[0.15em] sm:tracking-[0.2em]">FASHION</div>
+            <div className="h-0.5 w-16 sm:w-20 bg-secondary mx-auto"></div>
           </div>
 
           {/* Main Heading */}
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-light text-fashion-charcoal mb-6 leading-tight tracking-wide">
+          <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light text-primary mb-4 sm:mb-6 leading-tight tracking-wide">
             Timeless elegance,
-            <br />
-            <span className="text-fashion-accent-brown">crafted with precision.</span>
+            <br className="hidden sm:block" />
+            <span className="text-secondary">crafted with precision.</span>
           </h2>
 
-          <p className="text-lg text-fashion-dark-gray font-light leading-relaxed mb-12 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-primary/80 font-light leading-relaxed mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
             Every piece in our collection represents a commitment to exceptional quality, 
             sustainable practices, and enduring style.
           </p>
 
           {/* Features Grid */}
-          <div className="glass rounded-fashion p-8 lg:p-12 shadow-fashion border border-fashion-charcoal/5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="glass rounded-lg sm:rounded-fashion p-4 sm:p-8 lg:p-12 shadow-fashion border border-primary/5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
                   <div
                     key={index}
-                    className="flex flex-col items-center text-center group"
+                    className="flex flex-col items-center text-center group p-2 sm:p-3"
                   >
-                    <div className="circle-element w-16 h-16 bg-fashion-accent-brown/10 border-2 border-fashion-accent-brown/20 flex items-center justify-center mb-4 group-hover:bg-fashion-accent-brown/20 group-hover:scale-110 transition-all duration-300">
-                      <Icon className="w-7 h-7 text-fashion-accent-brown" />
+                    <div className="circle-element w-14 h-14 sm:w-16 sm:h-16 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
+                      <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                     </div>
-                    <h3 className="text-lg font-medium text-fashion-charcoal mb-2 tracking-wide">
+                    <h3 className="text-base sm:text-lg font-medium text-primary mb-1 sm:mb-2 tracking-wide">
                       {feature.name}
                     </h3>
-                    <p className="text-sm text-fashion-dark-gray font-light leading-relaxed">
+                    <p className="text-xs sm:text-sm text-primary/70 font-light leading-relaxed">
                       {feature.description}
                     </p>
                   </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLoyaltyTier, canAccessTier } from '../../hooks/useLoyaltyTier';
 
 export interface Product {
   _id?: string;
@@ -41,6 +42,8 @@ export interface Product {
   isFeatured?: boolean;
   isNewArrival?: boolean;
   isBestSeller?: boolean;
+  isComingSoon?: boolean;
+  minLoyaltyTier?: 'bronze' | 'silver' | 'gold';
   ratings?: {
     average: number;
     count: number;
@@ -60,6 +63,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const userTier = useLoyaltyTier();
+  const canAccess = !product.minLoyaltyTier || canAccessTier(userTier, product.minLoyaltyTier);
 
   const currentPrice = product.salePrice || product.price;
   const hasDiscount = product.comparePrice && product.comparePrice > currentPrice;
@@ -106,6 +111,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { primary, secondary } = getProductImages();
 
   const handleViewDetails = () => {
+    if (!canAccess) {
+      // Show upgrade prompt or message
+      alert(`This product is only available for ${product.minLoyaltyTier} tier and above members`);
+      return;
+    }
+    
     const productId = product._id || product.id || '';
     if (viewDetailsLink) {
       navigate(viewDetailsLink);
@@ -116,15 +127,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-white transition-all duration-300 ${
+      className={`group relative bg-background transition-all duration-300 ${
         isHovered ? 'shadow-lg' : ''
-      }`}
+      } ${!canAccess ? 'opacity-60' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {!canAccess && (
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
+          <div className="text-center p-4">
+            <Lock className="w-6 h-6 text-primary mx-auto mb-2" />
+            <p className="text-lg font-display font-medium text-primary">
+              {product.minLoyaltyTier ? `${product.minLoyaltyTier.charAt(0).toUpperCase() + product.minLoyaltyTier.slice(1)} Tier Only` : 'Higher Tier Required'}
+            </p>
+            <p className="text-sm text-primary/70 mt-1">
+              Upgrade your loyalty tier to access
+            </p>
+          </div>
+        </div>
+      )}
       {/* Heart Icon */}
-      <button className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white group-hover:scale-110">
-        <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 hover:fill-red-500 transition-colors duration-300" />
+      <button className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-tertiary/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-secondary group-hover:scale-110">
+        <Heart className="w-4 h-4 text-primary hover:text-secondary hover:fill-primary transition-colors duration-300" />
       </button>
 
       {/* Product Image with Hover Effect */}
@@ -158,32 +182,45 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 e.stopPropagation();
                 handleViewDetails();
               }}
-              className="w-full bg-white/95 backdrop-blur-sm text-black py-3 text-sm font-medium tracking-wide transition-all duration-300 hover:bg-white"
+              className="w-full bg-background/95 backdrop-blur-sm text-primary py-3 text-sm font-display uppercase tracking-widest transition-all duration-300 hover:bg-background hover:text-secondary"
             >
-              QUICK SHOP
+              View Details
             </button>
           </div>
         )}
       </div>
 
       {/* Product Info */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-2">
         {/* Product Name */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 font-['Poppins'] leading-tight hover:text-gray-700 transition-colors cursor-pointer" onClick={handleViewDetails}>
+          <h3 className="text-lg font-display font-medium text-primary leading-tight hover:text-secondary transition-colors cursor-pointer tracking-wide" onClick={handleViewDetails}>
             {product.name}
           </h3>
+          {product.shortDescription && (
+            <p className="text-sm font-body text-primary/70 mt-1 italic">
+              {product.shortDescription}
+            </p>
+          )}
         </div>
 
-        {/* Price */}
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-bold text-gray-900 font-['Poppins']">
-            ₹{currentPrice.toLocaleString()}
-          </span>
-          {hasDiscount && product.comparePrice && (
-            <span className="text-base text-gray-500 line-through">
-              ₹{product.comparePrice.toLocaleString()}
+        {/* Price or Coming Soon */}
+        <div className="flex items-center space-x-3 mt-2">
+          {product.isComingSoon ? (
+            <span className="text-lg font-body font-medium text-secondary tracking-wide animate-pulse">
+              Coming Soon
             </span>
+          ) : (
+            <>
+              <span className="text-lg font-body font-medium text-primary tracking-wide">
+                ₹{currentPrice.toLocaleString()}
+              </span>
+              {hasDiscount && product.comparePrice && (
+                <span className="text-base font-body text-primary/60 line-through">
+                  ₹{product.comparePrice.toLocaleString()}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

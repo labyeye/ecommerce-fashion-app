@@ -180,11 +180,11 @@ const ProfilePage: React.FC = () => {
       name: "Bronze", 
       minPoints: 0, 
       maxPoints: 4999, 
-      color: "#CD7F32",
-      bgColor: "bg-amber-50",
-      borderColor: "border-amber-300",
-      textColor: "text-amber-800",
-      iconColor: "text-amber-600",
+      color: "#8B7355",
+      bgColor: "bg-fashion-light-brown/20",
+      borderColor: "border-fashion-light-brown",
+      textColor: "text-fashion-accent-brown",
+      iconColor: "text-fashion-accent-brown",
       icon: Star,
       benefits: [
         "1% Evolv Points on every purchase",
@@ -197,11 +197,11 @@ const ProfilePage: React.FC = () => {
       name: "Silver", 
       minPoints: 5000, 
       maxPoints: 9999, 
-      color: "#C0C0C0",
-      bgColor: "bg-gray-50",
-      borderColor: "border-gray-300",
-      textColor: "text-gray-800",
-      iconColor: "text-gray-600",
+      color: "#D4CFC7",
+      bgColor: "bg-fashion-warm-gray/20",
+      borderColor: "border-fashion-warm-gray",
+      textColor: "text-fashion-dark-gray",
+      iconColor: "text-fashion-dark-gray",
       icon: Award,
       benefits: [
         "2% Evolv Points on every purchase",
@@ -215,11 +215,11 @@ const ProfilePage: React.FC = () => {
       name: "Gold", 
       minPoints: 10000, 
       maxPoints: 999999, 
-      color: "#FFD700",
-      bgColor: "bg-yellow-50",
-      borderColor: "border-yellow-300",
-      textColor: "text-yellow-800",
-      iconColor: "text-yellow-600",
+      color: "#B5A084",
+      bgColor: "bg-fashion-nude/20",
+      borderColor: "border-fashion-nude",
+      textColor: "text-fashion-accent-brown",
+      iconColor: "text-fashion-accent-brown",
       icon: Crown,
       benefits: [
         "3% Evolv Points on every purchase",
@@ -280,11 +280,10 @@ const ProfilePage: React.FC = () => {
   }, [user, token]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white to-[#B1D182]/10 pt-24">
+    <div className="min-h-screen bg-fashion-cream pt-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        { }
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <ProfilePictureUpload
                 currentImage={userData.profileImage}
@@ -293,9 +292,9 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-[#2B463C] mb-2">{userData.name}</h1>
-              <p className="text-gray-600 mb-2">{userData.email}</p>
-              <p className="text-gray-600 mb-4">Member since {userData.joinDate}</p>
+              <h1 className="text-3xl font-light text-fashion-charcoal tracking-wide mb-3">{userData.name}</h1>
+              <p className="text-fashion-charcoal/70 mb-2">{userData.email}</p>
+              <p className="text-fashion-charcoal/60 mb-4 text-sm">Member since {userData.joinDate}</p>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="flex items-center gap-2 text-[#688F4E]">
                   <Package className="w-5 h-5" />
@@ -413,8 +412,8 @@ const ProfilePage: React.FC = () => {
         </div>
 
         { }
-        <div className="bg-white rounded-2xl shadow-lg mb-8">
-          <div className="flex flex-wrap border-b border-gray-200">
+        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
+          <div className="flex flex-wrap border-b border-fashion-charcoal/10">
             {[
               { id: "overview", label: "Overview", icon: User },
               { id: "orders", label: "Orders", icon: Package },
@@ -426,12 +425,15 @@ const ProfilePage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${activeTab === tab.id
-                    ? 'text-[#688F4E] border-b-2 border-[#688F4E]'
-                    : 'text-gray-600 hover:text-[#688F4E]'
-                    }`}
+                  className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? 'text-fashion-accent-brown border-b-2 border-fashion-accent-brown'
+                      : 'text-fashion-charcoal/70 hover:text-fashion-accent-brown'
+                  }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className={`w-5 h-5 transition-colors duration-300 ${
+                    activeTab === tab.id ? 'text-fashion-accent-brown' : 'text-fashion-charcoal/70'
+                  }`} />
                   {tab.label}
                 </button>
               );
@@ -444,27 +446,27 @@ const ProfilePage: React.FC = () => {
               <div className="space-y-6">
                 { }
                 <div>
-                  <h3 className="text-xl font-bold text-[#2B463C] mb-4">Personal Information</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                      <Mail className="w-5 h-5 text-[#688F4E]" />
+                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">Personal Information</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <Mail className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-gray-600">Email</p>
-                        <p className="font-medium">{userData.email}</p>
+                        <p className="text-sm text-fashion-charcoal/60">Email</p>
+                        <p className="text-fashion-charcoal font-medium mt-1">{userData.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                      <Phone className="w-5 h-5 text-[#688F4E]" />
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <Phone className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-gray-600">Phone</p>
-                        <p className="font-medium">{userData.phone}</p>
+                        <p className="text-sm text-fashion-charcoal/60">Phone</p>
+                        <p className="text-fashion-charcoal font-medium mt-1">{userData.phone}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg md:col-span-2">
-                      <MapPin className="w-5 h-5 text-[#688F4E]" />
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
+                      <MapPin className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-gray-600">Address</p>
-                        <p className="font-medium">{userData.address}</p>
+                        <p className="text-sm text-fashion-charcoal/60">Address</p>
+                        <p className="text-fashion-charcoal font-medium mt-1">{userData.address}</p>
                       </div>
                     </div>
                   </div>
@@ -472,27 +474,27 @@ const ProfilePage: React.FC = () => {
 
                 { }
                 <div>
-                  <h3 className="text-xl font-bold text-[#2B463C] mb-4">Quick Stats</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-[#688F4E]/10 rounded-lg">
-                      <ShoppingBag className="w-8 h-8 text-[#688F4E] mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-[#2B463C]">{userData.totalOrders}</p>
-                      <p className="text-sm text-gray-600">Total Orders</p>
+                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">Quick Stats</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <ShoppingBag className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
+                      <p className="text-2xl font-light text-fashion-charcoal">{userData.totalOrders}</p>
+                      <p className="text-sm text-fashion-charcoal/60 mt-1">Total Orders</p>
                     </div>
-                    <div className="text-center p-4 bg-[#688F4E]/10 rounded-lg">
-                      <TrendingUp className="w-8 h-8 text-[#688F4E] mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-[#2B463C]">₹{userData.totalSpent.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">Total Spent</p>
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <TrendingUp className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
+                      <p className="text-2xl font-light text-fashion-charcoal">₹{userData.totalSpent.toLocaleString()}</p>
+                      <p className="text-sm text-fashion-charcoal/60 mt-1">Total Spent</p>
                     </div>
-                    <div className="text-center p-4 bg-[#688F4E]/10 rounded-lg">
-                      <Gift className="w-8 h-8 text-[#688F4E] mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-[#2B463C]">{userData.evolvPoints}</p>
-                      <p className="text-sm text-gray-600">Evolv Points</p>
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <Gift className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
+                      <p className="text-2xl font-light text-fashion-charcoal">{userData.evolvPoints}</p>
+                      <p className="text-sm text-fashion-charcoal/60 mt-1">Evolv Points</p>
                     </div>
-                    <div className="text-center p-4 bg-[#688F4E]/10 rounded-lg">
-                      <Crown className="w-8 h-8 text-[#688F4E] mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-[#2B463C]">{userData.currentTier}</p>
-                      <p className="text-sm text-gray-600">Current Tier</p>
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                      <Crown className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
+                      <p className="text-2xl font-light text-fashion-charcoal capitalize">{userData.currentTier}</p>
+                      <p className="text-sm text-fashion-charcoal/60 mt-1">Current Tier</p>
                     </div>
                   </div>
                 </div>

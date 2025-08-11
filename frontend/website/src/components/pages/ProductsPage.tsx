@@ -60,20 +60,64 @@ const ProductPage: React.FC = () => {
       params.append('sort', sortParam);
       params.append('order', orderParam);
 
+      // Add status=active to only get active products
+      params.append('status', 'active');
+      
       const finalUrl = `${url}?${params.toString()}`;
-      console.log('Fetching from:', finalUrl);
+      console.log('Fetching products from:', finalUrl);
 
-      const response = await fetch(finalUrl);
+      const response = await fetch(finalUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
       const result = await response.json();
+      console.log('Server response:', result);
 
+      // Check the actual structure of the response
       if (result.success) {
-        setData(result.data);
+        if (result.data?.products) {
+          // Case 1: When products are nested under data
+          setData(result.data);
+        } else if (Array.isArray(result.data)) {
+          // Case 2: When data is the products array directly
+          setData({
+            products: result.data,
+            pagination: {
+              page: currentPage,
+              limit: 12,
+              total: result.data.length,
+              pages: Math.ceil(result.data.length / 12)
+            }
+          });
+        } else {
+          console.error('Unexpected data format:', result);
+          throw new Error('Unexpected response format from server');
+        }
       } else {
-        setError(result.message || 'Failed to fetch products');
+        console.error('Invalid response:', result);
+        throw new Error(result.message || 'Invalid response from server');
       }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError('Failed to load products');
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch')) {
+          setError('Could not connect to the server. Please check if the backend server is running.');
+        } else {
+          setError(`Error: ${err.message}`);
+        }
+      } else {
+        setError('An unexpected error occurred while fetching products.');
+      }
     } finally {
       setLoading(false);
     }
@@ -115,7 +159,10 @@ const ProductPage: React.FC = () => {
       <div className="min-h-screen bg-fashion-cream">
         <div className="container mx-auto px-4 py-16">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fashion-accent-brown"></div>
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fashion-accent-brown mx-auto mb-4"></div>
+              <p className="text-fashion-charcoal/70">Loading products...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -126,15 +173,31 @@ const ProductPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-fashion-cream">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
+          <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-3xl font-light text-fashion-charcoal mb-4">Oops!</h1>
-            <p className="text-fashion-charcoal/70 mb-8">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-fashion-accent-brown text-white px-6 py-3 rounded-fashion hover:bg-fashion-accent-brown/90 transition-colors"
-            >
-              Try Again
-            </button>
+            <div className="bg-red-50 border border-red-200 rounded-fashion p-4 mb-8">
+              <p className="text-fashion-charcoal/70 mb-2">{error}</p>
+              <p className="text-sm text-fashion-charcoal/50">
+                If the issue persists, please make sure:
+                <br />1. The backend server is running at https://ecommerce-fashion-app.onrender.com
+                <br />2. You have an active internet connection
+                <br />3. You have the required permissions
+              </p>
+            </div>
+            <div className="space-x-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-fashion-accent-brown text-white px-6 py-3 rounded-fashion hover:bg-fashion-accent-brown/90 transition-colors"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => window.location.href = '/'}
+                className="bg-white border border-fashion-charcoal/20 text-fashion-charcoal px-6 py-3 rounded-fashion hover:bg-fashion-cream transition-colors"
+              >
+                Go to Homepage
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -202,16 +265,46 @@ const ProductPage: React.FC = () => {
 
       {/* Products Grid */}
       <div className="container mx-auto px-4 py-12">
-        {data?.products && data.products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {data.products.map((product) => (
-                <ProductCard
-                  key={product._id || product.id}
-                  product={product}
-                />
-              ))}
+        {loading ? (
+          <div className="text-center py-16">
+            <h3 className="text-2xl font-light text-fashion-charcoal mb-4">Loading Products...</h3>
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
             </div>
+          </div>
+        ) : data ? (
+          <>
+            {data.products && data.products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                {data.products.map((product) => (
+                  <div key={product._id || product.id} className="group relative transition-all duration-300 hover:z-10">
+                    <ProductCard
+                      key={product._id || product.id}
+                      product={product}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <h3 className="text-2xl font-light text-fashion-charcoal mb-4">No products found</h3>
+                <p className="text-fashion-charcoal/70 mb-8">
+                  {categoryParam
+                    ? `No products available in this category yet`
+                    : searchQuery
+                    ? `No products match your search "${searchQuery}"`
+                    : 'No products available at the moment'}
+                </p>
+                {(categoryParam || searchQuery) && (
+                  <a
+                    href="/products"
+                    className="inline-block bg-fashion-accent-brown text-white px-6 py-3 rounded-fashion hover:bg-fashion-accent-brown/90 transition-colors"
+                  >
+                    View All Products
+                  </a>
+                )}
+              </div>
+            )}
 
             {/* Pagination */}
             {data.pagination && data.pagination.pages > 1 && (
@@ -255,18 +348,10 @@ const ProductPage: React.FC = () => {
           </>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-light text-fashion-charcoal mb-4">No products found</h3>
-            <p className="text-fashion-charcoal/70 mb-8">
-              {data?.category
-                ? `No products available in ${data.category.name} category`
-                : 'No products match your current filters'}
-            </p>
-            <a
-              href="/products"
-              className="inline-block bg-fashion-accent-brown text-white px-6 py-3 rounded-fashion hover:bg-fashion-accent-brown/90 transition-colors"
-            >
-              View All Products
-            </a>
+            <h3 className="text-2xl font-light text-fashion-charcoal mb-4">Loading Products...</h3>
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
+            </div>
           </div>
         )}
       </div>

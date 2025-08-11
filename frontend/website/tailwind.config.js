@@ -3,9 +3,17 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      colors: {
+        primary: '#A79277',
+        secondary: '#D1BB9E',
+        tertiary: '#EAD8C0',
+        background: '#FFF2E1',
+      },
       fontFamily: {
-        'sans': ['Poppins', 'Inter', 'Helvetica Neue', 'sans-serif'],
-        'poppins': ['Poppins', 'sans-serif'],
+        'sans': ['Playfair Display', 'Cormorant Garamond', 'Baskerville', 'Georgia', 'serif'],
+        'serif': ['Playfair Display', 'Cormorant Garamond', 'Baskerville', 'Georgia', 'serif'],
+        'display': ['Playfair Display', 'serif'],
+        'body': ['Cormorant Garamond', 'Georgia', 'serif'],
       },
       fontWeight: {
         'thin': '100',

@@ -17,6 +17,18 @@ const categorySchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  shortDescription: {
+    type: String,
+    trim: true
+  },
+  featured: {
+    type: Boolean,
+    default: false
+  },
+  displayOrder: {
+    type: Number,
+    default: 0
+  },
   image: {
     url: String,
     alt: String

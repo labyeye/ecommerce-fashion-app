@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, Star, Truck, Shield, RefreshCw, ChevronLeft, ChevronRight, Ruler, X } from 'lucide-react';
+import { Heart, Star, Truck, Shield, RefreshCw, ChevronLeft, ChevronRight, Ruler, X, Lock } from 'lucide-react';
 import { useCartContext } from '../../context/CartContext';
 import { getProductById, Product } from '../../services/productService';
+import { useLoyaltyTier } from '../../hooks/useLoyaltyTier';
+import { canAccessProduct } from '../../hooks/useProductAccess';
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCartContext();
+  const userTier = useLoyaltyTier();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -15,6 +18,8 @@ const ProductDetailsPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
+  const hasAccess = product ? canAccessProduct(product, userTier) : true;
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'care' | 'reviews'>('description');
@@ -23,17 +28,36 @@ const ProductDetailsPage: React.FC = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!id) return;
+      if (!id) {
+        setError('No product ID provided');
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
         const fetchedProduct = await getProductById(id);
+        
+        if (!fetchedProduct) {
+          throw new Error('Product not found');
+        }
+
         setProduct(fetchedProduct);
-        setSelectedColor(fetchedProduct.colors?.[0]?.name || '');
+        
+        // Set initial color if available
+        if (Array.isArray(fetchedProduct.colors) && fetchedProduct.colors.length > 0) {
+          setSelectedColor(fetchedProduct.colors[0].name);
+        }
+        
+        // Reset size selection
         setSelectedSize('');
+        
+        // Reset error state
+        setError(null);
       } catch (err) {
         console.error('Error fetching product:', err);
-        setError('Failed to load product. Please try again later.');
+        setError(err instanceof Error ? err.message : 'Failed to load product');
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -42,10 +66,20 @@ const ProductDetailsPage: React.FC = () => {
     fetchProduct();
   }, [id]);
 
+  // Compute derived state with proper null checks
   const currentColor = product?.colors?.find(color => color.name === selectedColor);
-  const currentImages = currentColor?.images || product?.images || [];
+  const currentImages = React.useMemo(() => {
+    if (currentColor?.images?.length) {
+      return currentColor.images;
+    }
+    if (product?.images?.length) {
+      return product.images;
+    }
+    return [];
+  }, [currentColor, product]);
+  
   const currentPrice = product?.salePrice || product?.price || 0;
-  const hasDiscount = product?.comparePrice && product.comparePrice > currentPrice;
+  const hasDiscount = Boolean(product?.comparePrice && product.comparePrice > currentPrice);
   const discountPercentage = hasDiscount && product?.comparePrice 
     ? Math.round(((product.comparePrice - currentPrice) / product.comparePrice) * 100) 
     : 0;
@@ -63,7 +97,12 @@ const ProductDetailsPage: React.FC = () => {
   const displayImages = currentImages.length > 0 ? currentImages : [{ url: fallbackImage, alt: product?.name || 'Product Image' }];
 
   const handleAddToCart = () => {
-    if (!product || !selectedSize) return;
+    if (!product || !selectedSize || !hasAccess) {
+      if (!hasAccess) {
+        alert(`This product is only available for ${product?.minLoyaltyTier?.toUpperCase()} members and above`);
+      }
+      return;
+    }
     
     const selectedSizeData = product.sizes?.find(s => s.size === selectedSize);
     const selectedColorData = product.colors?.find(c => c.name === selectedColor);

@@ -12,9 +12,19 @@ router.use(protect);
 // @route   POST /api/payments/create-order
 // @access  Private (Customer)
 router.post('/create-order', async (req, res) => {
+  let savedOrder = null;
+
   try {
     const orderData = req.body;
     const { items, shippingAddress, billingAddress, subtotal, shippingCost, tax, total, promoCode, evolvPointsToRedeem } = orderData;
+
+    // Validate required fields
+    if (!total || total <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid order total'
+      });
+    }
 
     // Create the order first
     const newOrder = new Order({
@@ -25,7 +35,7 @@ router.post('/create-order', async (req, res) => {
         price: item.price,
         size: item.size,
         color: item.color,
-        total: item.itemTotal // Map itemTotal to total for the Order model
+        total: item.itemTotal
       })),
       shippingAddress,
       billingAddress,
@@ -39,54 +49,64 @@ router.post('/create-order', async (req, res) => {
         status: 'pending',
         gateway: 'razorpay',
         currency: 'INR',
-        razorpay: {} // Initialize empty razorpay object
+        razorpay: {}
       },
       status: 'pending',
       ...(promoCode && { promoCode }),
       evolvPointsToRedeem: evolvPointsToRedeem || 0
     });
 
-    // Save the order
-    const savedOrder = await newOrder.save();
+    // Save the initial order
+    savedOrder = await newOrder.save();
 
-    // Create Razorpay order
-    const razorpayOrderResponse = await createRazorpayOrder(
-      total,
-      'INR',
-      `order_${savedOrder.orderNumber}`
-    );
+    try {
+      // Create Razorpay order
+      const razorpayOrderResponse = await createRazorpayOrder(
+        total,
+        'INR',
+        `order_${savedOrder.orderNumber}`
+      );
 
-    if (!razorpayOrderResponse.success) {
-      // Delete the created order if Razorpay order creation fails
-      await Order.findByIdAndDelete(savedOrder._id);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to create payment order',
-        error: razorpayOrderResponse.error
-      });
-    }
-
-    // Update order with Razorpay order ID
-    savedOrder.payment.razorpay.orderId = razorpayOrderResponse.data.id;
-    await savedOrder.save();
-
-    res.status(200).json({
-      success: true,
-      data: {
-        id: razorpayOrderResponse.data.id,
-        amount: razorpayOrderResponse.data.amount,
-        currency: razorpayOrderResponse.data.currency,
-        razorpay_key_id: process.env.RAZORPAY_KEY_ID,
-        order_id: savedOrder._id,
-        orderNumber: savedOrder.orderNumber,
-        total: savedOrder.total
+      if (!razorpayOrderResponse || !razorpayOrderResponse.data || !razorpayOrderResponse.data.id) {
+        throw new Error('Invalid response from payment gateway');
       }
-    });
+
+      // Update the order with Razorpay details
+      savedOrder.payment.razorpay = {
+        orderId: razorpayOrderResponse.data.id,
+        amount: razorpayOrderResponse.data.amount,
+        currency: razorpayOrderResponse.data.currency
+      };
+      await savedOrder.save();
+      // Return success response
+      return res.status(200).json({
+        success: true,
+        data: {
+          id: razorpayOrderResponse.data.id,
+          amount: razorpayOrderResponse.data.amount,
+          currency: razorpayOrderResponse.data.currency,
+          razorpay_key_id: process.env.RAZORPAY_KEY_ID,
+          order_id: savedOrder._id,
+          orderNumber: savedOrder.orderNumber,
+          total: savedOrder.total
+        }
+      });
+    } catch (paymentError) {
+      // If Razorpay order creation fails, delete the saved order
+      if (savedOrder) {
+        await Order.findByIdAndDelete(savedOrder._id);
+      }
+      throw new Error(`Payment gateway error: ${paymentError.message}`);
+    }
   } catch (error) {
     console.error('Create payment order error:', error);
+    // If the saved order exists but we reached an error, clean it up
+    if (savedOrder && savedOrder._id) {
+      await Order.findByIdAndDelete(savedOrder._id).catch(console.error);
+    }
     res.status(500).json({
       success: false,
-      message: 'Server error while creating payment order',
+      message: 'Failed to create payment order',
       error: error.message
     });
   }

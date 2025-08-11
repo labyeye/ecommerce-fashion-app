@@ -94,10 +94,10 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
       ></div>
 
       {/* Cart Panel */}
-      <div className="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out">
+      <div className="fixed top-0 right-0 h-full w-full sm:w-[95%] md:w-[90%] max-w-md bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <ShoppingBag className="w-6 h-6 text-[#688F4E]" />
             <h2 className="text-xl font-bold text-[#2B463C]">Your Cart</h2>
             <span className="bg-[#688F4E] text-white text-sm px-2 py-1 rounded-full">

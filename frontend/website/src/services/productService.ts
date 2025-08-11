@@ -14,6 +14,7 @@ export interface Product {
   sku?: string;
   category?: string;
   brand?: string;
+  minLoyaltyTier?: 'bronze' | 'silver' | 'gold';
   sizes: Array<{
     size: string;
     stock: number;
@@ -68,31 +69,35 @@ export const getProducts = async (): Promise<Product[]> => {
     const products = Array.isArray(response.data.data) ? response.data.data : response.data.data.products || [];
     
     return products.map((product: any) => ({
-      _id: product._id,
-      id: product._id, // Map _id to id for compatibility
-      name: product.name,
-      description: product.description,
-      shortDescription: product.shortDescription,
-      price: product.price,
-      comparePrice: product.comparePrice,
-      salePrice: product.salePrice,
-      sku: product.sku,
-      category: product.category,
-      brand: product.brand,
-      sizes: product.sizes || [],
-      colors: product.colors || [],
-      images: product.images || [],
-      material: product.material,
-      careInstructions: product.careInstructions,
-      fit: product.fit,
-      tags: product.tags,
-      status: product.status,
-      isFeatured: product.isFeatured,
-      isNewArrival: product.isNewArrival,
-      isBestSeller: product.isBestSeller,
-      ratings: product.ratings,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt
+      _id: product._id || '',
+      id: product._id || '', // Map _id to id for compatibility
+      name: product.name || '',
+      description: product.description || '',
+      shortDescription: product.shortDescription || '',
+      price: Number(product.price) || 0,
+      comparePrice: Number(product.comparePrice) || 0,
+      salePrice: Number(product.salePrice) || 0,
+      sku: product.sku || '',
+      category: product.category || '',
+      brand: product.brand || '',
+      minLoyaltyTier: product.minLoyaltyTier || 'bronze',
+      sizes: Array.isArray(product.sizes) ? product.sizes : [],
+      colors: Array.isArray(product.colors) ? product.colors.map((color: any) => ({
+        ...color,
+        images: Array.isArray(color.images) ? color.images : []
+      })) : [],
+      images: Array.isArray(product.images) ? product.images : [],
+      material: product.material || '',
+      careInstructions: product.careInstructions || '',
+      fit: product.fit || 'regular',
+      tags: Array.isArray(product.tags) ? product.tags : [],
+      status: product.status || 'active',
+      isFeatured: Boolean(product.isFeatured),
+      isNewArrival: Boolean(product.isNewArrival),
+      isBestSeller: Boolean(product.isBestSeller),
+      ratings: product.ratings || { average: 0, count: 0 },
+      createdAt: product.createdAt || new Date().toISOString(),
+      updatedAt: product.updatedAt || new Date().toISOString()
     }));
   } catch (error: any) {
     console.error('Error fetching products:', error);
@@ -118,39 +123,52 @@ export const getProductById = async (id: string): Promise<Product> => {
     const response = await axios.get(`${API_URL}/${id}`);
     console.log('Product API Response:', response.data); // Debug log
     
-    // Backend returns { success: true, data: { product: {...}, relatedProducts: [...] } }
-    const productData = response.data.data.product;
+    // Check different response structures
+    const productData = response.data.data?.product || response.data.data || null;
     
     if (!productData) {
       throw new Error('Product not found in response');
     }
     
+    // Ensure all required arrays are initialized with proper type handling
     return {
-      _id: productData._id,
-      id: productData._id,
-      name: productData.name,
-      description: productData.description,
-      shortDescription: productData.shortDescription,
-      price: productData.price,
-      comparePrice: productData.comparePrice,
-      salePrice: productData.salePrice,
-      sku: productData.sku,
-      category: productData.category,
-      brand: productData.brand,
-      sizes: productData.sizes || [],
-      colors: productData.colors || [],
-      images: productData.images || [],
-      material: productData.material,
-      careInstructions: productData.careInstructions,
-      fit: productData.fit,
-      tags: productData.tags,
-      status: productData.status,
-      isFeatured: productData.isFeatured,
-      isNewArrival: productData.isNewArrival,
-      isBestSeller: productData.isBestSeller,
-      ratings: productData.ratings,
-      createdAt: productData.createdAt,
-      updatedAt: productData.updatedAt
+      _id: productData._id || '',
+      id: productData._id || '',
+      name: productData.name || '',
+      description: productData.description || '',
+      shortDescription: productData.shortDescription || '',
+      price: Number(productData.price) || 0,
+      comparePrice: Number(productData.comparePrice) || 0,
+      salePrice: Number(productData.salePrice) || 0,
+      sku: productData.sku || '',
+      category: productData.category || '',
+      brand: productData.brand || '',
+      sizes: Array.isArray(productData.sizes) ? productData.sizes.map((size: any) => ({
+        size: size.size || '',
+        stock: Number(size.stock) || 0,
+        price: Number(size.price) || 0
+      })) : [],
+      colors: Array.isArray(productData.colors) ? productData.colors.map((color: any) => ({
+        name: color.name || '',
+        hexCode: color.hexCode || '#000000',
+        stock: Number(color.stock) || 0,
+        images: Array.isArray(color.images) ? color.images.map((img: any) => ({
+          url: img.url || '',
+          alt: img.alt || ''
+        })) : []
+      })) : [],
+      images: Array.isArray(productData.images) ? productData.images : [],
+      material: productData.material || '',
+      careInstructions: productData.careInstructions || '',
+      fit: productData.fit || 'regular',
+      tags: Array.isArray(productData.tags) ? productData.tags : [],
+      status: productData.status || 'active',
+      isFeatured: Boolean(productData.isFeatured),
+      isNewArrival: Boolean(productData.isNewArrival),
+      isBestSeller: Boolean(productData.isBestSeller),
+      ratings: productData.ratings || { average: 0, count: 0 },
+      createdAt: productData.createdAt || new Date().toISOString(),
+      updatedAt: productData.updatedAt || new Date().toISOString()
     };
   } catch (error: any) {
     console.error('Error fetching product:', error);

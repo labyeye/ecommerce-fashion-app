@@ -1,8 +1,20 @@
-import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider, useCartContext } from './context/CartContext';
 import Header from "./components/Home/Header";
+
+// ScrollToTopOnMount component
+function ScrollToTopOnMount() {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    // Scroll to top immediately when the route changes
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 import Cart, { CartItem } from "./components/Home/Cart";
 import Footer from "./components/Home/Footer";
 import HomePage from "./components/pages/HomePage";
@@ -26,6 +38,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
+          <ScrollToTopOnMount />
           <div className="min-h-screen bg-white">
             <HeaderWithCartCount onCartClick={() => setIsCartOpen(true)} />
             <Routes>

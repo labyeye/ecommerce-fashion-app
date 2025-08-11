@@ -124,6 +124,34 @@ router.get('/categories', async (req, res) => {
   }
 });
 
+// @desc    Get product by ID
+// @route   GET /api/admin/products/:id
+// @access  Admin only
+router.get('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate('category', 'name');
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: product
+    });
+  } catch (error) {
+    console.error('Get product error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product'
+    });
+  }
+});
+
 // @desc    Get all users (customers)
 // @route   GET /api/admin/users
 // @access  Admin only
@@ -657,8 +685,17 @@ router.put('/products/:id', async (req, res) => {
       });
     }
 
-    // Update product
-    Object.assign(product, req.body);
+    // Update product with boolean field handling
+    const updatedFields = { ...req.body };
+    
+    // Ensure boolean fields are properly set
+    ['isFeatured', 'isNewArrival', 'isBestSeller', 'isComingSoon'].forEach(field => {
+      if (updatedFields.hasOwnProperty(field)) {
+        updatedFields[field] = Boolean(updatedFields[field]);
+      }
+    });
+    
+    Object.assign(product, updatedFields);
     await product.save();
 
     res.status(200).json({

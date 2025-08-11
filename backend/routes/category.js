@@ -34,12 +34,146 @@ const upload = multer({
   }
 });
 
-// Get all categories (for dropdown and navigation)
-router.get('/', auth, adminAuth, async (req, res) => {
+// Create new category
+router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
   try {
-    const categories = await Category.find({ isActive: true })
-      .populate('parentCategory', 'name slug')
-      .sort({ sortOrder: 1, name: 1 });
+    const { name, description, shortDescription, featured, displayOrder } = req.body;
+    
+    // Create slug from name
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    
+    // Check if category with same slug exists
+    const existingCategory = await Category.findOne({ slug });
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        error: 'Category with this name already exists'
+      });
+    }
+
+    const categoryData = {
+      name,
+      slug,
+      description,
+      shortDescription,
+      featured: featured === 'true',
+      displayOrder: parseInt(displayOrder) || 0
+    };
+
+    if (req.file) {
+      categoryData.image = {
+        url: '/uploads/categories/' + req.file.filename,
+        alt: name
+      };
+    }
+
+    const category = await Category.create(categoryData);
+
+    res.status(201).json({
+      success: true,
+      data: category
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create category'
+    });
+  }
+});
+
+// Update category
+router.put('/:id', auth, adminAuth, upload.single('image'), async (req, res) => {
+  try {
+    const { name, description, shortDescription, featured, displayOrder } = req.body;
+    const categoryId = req.params.id;
+
+    const updateData = {
+      name,
+      description,
+      shortDescription,
+      featured: featured === 'true',
+      displayOrder: parseInt(displayOrder) || 0
+    };
+
+    if (req.file) {
+      updateData.image = {
+        url: '/uploads/categories/' + req.file.filename,
+        alt: name
+      };
+    }
+
+    const category = await Category.findByIdAndUpdate(
+      categoryId,
+      updateData,
+      { new: true }
+    );
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: category
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update category'
+    });
+  }
+});
+
+// Delete category
+router.delete('/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+    
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete category'
+    });
+  }
+});
+
+// Get all categories
+router.get('/', async (req, res) => {
+  try {
+    const categories = await Category.find()
+      .sort({ displayOrder: 1, name: 1 });
+
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch categories'
+    });
+  }
+});
+
+// Get featured categories for homepage
+router.get('/featured', async (req, res) => {
+  try {
+    const categories = await Category.find({ featured: true })
+      .sort({ displayOrder: 1, name: 1 });
 
     res.json({
       success: true,

@@ -1,19 +1,79 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCard, { Product } from './ProductCard';
 
 interface ProductSliderProps {
-  products: Product[];
-  title?: string;
+  type: 'featured' | 'new-arrivals' | 'best-sellers' | 'coming-soon';
   autoPlayInterval?: number;
 }
 
-const ProductSlider: React.FC<ProductSliderProps> = ({
-  products,
-  title = "Featured Products",
-  autoPlayInterval = 4000
-}) => {
+interface SliderConfig {
+  title: string;
+  description: string;
+  apiEndpoint: string;
+  emptyMessage: string;
+}
+
+const sliderConfigs: Record<ProductSliderProps['type'], SliderConfig> = {
+    'featured': {
+    title: 'Featured Collection',
+    description: 'Hand-picked favorites just for you',
+    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?featured=true',
+    emptyMessage: 'No featured products available yet'
+  },
+  'new-arrivals': {
+    title: 'New Arrivals',
+    description: 'Fresh off the runway, straight to your wardrobe',
+    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isNewArrival=true',
+    emptyMessage: 'New arrivals coming soon'
+  },
+  'best-sellers': {
+    title: 'Best Sellers',
+    description: 'Most loved by our fashion community',
+    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isBestSeller=true',
+    emptyMessage: 'Stay tuned for our best sellers'
+  },
+  'coming-soon': {
+    title: 'Coming Soon',
+    description: 'Preview our upcoming collections',
+    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isComingSoon=true',
+    emptyMessage: 'No upcoming products at the moment'
+  }
+};
+
+const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
+
+  // Reset current index when products change
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [products]);
+
+  const config = sliderConfigs[type];
+
+
+  // Update visible count based on window size
+  // Fetch products based on type
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(config.apiEndpoint);
+        setProducts(response.data.data);
+      } catch (err) {
+        setError('Failed to load products');
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [config.apiEndpoint]);
 
   // Update visible count based on window size
   useEffect(() => {
@@ -32,7 +92,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
 
   // Auto-play functionality
   useEffect(() => {
-    if (products.length === 0) return;
+    if (!products || products.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => 
@@ -41,65 +101,107 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
     }, autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, [products.length, autoPlayInterval]);
-
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
+  }, [products, autoPlayInterval]);
 
   const getVisibleProducts = () => {
-    const visibleProducts = [];
+    if (!products || products.length === 0) return [];
     
-    for (let i = 0; i < visibleCount && i < products.length; i++) {
-      const index = (currentIndex + i) % products.length;
+    const visibleProducts = [];
+    const totalProducts = products.length;
+    
+    for (let i = 0; i < visibleCount && i < totalProducts; i++) {
+      const index = (currentIndex + i) % totalProducts;
       visibleProducts.push(products[index]);
     }
     
     return visibleProducts;
   };
 
+  if (loading) {
+    return (
+      <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background">
+        <div className="w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {[...Array(visibleCount)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="aspect-[3/4] bg-primary/10 rounded-lg mb-4"></div>
+                <div className="h-4 bg-primary/10 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-primary/10 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-primary/80 font-body">{error}</p>
+        </div>
+      </section>
+    );
+  }
+
   if (products.length === 0) {
     return (
-      <div className="w-screen py-16 bg-gradient-to-br from-white via-[#F4F1E9]/30 to-white -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="w-full px-4 text-center">
-          <p className="text-gray-600">Loading amazing products...</p>
+      <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl sm:text-5xl font-display text-primary mb-4">{config.title}</h2>
+          <p className="text-primary/80 font-body text-lg">{config.emptyMessage}</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <section className="w-screen py-20 bg-gradient-to-br from-white via-[#F4F1E9]/30 to-white -mx-4 sm:-mx-6 lg:-mx-8">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+    <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            <span className="bg-[#000000] bg-clip-text text-transparent">
-              {title}
-            </span>
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-5xl font-display text-primary mb-4">
+            {config.title}
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover our latest collection with auto-rotating showcase
+          <p className="text-primary/80 font-body text-lg max-w-2xl mx-auto">
+            {config.description}
           </p>
         </div>
 
-        {/* Products Slider - Full Screen Width */}
-        <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-8">
-          <div className="max-w-none">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 xl:gap-8">
-              {getVisibleProducts().map((product, index) => (
-                <div
-                  key={`${product._id || product.id}-${currentIndex}-${index}`}
-                  className="w-full transform transition-all duration-700 ease-in-out"
-                  style={{
-                    animationDelay: `${index * 150}ms`,
-                  }}
-                >
-                  <ProductCard product={product} />
-                </div>
+        {/* Products Slider */}
+        <div className="overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+            {getVisibleProducts().map((product, index) => (
+              <div
+                key={`${product._id}-${index}`}
+                className="transform transition-all duration-700 ease-in-out"
+                style={{
+                  animationDelay: `${index * 150}ms`,
+                }}
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          {/* Navigation Dots */}
+          {products.length > visibleCount && (
+            <div className="flex justify-center items-center space-x-2 mt-8">
+              {[...Array(Math.ceil(products.length / visibleCount))].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index * visibleCount)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    Math.floor(currentIndex / visibleCount) === index
+                      ? 'bg-primary w-4'
+                      : 'bg-primary/30'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

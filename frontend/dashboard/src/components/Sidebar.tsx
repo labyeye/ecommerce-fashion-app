@@ -13,7 +13,9 @@ import {
   LogOut,
   User,
   Percent,
+  Image,
   Navigation,
+  FileText,
   Folder
 } from 'lucide-react';
 
@@ -33,6 +35,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => 
     { id: 'products', icon: Package, label: 'Products' },
     { id: 'categories', icon: Folder, label: 'Categories' },
     { id: 'marketing', icon: Megaphone, label: 'Marketing' },
+    { id: 'heroes', icon: Image, label: 'Hero Slider' },
+    { id: 'blogs', icon: FileText, label: 'Blogs' },
     { id: 'promo-codes', icon: Percent, label: 'Promo Codes' },
     { id: 'navigation', icon: Navigation, label: 'Navigation' },
     { id: 'alerts', icon: AlertTriangle, label: 'Alerts' },

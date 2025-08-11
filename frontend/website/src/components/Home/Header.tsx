@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X, Search, Heart, User, LogOut, Crown, Award, Medal, ChevronDown } from "lucide-react";
+import { ShoppingCart, Search, Heart, User, LogOut, Crown, Award, Medal, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
+import logo from "../../assets/images/logoblack.png";
 interface HeaderProps {
   cartCount: number;
   onCartClick: () => void;
@@ -82,6 +82,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
 
@@ -192,7 +193,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     >
                       <a
                         href={link.url}
-                        className={`text-xl font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        className={`text-md font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
@@ -223,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-xl font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-md font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -237,9 +238,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           <div className="flex items-center justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
             <a href="/" className="flex items-center">
               <div className="relative">
-                <div className={`text-2xl md:text-3xl font-light tracking-wider transition-colors duration-300 ${getLogoColorClass()}`}>
-                  <span className="font-medium text-md">Flaunt</span>
-                  <span className={`text-xl ml-2 transition-colors duration-300 ${getLogoColorClass()}`}>by Nishi</span>
+                <div className="w-24 h-24">
+                  <img src={logo} alt="Flaunt by Nishi"/>
                 </div>
               </div>
             </a>
@@ -346,44 +346,77 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              {isMenuOpen ? (
-                <X className="w-4 h-4" />
-              ) : (
-                <Menu className="w-4 h-4" />
-              )}
+              <div className="relative w-5 h-5">
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1'
+                  }`}
+                />
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${
+                    isMenuOpen ? 'opacity-0' : 'opacity-100'
+                  }`}
+                />
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1'
+                  }`}
+                />
+              </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden glass-dark backdrop-blur-lg border-b border-fashion-charcoal/10">
-            <nav className="px-6 py-6 space-y-4">
+        <div 
+          className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
+            isMenuOpen 
+              ? 'translate-y-0 opacity-100' 
+              : '-translate-y-full opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="h-[calc(100vh-4rem)] overflow-y-auto">
+            <nav className="px-6 py-8 space-y-6">
               {navigationLinks
                 .filter(link => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
-                .map((link) => (
-                  <div key={link._id}>
+                .map((link, index) => (
+                  <div 
+                    key={link._id} 
+                    className={`py-1 transition-all duration-500 ease-out transform ${
+                      isMenuOpen 
+                        ? 'translate-y-0 opacity-100' 
+                        : 'translate-y-4 opacity-0'
+                    }`}
+                    style={{
+                      transitionDelay: `${150 + (index * 50)}ms`
+                    }}
+                  >
                     <a
                       href={link.url}
-                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-base tracking-wide flex items-center justify-between"
+                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-lg sm:text-xl tracking-wide flex items-center justify-between"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
-                      {link.hasDropdown && <ChevronDown className="w-4 h-4" />}
+                      {link.hasDropdown && <ChevronDown className="w-5 h-5" />}
                     </a>
                     
                     {/* Mobile Dropdown Items */}
                     {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 && (
-                      <div className="ml-4 mt-2 space-y-2">
+                      <div className="ml-4 mt-3 space-y-3 overflow-hidden">
                         {link.dropdownItems
                           .filter(item => item.isActive)
                           .sort((a, b) => a.sortOrder - b.sortOrder)
-                          .map((item, index) => (
+                          .map((item, dropdownIndex) => (
                             <a
-                              key={index}
+                              key={dropdownIndex}
                               href={item.url}
-                              className="block text-fashion-charcoal/70 hover:text-fashion-accent-brown transition-colors duration-300 text-sm"
+                              className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base sm:text-lg transform"
+                              style={{
+                                opacity: isMenuOpen ? 1 : 0,
+                                transform: `translateX(${isMenuOpen ? '0' : '-10px'})`,
+                                transitionDelay: `${(index * 50) + (dropdownIndex * 30)}ms`
+                              }}
                               onClick={() => setIsMenuOpen(false)}
                             >
                               {item.name}
@@ -450,10 +483,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               </div>
             </nav>
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
 };
+
 
 export default Header;

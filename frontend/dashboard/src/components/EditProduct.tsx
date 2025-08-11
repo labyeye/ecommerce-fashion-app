@@ -41,6 +41,8 @@ interface Product {
   isFeatured: boolean;
   isNewArrival: boolean;
   isBestSeller: boolean;
+  isComingSoon?: boolean;
+  minLoyaltyTier: 'bronze' | 'silver' | 'gold';
 }
 
 interface Category {
@@ -73,6 +75,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     salePrice: 0,
     category: '',
     status: 'active' as 'active' | 'draft' | 'inactive',
+    minLoyaltyTier: 'bronze' as 'bronze' | 'silver' | 'gold',
     material: '',
     careInstructions: '',
     fit: 'regular' as 'slim' | 'regular' | 'loose' | 'oversized',
@@ -80,6 +83,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     isFeatured: false,
     isNewArrival: false,
     isBestSeller: false,
+    isComingSoon: false,
     sizes: [] as Array<{ size: string; stock: number; price?: number }>,
     colors: [] as Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>,
     images: [] as Array<{ url: string; alt: string; isPrimary: boolean }>
@@ -88,108 +92,91 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   const [newTag, setNewTag] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  // Helper function to initialize form data from product data
+  const initializeFormData = (productData: any) => {
+    return {
+      name: productData.name || '',
+      description: productData.description || '',
+      shortDescription: productData.shortDescription || '',
+      sku: productData.sku || '',
+      price: productData.price || 0,
+      comparePrice: productData.comparePrice || 0,
+      salePrice: productData.salePrice || 0,
+      category: typeof productData.category === 'string' ? productData.category : productData.category?._id || '',
+      status: productData.status || 'active',
+      minLoyaltyTier: productData.minLoyaltyTier || 'bronze',
+      material: productData.material || '',
+      careInstructions: productData.careInstructions || '',
+      fit: productData.fit || 'regular',
+      tags: productData.tags || [],
+      isFeatured: productData.isFeatured || false,
+      isNewArrival: productData.isNewArrival || false,
+      isBestSeller: productData.isBestSeller || false,
+      isComingSoon: productData.isComingSoon || false,
+      sizes: productData.sizes || [],
+      colors: productData.colors || [],
+      images: productData.images || []
+    };
+  };
+
   // Fetch product data
   useEffect(() => {
     const fetchProduct = async () => {
-  try {
-    setLoading(true);
-    const token = localStorage.getItem('dashboard_token');
-    
-    if (!token) {
-      setError('No authentication token found');
-      return;
-    }
-
-    // First try to get the specific product
-    let response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/products/${productId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // If single product endpoint doesn't exist, get all products and filter
-    if (response.status === 404) {
-      console.log('Single product endpoint not found, fetching all products...');
-      response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/products`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // Find the specific product in the list
-        const productData = data.data.products.find((p: any) => p._id === productId);
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('dashboard_token');
         
-        if (!productData) {
-          throw new Error('Product not found');
+        if (!token) {
+          setError('No authentication token found');
+          return;
         }
-        
-        setProduct(productData);
-        
-        // Set form data
-        setFormData({
-          name: productData.name || '',
-          description: productData.description || '',
-          shortDescription: productData.shortDescription || '',
-          sku: productData.sku || '',
-          price: productData.price || 0,
-          comparePrice: productData.comparePrice || 0,
-          salePrice: productData.salePrice || 0,
-          category: typeof productData.category === 'string' ? productData.category : productData.category?._id || '',
-          status: productData.status || 'active',
-          material: productData.material || '',
-          careInstructions: productData.careInstructions || '',
-          fit: productData.fit || 'regular',
-          tags: productData.tags || [],
-          isFeatured: productData.isFeatured || false,
-          isNewArrival: productData.isNewArrival || false,
-          isBestSeller: productData.isBestSeller || false,
-          sizes: productData.sizes || [],
-          colors: productData.colors || [],
-          images: productData.images || []
+
+        // First try to get the specific product
+        let response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/products/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         });
-      }
-    } else if (!response.ok) {
-      throw new Error('Failed to fetch product');
-    } else {
-      // Single product endpoint exists
-      const data = await response.json();
-      
-      if (data.success) {
-        const productData = data.data;
-        setProduct(productData);
-        
-        // Set form data
-        setFormData({
-          name: productData.name || '',
-          description: productData.description || '',
-          shortDescription: productData.shortDescription || '',
-          sku: productData.sku || '',
-          price: productData.price || 0,
-          comparePrice: productData.comparePrice || 0,
-          salePrice: productData.salePrice || 0,
-          category: typeof productData.category === 'string' ? productData.category : productData.category?._id || '',
-          status: productData.status || 'active',
-          material: productData.material || '',
-          careInstructions: productData.careInstructions || '',
-          fit: productData.fit || 'regular',
-          tags: productData.tags || [],
-          isFeatured: productData.isFeatured || false,
-          isNewArrival: productData.isNewArrival || false,
-          isBestSeller: productData.isBestSeller || false,
-          sizes: productData.sizes || [],
-          colors: productData.colors || [],
-          images: productData.images || []
-        });
-      }
+
+        // If single product endpoint doesn't exist, get all products and filter
+        if (response.status === 404) {
+          console.log('Single product endpoint not found, fetching all products...');
+          response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/products`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch products');
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            // Find the specific product in the list
+            const productData = data.data.products.find((p: any) => p._id === productId);
+            
+            if (!productData) {
+              throw new Error('Product not found');
+            }
+            
+            setProduct(productData);
+            setFormData(initializeFormData(productData));
+          }
+        } else if (!response.ok) {
+          throw new Error('Failed to fetch product');
+        } else {
+          // Single product endpoint exists
+          const data = await response.json();
+          
+          if (data.success) {
+            const productData = data.data;
+            setProduct(productData);
+            setFormData(initializeFormData(productData));
+          }
     }
   } catch (err) {
     setError(err instanceof Error ? err.message : 'Failed to fetch product');
@@ -226,9 +213,13 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   }, [productId]);
 
   const handleInputChange = (field: string, value: any) => {
+    // Ensure boolean fields are properly set as boolean values
+    const booleanFields = ['isFeatured', 'isNewArrival', 'isBestSeller', 'isComingSoon'];
+    const finalValue = booleanFields.includes(field) ? Boolean(value) : value;
+
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: finalValue
     }));
   };
 
@@ -337,13 +328,22 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         throw new Error('No authentication token found');
       }
 
+      // Ensure boolean fields are explicitly set as boolean values
+      const processedFormData = {
+        ...formData,
+        isFeatured: Boolean(formData.isFeatured),
+        isNewArrival: Boolean(formData.isNewArrival),
+        isBestSeller: Boolean(formData.isBestSeller),
+        isComingSoon: Boolean(formData.isComingSoon)
+      };
+
       const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(processedFormData)
       });
 
       if (!response.ok) {
@@ -854,18 +854,34 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                 </select>
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.isFeatured}
-                    onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
-                    className="rounded border-gray-300 text-black focus:ring-black"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Featured Product</span>
-                </label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Minimum Loyalty Tier
+                  </label>
+                  <select
+                    value={formData.minLoyaltyTier}
+                    onChange={(e) => handleInputChange('minLoyaltyTier', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  >
+                    <option value="bronze">Bronze (All Customers)</option>
+                    <option value="silver">Silver & Above</option>
+                    <option value="gold">Gold Only</option>
+                  </select>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Select which loyalty tier customers can access this product
+                  </p>
+                </div>
 
-                <label className="flex items-center">
+                <div className="space-y-3 mt-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.isFeatured}
+                      onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
+                      className="rounded border-gray-300 text-black focus:ring-black"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Featured Product</span>
+                  </label>                <label className="flex items-center">
                   <input
                     type="checkbox"
                     checked={formData.isNewArrival}
@@ -883,6 +899,16 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                     className="rounded border-gray-300 text-black focus:ring-black"
                   />
                   <span className="ml-2 text-sm text-gray-700">Best Seller</span>
+                </label>
+
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.isComingSoon}
+                    onChange={(e) => handleInputChange('isComingSoon', e.target.checked)}
+                    className="rounded border-gray-300 text-black focus:ring-black"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Coming Soon</span>
                 </label>
               </div>
             </div>

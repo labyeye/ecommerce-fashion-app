@@ -70,7 +70,7 @@ const Login: React.FC = () => {
             Admin Dashboard
           </h2>
           <p className="text-gray-600 text-sm">
-            Sign in to access Evolv's admin panel
+            Sign in to access Flaunt By Nishi's admin panel
           </p>
         </div>
 
@@ -169,13 +169,7 @@ const Login: React.FC = () => {
           </form>
 
           {/* Admin Info */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Admin Credentials:</h4>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>Email:</strong> admin@vitals.com</p>
-              <p><strong>Password:</strong> admin123456</p>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>

@@ -98,6 +98,12 @@ const productSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  minLoyaltyTier: {
+    type: String,
+    enum: ['bronze', 'silver', 'gold'],
+    default: 'bronze',
+    required: true
+  },
   // Fit and measurements
   fit: {
     type: String,
@@ -122,6 +128,10 @@ const productSchema = new mongoose.Schema({
     default: false
   },
   isBestSeller: {
+    type: Boolean,
+    default: false
+  },
+  isComingSoon: {
     type: Boolean,
     default: false
   },

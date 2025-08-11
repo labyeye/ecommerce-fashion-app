@@ -17,6 +17,8 @@ import Login from "./components/Login";
 import EditProduct from "./components/EditProduct";
 import NavigationManagement from "./components/NavigationManagement";
 import CategoryManagement from "./components/CategoryManagement";
+import HeroManagement from "./components/HeroManagement";
+import BlogManagement from "./components/BlogManagement";
 
 import { mockData } from "./data/mockData";
 
@@ -31,7 +33,7 @@ function DashboardApp() {
   const [activeSection, setActiveSection] = useState("overview");
   const [currentView, setCurrentView] = useState<ViewState>({
     section: "overview",
-    view: "list"
+    view: "list",
   });
 
   // If not authenticated, show login
@@ -76,7 +78,11 @@ function DashboardApp() {
     }
 
     // Handle Edit Product
-    if (currentView.view === "edit" && currentView.section === "products" && currentView.itemId) {
+    if (
+      currentView.view === "edit" &&
+      currentView.section === "products" &&
+      currentView.itemId
+    ) {
       return (
         <EditProduct
           productId={currentView.itemId}
@@ -103,11 +109,11 @@ function DashboardApp() {
                 onBack={() =>
                   setCurrentView({ section: "products", view: "list" })
                 }
-                onEdit={() => 
-                  setCurrentView({ 
-                    section: "products", 
-                    view: "edit", 
-                    itemId: currentView.itemId 
+                onEdit={() =>
+                  setCurrentView({
+                    section: "products",
+                    view: "edit",
+                    itemId: currentView.itemId,
                   })
                 }
                 onDelete={() => console.log("Delete product")}
@@ -145,6 +151,7 @@ function DashboardApp() {
             );
           }
           break;
+
         case "marketing":
           const campaign = mockData.campaigns.find(
             (c) => c.id === currentView.itemId
@@ -222,6 +229,10 @@ function DashboardApp() {
         );
       case "promo-codes":
         return <PromoCodes />;
+      case "heroes":
+        return <HeroManagement />;
+      case "blogs":
+        return <BlogManagement />;
       case "navigation":
         return <NavigationManagement />;
       case "analytics":

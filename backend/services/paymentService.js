@@ -9,20 +9,31 @@ const razorpay = new Razorpay({
 
 // Create Razorpay order
 const createRazorpayOrder = async (amount, currency = 'INR', receipt = null) => {
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    throw new Error('Razorpay credentials are not configured');
+  }
+
   try {
     const options = {
-      amount: amount * 100, // amount in smallest currency unit (paise for INR)
+      amount: Math.round(amount * 100), // amount in smallest currency unit (paise for INR)
       currency,
       receipt: receipt || `receipt_${Date.now()}`,
       payment_capture: 1, // Auto capture payment
       notes: {
-        purpose: 'Test Payment for E-commerce',
-        environment: 'test'
+        purpose: 'E-commerce Purchase',
+        environment: process.env.NODE_ENV || 'development'
       }
     };
 
     console.log('Creating Razorpay order with options:', options);
+    
+    // Create order and wait for response
     const order = await razorpay.orders.create(options);
+    
+    if (!order || !order.id) {
+      throw new Error('Invalid response from Razorpay');
+    }
+
     console.log('Razorpay order created successfully:', order);
     
     return {
@@ -31,10 +42,9 @@ const createRazorpayOrder = async (amount, currency = 'INR', receipt = null) => 
     };
   } catch (error) {
     console.error('Razorpay order creation error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    
+    // Throw error to be handled by the route
+    throw new Error(error.message || 'Failed to create Razorpay order');
   }
 };
 

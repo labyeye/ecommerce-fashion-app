@@ -4,29 +4,49 @@
 
 /* Fashion UI Base Styles */
 @layer base {
+  html {
+    font-size: 16px;
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+    @media (max-width: 640px) {
+      font-size: 13px;
+    }
+  }
+
   body {
-    background-color: #FEFCF8;
-    color: #2D2D2D;
-    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #FFF2E1;
+    color: #A79277;
+    font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
   
   * {
-    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    box-sizing: border-box;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Playfair Display', 'Baskerville', Georgia, serif;
     font-weight: 500;
+    line-height: 1.2;
   }
   
-  .font-poppins {
-    font-family: 'Poppins', Arial, sans-serif;
+  .font-display {
+    font-family: 'Playfair Display', 'Baskerville', Georgia, serif;
   }
   
-  /* Fallback for when Poppins is not loaded */
+  /* Elegant body text */
+  .font-body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+  
+  /* Fallback when custom fonts are not loaded */
   .font-loading {
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: Georgia, Times, 'Times New Roman', serif;
   }
 }
 
@@ -45,9 +65,9 @@
   }
   
   .fashion-card {
-    background: #FEFCF8;
+    background: #FFF2E1;
     border-radius: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(167, 146, 119, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.08);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -60,12 +80,20 @@
   .fashion-button {
     background: #2D2D2D;
     color: white;
-    border-radius: 2rem;
-    padding: 0.75rem 2rem;
+    border-radius: 1.5rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
     font-weight: 500;
     letter-spacing: 0.025em;
     transition: all 0.3s ease;
     border: none;
+    white-space: nowrap;
+    
+    @media (min-width: 640px) {
+      border-radius: 2rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
   }
   
   .fashion-button:hover {
@@ -78,11 +106,19 @@
     background: transparent;
     color: #2D2D2D;
     border: 1.5px solid #2D2D2D;
-    border-radius: 2rem;
-    padding: 0.75rem 2rem;
+    border-radius: 1.5rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
     font-weight: 500;
     letter-spacing: 0.025em;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    
+    @media (min-width: 640px) {
+      border-radius: 2rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
   }
   
   .fashion-button-outline:hover {
@@ -93,6 +129,90 @@
 }
 
 /* Custom animations for fashion UI */
+
+/* Responsive Container Utilities */
+.container-responsive {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  
+  @media (min-width: 640px) {
+    max-width: 640px;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    max-width: 768px;
+  }
+  
+  @media (min-width: 1024px) {
+    max-width: 1024px;
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+  
+  @media (min-width: 1280px) {
+    max-width: 1280px;
+  }
+}
+
+/* Responsive Grid Layouts */
+.grid-responsive {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  
+  @media (min-width: 640px) {
+    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Responsive Typography */
+.text-responsive {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  
+  @media (min-width: 640px) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Responsive Spacing */
+.section-padding {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  
+  @media (min-width: 640px) {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* Responsive Images */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
