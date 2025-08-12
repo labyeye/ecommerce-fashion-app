@@ -48,21 +48,15 @@ const ProductPage: React.FC = () => {
       const params = new URLSearchParams();
 
       if (categoryParam) {
-        // If category is provided, use the category-specific endpoint
-        url = `https://ecommerce-fashion-app.onrender.com/api/products/category/${categoryParam}`;
-      } else {
-        // Use general products endpoint with filters
-        if (searchQuery) params.append('search', searchQuery);
+        params.append('category', categoryParam);
       }
-
+      if (searchQuery) params.append('search', searchQuery);
       params.append('page', currentPage.toString());
       params.append('limit', '12');
       params.append('sort', sortParam);
       params.append('order', orderParam);
-
-      // Add status=active to only get active products
       params.append('status', 'active');
-      
+
       const finalUrl = `${url}?${params.toString()}`;
       console.log('Fetching products from:', finalUrl);
 

@@ -124,9 +124,9 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {[...Array(visibleCount)].map((_, index) => (
               <div key={index} className="animate-pulse">
-                <div className="aspect-[3/4] bg-primary/10 rounded-lg mb-4"></div>
-                <div className="h-4 bg-primary/10 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-primary/10 rounded w-1/2"></div>
+                <div className="aspect-[3/4] bg-dark/10 rounded-lg mb-4"></div>
+                <div className="h-4 bg-dark/10 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-dark/10 rounded w-1/2"></div>
               </div>
             ))}
           </div>
@@ -139,7 +139,7 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
     return (
       <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-primary/80 font-body">{error}</p>
+          <p className="text-dark/80 font-body">{error}</p>
         </div>
       </section>
     );
@@ -148,60 +148,69 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
   if (products.length === 0) {
     return (
       <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-display text-primary mb-4">{config.title}</h2>
-          <p className="text-primary/80 font-body text-lg">{config.emptyMessage}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-dark text-4xl sm:text-5xl font-display text-[#2D2D2D] mb-4">{config.title}</h2>
+          <p className="text-dark/80 font-body text-lg text-[#2D2D2D]">{config.emptyMessage}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-screen py-20 bg-gradient-to-br from-white via-[#F4F1E9]/30 to-white">
+      <div className="w-full px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl sm:text-5xl font-display text-primary mb-4">
-            {config.title}
+        <div className="text-center mb-16 max-w-7xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-[#1A2D23] to-[#2B463C] bg-clip-text text-transparent">
+              {config.title}
+            </span>
           </h2>
-          <p className="text-primary/80 font-body text-lg max-w-2xl mx-auto">
+          <p className="text-lg text-gray-800 max-w-2xl mx-auto">
             {config.description}
           </p>
         </div>
 
-        {/* Products Slider */}
-        <div className="overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-            {getVisibleProducts().map((product, index) => (
-              <div
-                key={`${product._id}-${index}`}
-                className="transform transition-all duration-700 ease-in-out"
-                style={{
-                  animationDelay: `${index * 150}ms`,
-                }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-
-          {/* Navigation Dots */}
-          {products.length > visibleCount && (
-            <div className="flex justify-center items-center space-x-2 mt-8">
-              {[...Array(Math.ceil(products.length / visibleCount))].map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index * visibleCount)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    Math.floor(currentIndex / visibleCount) === index
-                      ? 'bg-primary w-4'
-                      : 'bg-primary/30'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
+        {/* Products Slider - Full Screen Width */}
+        <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-8">
+          <div className="max-w-none">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 xl:gap-8">
+              {getVisibleProducts().map((product, index) => (
+                <div
+                  key={`${product._id || product.id}-${currentIndex}-${index}`}
+                  className="w-full transform transition-all duration-700 ease-in-out"
+                  style={{
+                    animationDelay: `${index * 150}ms`,
+                  }}
+                >
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex justify-center mt-12 space-x-3">
+          {products.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index * visibleCount)}
+              className={`transition-all duration-300 rounded-full ${
+                Math.floor(currentIndex / visibleCount) === index
+                  ? 'w-8 h-3 bg-gradient-to-r from-[#1A2D23] to-[#2B463C]'
+                  : 'w-3 h-3 bg-gray-700 hover:bg-gray-900'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Product Counter */}
+        <div className="text-center mt-8">
+          <p className="text-sm text-gray-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-gray-300">
+            Showing {Math.min(getVisibleProducts().length, products.length)} of {products.length} products
+            <span className="ml-2 text-[#2B463C]">• Auto-rotating</span>
+          </p>
         </div>
       </div>
     </section>

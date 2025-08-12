@@ -152,17 +152,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   // Determine text color classes based on page and scroll
   const getTextColorClass = () => {
     if (isHomePage && !isScrolled) {
-      return 'text-white'; // White text on home page when not scrolled
+      return 'text-dark'; // Dark text on home page when not scrolled
     }
-    return 'text-fashion-charcoal'; // Dark text on other pages or when scrolled
-  };
-
-  // Determine logo color classes
-  const getLogoColorClass = () => {
-    if (isHomePage && !isScrolled) {
-      return 'text-white'; // White logo on home page when not scrolled
-    }
-    return 'text-fashion-charcoal'; // Dark logo on other pages or when scrolled
+    return 'text-dark'; // Dark text on other pages or when scrolled
   };
 
   // Determine background class
@@ -175,11 +167,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 border-fashion-charcoal/10 transition-all duration-300 ${getBackgroundClass()}`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+      <div className="px-7">
+  <div className="flex items-center h-16 md:h-20">
           {/* Left Navigation (Desktop) */}
-          <div className="hidden md:flex items-center flex-1">
-            <nav className="flex items-center space-x-8">
+          <div className="hidden md:flex items-center">
+            <nav className="flex space-x-8">
               {navigationLinks
                 .filter(link => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -193,7 +185,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     >
                       <a
                         href={link.url}
-                        className={`text-md font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        className={`text-md font-small tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
@@ -224,7 +216,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-md font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-md font-medium tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>

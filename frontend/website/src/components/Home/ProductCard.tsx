@@ -191,36 +191,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Info */}
-      <div className="p-4 space-y-2">
+      <div className="p-4 space-y-3">
         {/* Product Name */}
         <div>
-          <h3 className="text-lg font-display font-medium text-primary leading-tight hover:text-secondary transition-colors cursor-pointer tracking-wide" onClick={handleViewDetails}>
+          <h3 className="text-lg text-gray-900 font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer" onClick={handleViewDetails}>
             {product.name}
           </h3>
-          {product.shortDescription && (
-            <p className="text-sm font-body text-primary/70 mt-1 italic">
-              {product.shortDescription}
-            </p>
-          )}
         </div>
 
-        {/* Price or Coming Soon */}
-        <div className="flex items-center space-x-3 mt-2">
-          {product.isComingSoon ? (
-            <span className="text-lg font-body font-medium text-secondary tracking-wide animate-pulse">
-              Coming Soon
+        {/* Price */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-semibold text-gray-900 font-['Sans-Serif']">
+            ₹{currentPrice.toLocaleString()}
+          </span>
+          {hasDiscount && product.comparePrice && (
+            <span className="text-base text-gray-700 line-through">
+              ₹{product.comparePrice.toLocaleString()}
             </span>
-          ) : (
-            <>
-              <span className="text-lg font-body font-medium text-primary tracking-wide">
-                ₹{currentPrice.toLocaleString()}
-              </span>
-              {hasDiscount && product.comparePrice && (
-                <span className="text-base font-body text-primary/60 line-through">
-                  ₹{product.comparePrice.toLocaleString()}
-                </span>
-              )}
-            </>
           )}
         </div>
       </div>

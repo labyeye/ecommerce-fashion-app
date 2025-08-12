@@ -76,7 +76,7 @@ const BlogsPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white to-[#B1D182]/10 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-[#688F4E] mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin text-[#A79277] mx-auto mb-4" />
           <p className="text-lg text-[#2B463C]">Loading blogs...</p>
         </div>
       </div>
@@ -90,7 +90,7 @@ const BlogsPage: React.FC = () => {
           <p className="text-lg text-red-600 mb-4">{error}</p>
           <button 
             onClick={fetchBlogs}
-            className="px-6 py-3 bg-[#688F4E] text-white font-medium rounded-lg hover:bg-[#5a7a42] transition-colors duration-300"
+            className="px-6 py-3 bg-[#A79277] text-white font-medium rounded-lg hover:bg-[#5a7a42] transition-colors duration-300"
           >
             Try Again
           </button>
@@ -105,7 +105,7 @@ const BlogsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white to-[#B1D182]/10">
       {/* Hero Section */}
-      <section className="pt-24 pb-12 bg-gradient-to-r from-[#688F4E] to-[#5a7a42]">
+      <section className="pt-24 pb-12 bg-gradient-to-r from-[#A79277] to-[#D1BB9E]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -130,7 +130,7 @@ const BlogsPage: React.FC = () => {
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 pl-12 border border-[#B1D182]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                  className="w-full px-4 py-3 pl-12 border border-[#B1D182]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A79277] focus:border-transparent"
                 />
                 <BookOpen className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
@@ -143,8 +143,8 @@ const BlogsPage: React.FC = () => {
               onClick={() => handleCategoryChange('all')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300 border ${
                 selectedCategory === 'all'
-                  ? 'bg-[#688F4E] text-white'
-                  : 'bg-white text-[#2B463C] hover:bg-[#688F4E] hover:text-white border-[#B1D182]/30'
+                  ? 'bg-[#A79277] text-white'
+                  : 'bg-white text-[#2B463C] hover:bg-[#A79277] hover:text-white border-[#B1D182]/30'
               }`}
             >
               <BookOpen className="w-4 h-4" />
@@ -160,8 +160,8 @@ const BlogsPage: React.FC = () => {
                 onClick={() => handleCategoryChange(category)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300 border ${
                   selectedCategory === category
-                    ? 'bg-[#688F4E] text-white'
-                    : 'bg-white text-[#2B463C] hover:bg-[#688F4E] hover:text-white border-[#B1D182]/30'
+                    ? 'bg-[#A79277] text-white'
+                    : 'bg-white text-[#2B463C] hover:bg-[#A79277] hover:text-white border-[#B1D182]/30'
                 }`}
               >
                 <Tag className="w-4 h-4" />
@@ -187,7 +187,7 @@ const BlogsPage: React.FC = () => {
                   className="w-full h-64 sm:h-80 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="bg-[#688F4E] text-white text-xs px-3 py-1 rounded-full font-medium">
+                  <span className="bg-[#A79277] text-white text-xs px-3 py-1 rounded-full font-medium">
                     {featuredBlog.category}
                   </span>
                 </div>
@@ -209,7 +209,7 @@ const BlogsPage: React.FC = () => {
                   </div>
                 </div>
                 
-                <h3 className="text-2xl sm:text-3xl font-bold text-[#2B463C] mb-4 group-hover:text-[#688F4E] transition-colors duration-300">
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#2B463C] mb-4 group-hover:text-[#A79277] transition-colors duration-300">
                   {featuredBlog.title}
                 </h3>
                 
@@ -219,7 +219,7 @@ const BlogsPage: React.FC = () => {
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#688F4E] rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#A79277] rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
                         {featuredBlog.author.name.split(' ').map(n => n[0]).join('')}
                       </span>
@@ -229,7 +229,7 @@ const BlogsPage: React.FC = () => {
                       <p className="text-sm text-gray-500">{featuredBlog.views} views</p>
                     </div>
                   </div>
-                  <button className="flex items-center gap-2 text-[#688F4E] hover:text-[#5a7a42] transition-colors duration-300 group">
+                  <button className="flex items-center gap-2 text-[#A79277] hover:text-[#5a7a42] transition-colors duration-300 group">
                     <span className="text-sm font-medium">Read Full Article</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
@@ -249,7 +249,7 @@ const BlogsPage: React.FC = () => {
           
           {loading ? (
             <div className="text-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#688F4E] mx-auto mb-4" />
+              <Loader2 className="w-8 h-8 animate-spin text-[#A79277] mx-auto mb-4" />
               <p className="text-[#2B463C]">Loading more articles...</p>
             </div>
           ) : regularBlogs.length === 0 ? (
@@ -271,7 +271,7 @@ const BlogsPage: React.FC = () => {
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute top-4 left-4">
-                        <span className="bg-[#688F4E] text-white text-xs px-3 py-1 rounded-full font-medium">
+                        <span className="bg-[#A79277] text-white text-xs px-3 py-1 rounded-full font-medium">
                           {blog.category}
                         </span>
                       </div>
@@ -289,7 +289,7 @@ const BlogsPage: React.FC = () => {
                         </div>
                       </div>
                       
-                      <h3 className="text-xl font-bold text-[#2B463C] mb-3 group-hover:text-[#688F4E] transition-colors duration-300">
+                      <h3 className="text-xl font-bold text-[#2B463C] mb-3 group-hover:text-[#A79277] transition-colors duration-300">
                         {blog.title}
                       </h3>
                       
@@ -299,7 +299,7 @@ const BlogsPage: React.FC = () => {
                       
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-[#688F4E] rounded-full flex items-center justify-center">
+                          <div className="w-8 h-8 bg-[#A79277] rounded-full flex items-center justify-center">
                             <span className="text-white font-semibold text-xs">
                               {blog.author.name.split(' ').map(n => n[0]).join('')}
                             </span>
@@ -315,11 +315,11 @@ const BlogsPage: React.FC = () => {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <button className="flex items-center gap-2 text-[#688F4E] hover:text-[#5a7a42] transition-colors duration-300 group">
+                        <button className="flex items-center gap-2 text-[#A79277] hover:text-[#5a7a42] transition-colors duration-300 group">
                           <span className="text-sm font-medium">Read More</span>
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                         </button>
-                        <button className="p-2 text-gray-400 hover:text-[#688F4E] transition-colors duration-300">
+                        <button className="p-2 text-gray-400 hover:text-[#A79277] transition-colors duration-300">
                           <Share2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -335,7 +335,7 @@ const BlogsPage: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 bg-white border border-[#B1D182]/30 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#688F4E] hover:text-white transition-colors duration-300"
+                      className="px-4 py-2 bg-white border border-[#B1D182]/30 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#A79277] hover:text-white transition-colors duration-300"
                     >
                       Previous
                     </button>
@@ -347,7 +347,7 @@ const BlogsPage: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 bg-white border border-[#B1D182]/30 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#688F4E] hover:text-white transition-colors duration-300"
+                      className="px-4 py-2 bg-white border border-[#B1D182]/30 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#A79277] hover:text-white transition-colors duration-300"
                     >
                       Next
                     </button>
@@ -360,7 +360,7 @@ const BlogsPage: React.FC = () => {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-16 bg-[#688F4E]/5">
+      <section className="py-16 bg-[#A79277]/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-[#2B463C] mb-4">
@@ -373,9 +373,9 @@ const BlogsPage: React.FC = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 border border-[#B1D182]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                className="flex-1 px-4 py-3 border border-[#B1D182]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A79277] focus:border-transparent"
               />
-              <button className="px-6 py-3 bg-[#688F4E] text-white font-medium rounded-lg hover:bg-[#5a7a42] transition-colors duration-300">
+              <button className="px-6 py-3 bg-[#A79277] text-white font-medium rounded-lg hover:bg-[#5a7a42] transition-colors duration-300">
                 Subscribe
               </button>
             </div>

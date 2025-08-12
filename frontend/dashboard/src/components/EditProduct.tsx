@@ -201,7 +201,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
             setCategories(data.data);
           }
         }
-      } catch (err) {
+      } catch (err) {https://ecommerce-fashion-app.onrender.com
         console.error('Failed to fetch categories:', err);
       }
     };

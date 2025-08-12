@@ -113,7 +113,7 @@ const HeroComponent: React.FC = () => {
   return (
     <section
       id="home"
-      className="relative h-[85vh] sm:h-[85vh] md:h-[80vh] lg:h-[80vh] xl:h-[80vh] 2xl:h-[80vh] min-h-[600px] max-h-[1000px] flex items-center justify-center overflow-hidden mt-35"
+      className="relative h-[85vh] sm:h-[85vh] md:h-[80vh] lg:h-[80vh] xl:h-[80vh] 2xl:h-[80vh] min-h-[600px] max-h-[1000px] flex items-center justify-center overflow-hidden mt-20"
       role="region"
       aria-roledescription="carousel"
       aria-label="Hero Images"
@@ -162,7 +162,7 @@ const HeroComponent: React.FC = () => {
           );
         })}
       </div>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <div className="max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
             <h1 
