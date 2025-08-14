@@ -1,8 +1,5 @@
-import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
-// यह version debugging के लिए है - console logs के साथ
-
 import React, { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Search, Heart, User, LogOut, Crown, Award, Medal, ChevronDown } from "lucide-react";
+import { ShoppingCart, Search, Heart, User, Crown, Award, Medal, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/images/logoblack.png";
@@ -67,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
@@ -538,10 +535,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <Link to="/profile" className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300">
                       Profile
                     </Link>
-                    <button onClick={logout} className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </button>
                   </div>
                 </div>
               </div>
@@ -689,15 +682,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       >
                         <User className="w-4 h-4" />
                       </Link>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setIsMenuOpen(false);
-                        }}
-                        className="circle-element w-10 h-10 bg-red-50 shadow-soft border border-red-200 text-red-500 hover:text-red-600 hover:bg-red-100 transition-all duration-300 flex items-center justify-center"
-                      >
-                        <LogOut className="w-4 h-4" />
-                      </button>
+                      
                     </div>
                   </div>
                 ) : (

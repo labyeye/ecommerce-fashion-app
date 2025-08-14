@@ -149,7 +149,7 @@ const ProfilePage: React.FC = () => {
   };
 
   if (!user) {
-    return null;
+    return <LoadingMountainSunsetBeach text="Loading profile..." />;
   }
   const userData = {
     name: `${user.firstName} ${user.lastName}`,
