@@ -32,11 +32,6 @@ const HomePage = () => {
                 <ProductSlider type="best-sellers" autoPlayInterval={5500} />
             </section>
 
-            {/* Coming Soon Section */}
-            <section className="w-full py-6 sm:py-8 lg:py-12">
-                <ProductSlider type="coming-soon" autoPlayInterval={5800} />
-            </section>
-
             {/* Features Section */}
             <section className="w-full">
                 <Features />

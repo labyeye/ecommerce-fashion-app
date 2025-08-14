@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Heart, Lock } from 'lucide-react';
+import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useLoyaltyTier, canAccessTier } from '../../hooks/useLoyaltyTier';
 
@@ -61,8 +64,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product,
   viewDetailsLink
 }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const [localWishlisted, setLocalWishlisted] = useState(false);
+  useEffect(() => {
+    setLocalWishlisted(!!product._id && wishlist.includes(product._id));
+  }, [wishlist, product._id]);
+
+  const [toast, setToast] = useState<string | null>(null);
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user || !product._id) return;
+    // Optimistic UI update
+    if (localWishlisted) {
+      setLocalWishlisted(false);
+      setToast('Removed from wishlist');
+      removeFromWishlist(product._id); // Don't await
+    } else {
+      setLocalWishlisted(true);
+      setToast('Added to wishlist');
+      addToWishlist(product._id); // Don't await
+    }
+    setTimeout(() => setToast(null), 2000);
+  };
   const userTier = useLoyaltyTier();
   const canAccess = !product.minLoyaltyTier || canAccessTier(userTier, product.minLoyaltyTier);
 
@@ -133,6 +159,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {toast && createPortal(
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded shadow-lg z-50">
+          {toast}
+        </div>,
+        document.body
+      )}
       {!canAccess && (
         <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
           <div className="text-center p-4">
@@ -146,9 +178,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       )}
-      {/* Heart Icon */}
-      <button className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-tertiary/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-secondary group-hover:scale-110">
-        <Heart className="w-4 h-4 text-primary hover:text-secondary hover:fill-primary transition-colors duration-300" />
+      {/* Heart Icon for Wishlist */}
+      <button
+        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-tertiary/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
+        onClick={handleWishlist}
+        disabled={!user}
+        title={user ? (localWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist') : 'Login to use wishlist'}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Heart
+          className={`w-4 h-4 transition-colors duration-300
+            ${localWishlisted || isHovered ? 'fill-red-500 text-red-500' : 'text-primary'}
+          `}
+        />
       </button>
 
       {/* Product Image with Hover Effect */}

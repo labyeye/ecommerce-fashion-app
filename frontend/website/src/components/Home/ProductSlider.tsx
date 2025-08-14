@@ -1,9 +1,10 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard, { Product } from './ProductCard';
 
 interface ProductSliderProps {
-  type: 'featured' | 'new-arrivals' | 'best-sellers' | 'coming-soon';
+  type: 'featured' | 'new-arrivals' | 'best-sellers';
   autoPlayInterval?: number;
 }
 
@@ -32,12 +33,6 @@ const sliderConfigs: Record<ProductSliderProps['type'], SliderConfig> = {
     description: 'Most loved by our fashion community',
     apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isBestSeller=true',
     emptyMessage: 'Stay tuned for our best sellers'
-  },
-  'coming-soon': {
-    title: 'Coming Soon',
-    description: 'Preview our upcoming collections',
-    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isComingSoon=true',
-    emptyMessage: 'No upcoming products at the moment'
   }
 };
 
@@ -118,21 +113,7 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
   };
 
   if (loading) {
-    return (
-      <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background">
-        <div className="w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {[...Array(visibleCount)].map((_, index) => (
-              <div key={index} className="animate-pulse">
-                <div className="aspect-[3/4] bg-dark/10 rounded-lg mb-4"></div>
-                <div className="h-4 bg-dark/10 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-dark/10 rounded w-1/2"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+  return <LoadingMountainSunsetBeach text="Loading products..." />;
   }
 
   if (error) {

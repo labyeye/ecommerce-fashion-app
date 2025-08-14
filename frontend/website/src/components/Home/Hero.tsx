@@ -1,3 +1,4 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import heroService, { Hero } from "../../services/heroService";
@@ -77,7 +78,7 @@ const HeroComponent: React.FC = () => {
   if (loading) {
     return (
       <section className="relative h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+            <LoadingMountainSunsetBeach text="Loading..." />;
       </section>
     );
   }

@@ -1,0 +1,128 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+import ProductCard from '../Home/ProductCard';
+
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  imageUrl?: string;
+  description?: string;
+  sizes?: Array<{ size: string; stock: number; price: number }>;
+  colors?: Array<{ name: string; hexCode: string; images?: Array<{ url: string; alt?: string }>; stock: number }>;
+  images?: Array<{ url: string; alt?: string; isPrimary?: boolean }>;
+}
+
+const Wishlist: React.FC = () => {
+  const { user } = useAuth();
+  const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Helper function to get auth configuration
+  const getAuthConfig = () => {
+    const token = localStorage.getItem('token');
+    console.log('🔑 Token from localStorage:', token ? 'Token exists' : 'No token found');
+    
+    return token
+      ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      : { withCredentials: true };
+  };
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
+    const fetchWishlist = async () => {
+      try {
+        const config = getAuthConfig();
+        console.log('📡 Fetching wishlist with config:', config);
+        
+        const res = await axios.get('https://ecommerce-fashion-app.onrender.com/api/wishlist', config);
+        setWishlist(res.data.wishlist || []);
+        console.log('✅ Wishlist fetched successfully:', res.data.wishlist?.length || 0, 'items');
+      } catch (err: any) {
+        console.error('❌ Error fetching wishlist:', err.response?.status, err.response?.data);
+        setWishlist([]);
+        
+        if (err.response?.status === 401) {
+          console.warn('🚫 Authentication failed - user may need to log in again');
+          // Optionally, you could trigger a logout here if the token is invalid
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchWishlist();
+  }, [user]);
+
+  const removeFromWishlist = async (productId: string) => {
+    if (!user) return;
+    
+    try {
+      const config = getAuthConfig();
+      console.log('➖ Removing from wishlist with config:', config);
+      
+      await axios.post(
+        'https://ecommerce-fashion-app.onrender.com/api/wishlist/remove', 
+        { productId }, 
+        config
+      );
+      
+      // Update local state immediately for better UX
+      setWishlist(wishlist.filter(p => p._id !== productId));
+      console.log('✅ Removed from wishlist successfully');
+      
+    } catch (err: any) {
+      console.error('❌ Error removing from wishlist:', err.response?.status, err.response?.data);
+      
+      if (err.response?.status === 401) {
+        alert('Please log in to manage your wishlist');
+      } else {
+        alert('Failed to remove item from wishlist');
+      }
+    }
+  };
+
+  if (loading) return <div className="flex justify-center items-center min-h-64">Loading...</div>;
+  if (!user) return <div className="p-6 text-center">Please log in to view your wishlist.</div>;
+
+  return (
+    <div className="p-6 mt-20">
+      <h1 className="text-3xl text-center font-bold mb-4">My Wishlist</h1>
+      {wishlist.length === 0 ? (
+        <div className="text-center text-gray-500 mt-8">No products in your wishlist.</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {wishlist.map(product => {
+            // Add safe defaults for missing fields
+            const safeProduct = {
+              ...product,
+              description: product.description || '',
+              sizes: product.sizes || [],
+              colors: product.colors || [],
+              images: product.images || (product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : []),
+            };
+            return (
+              <div key={product._id} className="flex flex-col items-center">
+                <ProductCard product={safeProduct} />
+                <button
+                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                  onClick={() => removeFromWishlist(product._id)}
+                >
+                  Remove from Wishlist
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Wishlist;

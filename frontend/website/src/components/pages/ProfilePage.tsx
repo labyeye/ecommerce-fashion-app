@@ -1,3 +1,4 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -181,7 +182,7 @@ const ProfilePage: React.FC = () => {
       minPoints: 0, 
       maxPoints: 4999, 
       color: "#8B7355",
-      bgColor: "bg-fashion-light-brown/20",
+      bgColor: "#8B7355",
       borderColor: "border-fashion-light-brown",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
@@ -197,8 +198,8 @@ const ProfilePage: React.FC = () => {
       name: "Silver", 
       minPoints: 5000, 
       maxPoints: 9999, 
-      color: "#D4CFC7",
-      bgColor: "bg-fashion-warm-gray/20",
+      color: "#9b9b9bff",
+      bgColor: "#9b9b9bff",
       borderColor: "border-fashion-warm-gray",
       textColor: "text-fashion-dark-gray",
       iconColor: "text-fashion-dark-gray",
@@ -215,8 +216,8 @@ const ProfilePage: React.FC = () => {
       name: "Gold", 
       minPoints: 10000, 
       maxPoints: 999999, 
-      color: "#B5A084",
-      bgColor: "bg-fashion-nude/20",
+      color: "#fabd25ff",
+      bgColor: "#fabd25ff",
       borderColor: "border-fashion-nude",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
@@ -322,7 +323,17 @@ const ProfilePage: React.FC = () => {
             <Crown className="w-8 h-8 text-[#FFD700]" />
             <h2 className="text-2xl font-bold text-[#2B463C]">Loyalty Program</h2>
           </div>
-          <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-xl p-6 mb-6">
+          <div
+            className="rounded-xl p-6 mb-6"
+            style={{
+              background:
+                userData.currentTier === "bronze"
+                  ? "linear-gradient(90deg, #CD7F32 0%, #A97142 100%)"
+                  : userData.currentTier === "silver"
+                  ? "linear-gradient(90deg, #C0C0C0 0%, #A9A9A9 100%)"
+                  : "linear-gradient(90deg, #FFD700 0%, #FFA500 100%)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">
@@ -508,7 +519,7 @@ const ProfilePage: React.FC = () => {
                   <div className="text-center py-8 text-red-600">You are not logged in. Please log in to view your orders.</div>
                 )}
                 {ordersLoading ? (
-                  <div className="text-center py-8">Loading orders...</div>
+                  <LoadingMountainSunsetBeach text="Loading orders..." />
                 ) : ordersError ? (
                   <div className="text-center py-8 text-red-600">{ordersError}</div>
                 ) : orders.length === 0 ? (
@@ -757,8 +768,7 @@ const ProfilePage: React.FC = () => {
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Saving...</span>
+                    <LoadingMountainSunsetBeach text="Saving..." />
                   </>
                 ) : (
                   <>

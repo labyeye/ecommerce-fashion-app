@@ -1,3 +1,4 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -39,21 +40,7 @@ const CategoryCards = () => {
   }, []);
 
   if (loading) {
-    return (
-      <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[1, 2].map((item) => (
-              <div key={item} className="animate-pulse">
-                <div className="aspect-[16/9] bg-primary/10 rounded-lg mb-4"></div>
-                <div className="h-6 bg-primary/10 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-primary/10 rounded w-2/3"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+  return <LoadingMountainSunsetBeach text="Loading categories..." />;
   }
 
   if (error) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider, useCartContext } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import Header from "./components/Home/Header";
 
 // ScrollToTopOnMount component
@@ -31,36 +32,40 @@ import OrderDetailPage from "./components/pages/OrderDetailPage";
 import Dashboard from "./components/pages/Dashboard";
 import CheckoutPage from './components/pages/CheckoutPage';
 import VerifyEmailPage from './components/pages/VerifyEmailPage';
+import Wishlist from "./components/pages/Wishlist";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <ScrollToTopOnMount />
-          <div className="min-h-screen bg-white">
-            <HeaderWithCartCount onCartClick={() => setIsCartOpen(true)} />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/products" element={<ProductPage />} />
-              <Route path="/updates" element={<UpdatesPage />} />
-              <Route path="/blogs" element={<BlogsPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-              <Route path="/order/:id" element={<OrderDetailPage />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/product/:id" element={<ProductDetailsPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-            </Routes>
-            <Footer />
-            <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
-          </div>
-        </Router>
+        <WishlistProvider>
+          <Router>
+            <ScrollToTopOnMount />
+            <div className="min-h-screen bg-white">
+              <HeaderWithCartCount onCartClick={() => setIsCartOpen(true)} />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/products" element={<ProductPage />} />
+                <Route path="/updates" element={<UpdatesPage />} />
+                <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/order/:id" element={<OrderDetailPage />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/product/:id" element={<ProductDetailsPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+              </Routes>
+              <Footer />
+              <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+            </div>
+          </Router>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

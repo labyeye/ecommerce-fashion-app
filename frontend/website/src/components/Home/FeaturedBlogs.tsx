@@ -1,3 +1,4 @@
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { blogService, Blog } from '../../services/blogService';
@@ -32,16 +33,7 @@ const FeaturedBlogs: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading featured blogs...</p>
-          </div>
-        </div>
-      </section>
-    );
+  return <LoadingMountainSunsetBeach text="Loading featured blogs..." />;
   }
 
   if (error || featuredBlogs.length === 0) {

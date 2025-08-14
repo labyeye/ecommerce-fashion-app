@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
+// यह version debugging के लिए है - console logs के साथ
+
+import React, { useState, useEffect, useRef } from "react";
 import { ShoppingCart, Search, Heart, User, LogOut, Crown, Award, Medal, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/images/logoblack.png";
+
 interface HeaderProps {
   cartCount: number;
   onCartClick: () => void;
@@ -27,53 +31,27 @@ interface NavigationLink {
   sortOrder: number;
 }
 
-interface Category {
+interface Product {
   _id: string;
+  id?: string;
   name: string;
-  slug: string;
-  subcategories?: Category[];
+  price: number;
+  images?: Array<{ url: string }>;
+  imageUrl?: string;
+  category?: string;
+  description?: string;
 }
 
-interface HeaderProps {
-  cartCount: number;
-  onCartClick: () => void;
-}
-
-// Tier utility functions
 const getTierInfo = (tier: string) => {
   switch (tier?.toLowerCase()) {
     case 'bronze':
-      return {
-        icon: Medal,
-        color: '#8B7355',
-        bgColor: 'bg-fashion-light-brown/20',
-        textColor: 'text-fashion-accent-brown',
-        name: 'Bronze'
-      };
+      return { icon: Medal, color: '#8B7355', bgColor: 'bg-fashion-light-brown/20', textColor: 'text-fashion-accent-brown', name: 'Bronze' };
     case 'silver':
-      return {
-        icon: Award,
-        color: '#D4CFC7',
-        bgColor: 'bg-fashion-warm-gray/20',
-        textColor: 'text-fashion-dark-gray',
-        name: 'Silver'
-      };
+      return { icon: Award, color: '#D4CFC7', bgColor: 'bg-fashion-warm-gray/20', textColor: 'text-fashion-dark-gray', name: 'Silver' };
     case 'gold':
-      return {
-        icon: Crown,
-        color: '#B5A084',
-        bgColor: 'bg-fashion-nude/20',
-        textColor: 'text-fashion-accent-brown',
-        name: 'Gold'
-      };
+      return { icon: Crown, color: '#B5A084', bgColor: 'bg-fashion-nude/20', textColor: 'text-fashion-accent-brown', name: 'Gold' };
     default:
-      return {
-        icon: Medal,
-        color: '#8B7355',
-        bgColor: 'bg-fashion-light-brown/20',
-        textColor: 'text-fashion-accent-brown',
-        name: 'Bronze'
-      };
+      return { icon: Medal, color: '#8B7355', bgColor: 'bg-fashion-light-brown/20', textColor: 'text-fashion-accent-brown', name: 'Bronze' };
   }
 };
 
@@ -82,66 +60,198 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [pageResults, setPageResults] = useState<NavigationLink[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
   const { user, logout } = useAuth();
   const location = useLocation();
-
-  // Check if we're on the home page
   const isHomePage = location.pathname === '/';
 
-  // Fetch navigation links
+  // Initialize with fallback navigation INCLUDING SHIRT
   useEffect(() => {
+    const fallbackNavigation: NavigationLink[] = [
+      { _id: '1', name: 'Home', slug: 'home', url: '/', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 1 },
+      { _id: '2', name: 'About', slug: 'about', url: '/about', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 2 },
+      { 
+        _id: '3', 
+        name: 'Products', 
+        slug: 'products', 
+        url: '/products', 
+        type: 'category', 
+        hasDropdown: true, 
+        dropdownItems: [
+          { name: 'Shirt', url: '/products?category=shirt', isActive: true, sortOrder: 1 },
+          { name: 'Jumpsuit', url: '/products?category=jumpsuit', isActive: true, sortOrder: 2 },
+          { name: 'Kaftan', url: '/products?category=kaftan', isActive: true, sortOrder: 3 },
+          { name: 'Coord Set', url: '/products?category=coord-set', isActive: true, sortOrder: 4 },
+          { name: 'Dress', url: '/products?category=dress', isActive: true, sortOrder: 5 }
+        ], 
+        isActive: true, 
+        sortOrder: 3 
+      },
+      { _id: '4', name: 'Blogs', slug: 'blogs', url: '/blogs', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 4 },
+      { _id: '5', name: 'Contact', slug: 'contact', url: '/contact', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 5 }
+    ];
+
+    console.log("🚀 Setting fallback navigation with shirts:", fallbackNavigation);
+    setNavigationLinks(fallbackNavigation);
+
+    // Try to fetch from API
     const fetchNavigation = async () => {
       try {
+        console.log("🌐 Fetching navigation from API...");
         const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/navigation/public');
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
+            console.log("✅ API navigation received:", data.data);
             setNavigationLinks(data.data);
+          } else {
+            console.log("❌ API navigation failed, using fallback");
           }
+        } else {
+          console.log("❌ API response not ok, using fallback");
         }
       } catch (error) {
-        console.error('Error fetching navigation:', error);
-        // Fallback to static navigation
-        setNavigationLinks([
-          { _id: '1', name: 'Home', slug: 'home', url: '/', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 1 },
-          { _id: '2', name: 'About', slug: 'about', url: '/about', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 2 },
-          { _id: '3', name: 'Products', slug: 'products', url: '/products', type: 'category', hasDropdown: true, dropdownItems: [
-            { name: 'Jumpsuit', url: '/products?category=jumpsuit', isActive: true, sortOrder: 1 },
-            { name: 'Kaftan', url: '/products?category=kaftan', isActive: true, sortOrder: 2 },
-            { name: 'Coord Set', url: '/products?category=coord-set', isActive: true, sortOrder: 3 },
-            { name: 'Dress', url: '/products?category=dress', isActive: true, sortOrder: 4 }
-          ], isActive: true, sortOrder: 3 },
-          { _id: '4', name: 'Blogs', slug: 'blogs', url: '/blogs', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 4 },
-          { _id: '5', name: 'Contact', slug: 'contact', url: '/contact', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 5 }
-        ]);
+        console.error('❌ Error fetching navigation, using fallback:', error);
       }
     };
 
     fetchNavigation();
   }, []);
 
+  // Search function with detailed logging
+  const performSearch = async (term: string) => {
+    console.log("🔍 Starting search for:", term);
+    
+    if (!term || term.length < 2) {
+      console.log("🔍 Search term too short, clearing results");
+      setSearchResults([]);
+      setPageResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    console.log("🔍 Search loading started");
+    
+    try {
+      // Search in navigation first (guaranteed to work)
+      const searchLower = term.toLowerCase();
+      const matchingPages: NavigationLink[] = [];
+
+      console.log("🔍 Searching in navigation links:", navigationLinks);
+
+      navigationLinks.forEach(link => {
+        if (!link.isActive) return;
+
+        // Check main navigation item
+        if (link.name.toLowerCase().includes(searchLower) || 
+            link.slug.toLowerCase().includes(searchLower)) {
+          console.log("✅ Found matching page:", link.name);
+          matchingPages.push(link);
+        }
+
+        // Check dropdown items
+        if (link.hasDropdown && link.dropdownItems) {
+          link.dropdownItems.forEach(item => {
+            if (item.isActive && item.name.toLowerCase().includes(searchLower)) {
+              console.log("✅ Found matching category:", item.name);
+              const virtualLink: NavigationLink = {
+                _id: `${link._id}-${item.name}`,
+                name: item.name,
+                slug: item.name.toLowerCase().replace(/\s+/g, '-'),
+                url: item.url,
+                type: 'category',
+                hasDropdown: false,
+                dropdownItems: [],
+                isActive: true,
+                sortOrder: item.sortOrder
+              };
+              matchingPages.push(virtualLink);
+            }
+          });
+        }
+      });
+
+      console.log("🔍 Total matching pages found:", matchingPages.length);
+      setPageResults(matchingPages);
+
+      // Try to search products from API
+      let products: Product[] = [];
+      
+      try {
+        console.log("🌐 Searching products via API...");
+        const productResponse = await fetch(`/api/products?search=${encodeURIComponent(term)}&limit=10`);
+        
+        if (productResponse.ok) {
+          const data = await productResponse.json();
+          products = data.products || [];
+          console.log("✅ Products found from main API:", products.length);
+        } else {
+          console.log("❌ Main API failed, trying alternative...");
+          // Try alternative API
+          const altResponse = await fetch(`https://ecommerce-fashion-app.onrender.com/api/products?search=${encodeURIComponent(term)}`);
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            products = altData.products || altData.data || [];
+            console.log("✅ Products found from alt API:", products.length);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Product API error:", error);
+      }
+
+      setSearchResults(products);
+      console.log("🔍 Final search results - Pages:", matchingPages.length, "Products:", products.length);
+
+    } catch (error) {
+      console.error('❌ Search error:', error);
+      setSearchResults([]);
+      setPageResults([]);
+    } finally {
+      setSearchLoading(false);
+      console.log("🔍 Search loading ended");
+    }
+  };
+
+  // Debounced search effect
+  useEffect(() => {
+    if (!isSearchOpen) {
+      console.log("🔍 Search modal closed, skipping search");
+      return;
+    }
+
+    console.log("🔍 Search term changed:", searchTerm);
+    
+    const timeout = setTimeout(() => {
+      performSearch(searchTerm);
+    }, 300);
+
+    return () => {
+      console.log("🔍 Clearing search timeout");
+      clearTimeout(timeout);
+    };
+  }, [searchTerm, isSearchOpen, navigationLinks]);
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       if (isHomePage) {
-        // On home page, change color based on scroll position
         setIsScrolled(window.scrollY > 100);
       } else {
-        // On other pages, always use dark text
         setIsScrolled(true);
       }
     };
 
-    // Set initial state
     handleScroll();
-
-    // Add scroll listener only if on home page
     if (isHomePage) {
       window.addEventListener('scroll', handleScroll);
     }
 
-    // Cleanup
     return () => {
       if (isHomePage) {
         window.removeEventListener('scroll', handleScroll);
@@ -149,26 +259,41 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     };
   }, [isHomePage]);
 
-  // Determine text color classes based on page and scroll
   const getTextColorClass = () => {
     if (isHomePage && !isScrolled) {
-      return 'text-dark'; // Dark text on home page when not scrolled
+      return 'text-dark';
     }
-    return 'text-dark'; // Dark text on other pages or when scrolled
+    return 'text-dark';
   };
 
-  // Determine background class
   const getBackgroundClass = () => {
     if (isHomePage && !isScrolled) {
-      return 'bg-none'; // Transparent on home page when not scrolled
+      return 'bg-none';
     }
-    return 'bg-white shadow-sm'; // White background with shadow on other pages or when scrolled
+    return 'bg-white shadow-sm';
+  };
+
+  const handleSearchResultClick = () => {
+    console.log("🔍 Search result clicked, closing modal");
+    setIsSearchOpen(false);
+    setSearchTerm('');
+  };
+
+  const handleSearchOpen = () => {
+    console.log("🔍 Opening search modal");
+    setIsSearchOpen(true);
+    setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+        console.log("🔍 Search input focused");
+      }
+    }, 100);
   };
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 border-fashion-charcoal/10 transition-all duration-300 ${getBackgroundClass()}`}>
       <div className="px-7">
-  <div className="flex items-center h-16 md:h-20">
+        <div className="flex items-center h-16 md:h-20">
           {/* Left Navigation (Desktop) */}
           <div className="hidden md:flex items-center">
             <nav className="flex space-x-8">
@@ -192,7 +317,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
                       </a>
                       
-                      {/* Dropdown Menu */}
                       {link.dropdownItems && link.dropdownItems.length > 0 && (
                         <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-fashion-charcoal/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                           <div className="py-2">
@@ -239,15 +363,156 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
           {/* Right Navigation (Desktop) */}
           <div className="hidden md:flex items-center justify-end flex-1 space-x-4">
-            <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+            <button
+              className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center"
+              onClick={handleSearchOpen}
+              aria-label="Search"
+            >
               <Search className="w-5 h-5" />
             </button>
-            <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+
+            {/* Enhanced Search Modal with Debug Info */}
+            {isSearchOpen && (
+              <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30" onClick={() => {
+                console.log("🔍 Closing search modal (overlay click)");
+                setIsSearchOpen(false);
+              }}>
+                <div className="mt-24 bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-96 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                  {/* Search Header */}
+                  <div className="p-4 border-b border-gray-100">
+                    <div className="flex items-center space-x-3">
+                      <Search className="w-5 h-5 text-gray-400" />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        className="flex-1 text-lg border-0 focus:outline-none placeholder-gray-400"
+                        placeholder="Search for products, categories (e.g. shirt, jumpsuit, dress...)"
+                        value={searchTerm}
+                        onChange={(e) => {
+                          console.log("🔍 Search input changed:", e.target.value);
+                          setSearchTerm(e.target.value);
+                        }}
+                      />
+                      <button 
+                        className="text-gray-400 hover:text-red-500 text-xl font-bold"
+                        onClick={() => {
+                          console.log("🔍 Closing search modal (X button)");
+                          setIsSearchOpen(false);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {/* Debug Info */}
+                    <div className="mt-2 text-xs text-gray-500">
+                      Debug: Navigation Links: {navigationLinks.length} | Search Term: "{searchTerm}" | Loading: {searchLoading ? 'Yes' : 'No'}
+                    </div>
+                  </div>
+
+                  {/* Search Results */}
+                  <div className="flex-1 overflow-y-auto">
+                    {searchLoading && (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
+                        <span className="ml-3 text-gray-500">Searching...</span>
+                      </div>
+                    )}
+
+                    {!searchLoading && searchTerm.length > 1 && searchResults.length === 0 && pageResults.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <Search className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                        <p>No results found for "{searchTerm}"</p>
+                        <p className="text-sm text-gray-400 mt-1">Try searching for: shirt, jumpsuit, kaftan, dress, coord set</p>
+                      </div>
+                    )}
+
+                    {!searchLoading && (searchResults.length > 0 || pageResults.length > 0) && (
+                      <div className="divide-y divide-gray-100">
+                        {/* Page/Category Results */}
+                        {pageResults.length > 0 && (
+                          <div className="p-3">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                              <ChevronDown className="w-4 h-4 mr-1" />
+                              Categories & Pages ({pageResults.length})
+                            </h3>
+                            {pageResults.map(link => (
+                              <a
+                                key={link._id}
+                                href={link.url}
+                                className="block px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors group"
+                                onClick={handleSearchResultClick}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-blue-700 group-hover:text-blue-800">{link.name}</span>
+                                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                                    {link.type === 'category' ? 'Category' : 'Page'}
+                                  </span>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Product Results */}
+                        {searchResults.length > 0 && (
+                          <div className="p-3">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                              <ShoppingCart className="w-4 h-4 mr-1" />
+                              Products ({searchResults.length})
+                            </h3>
+                            {searchResults.slice(0, 6).map(product => (
+                              <a
+                                key={product._id || product.id}
+                                href={`/product/${product._id || product.id}`}
+                                className="block px-3 py-3 hover:bg-gray-50 rounded-lg transition-colors group"
+                                onClick={handleSearchResultClick}
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                    {(product.images?.[0]?.url || product.imageUrl) ? (
+                                      <img 
+                                        src={product.images?.[0]?.url || product.imageUrl} 
+                                        alt={product.name} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <ShoppingCart className="w-6 h-6 text-gray-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
+                                      {product.name}
+                                    </p>
+                                    <div className="flex items-center justify-between mt-1">
+                                      <span className="text-fashion-accent-brown font-semibold">₹{product.price}</span>
+                                      {product.category && (
+                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                          {product.category}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Rest of the header remains the same... */}
+            <a href="/wishlist" className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
               <Heart className="w-5 h-5" />
-            </button>
+            </a>
+            
             {user ? (
               <div className="relative group flex items-center space-x-3">
-                {/* Tier Badge */}
                 {(() => {
                   const tierInfo = getTierInfo(user.loyaltyTier || 'bronze');
                   const TierIcon = tierInfo.icon;
@@ -261,7 +526,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   );
                 })()}
                 
-                {/* Profile Button */}
                 <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
                   <User className="w-5 h-5" />
                 </button>
@@ -271,17 +535,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10">
                       <span className="font-medium">Welcome, {user.firstName}!</span>
                     </div>
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
-                    >
+                    <Link to="/profile" className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300">
                       Profile
                     </Link>
-                    
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center"
-                    >
+                    <button onClick={logout} className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center">
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
                     </button>
@@ -294,12 +551,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   <User className="w-5 h-5" />
                 </button>
                 <div className="absolute right-0 mt-2 w-48 fashion-card opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <div className="py-2">
-                    <Link
-                      to="/login"
-                      className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
-                    >
-                      Customer Login
+                  <div className="py-4 flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-fashion-accent-brown via-fashion-cream to-fashion-warm-white flex items-center justify-center shadow-md mb-2">
+                      <User className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-sm text-fashion-charcoal font-medium mb-2">Customer Login</span>
+                    <Link to="/login" className="block w-20 px-4 py-2 text-sm text-center rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow">
+                      Sign In
                     </Link>
                   </div>
                 </div>
@@ -323,6 +581,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-3">
             <button
+              onClick={handleSearchOpen}
+              className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <button
               onClick={onCartClick}
               data-cart-button
               className="relative circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
@@ -339,51 +603,29 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <div className="relative w-5 h-5">
-                <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
-                    isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1'
-                  }`}
-                />
-                <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${
-                    isMenuOpen ? 'opacity-0' : 'opacity-100'
-                  }`}
-                />
-                <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
-                    isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1'
-                  }`}
-                />
+                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1'}`} />
+                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
+                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1'}`} />
               </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <div 
-          className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
-            isMenuOpen 
-              ? 'translate-y-0 opacity-100' 
-              : '-translate-y-full opacity-0 pointer-events-none'
-          }`}
-        >
+        <div className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
+          isMenuOpen 
+            ? 'translate-y-0 opacity-100' 
+            : '-translate-y-full opacity-0 pointer-events-none'
+        }`}>
           <div className="h-[calc(100vh-4rem)] overflow-y-auto">
             <nav className="px-6 py-8 space-y-6">
               {navigationLinks
                 .filter(link => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((link, index) => (
-                  <div 
-                    key={link._id} 
-                    className={`py-1 transition-all duration-500 ease-out transform ${
-                      isMenuOpen 
-                        ? 'translate-y-0 opacity-100' 
-                        : 'translate-y-4 opacity-0'
-                    }`}
-                    style={{
-                      transitionDelay: `${150 + (index * 50)}ms`
-                    }}
-                  >
+                  <div key={link._id} className={`py-1 transition-all duration-500 ease-out transform ${
+                    isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                  }`} style={{ transitionDelay: `${150 + (index * 50)}ms` }}>
                     <a
                       href={link.url}
                       className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-lg sm:text-xl tracking-wide flex items-center justify-between"
@@ -393,7 +635,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       {link.hasDropdown && <ChevronDown className="w-5 h-5" />}
                     </a>
                     
-                    {/* Mobile Dropdown Items */}
                     {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 && (
                       <div className="ml-4 mt-3 space-y-3 overflow-hidden">
                         {link.dropdownItems
@@ -421,16 +662,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               
               <div className="flex items-center justify-center space-x-4 pt-6 border-t border-fashion-charcoal/10">
                 <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center">
-                  <Search className="w-4 h-4" />
-                </button>
-                <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center">
                   <Heart className="w-4 h-4" />
                 </button>
                 {user ? (
                   <div className="flex flex-col space-y-3 w-full">
                     <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 flex items-center justify-between fashion-card">
                       <span className="font-medium">Welcome, {user.firstName}!</span>
-                      {/* Mobile Tier Badge */}
                       {(() => {
                         const tierInfo = getTierInfo(user.loyaltyTier || 'bronze');
                         const TierIcon = tierInfo.icon;
@@ -480,6 +717,5 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     </header>
   );
 };
-
 
 export default Header;

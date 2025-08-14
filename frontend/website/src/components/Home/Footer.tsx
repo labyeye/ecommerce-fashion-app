@@ -214,7 +214,18 @@ const Footer: React.FC = () => {
             </div>
             <div className="text-center group cursor-pointer">
               <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
-                <div className="w-8 h-6 bg-gradient-to-b from-orange-500 via-white via-50% to-green-500 rounded-sm"></div>
+                <svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-6 rounded-sm shadow">
+                  <rect width="32" height="24" rx="3" fill="#fff" />
+                  <rect y="0" width="32" height="8" fill="#FF9933" />
+                  <rect y="16" width="32" height="8" fill="#138808" />
+                  <circle cx="16" cy="12" r="3" fill="#000088" />
+                  <circle cx="16" cy="12" r="2.2" fill="#fff" />
+                  <g>
+                    {[...Array(24)].map((_, i) => (
+                      <rect key={i} x={16} y={12} width="2.2" height="0.2" fill="#000088" transform={`rotate(${(360/24)*i} 16 12)`} />
+                    ))}
+                  </g>
+                </svg>
               </div>
               <h5 className="font-semibold mb-1">Made in India</h5>
               <p className="text-xs text-white/60">Proudly Indian brand</p>
