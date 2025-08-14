@@ -45,9 +45,9 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
     const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
     
     const mailOptions = {
-      from: `"Vitals Team" <${process.env.EMAIL_FROM || 'noreply@vitals.com'}>`,
+      from: `"Flaunt by Nishi" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
       to: email,
-      subject: 'Verify Your Email Address - Vitals',
+      subject: 'Verify Your Email Address - Flaunt by Nishi',
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -57,74 +57,83 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
           <title>Email Verification</title>
           <style>
             body {
-              font-family: Arial, sans-serif;
-              line-height: 1.6;
-              color: #333;
+              font-family: 'Inter', 'Arial', sans-serif;
+              background: #FFF2E1;
+              color: #2B463C;
               max-width: 600px;
               margin: 0 auto;
-              padding: 20px;
+              padding: 0;
             }
             .header {
-              background: linear-gradient(135deg, #2B463C, #688F4E);
-              color: white;
+              background: linear-gradient(135deg, #B5A084, #688F4E);
+              color: #fff;
               text-align: center;
-              padding: 30px;
-              border-radius: 10px 10px 0 0;
+              padding: 32px 24px 24px 24px;
+              border-radius: 18px 18px 0 0;
+            }
+            .logo {
+              width: 60px;
+              height: 60px;
+              margin-bottom: 12px;
+              border-radius: 50%;
+              background: #fff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.07);
             }
             .content {
-              background: #f9f9f9;
-              padding: 30px;
-              border-radius: 0 0 10px 10px;
+              background: #fff;
+              padding: 32px 24px;
+              border-radius: 0 0 18px 18px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             }
             .button {
               display: inline-block;
-              background: linear-gradient(135deg, #688F4E, #2B463C);
-              color: white;
-              padding: 15px 30px;
+              background: linear-gradient(90deg, #B5A084, #688F4E);
+              color: #fff;
+              padding: 14px 32px;
               text-decoration: none;
               border-radius: 25px;
-              font-weight: bold;
-              margin: 20px 0;
+              font-weight: 600;
+              font-size: 16px;
+              margin: 24px 0;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+              letter-spacing: 0.5px;
             }
             .footer {
               text-align: center;
-              margin-top: 30px;
-              padding-top: 20px;
-              border-top: 1px solid #ddd;
-              color: #666;
-              font-size: 12px;
+              margin-top: 32px;
+              padding-top: 18px;
+              border-top: 1px solid #eee;
+              color: #B5A084;
+              font-size: 13px;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>Welcome to Vitals!</h1>
-            <p>Thanks for joining our protein-powered community</p>
+            <div class="logo">
+              <img src="https://flauntbynishi.com/logo.png" alt="Flaunt by Nishi" style="width:44px;height:44px;object-fit:contain;" />
+            </div>
+            <h1 style="font-size:2rem; font-weight:700; margin-bottom:8px;">Welcome to Flaunt by Nishi!</h1>
+            <p style="font-size:1rem; font-weight:400;">Thanks for joining our fashion community</p>
           </div>
-          
           <div class="content">
-            <h2>Hi ${firstName}!</h2>
-            
-            <p>Welcome to Vitals! We're excited to have you as part of our community.</p>
-            
-            <p>To complete your registration and start your fitness journey with us, please verify your email address by clicking the button below:</p>
-            
+            <h2 style="font-size:1.25rem; font-weight:600; color:#688F4E;">Hi ${firstName}!</h2>
+            <p style="margin:16px 0 8px 0;">We're excited to have you as part of our style-forward family.</p>
+            <p style="margin-bottom:16px;">To complete your registration and start your journey with us, please verify your email address by clicking the button below:</p>
             <div style="text-align: center;">
               <a href="${verificationUrl}" class="button">Verify Email Address</a>
             </div>
-            
-            <p>This verification link will expire in 24 hours for security reasons.</p>
-            
+            <p style="margin:24px 0 8px 0; color:#B5A084;">This verification link will expire in 24 hours for security reasons.</p>
             <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
             <p style="word-break: break-all; color: #688F4E;">${verificationUrl}</p>
-            
-            <p>If you didn't create an account with Vitals, you can safely ignore this email.</p>
-            
-            <p>Best regards,<br>The Vitals Team</p>
+            <p>If you didn't create an account with Flaunt by Nishi, you can safely ignore this email.</p>
+            <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
           </div>
-          
           <div class="footer">
-            <p>&copy; 2025 Vitals. All rights reserved.</p>
+            <p>&copy; 2025 Flaunt by Nishi. All rights reserved.</p>
             <p>This is an automated email, please do not reply.</p>
           </div>
         </body>
@@ -133,17 +142,17 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
       text: `
         Hi ${firstName}!
         
-        Welcome to Vitals! We're excited to have you as part of our community.
+        Welcome to Flaunt by Nishi! We're excited to have you as part of our style-forward family.
         
         To complete your registration, please verify your email address by visiting this link:
         ${verificationUrl}
         
         This verification link will expire in 24 hours for security reasons.
         
-        If you didn't create an account with Vitals, you can safely ignore this email.
+        If you didn't create an account with Flaunt by Nishi, you can safely ignore this email.
         
         Best regards,
-        The Vitals Team
+        The Flaunt by Nishi Team
       `
     };
 
