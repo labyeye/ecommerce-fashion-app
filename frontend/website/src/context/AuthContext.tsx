@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -74,7 +74,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = "https://ecommerce-fashion-app.onrender.com/api";
+const API_BASE_URL = "http://localhost:3500/api";
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Check if user is authenticated on app load
   useEffect(() => {

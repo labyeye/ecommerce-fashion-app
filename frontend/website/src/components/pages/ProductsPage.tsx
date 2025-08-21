@@ -45,7 +45,7 @@ const ProductPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = 'https://ecommerce-fashion-app.onrender.com/api/products';
+      let url = 'http://localhost:3500/api/products';
       const params = new URLSearchParams();
 
       if (categoryParam) {
@@ -169,7 +169,7 @@ const ProductPage: React.FC = () => {
               <p className="text-fashion-charcoal/70 mb-2">{error}</p>
               <p className="text-sm text-fashion-charcoal/50">
                 If the issue persists, please make sure:
-                <br />1. The backend server is running at https://ecommerce-fashion-app.onrender.com
+                <br />1. The backend server is running at http://localhost:3500
                 <br />2. You have an active internet connection
                 <br />3. You have the required permissions
               </p>

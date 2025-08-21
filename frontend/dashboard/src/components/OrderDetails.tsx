@@ -88,7 +88,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         setLoading(true);
         setError('');
 
-        const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/orders/${orderId}/details`, {
+        const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
     try {
       setUpdatingStatus(true);
-      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

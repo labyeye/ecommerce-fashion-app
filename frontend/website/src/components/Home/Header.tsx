@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Search, Heart, User, Crown, Award, Medal, ChevronDown } from "lucide-react";
+import {
+  ShoppingCart,
+  Search,
+  Heart,
+  User,
+  LogOut,
+  Crown,
+  Award,
+  Medal,
+  ChevronDown,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/images/logoblack.png";
@@ -41,14 +51,38 @@ interface Product {
 
 const getTierInfo = (tier: string) => {
   switch (tier?.toLowerCase()) {
-    case 'bronze':
-      return { icon: Medal, color: '#8B7355', bgColor: 'bg-fashion-light-brown/20', textColor: 'text-fashion-accent-brown', name: 'Bronze' };
-    case 'silver':
-      return { icon: Award, color: '#D4CFC7', bgColor: 'bg-fashion-warm-gray/20', textColor: 'text-fashion-dark-gray', name: 'Silver' };
-    case 'gold':
-      return { icon: Crown, color: '#B5A084', bgColor: 'bg-fashion-nude/20', textColor: 'text-fashion-accent-brown', name: 'Gold' };
+    case "bronze":
+      return {
+        icon: Medal,
+        color: "#8B7355",
+        bgColor: "bg-fashion-light-brown/20",
+        textColor: "text-fashion-accent-brown",
+        name: "Bronze",
+      };
+    case "silver":
+      return {
+        icon: Award,
+        color: "#D4CFC7",
+        bgColor: "bg-fashion-warm-gray/20",
+        textColor: "text-fashion-dark-gray",
+        name: "Silver",
+      };
+    case "gold":
+      return {
+        icon: Crown,
+        color: "#B5A084",
+        bgColor: "bg-fashion-nude/20",
+        textColor: "text-fashion-accent-brown",
+        name: "Gold",
+      };
     default:
-      return { icon: Medal, color: '#8B7355', bgColor: 'bg-fashion-light-brown/20', textColor: 'text-fashion-accent-brown', name: 'Bronze' };
+      return {
+        icon: Medal,
+        color: "#8B7355",
+        bgColor: "bg-fashion-light-brown/20",
+        textColor: "text-fashion-accent-brown",
+        name: "Bronze",
+      };
   }
 };
 
@@ -58,50 +92,121 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [pageResults, setPageResults] = useState<NavigationLink[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  
+
   const { user } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const isHomePage = location.pathname === "/";
 
   // Initialize with fallback navigation INCLUDING SHIRT
   useEffect(() => {
     const fallbackNavigation: NavigationLink[] = [
-      { _id: '1', name: 'Home', slug: 'home', url: '/', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 1 },
-      { _id: '2', name: 'About', slug: 'about', url: '/about', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 2 },
-      { 
-        _id: '3', 
-        name: 'Products', 
-        slug: 'products', 
-        url: '/products', 
-        type: 'category', 
-        hasDropdown: true, 
-        dropdownItems: [
-          { name: 'Shirt', url: '/products?category=shirt', isActive: true, sortOrder: 1 },
-          { name: 'Jumpsuit', url: '/products?category=jumpsuit', isActive: true, sortOrder: 2 },
-          { name: 'Kaftan', url: '/products?category=kaftan', isActive: true, sortOrder: 3 },
-          { name: 'Coord Set', url: '/products?category=coord-set', isActive: true, sortOrder: 4 },
-          { name: 'Dress', url: '/products?category=dress', isActive: true, sortOrder: 5 }
-        ], 
-        isActive: true, 
-        sortOrder: 3 
+      {
+        _id: "1",
+        name: "Home",
+        slug: "home",
+        url: "/",
+        type: "page",
+        hasDropdown: false,
+        dropdownItems: [],
+        isActive: true,
+        sortOrder: 1,
       },
-      { _id: '4', name: 'Blogs', slug: 'blogs', url: '/blogs', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 4 },
-      { _id: '5', name: 'Contact', slug: 'contact', url: '/contact', type: 'page', hasDropdown: false, dropdownItems: [], isActive: true, sortOrder: 5 }
+      {
+        _id: "2",
+        name: "About",
+        slug: "about",
+        url: "/about",
+        type: "page",
+        hasDropdown: false,
+        dropdownItems: [],
+        isActive: true,
+        sortOrder: 2,
+      },
+      {
+        _id: "3",
+        name: "Products",
+        slug: "products",
+        url: "/products",
+        type: "category",
+        hasDropdown: true,
+        dropdownItems: [
+          {
+            name: "Shirt",
+            url: "/products?category=shirt",
+            isActive: true,
+            sortOrder: 1,
+          },
+          {
+            name: "Jumpsuit",
+            url: "/products?category=jumpsuit",
+            isActive: true,
+            sortOrder: 2,
+          },
+          {
+            name: "Kaftan",
+            url: "/products?category=kaftan",
+            isActive: true,
+            sortOrder: 3,
+          },
+          {
+            name: "Coord Set",
+            url: "/products?category=coord-set",
+            isActive: true,
+            sortOrder: 4,
+          },
+          {
+            name: "Dress",
+            url: "/products?category=dress",
+            isActive: true,
+            sortOrder: 5,
+          },
+        ],
+        isActive: true,
+        sortOrder: 3,
+      },
+      {
+        _id: "4",
+        name: "Blogs",
+        slug: "blogs",
+        url: "/blogs",
+        type: "page",
+        hasDropdown: false,
+        dropdownItems: [],
+        isActive: true,
+        sortOrder: 4,
+      },
+      {
+        _id: "5",
+        name: "Contact",
+        slug: "contact",
+        url: "/contact",
+        type: "page",
+        hasDropdown: false,
+        dropdownItems: [],
+        isActive: true,
+        sortOrder: 5,
+      },
     ];
 
-    console.log("🚀 Setting fallback navigation with shirts:", fallbackNavigation);
+    console.log(
+      "🚀 Setting fallback navigation with shirts:",
+      fallbackNavigation
+    );
     setNavigationLinks(fallbackNavigation);
 
     // Try to fetch from API
     const fetchNavigation = async () => {
       try {
         console.log("🌐 Fetching navigation from API...");
-        const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/navigation/public');
+        const response = await fetch(
+          "http://localhost:3500/api/navigation/public"
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -114,7 +219,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           console.log("❌ API response not ok, using fallback");
         }
       } catch (error) {
-        console.error('❌ Error fetching navigation, using fallback:', error);
+        console.error("❌ Error fetching navigation, using fallback:", error);
       }
     };
 
@@ -124,7 +229,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   // Search function with detailed logging
   const performSearch = async (term: string) => {
     console.log("🔍 Starting search for:", term);
-    
+
     if (!term || term.length < 2) {
       console.log("🔍 Search term too short, clearing results");
       setSearchResults([]);
@@ -134,7 +239,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
     setSearchLoading(true);
     console.log("🔍 Search loading started");
-    
+
     try {
       // Search in navigation first (guaranteed to work)
       const searchLower = term.toLowerCase();
@@ -142,31 +247,36 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
       console.log("🔍 Searching in navigation links:", navigationLinks);
 
-      navigationLinks.forEach(link => {
+      navigationLinks.forEach((link) => {
         if (!link.isActive) return;
 
         // Check main navigation item
-        if (link.name.toLowerCase().includes(searchLower) || 
-            link.slug.toLowerCase().includes(searchLower)) {
+        if (
+          link.name.toLowerCase().includes(searchLower) ||
+          link.slug.toLowerCase().includes(searchLower)
+        ) {
           console.log("✅ Found matching page:", link.name);
           matchingPages.push(link);
         }
 
         // Check dropdown items
         if (link.hasDropdown && link.dropdownItems) {
-          link.dropdownItems.forEach(item => {
-            if (item.isActive && item.name.toLowerCase().includes(searchLower)) {
+          link.dropdownItems.forEach((item) => {
+            if (
+              item.isActive &&
+              item.name.toLowerCase().includes(searchLower)
+            ) {
               console.log("✅ Found matching category:", item.name);
               const virtualLink: NavigationLink = {
                 _id: `${link._id}-${item.name}`,
                 name: item.name,
-                slug: item.name.toLowerCase().replace(/\s+/g, '-'),
+                slug: item.name.toLowerCase().replace(/\s+/g, "-"),
                 url: item.url,
-                type: 'category',
+                type: "category",
                 hasDropdown: false,
                 dropdownItems: [],
                 isActive: true,
-                sortOrder: item.sortOrder
+                sortOrder: item.sortOrder,
               };
               matchingPages.push(virtualLink);
             }
@@ -179,11 +289,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
       // Try to search products from API
       let products: Product[] = [];
-      
+
       try {
         console.log("🌐 Searching products via API...");
-        const productResponse = await fetch(`/api/products?search=${encodeURIComponent(term)}&limit=10`);
-        
+        const productResponse = await fetch(
+          `/api/products?search=${encodeURIComponent(term)}&limit=10`
+        );
+
         if (productResponse.ok) {
           const data = await productResponse.json();
           products = data.products || [];
@@ -191,7 +303,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         } else {
           console.log("❌ Main API failed, trying alternative...");
           // Try alternative API
-          const altResponse = await fetch(`https://ecommerce-fashion-app.onrender.com/api/products?search=${encodeURIComponent(term)}`);
+          const altResponse = await fetch(
+            `http://localhost:3500/api/products?search=${encodeURIComponent(
+              term
+            )}`
+          );
           if (altResponse.ok) {
             const altData = await altResponse.json();
             products = altData.products || altData.data || [];
@@ -203,10 +319,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       }
 
       setSearchResults(products);
-      console.log("🔍 Final search results - Pages:", matchingPages.length, "Products:", products.length);
-
+      console.log(
+        "🔍 Final search results - Pages:",
+        matchingPages.length,
+        "Products:",
+        products.length
+      );
     } catch (error) {
-      console.error('❌ Search error:', error);
+      console.error("❌ Search error:", error);
       setSearchResults([]);
       setPageResults([]);
     } finally {
@@ -223,7 +343,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     }
 
     console.log("🔍 Search term changed:", searchTerm);
-    
+
     const timeout = setTimeout(() => {
       performSearch(searchTerm);
     }, 300);
@@ -246,34 +366,34 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
     handleScroll();
     if (isHomePage) {
-      window.addEventListener('scroll', handleScroll);
+      window.addEventListener("scroll", handleScroll);
     }
 
     return () => {
       if (isHomePage) {
-        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener("scroll", handleScroll);
       }
     };
   }, [isHomePage]);
 
   const getTextColorClass = () => {
     if (isHomePage && !isScrolled) {
-      return 'text-dark';
+      return "text-dark";
     }
-    return 'text-dark';
+    return "text-dark";
   };
 
   const getBackgroundClass = () => {
     if (isHomePage && !isScrolled) {
-      return 'bg-none';
+      return "bg-none";
     }
-    return 'bg-white shadow-sm';
+    return "bg-white shadow-sm";
   };
 
   const handleSearchResultClick = () => {
     console.log("🔍 Search result clicked, closing modal");
     setIsSearchOpen(false);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const handleSearchOpen = () => {
@@ -287,17 +407,72 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     }, 100);
   };
 
+  // Helper to handle protected navigation
+  const handleProtectedNav = (url: string) => {
+    if (user) {
+      window.location.href = url;
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
+  // Helper for wishlist heart click
+  const handleWishlistClick = (e?: React.MouseEvent) => {
+    if (!user) {
+      if (e) e.preventDefault();
+      setShowLoginModal(true);
+    } else {
+      window.location.href = "/wishlist";
+    }
+  };
+
+  // Simple login modal
+  const LoginModal = () => (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full flex flex-col items-center">
+        <User className="w-10 h-10 text-fashion-accent-brown mb-2" />
+        <h2 className="text-lg font-semibold mb-2">Login Required</h2>
+        <p className="text-gray-600 mb-4 text-center">
+          Please login to view this page or use wishlist features.
+        </p>
+        <div className="flex space-x-3">
+          <a
+            href="/login"
+            className="px-4 py-2 rounded bg-fashion-accent-brown text-white font-medium"
+          >
+            Sign In
+          </a>
+          <a
+            href="/register"
+            className="px-4 py-2 rounded bg-fashion-cream text-fashion-accent-brown font-medium"
+          >
+            Sign Up
+          </a>
+        </div>
+        <button
+          className="mt-4 text-sm text-gray-400 hover:text-red-500"
+          onClick={() => setShowLoginModal(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 border-fashion-charcoal/10 transition-all duration-300 ${getBackgroundClass()}`}>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 border-fashion-charcoal/10 transition-all duration-300 ${getBackgroundClass()}`}
+    >
+      {showLoginModal && <LoginModal />}
       <div className="px-7">
         <div className="flex items-center h-16 md:h-20">
           {/* Left Navigation (Desktop) */}
           <div className="hidden md:flex items-center">
             <nav className="flex space-x-8">
               {navigationLinks
-                .filter(link => link.isActive)
+                .filter((link) => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
-                .map((link) => (
+                .map((link) =>
                   link.hasDropdown ? (
                     <div
                       key={link._id}
@@ -307,18 +482,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     >
                       <a
                         href={link.url}
-                        className={`text-md font-small tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        className={`text-lg font-small tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
                         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
                       </a>
-                      
+
                       {link.dropdownItems && link.dropdownItems.length > 0 && (
                         <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-fashion-charcoal/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                           <div className="py-2">
                             {link.dropdownItems
-                              .filter(item => item.isActive)
+                              .filter((item) => item.isActive)
                               .sort((a, b) => a.sortOrder - b.sortOrder)
                               .map((item, index) => (
                                 <a
@@ -337,13 +512,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-md font-medium tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-lg font-medium tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
                     </a>
                   )
-                ))}
+                )}
             </nav>
           </div>
 
@@ -352,7 +527,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             <a href="/" className="flex items-center">
               <div className="relative">
                 <div className="w-24 h-24">
-                  <img src={logo} alt="Flaunt by Nishi"/>
+                  <img src={logo} alt="Flaunt by Nishi" />
                 </div>
               </div>
             </a>
@@ -360,215 +535,232 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
           {/* Right Navigation (Desktop) */}
           <div className="hidden md:flex items-center justify-end flex-1 space-x-4">
-            <button
-              className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center"
-              onClick={handleSearchOpen}
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-
-            {/* Enhanced Search Modal with Debug Info */}
-            {isSearchOpen && (
-              <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30" onClick={() => {
-                console.log("🔍 Closing search modal (overlay click)");
-                setIsSearchOpen(false);
-              }}>
-                <div className="mt-24 bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-96 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                  {/* Search Header */}
-                  <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-center space-x-3">
-                      <Search className="w-5 h-5 text-gray-400" />
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        className="flex-1 text-lg border-0 focus:outline-none placeholder-gray-400"
-                        placeholder="Search for products, categories (e.g. shirt, jumpsuit, dress...)"
-                        value={searchTerm}
-                        onChange={(e) => {
-                          console.log("🔍 Search input changed:", e.target.value);
-                          setSearchTerm(e.target.value);
-                        }}
-                      />
-                      <button 
-                        className="text-gray-400 hover:text-red-500 text-xl font-bold"
-                        onClick={() => {
-                          console.log("🔍 Closing search modal (X button)");
-                          setIsSearchOpen(false);
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                    {/* Debug Info */}
-                    <div className="mt-2 text-xs text-gray-500">
-                      Debug: Navigation Links: {navigationLinks.length} | Search Term: "{searchTerm}" | Loading: {searchLoading ? 'Yes' : 'No'}
-                    </div>
-                  </div>
-
-                  {/* Search Results */}
-                  <div className="flex-1 overflow-y-auto">
+            <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 mr-4 relative">
+              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent"
+                placeholder="Search products, categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm.length > 1 && (
+                <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
+                  <div className="p-3">
                     {searchLoading && (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
-                        <span className="ml-3 text-gray-500">Searching...</span>
+                      <div className="flex items-center justify-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
+                        <span className="ml-2 text-gray-500">Searching...</span>
                       </div>
                     )}
-
-                    {!searchLoading && searchTerm.length > 1 && searchResults.length === 0 && pageResults.length === 0 && (
-                      <div className="text-center py-8 text-gray-500">
-                        <Search className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                        <p>No results found for "{searchTerm}"</p>
-                        <p className="text-sm text-gray-400 mt-1">Try searching for: shirt, jumpsuit, kaftan, dress, coord set</p>
-                      </div>
-                    )}
-
-                    {!searchLoading && (searchResults.length > 0 || pageResults.length > 0) && (
-                      <div className="divide-y divide-gray-100">
-                        {/* Page/Category Results */}
-                        {pageResults.length > 0 && (
-                          <div className="p-3">
-                            <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
-                              <ChevronDown className="w-4 h-4 mr-1" />
-                              Categories & Pages ({pageResults.length})
-                            </h3>
-                            {pageResults.map(link => (
-                              <a
-                                key={link._id}
-                                href={link.url}
-                                className="block px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors group"
-                                onClick={handleSearchResultClick}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="font-medium text-blue-700 group-hover:text-blue-800">{link.name}</span>
-                                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                                    {link.type === 'category' ? 'Category' : 'Page'}
+                    {!searchLoading &&
+                      searchResults.length === 0 &&
+                      pageResults.length === 0 && (
+                        <div className="text-center py-4 text-gray-500">
+                          <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                          <p>No results found for "{searchTerm}"</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Try searching for: shirt, jumpsuit, kaftan, dress,
+                            coord set
+                          </p>
+                        </div>
+                      )}
+                    {!searchLoading &&
+                      (searchResults.length > 0 || pageResults.length > 0) && (
+                        <div className="divide-y divide-gray-100">
+                          {pageResults.length > 0 && (
+                            <div className="mb-2">
+                              <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
+                                <ChevronDown className="w-4 h-4 mr-1" />
+                                Categories & Pages ({pageResults.length})
+                              </h3>
+                              {pageResults.map((link) => (
+                                <a
+                                  key={link._id}
+                                  href={link.url}
+                                  className="block px-2 py-1 hover:bg-gray-50 rounded transition-colors group"
+                                >
+                                  <span className="font-medium text-blue-700 group-hover:text-blue-800">
+                                    {link.name}
                                   </span>
-                                </div>
-                              </a>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Product Results */}
-                        {searchResults.length > 0 && (
-                          <div className="p-3">
-                            <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
-                              <ShoppingCart className="w-4 h-4 mr-1" />
-                              Products ({searchResults.length})
-                            </h3>
-                            {searchResults.slice(0, 6).map(product => (
-                              <a
-                                key={product._id || product.id}
-                                href={`/product/${product._id || product.id}`}
-                                className="block px-3 py-3 hover:bg-gray-50 rounded-lg transition-colors group"
-                                onClick={handleSearchResultClick}
-                              >
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                    {(product.images?.[0]?.url || product.imageUrl) ? (
-                                      <img 
-                                        src={product.images?.[0]?.url || product.imageUrl} 
-                                        alt={product.name} 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                        <ShoppingCart className="w-6 h-6 text-gray-400" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
-                                      {product.name}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-1">
-                                      <span className="text-fashion-accent-brown font-semibold">₹{product.price}</span>
-                                      {product.category && (
-                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                          {product.category}
-                                        </span>
+                                  <span className="ml-2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                                    {link.type === "category"
+                                      ? "Category"
+                                      : "Page"}
+                                  </span>
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                          {searchResults.length > 0 && (
+                            <div>
+                              <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
+                                <ShoppingCart className="w-4 h-4 mr-1" />
+                                Products ({searchResults.length})
+                              </h3>
+                              {searchResults.slice(0, 6).map((product) => (
+                                <a
+                                  key={product._id || product.id}
+                                  href={`/product/${product._id || product.id}`}
+                                  className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                      {product.images?.[0]?.url ||
+                                      product.imageUrl ? (
+                                        <img
+                                          src={
+                                            product.images?.[0]?.url ||
+                                            product.imageUrl
+                                          }
+                                          alt={product.name}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                          <ShoppingCart className="w-5 h-5 text-gray-400" />
+                                        </div>
                                       )}
                                     </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
+                                        {product.name}
+                                      </p>
+                                      <div className="flex items-center justify-between mt-1">
+                                        <span className="text-fashion-accent-brown font-semibold">
+                                          ₹{product.price}
+                                        </span>
+                                        {product.category && (
+                                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                            {product.category}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Rest of the header remains the same... */}
-            <a href="/wishlist" className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-              <Heart className="w-5 h-5" />
-            </a>
-            
-            {user ? (
-              <div className="relative group flex items-center space-x-3">
-                {(() => {
-                  const tierInfo = getTierInfo(user.loyaltyTier || 'bronze');
-                  const TierIcon = tierInfo.icon;
-                  return (
-                    <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-fashion ${tierInfo.bgColor} border border-fashion-charcoal/10`}>
-                      <TierIcon className="w-4 h-4" style={{ color: tierInfo.color }} />
-                      <span className={`text-xs font-medium ${tierInfo.textColor}`}>
-                        {tierInfo.name}
-                      </span>
-                    </div>
-                  );
-                })()}
-                
-                <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                  <User className="w-5 h-5" />
-                </button>
-                
-                <div className="absolute right-0 mt-2 w-56 fashion-card opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50" style={{ top: '100%' }}>
-                  <div className="py-2">
-                    <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10">
-                      <span className="font-medium">Welcome, {user.firstName}!</span>
-                    </div>
-                    <Link to="/profile" className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300">
-                      Profile
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="relative group">
-                <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                  <User className="w-5 h-5" />
-                </button>
-                <div className="absolute right-0 mt-2 w-48 fashion-card opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <div className="py-4 flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-fashion-accent-brown via-fashion-cream to-fashion-warm-white flex items-center justify-center shadow-md mb-2">
-                      <User className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-sm text-fashion-charcoal font-medium mb-2">Customer Login</span>
-                    <Link to="/login" className="block w-20 px-4 py-2 text-sm text-center rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow">
-                      Sign In
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <button
-              onClick={onCartClick}
-              data-cart-button
-              className="relative circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center group"
-            >
-              <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
-                  {cartCount}
-                </span>
               )}
-            </button>
+            </div>
+
+            <div className="relative group flex flex-col items-center">
+              <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+                <User className="w-5 h-5" />
+              </button>
+              <span className="text-xs text-[#2D2D2D] mt-1">Profile</span>
+              <div
+                className="absolute right-0 mt-2 w-64 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                style={{ top: "100%" }}
+              >
+                <div className="py-4">
+                  {user ? (
+                    <>
+                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 ">
+                        <span className="font-medium">
+                          Welcome, {user.firstName}!
+                        </span>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Profile
+                      </Link>
+                      <button
+                        onClick={() =>
+                          handleProtectedNav("/profile?tab=orders")
+                        }
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Orders
+                      </button>
+                      <button
+                        onClick={() => handleProtectedNav("/wishlist")}
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Wishlist
+                      </button>
+                      <button
+                        onClick={() => handleProtectedNav("/addresses")}
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Addresses
+                      </button>
+                      <button
+                        onClick={useAuth().logout}
+                        className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 text-center">
+                        <span className="font-medium">Welcome</span>
+                        <div className="mt-2">
+                          <Link
+                            to="/login"
+                            className="inline-block w-24 px-4 py-2 text-sm rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow mr-2"
+                          >
+                            Sign In
+                          </Link>
+                          <Link
+                            to="/register"
+                            className="inline-block w-24 px-4 py-2 text-sm rounded-lg bg-fashion-cream text-fashion-accent-brown hover:bg-fashion-cream/90 transition-colors duration-300 shadow"
+                          >
+                            Sign Up
+                          </Link>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() =>
+                          handleProtectedNav("/profile?tab=orders")
+                        }
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Orders
+                      </button>
+                      <button
+                        onClick={() => handleProtectedNav("/wishlist")}
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Wishlist
+                      </button>
+                      <button
+                        onClick={() => handleProtectedNav("/addresses")}
+                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                      >
+                        My Addresses
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center relative">
+              <button
+                onClick={onCartClick}
+                data-cart-button
+                className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center group"
+              >
+                <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+              <span className="text-xs text-[#2D2D2D] mt-1">Bag</span>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -591,34 +783,61 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 </span>
               )}
             </button>
+            <span
+              className="text-xs text-[#2D2D2D] mt-1"
+              style={{ display: "block", width: "100%", textAlign: "center" }}
+            >
+              Bag
+            </span>
+
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <div className="relative w-5 h-5">
-                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-1'}`} />
-                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
-                <span className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-1'}`} />
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? "rotate-45 translate-y-0" : "-translate-y-1"
+                  }`}
+                />
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${
+                    isMenuOpen ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+                <span
+                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? "-rotate-45 translate-y-0" : "translate-y-1"
+                  }`}
+                />
               </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
-          isMenuOpen 
-            ? 'translate-y-0 opacity-100' 
-            : '-translate-y-full opacity-0 pointer-events-none'
-        }`}>
+        <div
+          className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
+            isMenuOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-full opacity-0 pointer-events-none"
+          }`}
+        >
           <div className="h-[calc(100vh-4rem)] overflow-y-auto">
             <nav className="px-6 py-8 space-y-6">
               {navigationLinks
-                .filter(link => link.isActive)
+                .filter((link) => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((link, index) => (
-                  <div key={link._id} className={`py-1 transition-all duration-500 ease-out transform ${
-                    isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-                  }`} style={{ transitionDelay: `${150 + (index * 50)}ms` }}>
+                  <div
+                    key={link._id}
+                    className={`py-1 transition-all duration-500 ease-out transform ${
+                      isMenuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-4 opacity-0"
+                    }`}
+                    style={{ transitionDelay: `${150 + index * 50}ms` }}
+                  >
                     <a
                       href={link.url}
                       className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-lg sm:text-xl tracking-wide flex items-center justify-between"
@@ -627,72 +846,108 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       {link.name}
                       {link.hasDropdown && <ChevronDown className="w-5 h-5" />}
                     </a>
-                    
-                    {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 && (
-                      <div className="ml-4 mt-3 space-y-3 overflow-hidden">
-                        {link.dropdownItems
-                          .filter(item => item.isActive)
-                          .sort((a, b) => a.sortOrder - b.sortOrder)
-                          .map((item, dropdownIndex) => (
-                            <a
-                              key={dropdownIndex}
-                              href={item.url}
-                              className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base sm:text-lg transform"
-                              style={{
-                                opacity: isMenuOpen ? 1 : 0,
-                                transform: `translateX(${isMenuOpen ? '0' : '-10px'})`,
-                                transitionDelay: `${(index * 50) + (dropdownIndex * 30)}ms`
-                              }}
-                              onClick={() => setIsMenuOpen(false)}
-                            >
-                              {item.name}
-                            </a>
-                          ))}
-                      </div>
-                    )}
+
+                    {link.hasDropdown &&
+                      link.dropdownItems &&
+                      link.dropdownItems.length > 0 && (
+                        <div className="ml-4 mt-3 space-y-3 overflow-hidden">
+                          {link.dropdownItems
+                            .filter((item) => item.isActive)
+                            .sort((a, b) => a.sortOrder - b.sortOrder)
+                            .map((item, dropdownIndex) => (
+                              <a
+                                key={dropdownIndex}
+                                href={item.url}
+                                className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base sm:text-lg transform"
+                                style={{
+                                  opacity: isMenuOpen ? 1 : 0,
+                                  transform: `translateX(${
+                                    isMenuOpen ? "0" : "-10px"
+                                  })`,
+                                  transitionDelay: `${
+                                    index * 50 + dropdownIndex * 30
+                                  }ms`,
+                                }}
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {item.name}
+                              </a>
+                            ))}
+                        </div>
+                      )}
                   </div>
                 ))}
-              
+
               <div className="flex items-center justify-center space-x-4 pt-6 border-t border-fashion-charcoal/10">
-                <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center">
-                  <Heart className="w-4 h-4" />
-                </button>
                 {user ? (
-                  <div className="flex flex-col space-y-3 w-full">
-                    <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 flex items-center justify-between fashion-card">
-                      <span className="font-medium">Welcome, {user.firstName}!</span>
-                      {(() => {
-                        const tierInfo = getTierInfo(user.loyaltyTier || 'bronze');
-                        const TierIcon = tierInfo.icon;
-                        return (
-                          <div className={`flex items-center space-x-1 px-2 py-1 rounded-fashion ${tierInfo.bgColor} border border-fashion-charcoal/10 text-xs`}>
-                            <TierIcon className="w-3 h-3" style={{ color: tierInfo.color }} />
-                            <span className={`font-medium ${tierInfo.textColor}`}>
-                              {tierInfo.name}
-                            </span>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                    <div className="flex items-center justify-center space-x-4">
-                      <Link
-                        to="/profile"
-                        className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <User className="w-4 h-4" />
-                      </Link>
-                      
+                  <div className="relative group flex items-center space-x-3">
+                    {(() => {
+                      const tierInfo = getTierInfo(
+                        user.loyaltyTier || "bronze"
+                      );
+                      const TierIcon = tierInfo.icon;
+                      return (
+                        <div
+                          className={`flex items-center space-x-1 px-3 py-1.5 rounded-fashion ${tierInfo.bgColor} border border-fashion-charcoal/10`}
+                        >
+                          <TierIcon
+                            className="w-4 h-4"
+                            style={{ color: tierInfo.color }}
+                          />
+                          <span
+                            className={`text-xs font-medium ${tierInfo.textColor}`}
+                          >
+                            {tierInfo.name}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+                      <User className="w-5 h-5" />
+                    </button>
+
+                    <div
+                      className="absolute right-0 mt-2 w-56 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                      style={{ top: "100%" }}
+                    >
+                      <div className="py-2">
+                        <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10">
+                          <span className="font-medium">
+                            Welcome, {user.firstName}!
+                          </span>
+                        </div>
+                        <Link
+                          to="/profile"
+                          className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        >
+                          Profile
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <Link 
-                    to="/login" 
-                    className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <User className="w-4 h-4" />
-                  </Link>
+                  <div className="relative group">
+                    <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+                      <User className="w-5 h-5" />
+                    </button>
+                    <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                      <div className="py-4 flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full  flex items-center justify-center shadow-md mb-2">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-sm text-fashion-charcoal font-medium mb-2">
+                          Customer Login
+                        </span>
+                        <Link
+                          to="/login"
+                          className="block w-20 px-4 py-2 text-sm text-center rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow"
+                        >
+                          Sign In
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </nav>

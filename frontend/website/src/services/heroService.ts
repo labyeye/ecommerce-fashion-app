@@ -28,7 +28,7 @@ export interface Hero {
 }
 
 class HeroService {
-  private baseURL = 'https://ecommerce-fashion-app.onrender.com/api/heroes';
+  private baseURL = 'http://localhost:3500/api/heroes';
 
   async getActiveHeroes(): Promise<Hero[]> {
     try {
