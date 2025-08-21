@@ -205,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       try {
         console.log("🌐 Fetching navigation from API...");
         const response = await fetch(
-          "http://localhost:3500/api/navigation/public"
+          "https://ecommerce-fashion-app.onrender.com/api/navigation/public"
         );
         if (response.ok) {
           const data = await response.json();
@@ -304,7 +304,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           console.log("❌ Main API failed, trying alternative...");
           // Try alternative API
           const altResponse = await fetch(
-            `http://localhost:3500/api/products?search=${encodeURIComponent(
+            `https://ecommerce-fashion-app.onrender.com/api/products?search=${encodeURIComponent(
               term
             )}`
           );

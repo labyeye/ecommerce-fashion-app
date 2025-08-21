@@ -67,7 +67,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
       const token = localStorage.getItem('dashboard_token');
       console.log('Fetching categories with token:', token ? 'Token exists' : 'No token found');
       
-      const response = await fetch('http://localhost:3500/api/admin/categories', {
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/admin/categories', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         'Content-Type': 'application/json'
       });
 
-      const response = await fetch('http://localhost:3500/api/admin/products', {
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/admin/products', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

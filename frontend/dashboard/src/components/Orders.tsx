@@ -17,7 +17,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch('http://localhost:3500/api/admin/orders', {
+        const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/admin/orders', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
   const handleConfirmPayment = async (orderId: string) => {
     if (!token) return;
     try {
-      const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -96,7 +96,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -114,7 +114,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       }
       
       // Refresh the orders list to get updated data
-      const refreshResponse = await fetch('http://localhost:3500/api/admin/orders', {
+      const refreshResponse = await fetch('https://ecommerce-fashion-app.onrender.com/api/admin/orders', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
