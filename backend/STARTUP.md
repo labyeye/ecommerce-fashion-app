@@ -40,18 +40,18 @@
    npm run dev
    ```
    
-   Server will start on `https://ecommerce-fashion-app.onrender.com`
+   Server will start on `http://localhost:3500`
 
 ## API Testing
 
 ### Test the health endpoint
 ```bash
-curl https://ecommerce-fashion-app.onrender.com/api/health
+curl http://localhost:3500/api/health
 ```
 
 ### Register a customer
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
+curl -X POST http://localhost:3500/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -63,7 +63,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
 
 ### Login as admin
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
+curl -X POST http://localhost:3500/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@vitals.com",
@@ -73,7 +73,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
 
 ### Get products (public)
 ```bash
-curl https://ecommerce-fashion-app.onrender.com/api/products
+curl http://localhost:3500/api/products
 ```
 
 ## Role Access
