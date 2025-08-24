@@ -8,8 +8,26 @@ import {
   Award,
   Medal,
   ChevronDown,
-  ShoppingBag,
 } from "lucide-react";
+// Custom handbag SVG icon as React component
+const HandbagIcon = ({ className = '', style = {}, width = 24, height = 24 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`lucide lucide-handbag-icon lucide-handbag ${className}`}
+    style={style}
+  >
+    <path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z" />
+    <path d="M8 11V6a4 4 0 0 1 8 0v5" />
+  </svg>
+);
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/images/logoblack.png";
@@ -730,7 +748,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 data-cart-button
                 className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown https://ecommerce-fashion-app.onrender.com transition-all duration-300 flex items-center justify-center group"
               >
-                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" style={{ color: '#493628' }} />
+                <HandbagIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" style={{ color: '#493628' }} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
                     {cartCount}
@@ -754,7 +772,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               data-cart-button
               className="relative circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <ShoppingBag className="w-4 h-4" style={{ color: '#493628' }} />
+              <HandbagIcon className="w-4 h-4" style={{ color: '#493628' }} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
