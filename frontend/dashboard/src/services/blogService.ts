@@ -55,7 +55,7 @@ export interface BlogFilters {
   search?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ecommerce-fashion-app.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3500/api';
 
 export const blogService = {
   // Get all blogs with filters (admin only)

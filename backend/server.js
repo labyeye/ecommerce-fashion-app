@@ -46,7 +46,8 @@ app.use(cors({
       'http://127.0.0.1:5173',
       'http://127.0.0.1:5174',
       'https://ecommerce-fashion-app.vercel.app',
-      'https://ecommerce-fashion-app-dashboard.vercel.app'
+      'https://ecommerce-fashion-app-dashboard.vercel.app',
+      'https://flauntbynishi.com'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','HEAD'],

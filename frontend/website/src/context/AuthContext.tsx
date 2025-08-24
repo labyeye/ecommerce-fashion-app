@@ -74,7 +74,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = "https://ecommerce-fashion-app.onrender.com/api";
+const API_BASE_URL = "http://localhost:3500/api";
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {

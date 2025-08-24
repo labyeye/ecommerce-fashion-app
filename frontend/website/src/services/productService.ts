@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ecommerce-fashion-app.onrender.com/api/products';
+const API_URL = 'http://localhost:3500/api/products';
 
 export interface Product {
   _id?: string;

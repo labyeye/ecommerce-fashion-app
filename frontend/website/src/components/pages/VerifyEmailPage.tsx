@@ -24,7 +24,7 @@ const VerifyEmailPage: React.FC = () => {
 
   const verifyEmail = async () => {
     try {
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/auth/verify-email', {
+      const response = await fetch('http://localhost:3500/api/auth/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ const VerifyEmailPage: React.FC = () => {
     setResendMessage('');
 
     try {
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/auth/resend-verification', {
+      const response = await fetch('http://localhost:3500/api/auth/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

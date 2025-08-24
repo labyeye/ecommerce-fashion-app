@@ -41,7 +41,7 @@ const Wishlist: React.FC = () => {
         const config = getAuthConfig();
         console.log('📡 Fetching wishlist with config:', config);
         
-        const res = await axios.get('https://ecommerce-fashion-app.onrender.com/api/wishlist', config);
+        const res = await axios.get('http://localhost:3500/api/wishlist', config);
         setWishlist(res.data.wishlist || []);
         console.log('✅ Wishlist fetched successfully:', res.data.wishlist?.length || 0, 'items');
       } catch (err: any) {
@@ -68,7 +68,7 @@ const Wishlist: React.FC = () => {
       console.log('➖ Removing from wishlist with config:', config);
       
       await axios.post(
-        'https://ecommerce-fashion-app.onrender.com/api/wishlist/remove', 
+        'http://localhost:3500/api/wishlist/remove', 
         { productId }, 
         config
       );
