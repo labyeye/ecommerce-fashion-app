@@ -8,7 +8,10 @@ import {
   Award,
   Medal,
   ChevronDown,
+  Heart,
 } from "lucide-react";
+  // Handler for wishlist navigation with auth check
+
 // Custom handbag SVG icon as React component
 const HandbagIcon = ({ className = '', style = {}, width = 24, height = 24 }) => (
   <svg
@@ -243,7 +246,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
     fetchNavigation();
   }, []);
-
+    const handleWishlistNav = () => {
+    if (user) {
+      window.location.href = '/wishlist';
+    } else {
+      setShowLoginModal(true);
+    }
+  };
   // Search function with detailed logging
   const performSearch = async (term: string) => {
     console.log("🔍 Starting search for:", term);
@@ -537,6 +546,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
           {/* Right Navigation (Desktop) */}
           <div className="hidden md:flex items-center justify-end flex-1 space-x-4">
+            {/* Heart/Wishlist Icon */}
+            
             <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 mr-4 relative">
               <Search className="w-5 h-5 mr-2" style={{ color: '#493628' }} />
               <input
@@ -656,7 +667,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
                 <User className="w-5 h-5" style={{ color: '#493628' }} />
               </button>
-              <span className="text-xs text-[#493628] mt-1">Profile</span>
+              <span className="text-xs text-[#493628]">Profile</span>
               <div
                 className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
@@ -741,12 +752,22 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 </div>
               </div>
             </div>
+            <div className="flex flex-col items-center relative">
+              <button
+                onClick={handleWishlistNav}
+                className="w-50 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-5 h-5" style={{ color: '#493628' }} />
+              </button>
+              <span className="text-xs text-[#493628]">Wishlist</span>
+            </div>
 
             <div className="flex flex-col items-center relative">
               <button
                 onClick={onCartClick}
                 data-cart-button
-                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown https://ecommerce-fashion-app.onrender.com transition-all duration-300 flex items-center justify-center group"
+                className="w-10 h-10 bg-none text-[#493628] hover:text-fashion-accent-brown https://ecommerce-fashion-app.onrender.com transition-all duration-300 flex items-center justify-center group"
               >
                 <HandbagIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" style={{ color: '#493628' }} />
                 {cartCount > 0 && (
@@ -755,12 +776,20 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   </span>
                 )}
               </button>
-              <span className="text-xs text-[#493628] mt-1">Bag</span>
+              <span className="text-xs text-[#493628]">Bag</span>
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-3">
+            {/* Heart/Wishlist Icon Mobile */}
+            <button
+              onClick={handleWishlistNav}
+              className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              aria-label="Wishlist"
+            >
+              <Heart className="w-4 h-4" style={{ color: '#493628' }} />
+            </button>
             <button
               onClick={handleSearchOpen}
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
@@ -770,7 +799,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             <button
               onClick={onCartClick}
               data-cart-button
-              className="relative circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-9 h-9 text-[#493628] hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <HandbagIcon className="w-4 h-4" style={{ color: '#493628' }} />
               {cartCount > 0 && (
@@ -780,7 +809,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               )}
             </button>
             <span
-              className="text-xs text-[#2D2D2D] mt-1"
+              className="text-xs text-[#2D2D2D]"
               style={{ display: "block", width: "100%", textAlign: "center" }}
             >
               Bag
