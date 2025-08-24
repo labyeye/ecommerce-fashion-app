@@ -42,7 +42,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const config = getAuthConfig();
       console.log('📡 Fetching wishlist with config:', config);
       
-      const res = await axios.get('http://localhost:3500/api/wishlist', config);
+      const res = await axios.get('https://ecommerce-fashion-app.onrender.com/api/wishlist', config);
       setWishlist(res.data.wishlist.map((p: any) => p._id));
       console.log('✅ Wishlist fetched successfully:', res.data.wishlist.length, 'items');
     } catch (err: any) {
@@ -58,7 +58,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('🆔 Product ID:', productId);
       
       const response = await axios.post(
-        'http://localhost:3500/api/wishlist/add', 
+        'https://ecommerce-fashion-app.onrender.com/api/wishlist/add', 
         { productId }, 
         config
       );
@@ -87,7 +87,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('➖ Removing from wishlist with config:', config);
       
       await axios.post(
-        'http://localhost:3500/api/wishlist/remove', 
+        'https://ecommerce-fashion-app.onrender.com/api/wishlist/remove', 
         { productId }, 
         config
       );

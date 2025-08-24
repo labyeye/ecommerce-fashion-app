@@ -127,7 +127,7 @@ Accessible only to admin users at `/dashboard`:
 
 ## API Integration
 
-The frontend connects to the backend API at `http://localhost:3500/api`:
+The frontend connects to the backend API at `https://ecommerce-fashion-app.onrender.com/api`:
 
 ### Endpoints Used
 - `POST /auth/login` - User login
@@ -162,7 +162,7 @@ npm run lint         # Run ESLint
 Create a `.env` file in the frontend directory:
 
 ```env
-VITE_API_URL=http://localhost:3500/api
+VITE_API_URL=https://ecommerce-fashion-app.onrender.com/api
 ```
 
 ## Deployment

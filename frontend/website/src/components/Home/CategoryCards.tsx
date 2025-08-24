@@ -26,7 +26,7 @@ const CategoryCards = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:3500/api/categories/featured');
+        const response = await axios.get('https://ecommerce-fashion-app.onrender.com/api/categories/featured');
         setCategories(response.data.data);
       } catch (err) {
         setError('Failed to load categories');

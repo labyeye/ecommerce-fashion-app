@@ -40,7 +40,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3500/api/categories', {
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -75,8 +75,8 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     
     try {
       const url = editingCategory 
-        ? `http://localhost:3500/api/categories/${editingCategory._id}`
-        : 'http://localhost:3500/api/categories';
+        ? `https://ecommerce-fashion-app.onrender.com/api/categories/${editingCategory._id}`
+        : 'https://ecommerce-fashion-app.onrender.com/api/categories';
       
       const method = editingCategory ? 'PUT' : 'POST';
       
@@ -115,7 +115,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     
     try {
-      const response = await fetch(`http://localhost:3500/api/categories/${categoryId}`, {
+      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/categories/${categoryId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -143,7 +143,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     formData.append('image', file);
 
     try {
-      const response = await fetch('http://localhost:3500/api/categories/upload-image', {
+      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories/upload-image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
