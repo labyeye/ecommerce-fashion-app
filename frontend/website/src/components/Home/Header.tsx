@@ -469,7 +469,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         className={`text-lg font-small tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
                       >
                         {link.name}
-                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" />
+                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" style={{ color: '#493628' }} />
                         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
                       </a>
 
@@ -496,7 +496,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-lg font-medium tracking-wide text-[#80471C] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-lg font-medium tracking-wide text-[#493628] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -520,7 +520,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           {/* Right Navigation (Desktop) */}
           <div className="hidden md:flex items-center justify-end flex-1 space-x-4">
             <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 mr-4 relative">
-              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <Search className="w-5 h-5 mr-2" style={{ color: '#493628' }} />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -542,7 +542,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       searchResults.length === 0 &&
                       pageResults.length === 0 && (
                         <div className="text-center py-4 text-gray-500">
-                          <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                          <Search className="w-8 h-8 mx-auto mb-2" style={{ color: '#493628' }} />
                           <p>No results found for "{searchTerm}"</p>
                           <p className="text-xs text-gray-400 mt-1">
                             Try searching for: shirt, jumpsuit, kaftan, dress,
@@ -556,7 +556,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                           {pageResults.length > 0 && (
                             <div className="mb-2">
                               <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                <ChevronDown className="w-4 h-4 mr-1" />
+                                <ChevronDown className="w-4 h-4 mr-1" style={{ color: '#493628' }} />
                                 Categories & Pages ({pageResults.length})
                               </h3>
                               {pageResults.map((link) => (
@@ -636,9 +636,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
             <div className="relative group flex flex-col items-center">
               <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5" style={{ color: '#493628' }} />
               </button>
-              <span className="text-xs text-[#80471C] mt-1">Profile</span>
+              <span className="text-xs text-[#493628] mt-1">Profile</span>
               <div
                 className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
@@ -681,7 +681,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         onClick={useAuth().logout}
                         className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center"
                       >
-                        <LogOut className="w-4 h-4 mr-2" />
+                        <LogOut className="w-4 h-4 mr-2" style={{ color: '#493628' }} />
                         Logout
                       </button>
                     </>
@@ -728,16 +728,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               <button
                 onClick={onCartClick}
                 data-cart-button
-                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown  transition-all duration-300 flex items-center justify-center group"
+                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown https://ecommerce-fashion-app.onrender.com transition-all duration-300 flex items-center justify-center group"
               >
-                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" style={{ color: '#493628' }} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
                     {cartCount}
                   </span>
                 )}
               </button>
-              <span className="text-xs text-[#80471C] mt-1">Bag</span>
+              <span className="text-xs text-[#493628] mt-1">Bag</span>
             </div>
           </div>
 
@@ -747,14 +747,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               onClick={handleSearchOpen}
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4" style={{ color: '#493628' }} />
             </button>
             <button
               onClick={onCartClick}
               data-cart-button
               className="relative circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4" style={{ color: '#493628' }} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
@@ -822,7 +822,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
-                      {link.hasDropdown && <ChevronDown className="w-5 h-5" />}
+                      {link.hasDropdown && <ChevronDown className="w-5 h-5" style={{ color: '#493628' }} />}
                     </a>
 
                     {link.hasDropdown &&
@@ -881,8 +881,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       );
                     })()}
 
-                    <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5" />
+                    <button className="circle-element w-10 h-10 shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+                      <User className="w-5 h-5" style={{ color: '#493628' }} />
                     </button>
 
                     <div
@@ -907,12 +907,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 ) : (
                   <div className="relative group">
                     <button className="circle-element w-10 h-10 bg-none shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5" />
+                      <User className="w-5 h-5" style={{ color: '#493628' }} />
                     </button>
                     <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <div className="py-4 flex flex-col items-center">
                         <div className="w-12 h-12 rounded-full  flex items-center justify-center shadow-md mb-2">
-                          <User className="w-6 h-6 text-white" />
+                          <User className="w-6 h-6" style={{ color: '#493628' }} />
                         </div>
                         <span className="text-sm text-fashion-charcoal font-medium mb-2">
                           Customer Login
