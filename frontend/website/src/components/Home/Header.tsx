@@ -493,7 +493,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     >
                       <a
                         href={link.url}
-                        className={`text-lg font-small tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        className={`text-lg font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
+                        style={{ color: '#493628' }}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" style={{ color: '#493628' }} />
@@ -510,7 +511,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                 <a
                                   key={index}
                                   href={item.url}
-                                  className="block px-4 py-3 text-lg text-fashion-charcoal hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
+                                  className="block px-4 py-3 text-lg hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
+                                  style={{ color: '#493628' }}
                                 >
                                   {item.name}
                                 </a>
@@ -523,7 +525,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-lg font-medium tracking-wide text-[#493628] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-lg font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      style={{ color: '#493628' }}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -557,6 +560,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 placeholder="Search products, categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ color: '#493628' }}
               />
               {searchTerm.length > 1 && (
                 <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
