@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   ShoppingCart,
   Search,
-  Heart,
   User,
   LogOut,
   Crown,
   Award,
   Medal,
   ChevronDown,
+  ShoppingBag,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -390,12 +390,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     return "bg-white shadow-sm";
   };
 
-  const handleSearchResultClick = () => {
-    console.log("🔍 Search result clicked, closing modal");
-    setIsSearchOpen(false);
-    setSearchTerm("");
-  };
-
   const handleSearchOpen = () => {
     console.log("🔍 Opening search modal");
     setIsSearchOpen(true);
@@ -416,20 +410,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     }
   };
 
-  // Helper for wishlist heart click
-  const handleWishlistClick = (e?: React.MouseEvent) => {
-    if (!user) {
-      if (e) e.preventDefault();
-      setShowLoginModal(true);
-    } else {
-      window.location.href = "/wishlist";
-    }
-  };
-
   // Simple login modal
   const LoginModal = () => (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full flex flex-col items-center">
+      <div className="bg-white rounded-xl shadow-xl p-8 max-w-xs w-full flex flex-col items-center">
         <User className="w-10 h-10 text-fashion-accent-brown mb-2" />
         <h2 className="text-lg font-semibold mb-2">Login Required</h2>
         <p className="text-gray-600 mb-4 text-center">
@@ -512,7 +496,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-lg font-medium tracking-wide text-[#1A2D23] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
+                      className={`text-lg font-medium tracking-wide text-[#80471C] hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -618,7 +602,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                         />
                                       ) : (
-                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <div className="w-full h-full bg-none flex items-center justify-center">
                                           <ShoppingCart className="w-5 h-5 text-gray-400" />
                                         </div>
                                       )}
@@ -651,12 +635,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             </div>
 
             <div className="relative group flex flex-col items-center">
-              <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+              <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
                 <User className="w-5 h-5" />
               </button>
-              <span className="text-xs text-[#2D2D2D] mt-1">Profile</span>
+              <span className="text-xs text-[#80471C] mt-1">Profile</span>
               <div
-                className="absolute right-0 mt-2 w-64 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
               >
                 <div className="py-4">
@@ -703,20 +687,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     </>
                   ) : (
                     <>
-                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 text-center">
+                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 text-center bg-white">
                         <span className="font-medium">Welcome</span>
                         <div className="mt-2">
                           <Link
                             to="/login"
-                            className="inline-block w-24 px-4 py-2 text-sm rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow mr-2"
+                            className="inline-block w-30 px-4 py-2 text-sm rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow mr-2"
                           >
-                            Sign In
-                          </Link>
-                          <Link
-                            to="/register"
-                            className="inline-block w-24 px-4 py-2 text-sm rounded-lg bg-fashion-cream text-fashion-accent-brown hover:bg-fashion-cream/90 transition-colors duration-300 shadow"
-                          >
-                            Sign Up
+                            Sign In / Sign Up
                           </Link>
                         </div>
                       </div>
@@ -750,16 +728,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               <button
                 onClick={onCartClick}
                 data-cart-button
-                className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center group"
+                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown  transition-all duration-300 flex items-center justify-center group"
               >
-                <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
+                  <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
                     {cartCount}
                   </span>
                 )}
               </button>
-              <span className="text-xs text-[#2D2D2D] mt-1">Bag</span>
+              <span className="text-xs text-[#80471C] mt-1">Bag</span>
             </div>
           </div>
 
@@ -776,7 +754,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               data-cart-button
               className="relative circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
@@ -928,7 +906,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   </div>
                 ) : (
                   <div className="relative group">
-                    <button className="circle-element w-10 h-10 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
+                    <button className="circle-element w-10 h-10 bg-none shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
                       <User className="w-5 h-5" />
                     </button>
                     <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
