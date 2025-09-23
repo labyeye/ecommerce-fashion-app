@@ -42,7 +42,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = 'https://ecommerce-fashion-app.onrender.com/api';
+const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {

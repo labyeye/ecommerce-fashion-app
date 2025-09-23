@@ -81,7 +81,7 @@ const Analytics: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/admin/analytics?days=${timeRange}`, {
+        const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/analytics?days=${timeRange}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

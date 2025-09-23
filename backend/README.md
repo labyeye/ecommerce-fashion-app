@@ -198,7 +198,7 @@ All endpoints return consistent success responses:
 
 ### Register a Customer
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
+curl -X POST https://ecommerce-fashion-app-som7.vercel.app/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -210,7 +210,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
 
 ### Login
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
+curl -X POST https://ecommerce-fashion-app-som7.vercel.app/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -220,7 +220,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
 
 ### Access Protected Route
 ```bash
-curl -X GET https://ecommerce-fashion-app.onrender.com/api/customer/dashboard \
+curl -X GET https://ecommerce-fashion-app-som7.vercel.app/api/customer/dashboard \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 

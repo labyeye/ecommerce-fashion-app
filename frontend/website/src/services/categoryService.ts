@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ecommerce-fashion-app.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ecommerce-fashion-app-som7.vercel.app/api';
 
 export interface Category {
   _id: string;

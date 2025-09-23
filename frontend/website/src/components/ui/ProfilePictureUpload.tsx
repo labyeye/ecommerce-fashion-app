@@ -114,7 +114,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     fileInputRef.current?.click();
   };
 
-  const baseURL = 'https://ecommerce-fashion-app.onrender.com';
+  const baseURL = 'https://ecommerce-fashion-app-som7.vercel.app';
 
   return (
     <div className="relative">

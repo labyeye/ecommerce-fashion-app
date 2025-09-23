@@ -19,19 +19,19 @@ const sliderConfigs: Record<ProductSliderProps['type'], SliderConfig> = {
     'featured': {
     title: 'Featured Collection',
     description: 'Hand-picked favorites just for you',
-    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?featured=true',
+    apiEndpoint: 'https://ecommerce-fashion-app-som7.vercel.app/api/products?featured=true',
     emptyMessage: 'No featured products available yet'
   },
   'new-arrivals': {
     title: 'New Arrivals',
     description: 'Fresh off the runway, straight to your wardrobe',
-    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isNewArrival=true',
+    apiEndpoint: 'https://ecommerce-fashion-app-som7.vercel.app/api/products?isNewArrival=true',
     emptyMessage: 'New arrivals coming soon'
   },
   'best-sellers': {
     title: 'Best Sellers',
     description: 'Most loved by our fashion community',
-    apiEndpoint: 'https://ecommerce-fashion-app.onrender.com/api/products?isBestSeller=true',
+    apiEndpoint: 'https://ecommerce-fashion-app-som7.vercel.app/api/products?isBestSeller=true',
     emptyMessage: 'Stay tuned for our best sellers'
   }
 };

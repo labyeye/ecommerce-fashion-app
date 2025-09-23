@@ -55,7 +55,7 @@ const OrderDetailPage: React.FC = () => {
         setLoading(true);
         setError('');
         
-        const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/customer/orders/${id}/details`, {
+        const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${id}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

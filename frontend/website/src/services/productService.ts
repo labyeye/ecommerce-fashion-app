@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ecommerce-fashion-app.onrender.com/api/products';
+const API_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
 
 export interface Product {
   _id?: string;

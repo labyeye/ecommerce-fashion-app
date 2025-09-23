@@ -36,7 +36,7 @@ const CheckoutPage: React.FC = () => {
 
       try {
         setLoadingProfile(true);
-        const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/auth/me', {
+        const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -176,7 +176,7 @@ const CheckoutPage: React.FC = () => {
     };
 
     try {
-      const res = await fetch('https://ecommerce-fashion-app.onrender.com/api/customer/orders', {
+      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -195,7 +195,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       try {
         console.log("🌐 Fetching navigation from API...");
         const response = await fetch(
-          "https://ecommerce-fashion-app.onrender.com/api/navigation/public"
+          "https://ecommerce-fashion-app-som7.vercel.app/api/navigation/public"
         );
         if (response.ok) {
           const data = await response.json();
@@ -205,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
             // Also fetch categories navigation and merge into Products dropdown
             try {
-              const catResp = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories/navigation');
+              const catResp = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/categories/navigation');
               if (catResp.ok) {
                 const catData = await catResp.json();
                 const categories = catData.data || [];
@@ -364,7 +364,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           console.log("❌ Main API failed, trying alternative...");
           // Try alternative API
           const altResponse = await fetch(
-            `https://ecommerce-fashion-app.onrender.com/api/products?search=${encodeURIComponent(
+            `https://ecommerce-fashion-app-som7.vercel.app/api/products?search=${encodeURIComponent(
               term
             )}`
           );

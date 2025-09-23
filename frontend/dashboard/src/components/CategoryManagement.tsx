@@ -49,7 +49,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
 
       console.debug('[CategoryManagement] fetchCategories token present?', !!token);
 
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories', {
+      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/categories', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -91,8 +91,8 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     
     try {
       const url = editingCategory 
-        ? `https://ecommerce-fashion-app.onrender.com/api/categories/${editingCategory._id}`
-        : 'https://ecommerce-fashion-app.onrender.com/api/categories';
+        ? `https://ecommerce-fashion-app-som7.vercel.app/api/categories/${editingCategory._id}`
+        : 'https://ecommerce-fashion-app-som7.vercel.app/api/categories';
       
       const method = editingCategory ? 'PUT' : 'POST';
       const token = localStorage.getItem('dashboard_token');
@@ -153,7 +153,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
         return;
       }
 
-      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/categories/${categoryId}`, {
+      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/categories/${categoryId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

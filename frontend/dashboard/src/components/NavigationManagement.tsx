@@ -74,7 +74,7 @@ const NavigationManagement: React.FC = () => {
   const fetchNavigationLinks = async () => {
     try {
       const token = localStorage.getItem('dashboard_token');
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/navigation', {
+      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/navigation', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ const NavigationManagement: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('dashboard_token');
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/admin/categories', {
+      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -121,8 +121,8 @@ const NavigationManagement: React.FC = () => {
     try {
       const token = localStorage.getItem('dashboard_token');
       const url = editingId 
-        ? `https://ecommerce-fashion-app.onrender.com/api/navigation/${editingId}`
-        : 'https://ecommerce-fashion-app.onrender.com/api/navigation';
+        ? `https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${editingId}`
+        : 'https://ecommerce-fashion-app-som7.vercel.app/api/navigation';
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -202,7 +202,7 @@ const NavigationManagement: React.FC = () => {
     
     try {
       const token = localStorage.getItem('dashboard_token');
-      const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/navigation/${id}`, {
+      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

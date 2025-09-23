@@ -40,18 +40,18 @@
    npm run dev
    ```
    
-   Server will start on `https://ecommerce-fashion-app.onrender.com`
+   Server will start on `https://ecommerce-fashion-app-som7.vercel.app`
 
 ## API Testing
 
 ### Test the health endpoint
 ```bash
-curl https://ecommerce-fashion-app.onrender.com/api/health
+curl https://ecommerce-fashion-app-som7.vercel.app/api/health
 ```
 
 ### Register a customer
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
+curl -X POST https://ecommerce-fashion-app-som7.vercel.app/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -63,7 +63,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/register \
 
 ### Login as admin
 ```bash
-curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
+curl -X POST https://ecommerce-fashion-app-som7.vercel.app/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@vitals.com",
@@ -73,7 +73,7 @@ curl -X POST https://ecommerce-fashion-app.onrender.com/api/auth/login \
 
 ### Get products (public)
 ```bash
-curl https://ecommerce-fashion-app.onrender.com/api/products
+curl https://ecommerce-fashion-app-som7.vercel.app/api/products
 ```
 
 ## Role Access

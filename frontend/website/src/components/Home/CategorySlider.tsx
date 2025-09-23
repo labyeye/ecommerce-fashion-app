@@ -50,7 +50,7 @@ const CategorySlider: React.FC = () => {
       try {
         setLoading(true);
         console.debug("CategorySlider: fetching categories from API");
-        const res = await fetch("https://ecommerce-fashion-app.onrender.com/api/categories");
+        const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/categories");
         if (!res.ok) {
           setError(`API responded with status ${res.status}`);
           console.warn("CategorySlider: non-ok response", res.status);
