@@ -111,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState<string | null>(null);
+  
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -156,38 +156,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         url: "/products",
         type: "category",
         hasDropdown: true,
-        dropdownItems: [
-          {
-            name: "Shirt",
-            url: "/products?category=shirt",
-            isActive: true,
-            sortOrder: 1,
-          },
-          {
-            name: "Jumpsuit",
-            url: "/products?category=jumpsuit",
-            isActive: true,
-            sortOrder: 2,
-          },
-          {
-            name: "Kaftan",
-            url: "/products?category=kaftan",
-            isActive: true,
-            sortOrder: 3,
-          },
-          {
-            name: "Coord Set",
-            url: "/products?category=coord-set",
-            isActive: true,
-            sortOrder: 4,
-          },
-          {
-            name: "Dress",
-            url: "/products?category=dress",
-            isActive: true,
-            sortOrder: 5,
-          },
-        ],
+        dropdownItems: [],
         isActive: true,
         sortOrder: 3,
       },
@@ -232,7 +201,71 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           const data = await response.json();
           if (data.success) {
             console.log("✅ API navigation received:", data.data);
-            setNavigationLinks(data.data);
+            let navLinks: NavigationLink[] = data.data;
+
+            // Also fetch categories navigation and merge into Products dropdown
+            try {
+              const catResp = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories/navigation');
+              if (catResp.ok) {
+                const catData = await catResp.json();
+                const categories = catData.data || [];
+
+                // Build dropdown items from categories (root categories + their subcategories)
+                const categoryItems: Array<any> = [];
+                categories.forEach((cat: any) => {
+                  // root category
+                  categoryItems.push({
+                    name: cat.name,
+                    url: `/products?category=${cat.slug}`,
+                    isActive: cat.isActive,
+                    sortOrder: cat.sortOrder
+                  });
+
+                  // add subcategories if present
+                  if (Array.isArray(cat.subcategories)) {
+                    cat.subcategories.forEach((sub: any) => {
+                      categoryItems.push({
+                        name: sub.name,
+                        url: `/products?category=${sub.slug}`,
+                        isActive: sub.isActive,
+                        sortOrder: sub.sortOrder
+                      });
+                    });
+                  }
+                });
+
+                // Find a Products nav item and merge
+                const productsIndex = navLinks.findIndex(n => n.type === 'category' || n.slug === 'products');
+                if (productsIndex !== -1) {
+                  const updated = { ...navLinks[productsIndex] };
+                  // merge unique items (avoid duplicates by url)
+                  const existingUrls = new Set((updated.dropdownItems || []).map((d:any) => d.url));
+                  const merged = [ ...(updated.dropdownItems || []) ];
+                  categoryItems.forEach((it:any) => {
+                    if (!existingUrls.has(it.url)) merged.push(it);
+                  });
+                  updated.dropdownItems = merged.sort((a:any,b:any)=> (a.sortOrder||0)-(b.sortOrder||0));
+                  navLinks[productsIndex] = updated as NavigationLink;
+                } else {
+                  // if no products item, add a Categories nav link
+                  navLinks.push({
+                    _id: 'categories-nav',
+                    name: 'Categories',
+                    slug: 'categories',
+                    url: '/products',
+                    type: 'category',
+                    hasDropdown: true,
+                    dropdownItems: categoryItems,
+                    isActive: true,
+                    sortOrder: 3
+                  });
+                }
+              }
+            } catch (err) {
+              console.error('Error fetching categories for nav merge', err);
+            }
+
+            setNavigationLinks(navLinks);
           } else {
             console.log("❌ API navigation failed, using fallback");
           }
@@ -488,16 +521,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <div
                       key={link._id}
                       className="relative group"
-                      onMouseEnter={() => setIsDropdownOpen(link._id)}
-                      onMouseLeave={() => setIsDropdownOpen(null)}
                     >
                       <a
                         href={link.url}
-                        className={`text-lg font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()}`}
-                        style={{ color: '#493628' }}
+                        className={`text-lg font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
                       >
                         {link.name}
-                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" style={{ color: '#493628' }} />
+                        <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180 text-fashion-dark-gray" />
                         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
                       </a>
 
@@ -511,8 +541,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                 <a
                                   key={index}
                                   href={item.url}
-                                  className="block px-4 py-3 text-lg hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300"
-                                  style={{ color: '#493628' }}
+                                  className="block px-4 py-3 text-lg hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300 text-fashion-dark-gray"
                                 >
                                   {item.name}
                                 </a>
@@ -525,8 +554,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-lg font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()}`}
-                      style={{ color: '#493628' }}
+                      className={`text-lg font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -552,15 +580,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             {/* Heart/Wishlist Icon */}
             
             <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 mr-4 relative">
-              <Search className="w-5 h-5 mr-2" style={{ color: '#493628' }} />
+              <Search className="w-5 h-5 mr-2 text-fashion-dark-gray" />
               <input
                 ref={searchInputRef}
                 type="text"
-                className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent"
+                className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
                 placeholder="Search products, categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ color: '#493628' }}
               />
               {searchTerm.length > 1 && (
                 <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
@@ -575,7 +602,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       searchResults.length === 0 &&
                       pageResults.length === 0 && (
                         <div className="text-center py-4 text-gray-500">
-                          <Search className="w-8 h-8 mx-auto mb-2" style={{ color: '#493628' }} />
+                          <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                           <p>No results found for "{searchTerm}"</p>
                           <p className="text-xs text-gray-400 mt-1">
                             Try searching for: shirt, jumpsuit, kaftan, dress,
@@ -589,7 +616,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                           {pageResults.length > 0 && (
                             <div className="mb-2">
                               <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                <ChevronDown className="w-4 h-4 mr-1" style={{ color: '#493628' }} />
+                                <ChevronDown className="w-4 h-4 mr-1 text-fashion-dark-gray" />
                                 Categories & Pages ({pageResults.length})
                               </h3>
                               {pageResults.map((link) => (
@@ -669,9 +696,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
             <div className="relative group flex flex-col items-center">
               <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
-                <User className="w-5 h-5" style={{ color: '#493628' }} />
+                <User className="w-5 h-5 text-fashion-dark-gray" />
               </button>
-              <span className="text-xs text-[#493628]">Profile</span>
+              <span className="text-xs text-fashion-dark-gray">Profile</span>
               <div
                 className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
@@ -714,7 +741,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         onClick={useAuth().logout}
                         className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors duration-300 flex items-center"
                       >
-                        <LogOut className="w-4 h-4 mr-2" style={{ color: '#493628' }} />
+                        <LogOut className="w-4 h-4 mr-2 text-fashion-dark-gray" />
                         Logout
                       </button>
                     </>
@@ -762,25 +789,25 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 className="w-50 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
                 aria-label="Wishlist"
               >
-                <Heart className="w-5 h-5" style={{ color: '#493628' }} />
+                <Heart className="w-5 h-5 text-fashion-dark-gray" />
               </button>
-              <span className="text-xs text-[#493628]">Wishlist</span>
+              <span className="text-xs text-fashion-dark-gray">Wishlist</span>
             </div>
 
             <div className="flex flex-col items-center relative">
               <button
                 onClick={onCartClick}
                 data-cart-button
-                className="w-10 h-10 bg-none text-[#493628] hover:text-fashion-accent-brown https://ecommerce-fashion-app.onrender.com transition-all duration-300 flex items-center justify-center group"
+                className="w-10 h-10 bg-none text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center group"
               >
-                <HandbagIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" style={{ color: '#493628' }} />
+                <HandbagIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300 text-fashion-dark-gray" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium">
                     {cartCount}
                   </span>
                 )}
               </button>
-              <span className="text-xs text-[#493628]">Bag</span>
+              <span className="text-xs text-fashion-dark-gray">Bag</span>
             </div>
           </div>
 
@@ -792,20 +819,20 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
               aria-label="Wishlist"
             >
-              <Heart className="w-4 h-4" style={{ color: '#493628' }} />
+              <Heart className="w-4 h-4 text-fashion-dark-gray" />
             </button>
             <button
               onClick={handleSearchOpen}
               className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <Search className="w-4 h-4" style={{ color: '#493628' }} />
+              <Search className="w-4 h-4 text-fashion-dark-gray" />
             </button>
             <button
               onClick={onCartClick}
               data-cart-button
-              className="relative circle-element w-9 h-9 text-[#493628] hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <HandbagIcon className="w-4 h-4" style={{ color: '#493628' }} />
+              <HandbagIcon className="w-4 h-4 text-fashion-dark-gray" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
@@ -813,7 +840,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               )}
             </button>
             <span
-              className="text-xs text-[#2D2D2D]"
+              className="text-xs text-dark"
               style={{ display: "block", width: "100%", textAlign: "center" }}
             >
               Bag
@@ -846,7 +873,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden fixed inset-x-0 top-16 bg-[#FFF2E1] backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
+          className={`md:hidden fixed inset-x-0 top-16 bg-background backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
             isMenuOpen
               ? "translate-y-0 opacity-100"
               : "-translate-y-full opacity-0 pointer-events-none"
@@ -873,7 +900,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
-                      {link.hasDropdown && <ChevronDown className="w-5 h-5" style={{ color: '#493628' }} />}
+                      {link.hasDropdown && <ChevronDown className="w-5 h-5 text-fashion-dark-gray" />}
                     </a>
 
                     {link.hasDropdown &&
@@ -933,11 +960,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     })()}
 
                     <button className="circle-element w-10 h-10 shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5" style={{ color: '#493628' }} />
+                      <User className="w-5 h-5 text-fashion-dark-gray" />
                     </button>
 
                     <div
-                      className="absolute right-0 mt-2 w-56 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                      className="absolute right-0 mt-2 w-56 fashion-card bg-white md:bg-background opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                       style={{ top: "100%" }}
                     >
                       <div className="py-2">
@@ -958,12 +985,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 ) : (
                   <div className="relative group">
                     <button className="circle-element w-10 h-10 bg-none shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5" style={{ color: '#493628' }} />
+                      <User className="w-5 h-5 text-fashion-dark-gray" />
                     </button>
-                    <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-[#FFF2E1] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-background opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <div className="py-4 flex flex-col items-center">
                         <div className="w-12 h-12 rounded-full  flex items-center justify-center shadow-md mb-2">
-                          <User className="w-6 h-6" style={{ color: '#493628' }} />
+                          <User className="w-6 h-6 text-fashion-dark-gray" />
                         </div>
                         <span className="text-sm text-fashion-charcoal font-medium mb-2">
                           Customer Login

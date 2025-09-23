@@ -42,7 +42,7 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
   try {
     const transporter = createTransporter();
     
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}/verify-email?token=${verificationToken}`;
     
     const mailOptions = {
       from: `"Flaunt by Nishi" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
@@ -188,16 +188,16 @@ const sendWelcomeEmail = async (email, firstName) => {
     const transporter = createTransporter();
     
     const mailOptions = {
-      from: `"Vitals Team" <${process.env.EMAIL_FROM || 'noreply@vitals.com'}>`,
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
       to: email,
-      subject: '🎉 Welcome to Vitals - Your Journey Begins Now!',
+      subject: '🎉 Welcome to Flaunt By Nishi - Your Journey Begins Now!',
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to Vitals</title>
+          <title>Welcome to Flaunt By Nishi</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -240,14 +240,14 @@ const sendWelcomeEmail = async (email, firstName) => {
         </head>
         <body>
           <div class="header">
-            <h1>🎉 Welcome to Vitals!</h1>
+            <h1>🎉 Welcome to Flaunt By Nishi!</h1>
             <p>Your email has been verified successfully</p>
           </div>
           
           <div class="content">
             <h2>Hi ${firstName}!</h2>
             
-            <p>Congratulations! Your email has been verified and your Vitals account is now active.</p>
+            <p>Congratulations! Your email has been verified and your Flaunt By Nishi account is now active.</p>
             
             <div class="feature">
               <h3>🏋️ Premium Protein Products</h3>
@@ -265,12 +265,12 @@ const sendWelcomeEmail = async (email, firstName) => {
             </div>
             
             <div style="text-align: center;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" class="button">Start Shopping</a>
+              <a href="${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}" class="button">Start Shopping</a>
             </div>
             
             <p>Ready to power up your fitness journey? Browse our products and make your first order!</p>
             
-            <p>Best regards,<br>The Vitals Team</p>
+            <p>Best regards,<br>The Flaunt By Nishi Team</p>
           </div>
         </body>
         </html>
@@ -292,7 +292,62 @@ const sendWelcomeEmail = async (email, firstName) => {
   }
 };
 
+// Send password reset email
+const sendPasswordResetEmail = async (email, firstName, resetToken) => {
+  try {
+    const transporter = createTransporter();
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}/reset-password?token=${resetToken}`;
+
+    const mailOptions = {
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      to: email,
+      subject: 'Reset your Flaunt By Nishi password',
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Reset</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; }
+            .button { display:inline-block; padding:12px 20px; background:#2B463C; color:#fff; border-radius:6px; text-decoration:none; }
+          </style>
+        </head>
+        <body>
+          <h2>Hi ${firstName || ''},</h2>
+          <p>We received a request to reset your password. Click the button below to set a new password. This link will expire in 10 minutes.</p>
+          <p style="text-align:center;"><a href="${resetUrl}" class="button">Reset your password</a></p>
+          <p>If the button doesn't work, copy and paste the link below into your browser:</p>
+          <p style="word-break:break-all;">${resetUrl}</p>
+          <p>If you didn't request a password reset, you can safely ignore this email.</p>
+          <p>— The Flaunt By Nishi Team</p>
+        </body>
+        </html>
+      `,
+      text: `Hi ${firstName || ''},\n\nUse the following link to reset your password (expires in 10 minutes):\n\n${resetUrl}\n\nIf you didn't request this, ignore this message.`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent:', info.messageId || 'dev-message-id');
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('=== PASSWORD RESET EMAIL LOG ===');
+      console.log('To:', email);
+      console.log('Reset URL:', resetUrl);
+      console.log('=== END EMAIL LOG ===');
+    }
+
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Password reset email error:', error);
+    throw new Error('Failed to send password reset email');
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendPasswordResetEmail
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, Eye, EyeOff, Upload, X, Save } from 'lucide-react';
+import { Plus, Edit3, Trash2, Eye, EyeOff, X, Save } from 'lucide-react';
 
 interface Category {
   _id?: string;
@@ -34,21 +34,37 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     showInNavigation: true,
     showInDropdown: true,
     color: '#2B463C',
-    icon: ''
+    icon: '',
+    image: { url: '', alt: '' }
   });
 
   // Fetch categories
   const fetchCategories = async () => {
     try {
+      const token = localStorage.getItem('dashboard_token');
+      if (!token) {
+        alert('You are not logged in. Please sign in to manage categories.');
+        return;
+      }
+
+      console.debug('[CategoryManagement] fetchCategories token present?', !!token);
+
       const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
       if (response.ok) {
         const data = await response.json();
         setCategories(data.data || []);
+      } else if (response.status === 401) {
+        // Unauthorized - clear local auth and ask user to re-login
+        console.warn('[CategoryManagement] fetchCategories unauthorized (401)');
+        localStorage.removeItem('dashboard_token');
+        localStorage.removeItem('dashboard_user');
+        alert('Session expired or unauthorized. Please sign in again.');
+        setCategories([]);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -79,15 +95,30 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
         : 'https://ecommerce-fashion-app.onrender.com/api/categories';
       
       const method = editingCategory ? 'PUT' : 'POST';
-      
+      const token = localStorage.getItem('dashboard_token');
+      if (!token) {
+        alert('You are not logged in. Please sign in to perform this action.');
+        return;
+      }
+
+      console.debug('[CategoryManagement] submit token present?', !!token, { url, method });
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
+
+      if (response.status === 401) {
+        console.warn('[CategoryManagement] submit unauthorized (401)');
+        localStorage.removeItem('dashboard_token');
+        localStorage.removeItem('dashboard_user');
+        alert('Unauthorized. Please sign in again.');
+        return;
+      }
 
       if (response.ok) {
         await fetchCategories();
@@ -102,7 +133,8 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
           showInNavigation: true,
           showInDropdown: true,
           color: '#2B463C',
-          icon: ''
+          icon: '',
+          image: { url: '', alt: '' }
         });
       }
     } catch (error) {
@@ -115,15 +147,37 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     
     try {
+      const token = localStorage.getItem('dashboard_token');
+      if (!token) {
+        alert('You are not logged in. Please sign in to perform this action.');
+        return;
+      }
+
       const response = await fetch(`https://ecommerce-fashion-app.onrender.com/api/categories/${categoryId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
+      if (response.status === 401) {
+        console.warn('[CategoryManagement] delete unauthorized (401)');
+        localStorage.removeItem('dashboard_token');
+        localStorage.removeItem('dashboard_user');
+        alert('Unauthorized. Please sign in again.');
+        return;
+      }
+
       if (response.ok) {
         await fetchCategories();
+      } else {
+        // show server message if present
+        try {
+          const body = await response.json();
+          alert(body.message || body.error || 'Failed to delete category');
+        } catch (e) {
+          alert('Failed to delete category');
+        }
       }
     } catch (error) {
       console.error('Error deleting category:', error);
@@ -133,33 +187,10 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
   // Handle edit category
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    setFormData({ ...category });
+    setFormData({ ...category, image: category.image || { url: '', alt: '' } });
     setShowAddModal(true);
   };
 
-  // Handle image upload
-  const handleImageUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const response = await fetch('https://ecommerce-fashion-app.onrender.com/api/categories/upload-image', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.imageUrl;
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
-    return null;
-  };
 
   if (loading) {
     return (
@@ -364,6 +395,32 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
                   onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="👗 🔥 💎 ☀️"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={formData.image?.url || ''}
+                  onChange={(e) => setFormData({ ...formData, image: { url: e.target.value, alt: formData.image?.alt || '' } })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="/uploads/categories/xyz.webp or https://..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image Alt Text
+                </label>
+                <input
+                  type="text"
+                  value={formData.image?.alt || ''}
+                  onChange={(e) => setFormData({ ...formData, image: { url: formData.image?.url || '', alt: e.target.value } })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Alternate text for accessibility"
                 />
               </div>
 

@@ -126,19 +126,52 @@ const NavigationManagement: React.FC = () => {
       
       const method = editingId ? 'PUT' : 'POST';
 
+      // Client-side validation
+      if (!formData.name || !formData.url) {
+        alert('Please provide both a Name and URL for the navigation link.');
+        return;
+      }
+
+      // Sanitize payload: remove empty dropdown items (backend also filters, but do it here for better UX)
+      const normalizeVal = (v: any) => (v === undefined || v === null || (typeof v === 'string' && v.trim() === '') ? null : v);
+
+      const payload = {
+        ...formData,
+        category: normalizeVal(formData.category),
+        dropdownItems: Array.isArray(formData.dropdownItems)
+          ? formData.dropdownItems
+              .filter(it => it && it.name && it.url)
+              .map(it => ({ ...it, category: normalizeVal(it.category) }))
+          : []
+      };
+
+      // Debug: log outgoing request data to help diagnose 400 Bad Request
+      console.debug('[NavigationManagement] submitting', { url, method, body: payload });
+
       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        await fetchNavigationLinks();
-        resetForm();
-      }
+        if (response.ok) {
+          await fetchNavigationLinks();
+          resetForm();
+        } else {
+          // try to show server-side validation / error messages
+          let errorText = 'Failed to save navigation link';
+          try {
+            const err = await response.json();
+            errorText = err && err.message ? err.message : JSON.stringify(err);
+          } catch (e) {
+            errorText = response.statusText || errorText;
+          }
+          console.warn('[NavigationManagement] server error', response.status, errorText);
+          alert(`Navigation update failed: ${errorText}`);
+        }
     } catch (error) {
       console.error('Error saving navigation link:', error);
     }

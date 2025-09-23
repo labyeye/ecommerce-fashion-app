@@ -57,14 +57,29 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
       description,
       shortDescription,
       featured: featured === 'true',
-      displayOrder: parseInt(displayOrder) || 0
+      displayOrder: parseInt(displayOrder) || 0,
+      createdBy: req.user && req.user.id ? req.user.id : null
     };
 
+    // If uploaded file present, set image from file
     if (req.file) {
       categoryData.image = {
         url: '/uploads/categories/' + req.file.filename,
         alt: name
       };
+    } else if (req.body.image) {
+      // Accept image passed in JSON body (image: { url, alt })
+      try {
+        const bodyImage = typeof req.body.image === 'string' ? JSON.parse(req.body.image) : req.body.image;
+        if (bodyImage && bodyImage.url) {
+          categoryData.image = {
+            url: bodyImage.url,
+            alt: bodyImage.alt || name
+          };
+        }
+      } catch (e) {
+        // ignore parse errors and continue without image
+      }
     }
 
     const category = await Category.create(categoryData);
@@ -74,9 +89,10 @@ router.post('/', auth, adminAuth, upload.single('image'), async (req, res) => {
       data: category
     });
   } catch (error) {
+    console.error('Create category error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to create category'
+      error: error.message || 'Failed to create category'
     });
   }
 });
@@ -100,6 +116,18 @@ router.put('/:id', auth, adminAuth, upload.single('image'), async (req, res) => 
         url: '/uploads/categories/' + req.file.filename,
         alt: name
       };
+    } else if (req.body.image) {
+      try {
+        const bodyImage = typeof req.body.image === 'string' ? JSON.parse(req.body.image) : req.body.image;
+        if (bodyImage && bodyImage.url) {
+          updateData.image = {
+            url: bodyImage.url,
+            alt: bodyImage.alt || name
+          };
+        }
+      } catch (e) {
+        // ignore
+      }
     }
 
     const category = await Category.findByIdAndUpdate(
@@ -120,9 +148,10 @@ router.put('/:id', auth, adminAuth, upload.single('image'), async (req, res) => 
       data: category
     });
   } catch (error) {
+    console.error('Update category error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to update category'
+      error: error.message || 'Failed to update category'
     });
   }
 });
@@ -144,9 +173,10 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
       message: 'Category deleted successfully'
     });
   } catch (error) {
+    console.error('Delete category error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to delete category'
+      error: error.message || 'Failed to delete category'
     });
   }
 });

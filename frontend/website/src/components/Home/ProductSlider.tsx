@@ -1,5 +1,5 @@
 import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard, { Product } from './ProductCard';
 
@@ -130,24 +130,24 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
     return (
       <section className="w-screen py-16 bg-gradient-to-br from-background via-tertiary/20 to-background ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-dark text-4xl sm:text-5xl font-display text-[#2D2D2D] mb-4">{config.title}</h2>
-          <p className="text-dark/80 font-body text-lg text-[#2D2D2D]">{config.emptyMessage}</p>
+          <h2 className="text-dark text-4xl sm:text-5xl font-display mb-4">{config.title}</h2>
+          <p className="text-dark/80 font-body text-lg">{config.emptyMessage}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-screen py-20 bg-gradient-to-br from-white via-[#F4F1E9]/30 to-white">
+  <section className="w-screen py-20 bg-gradient-to-br from-white via-background/30 to-white">
       <div className="w-full px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-[#1A2D23] to-[#2B463C] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               {config.title}
             </span>
           </h2>
-          <p className="text-lg text-gray-800 max-w-2xl mx-auto">
+          <p className="text-lg text-dark/80 max-w-2xl mx-auto">
             {config.description}
           </p>
         </div>
@@ -179,8 +179,8 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
               onClick={() => setCurrentIndex(index * visibleCount)}
               className={`transition-all duration-300 rounded-full ${
                 Math.floor(currentIndex / visibleCount) === index
-                  ? 'w-8 h-3 bg-gradient-to-r from-[#1A2D23] to-[#2B463C]'
-                  : 'w-3 h-3 bg-gray-700 hover:bg-gray-900'
+                  ? 'w-8 h-3 bg-gradient-to-r from-tertiary to-secondary'
+                  : 'w-3 h-3 bg-dark/60 hover:bg-dark'
               }`}
             />
           ))}
@@ -188,9 +188,9 @@ const ProductSlider = ({ type, autoPlayInterval = 4000 }: ProductSliderProps) =>
 
         {/* Product Counter */}
         <div className="text-center mt-8">
-          <p className="text-sm text-gray-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-gray-300">
+          <p className="text-sm text-dark/80 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-gray-300">
             Showing {Math.min(getVisibleProducts().length, products.length)} of {products.length} products
-            <span className="ml-2 text-[#2B463C]">• Auto-rotating</span>
+            <span className="ml-2 text-secondary">• Auto-rotating</span>
           </p>
         </div>
       </div>

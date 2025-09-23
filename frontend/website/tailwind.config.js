@@ -4,11 +4,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        dark: '#2D2D2D',
-        primary: '#A79277',
-        secondary: '#D1BB9E',
-        tertiary: '#EAD8C0',
+        // Global palette mapped to your requested colors
+        dark: '#000000',
+        primary: '#E4A95D', // light warm
+        secondary: '#C17237', // mid
+        tertiary: '#914D26', // deep
         background: '#FFF2E1',
+        // Fashion tokens mapped to the palette (keeps some neutrals for layout)
+        fashion: {
+          'cream': '#F8F6F0',
+          'warm-white': '#FEFCF8',
+          'light-beige': '#F5F2ED',
+          'soft-gray': '#E8E5E0',
+          'warm-gray': '#D4CFC7',
+          'charcoal': '#000000',
+          'dark-gray': '#914D26',
+          'accent-brown': '#C17237',
+          'light-brown': '#E4A95D',
+          'nude': '#E4A95D',
+          'rose-dust': '#E8D5D5',
+          'sage': '#B8C5A6',
+        }
       },
       fontFamily: {
         'sans': ['Playfair Display', 'Cormorant Garamond', 'Baskerville', 'Georgia', 'serif'],
@@ -27,23 +43,7 @@ export default {
         'extrabold': '800',
         'black': '900',
       },
-      colors: {
-        // Zara-inspired color palette
-        fashion: {
-          'cream': '#F8F6F0',
-          'warm-white': '#FEFCF8',
-          'light-beige': '#F5F2ED',
-          'soft-gray': '#E8E5E0',
-          'warm-gray': '#D4CFC7',
-          'charcoal': '#2D2D2D',
-          'dark-gray': '#444444',
-          'accent-brown': '#8B7355',
-          'light-brown': '#B5A084',
-          'nude': '#E6D7C3',
-          'rose-dust': '#E8D5D5',
-          'sage': '#B8C5A6',
-        }
-      },
+      /* colors block removed - fashion tokens moved to the primary colors block above */
       height: {
         '100': '25rem',   // 400px
         '112': '28rem',   // 448px

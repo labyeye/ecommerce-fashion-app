@@ -16,7 +16,7 @@
 
   body {
     background-color: #FFF2E1;
-    color: #A79277;
+    color: #914D26;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
@@ -78,7 +78,7 @@
   }
   
   .fashion-button {
-    background: #2D2D2D;
+    background: #000000;
     color: white;
     border-radius: 1.5rem;
     padding: 0.625rem 1.5rem;
@@ -97,15 +97,15 @@
   }
   
   .fashion-button:hover {
-    background: #444444;
+    background: #111111;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(45, 45, 45, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
   }
   
   .fashion-button-outline {
-    background: transparent;
-    color: #2D2D2D;
-    border: 1.5px solid #2D2D2D;
+  background: transparent;
+  color: #000000;
+  border: 1.5px solid #000000;
     border-radius: 1.5rem;
     padding: 0.625rem 1.5rem;
     font-size: 0.875rem;
@@ -122,7 +122,7 @@
   }
   
   .fashion-button-outline:hover {
-    background: #2D2D2D;
+    background: #000000;
     color: white;
     transform: translateY(-2px);
   }
@@ -310,16 +310,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F8F6F0;
+  background: #FFF2E1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D4CFC7;
+  background: #C17237;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8B7355;
+  background: #914D26;
 }
 
 /* Line clamp utility */
@@ -344,7 +344,7 @@ html {
 
 /* Focus styles - fashion themed */
 .focus-visible:focus {
-  outline: 2px solid #8B7355;
+  outline: 2px solid #C17237;
   outline-offset: 2px;
 }
 
@@ -388,8 +388,8 @@ html {
 
 /* Text selection - fashion themed */
 ::selection {
-  background-color: #E6D7C3;
-  color: #2D2D2D;
+  background-color: #E4A95D;
+  color: #000000;
 }
 
 /* Print styles */
@@ -436,7 +436,7 @@ html {
 
 /* Focus styles */
 .focus-visible:focus {
-  outline: 2px solid #688F4E;
+  outline: 2px solid #C17237;
   outline-offset: 2px;
 }
 
@@ -489,8 +489,8 @@ html {
 
 /* Text selection */
 ::selection {
-  background-color: #B1D182;
-  color: #2B463C;
+  background-color: #E4A95D;
+  color: #000000;
 }
 
 /* Print styles */
