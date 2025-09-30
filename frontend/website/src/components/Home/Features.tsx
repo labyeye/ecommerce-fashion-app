@@ -1,17 +1,13 @@
 import React from "react";
 import {
   Sparkles,
-  Leaf,
   Zap,
-  Heart,
   Shield,
   Globe,
   CheckCircle,
-  Award,
   Star,
 } from "lucide-react";
 import FloatingElements from "../ui/FloatingElements";
-import CircularElement from "../ui/CircularElement";
 
 const Features: React.FC = () => {
   const features = [
@@ -24,7 +20,7 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-10 sm:py-16 lg:py-24 bg-background overflow-hidden">
+    <section className="relative py-10 sm:py-16 lg:py-24 bg-[#FCF4EA] overflow-hidden">
       <FloatingElements density="light" />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

@@ -14,7 +14,7 @@ const CategoryCard: React.FC<{
   return (
     <div
       onClick={onClick}
-      className="w-80 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+      className="group bg-white w-full rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
       role="button"
     >
       <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden">
@@ -29,13 +29,15 @@ const CategoryCard: React.FC<{
             No image
           </div>
         )}
-      </div>
 
-      <div className="p-3 text-center">
-        <h3 className="text-sm font-medium text-gray-900 truncate">
-          {category.name}
-        </h3>
+        {/* Overlay: visible on hover/focus for sm+ */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 sm:flex">
+          <h3 className="text-white text-5xl sm:text-6xl font-semibold px-4 text-center">
+            {category.name}
+          </h3>
+        </div>
       </div>
+      
     </div>
   );
 };
@@ -109,24 +111,19 @@ const CategorySlider: React.FC = () => {
   }
 
   return (
-    <div className="relative py-8 w-screen">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center mb-4">
-          <h2 className="text-4xl font-semibold text-center">
-            Shop by Category
-          </h2>
-        </div>
+    <div className="relative py-8 w-screen bg-[#FCF4EA] mt-16">
+      <div className="w-full px-4 sm:px-4 lg:px-6">
+        
 
         <div>
-          {/* Single-row centered list across full viewport width. If cards overflow, horizontal scroll will appear. */}
-          <div className="flex items-stretch flex-nowrap justify-center gap-6 py-4 px-6 overflow-x-auto scrollbar-hide">
+          {/* Grid layout: 1 column on mobile, 2 on small/medium, 3 on large */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 px-4">
             {categories.map((cat) => (
-              <div key={cat._id} className="flex-shrink-0">
-                <CategoryCard
-                  category={cat}
-                  onClick={() => handleCardClick(cat.slug)}
-                />
-              </div>
+              <CategoryCard
+                key={cat._id}
+                category={cat}
+                onClick={() => handleCardClick(cat.slug)}
+              />
             ))}
           </div>
         </div>

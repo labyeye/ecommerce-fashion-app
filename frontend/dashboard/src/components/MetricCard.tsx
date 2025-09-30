@@ -13,7 +13,6 @@ import {
 interface MetricCardProps {
   title: string;
   value: string;
-  change: number;
   changeType: 'positive' | 'negative' | 'neutral';
   icon: string;
 }
@@ -27,7 +26,7 @@ const iconMap: { [key: string]: React.ElementType } = {
   Users
 };
 
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, changeType, icon }) => {
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, changeType, icon }) => {
   const IconComponent = iconMap[icon] || DollarSign;
   
   const getChangeIcon = () => {
@@ -52,12 +51,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, changeTyp
             <IconComponent className="w-6 h-6 text-blue-600" />
           </div>
         </div>
-        <div className={`flex items-center space-x-1 ${getChangeColor()}`}>
-          <ChangeIcon className="w-4 h-4" />
-          <span className="text-sm font-medium">
-            {change > 0 ? '+' : ''}{change}%
-          </span>
-        </div>
+        
       </div>
       
       <div className="mt-4">

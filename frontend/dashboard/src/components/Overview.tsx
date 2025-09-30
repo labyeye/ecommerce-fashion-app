@@ -89,19 +89,6 @@ const Overview: React.FC = () => {
     return statusCount ? statusCount.count : 0;
   };
 
-  const urgentAlerts = [
-    ...lowStockProducts.map(product => ({
-      type: 'Low Stock',
-      message: `${product.name} - Only ${product.stock.quantity} units left`,
-      priority: product.stock.quantity <= 5 ? 'critical' : 'high'
-    })),
-    ...recentOrders.filter(order => order.status === 'pending').slice(0, 2).map(order => ({
-      type: 'Pending Payment',
-      message: `Order #${order.orderNumber} - ${order.customer.firstName} ${order.customer.lastName}`,
-      priority: 'medium'
-    }))
-  ];
-
   if (loading) {
     return (
       <div className="space-y-6">
@@ -130,28 +117,24 @@ const Overview: React.FC = () => {
     {
       title: 'Total Revenue',
       value: `₹${stats?.totalRevenue?.toFixed(2) || '0.00'}`,
-      change: 12.5,
       changeType: 'positive' as const,
       icon: 'DollarSign'
     },
     {
       title: 'Total Orders',
       value: stats?.totalOrders?.toString() || '0',
-      change: 8.2,
       changeType: 'positive' as const,
       icon: 'ShoppingBag'
     },
     {
       title: 'Total Customers',
       value: stats?.totalUsers?.toString() || '0',
-      change: 15.3,
       changeType: 'positive' as const,
       icon: 'Users'
     },
     {
       title: 'Total Products',
       value: stats?.totalProducts?.toString() || '0',
-      change: 5.7,
       changeType: 'positive' as const,
       icon: 'ShoppingBag'
     }
@@ -171,32 +154,7 @@ const Overview: React.FC = () => {
       </div>
 
       {/* Urgent Alerts */}
-      {urgentAlerts.length > 0 && (
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center space-x-2 mb-3">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
-            <h2 className="font-semibold text-red-900">Urgent Alerts</h2>
-          </div>
-          <div className="space-y-2">
-            {urgentAlerts.map((alert, index) => (
-              <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    alert.priority === 'critical' ? 'bg-red-500' :
-                    alert.priority === 'high' ? 'bg-orange-500' : 'bg-yellow-500'
-                  }`} />
-                  <span className="text-sm font-medium text-gray-900">{alert.type}</span>
-                  <span className="text-sm text-gray-600">{alert.message}</span>
-                </div>
-                <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  View Details
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      
       {/* Core Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric, index) => (

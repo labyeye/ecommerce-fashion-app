@@ -2,22 +2,13 @@ import React from "react";
 import {
   Facebook,
   Instagram,
-  Twitter,
-  Youtube,
-  Mail,
-  Phone,
-  MapPin,
-  Heart,
-  Award,
-  Shield,
-  Leaf,
 } from "lucide-react";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-  <footer className="bg-[#eacaa4] text-dark">
+  <footer className="bg-[#f2e0cb] text-dark">
       {/* Newsletter Section */}
       
       {/* Main Footer Content */}

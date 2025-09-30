@@ -10,10 +10,15 @@ import {
   ChevronDown,
   Heart,
 } from "lucide-react";
-  // Handler for wishlist navigation with auth check
+// Handler for wishlist navigation with auth check
 
 // Custom handbag SVG icon as React component
-const HandbagIcon = ({ className = '', style = {}, width = 24, height = 24 }) => (
+const HandbagIcon = ({
+  className = "",
+  style = {},
+  width = 24,
+  height = 24,
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={width}
@@ -106,12 +111,15 @@ const getTierInfo = (tier: string) => {
       };
   }
 };
+// TODO: loyalty UI temporarily hidden in mobile menu — helper retained for future reuse
+// (Reference kept intentionally)
+// getTierInfo; // keep linter happy when we re-enable
 
 const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
-  
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -120,6 +128,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useAuth();
+  // Keep getTierInfo referenced during development to avoid unused lint warnings
+  useEffect(() => {
+    // noop reference to keep helper available and avoid lint errors
+    void getTierInfo('bronze');
+  }, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === "/";
@@ -205,7 +218,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
             // Also fetch categories navigation and merge into Products dropdown
             try {
-              const catResp = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/categories/navigation');
+              const catResp = await fetch(
+                "https://ecommerce-fashion-app-som7.vercel.app/api/categories/navigation"
+              );
               if (catResp.ok) {
                 const catData = await catResp.json();
                 const categories = catData.data || [];
@@ -218,7 +233,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     name: cat.name,
                     url: `/products?category=${cat.slug}`,
                     isActive: cat.isActive,
-                    sortOrder: cat.sortOrder
+                    sortOrder: cat.sortOrder,
                   });
 
                   // add subcategories if present
@@ -228,41 +243,47 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         name: sub.name,
                         url: `/products?category=${sub.slug}`,
                         isActive: sub.isActive,
-                        sortOrder: sub.sortOrder
+                        sortOrder: sub.sortOrder,
                       });
                     });
                   }
                 });
 
                 // Find a Products nav item and merge
-                const productsIndex = navLinks.findIndex(n => n.type === 'category' || n.slug === 'products');
+                const productsIndex = navLinks.findIndex(
+                  (n) => n.type === "category" || n.slug === "products"
+                );
                 if (productsIndex !== -1) {
                   const updated = { ...navLinks[productsIndex] };
                   // merge unique items (avoid duplicates by url)
-                  const existingUrls = new Set((updated.dropdownItems || []).map((d:any) => d.url));
-                  const merged = [ ...(updated.dropdownItems || []) ];
-                  categoryItems.forEach((it:any) => {
+                  const existingUrls = new Set(
+                    (updated.dropdownItems || []).map((d: any) => d.url)
+                  );
+                  const merged = [...(updated.dropdownItems || [])];
+                  categoryItems.forEach((it: any) => {
                     if (!existingUrls.has(it.url)) merged.push(it);
                   });
-                  updated.dropdownItems = merged.sort((a:any,b:any)=> (a.sortOrder||0)-(b.sortOrder||0));
+                  updated.dropdownItems = merged.sort(
+                    (a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)
+                  );
                   navLinks[productsIndex] = updated as NavigationLink;
                 } else {
                   // if no products item, add a Categories nav link
                   navLinks.push({
-                    _id: 'categories-nav',
-                    name: 'Categories',
-                    slug: 'categories',
-                    url: '/products',
-                    type: 'category',
+                    _id: "categories-nav",
+                    name: "Categories",
+                    slug: "categories",
+                    url: "/products",
+                    type: "category",
                     hasDropdown: true,
                     dropdownItems: categoryItems,
                     isActive: true,
-                    sortOrder: 3
+                    sortOrder: 3,
                   });
                 }
               }
             } catch (err) {
-              console.error('Error fetching categories for nav merge', err);
+              console.error("Error fetching categories for nav merge", err);
             }
 
             setNavigationLinks(navLinks);
@@ -279,9 +300,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
     fetchNavigation();
   }, []);
-    const handleWishlistNav = () => {
+  const handleWishlistNav = () => {
     if (user) {
-      window.location.href = '/wishlist';
+      window.location.href = "/wishlist";
     } else {
       setShowLoginModal(true);
     }
@@ -509,13 +530,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     >
       {showLoginModal && <LoginModal />}
       <div className="px-7">
-        <div className="flex items-center h-16 md:h-20">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo (left) */}
-          <div className="flex items-center justify-start">
+          <div className="flex items-center justify-start flex-none">
             <a href="/" className="flex items-center">
               <div className="relative">
-                <div className="w-24 h-24">
-                  <img src={logo} alt="Flaunt by Nishi" />
+                {/* larger on mobile, original size on md+; small top margin on mobile */}
+                <div className="w-28 h-28 md:w-24 md:h-24 mt-2 md:mt-0">
+                  <img
+                    src={logo}
+                    alt="Flaunt by Nishi"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
             </a>
@@ -527,10 +553,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((link) =>
                   link.hasDropdown ? (
-                    <div
-                      key={link._id}
-                      className="relative group"
-                    >
+                    <div key={link._id} className="relative group">
                       <a
                         href={link.url}
                         className={`text-lg font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
@@ -574,16 +597,17 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           </div>
 
           {/* Right Navigation (Desktop) */}
-          <div className="hidden md:flex items-center justify-end space-x-4">
+          <div className="hidden md:flex items-center justify-end space-x-2">
             {/* Heart/Wishlist Icon */}
-            
+
             <div className="relative group flex flex-col items-center -mr-2">
               <button
                 onClick={() => {
                   setIsSearchOpen((s) => !s);
                   if (!isSearchOpen) {
                     setTimeout(() => {
-                      if (searchInputRef.current) searchInputRef.current.focus();
+                      if (searchInputRef.current)
+                        searchInputRef.current.focus();
                     }, 100);
                   }
                 }}
@@ -622,7 +646,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                           {searchLoading && (
                             <div className="flex items-center justify-center py-4">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                              <span className="ml-2 text-gray-500">Searching...</span>
+                              <span className="ml-2 text-gray-500">
+                                Searching...
+                              </span>
                             </div>
                           )}
                           {!searchLoading &&
@@ -632,13 +658,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                 <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                                 <p>No results found for "{searchTerm}"</p>
                                 <p className="text-xs text-gray-400 mt-1">
-                                  Try searching for: shirt, jumpsuit, kaftan, dress,
-                                  coord set
+                                  Try searching for: shirt, jumpsuit, kaftan,
+                                  dress, coord set
                                 </p>
                               </div>
                             )}
                           {!searchLoading &&
-                            (searchResults.length > 0 || pageResults.length > 0) && (
+                            (searchResults.length > 0 ||
+                              pageResults.length > 0) && (
                               <div className="divide-y divide-gray-100">
                                 {pageResults.length > 0 && (
                                   <div className="mb-2">
@@ -670,48 +697,52 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                       <ShoppingCart className="w-4 h-4 mr-1" />
                                       Products ({searchResults.length})
                                     </h3>
-                                    {searchResults.slice(0, 6).map((product) => (
-                                      <a
-                                        key={product._id || product.id}
-                                        href={`/product/${product._id || product.id}`}
-                                        className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
-                                      >
-                                        <div className="flex items-center space-x-2">
-                                          <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                            {product.images?.[0]?.url ||
-                                            product.imageUrl ? (
-                                              <img
-                                                src={
-                                                  product.images?.[0]?.url ||
-                                                  product.imageUrl
-                                                }
-                                                alt={product.name}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                              />
-                                            ) : (
-                                              <div className="w-full h-full bg-none flex items-center justify-center">
-                                                <ShoppingCart className="w-5 h-5 text-gray-400" />
-                                              </div>
-                                            )}
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
-                                              {product.name}
-                                            </p>
-                                            <div className="flex items-center justify-between mt-1">
-                                              <span className="text-fashion-accent-brown font-semibold">
-                                                ₹{product.price}
-                                              </span>
-                                              {product.category && (
-                                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                                  {product.category}
-                                                </span>
+                                    {searchResults
+                                      .slice(0, 6)
+                                      .map((product) => (
+                                        <a
+                                          key={product._id || product.id}
+                                          href={`/product/${
+                                            product._id || product.id
+                                          }`}
+                                          className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
+                                        >
+                                          <div className="flex items-center space-x-2">
+                                            <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                              {product.images?.[0]?.url ||
+                                              product.imageUrl ? (
+                                                <img
+                                                  src={
+                                                    product.images?.[0]?.url ||
+                                                    product.imageUrl
+                                                  }
+                                                  alt={product.name}
+                                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                                />
+                                              ) : (
+                                                <div className="w-full h-full bg-none flex items-center justify-center">
+                                                  <ShoppingCart className="w-5 h-5 text-gray-400" />
+                                                </div>
                                               )}
                                             </div>
+                                            <div className="flex-1 min-w-0">
+                                              <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
+                                                {product.name}
+                                              </p>
+                                              <div className="flex items-center justify-between mt-1">
+                                                <span className="text-fashion-accent-brown font-semibold">
+                                                  ₹{product.price}
+                                                </span>
+                                                {product.category && (
+                                                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                    {product.category}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </div>
                                           </div>
-                                        </div>
-                                      </a>
-                                    ))}
+                                        </a>
+                                      ))}
                                   </div>
                                 )}
                               </div>
@@ -725,9 +756,15 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             </div>
 
             <div className="relative group flex flex-col items-center">
-              <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
-                <User className="w-5 h-5 text-fashion-dark-gray" />
-              </button>
+              {/* Loyalty badge hidden for now; kept code removed so User button remains */}
+              <div className="flex items-center">
+                <button
+                  className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                  id="profile-icon"
+                >
+                  <User className="w-5 h-5 text-fashion-dark-gray" />
+                </button>
+              </div>
               <div
                 className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
@@ -839,43 +876,46 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-3">
+          <div className="flex md:hidden items-center space-x-1 mt-4 md:mt-0">
             {/* Heart/Wishlist Icon Mobile */}
             <button
               onClick={handleWishlistNav}
-              className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
               aria-label="Wishlist"
             >
-              <Heart className="w-4 h-4 text-fashion-dark-gray" />
+              <Heart className="w-5 h-5 text-fashion-dark-gray" />
             </button>
             <button
               onClick={handleSearchOpen}
-              className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <Search className="w-4 h-4 text-fashion-dark-gray" />
+              <Search className="w-5 h-5 text-fashion-dark-gray" />
             </button>
             <button
               onClick={onCartClick}
               data-cart-button
               className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <HandbagIcon className="w-4 h-4 text-fashion-dark-gray" />
+              <HandbagIcon className="w-5 h-5 text-fashion-dark-gray" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
                 </span>
               )}
             </button>
-            <span
-              className="text-xs text-dark"
-              style={{ display: "block", width: "100%", textAlign: "center" }}
-            >
-              Bag
-            </span>
+            {/* Loyalty badge hidden for now; show only User button on mobile */}
+            <div className="flex items-center">
+              <button
+                onClick={() => handleProtectedNav("/profile")}
+                className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              >
+                <User className="w-5 h-5 text-fashion-dark-gray" />
+              </button>
+            </div>
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="circle-element w-9 h-9 bg-fashion-warm-white shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-10 h-10 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <div className="relative w-5 h-5">
                 <span
@@ -927,7 +967,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
-                      {link.hasDropdown && <ChevronDown className="w-5 h-5 text-fashion-dark-gray" />}
+                      {link.hasDropdown && (
+                        <ChevronDown className="w-5 h-5 text-fashion-dark-gray" />
+                      )}
                     </a>
 
                     {link.hasDropdown &&
@@ -961,78 +1003,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   </div>
                 ))}
 
-              <div className="flex items-center justify-center space-x-4 pt-6 border-t border-fashion-charcoal/10">
-                {user ? (
-                  <div className="relative group flex items-center space-x-3">
-                    {(() => {
-                      const tierInfo = getTierInfo(
-                        user.loyaltyTier || "bronze"
-                      );
-                      const TierIcon = tierInfo.icon;
-                      return (
-                        <div
-                          className={`flex items-center space-x-1 px-3 py-1.5 rounded-fashion ${tierInfo.bgColor} border border-fashion-charcoal/10`}
-                        >
-                          <TierIcon
-                            className="w-4 h-4"
-                            style={{ color: tierInfo.color }}
-                          />
-                          <span
-                            className={`text-xs font-medium ${tierInfo.textColor}`}
-                          >
-                            {tierInfo.name}
-                          </span>
-                        </div>
-                      );
-                    })()}
-
-                    <button className="circle-element w-10 h-10 shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5 text-fashion-dark-gray" />
-                    </button>
-
-                    <div
-                      className="absolute right-0 mt-2 w-56 fashion-card bg-white md:bg-background opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
-                      style={{ top: "100%" }}
-                    >
-                      <div className="py-2">
-                        <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10">
-                          <span className="font-medium">
-                            Welcome, {user.firstName}!
-                          </span>
-                        </div>
-                        <Link
-                          to="/profile"
-                          className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
-                        >
-                          Profile
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative group">
-                    <button className="circle-element w-10 h-10 bg-none shadow-soft border border-fashion-charcoal/10 text-fashion-charcoal hover:text-fashion-accent-brown hover:shadow-gentle transition-all duration-300 flex items-center justify-center">
-                      <User className="w-5 h-5 text-fashion-dark-gray" />
-                    </button>
-                    <div className="absolute right-0 mt-2 w-48 fashion-card bg-white md:bg-background opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                      <div className="py-4 flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full  flex items-center justify-center shadow-md mb-2">
-                          <User className="w-6 h-6 text-fashion-dark-gray" />
-                        </div>
-                        <span className="text-sm text-fashion-charcoal font-medium mb-2">
-                          Customer Login
-                        </span>
-                        <Link
-                          to="/login"
-                          className="block w-20 px-4 py-2 text-sm text-center rounded-lg bg-fashion-accent-brown text-white hover:bg-fashion-accent-brown/90 transition-colors duration-300 shadow"
-                        >
-                          Sign In
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <div className="pt-6 border-t border-fashion-charcoal/10" />
             </nav>
           </div>
         </div>
