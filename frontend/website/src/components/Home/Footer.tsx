@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-  <footer className="bg-primary text-dark">
+  <footer className="bg-[#eacaa4] text-dark">
       {/* Newsletter Section */}
       
       {/* Main Footer Content */}

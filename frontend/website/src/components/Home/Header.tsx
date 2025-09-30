@@ -445,7 +445,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
   const getBackgroundClass = () => {
     if (isHomePage && !isScrolled) {
-      return "bg-none";
+      return "bg-[#fcf4ea]";
     }
     return "bg-white shadow-sm";
   };
@@ -510,9 +510,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       {showLoginModal && <LoginModal />}
       <div className="px-7">
         <div className="flex items-center h-16 md:h-20">
-          {/* Left Navigation (Desktop) */}
-          <div className="hidden md:flex items-center">
-            <nav className="flex space-x-8">
+          {/* Logo (left) */}
+          <div className="flex items-center justify-start">
+            <a href="/" className="flex items-center">
+              <div className="relative">
+                <div className="w-24 h-24">
+                  <img src={logo} alt="Flaunt by Nishi" />
+                </div>
+              </div>
+            </a>
+          </div>
+          <div className="hidden md:flex items-center flex-1">
+            <nav className="flex space-x-8 ml-6 md:ml-8 lg:ml-12">
               {navigationLinks
                 .filter((link) => link.isActive)
                 .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -564,131 +573,152 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             </nav>
           </div>
 
-          {/* Centered Logo */}
-          <div className="flex items-center justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
-            <a href="/" className="flex items-center">
-              <div className="relative">
-                <div className="w-24 h-24">
-                  <img src={logo} alt="Flaunt by Nishi" />
-                </div>
-              </div>
-            </a>
-          </div>
-
           {/* Right Navigation (Desktop) */}
-          <div className="hidden md:flex items-center justify-end flex-1 space-x-4">
+          <div className="hidden md:flex items-center justify-end space-x-4">
             {/* Heart/Wishlist Icon */}
             
-            <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 mr-4 relative">
-              <Search className="w-5 h-5 mr-2 text-fashion-dark-gray" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
-                placeholder="Search products, categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm.length > 1 && (
-                <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
-                  <div className="p-3">
-                    {searchLoading && (
-                      <div className="flex items-center justify-center py-4">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                        <span className="ml-2 text-gray-500">Searching...</span>
+            <div className="relative group flex flex-col items-center -mr-2">
+              <button
+                onClick={() => {
+                  setIsSearchOpen((s) => !s);
+                  if (!isSearchOpen) {
+                    setTimeout(() => {
+                      if (searchInputRef.current) searchInputRef.current.focus();
+                    }, 100);
+                  }
+                }}
+                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5 text-fashion-dark-gray" />
+              </button>
+
+              {isSearchOpen && (
+                <div
+                  className="absolute left-1/2 transform -translate-x-1/2 mt-2 z-50"
+                  style={{ top: "100%" }}
+                >
+                  <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 relative">
+                    <Search className="w-5 h-5 mr-2 text-fashion-dark-gray" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
+                      placeholder="Search products, categories..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button
+                      onClick={() => setIsSearchOpen(false)}
+                      className="ml-3 text-gray-400 hover:text-gray-600"
+                      aria-label="Close search"
+                    >
+                      ✕
+                    </button>
+
+                    {searchTerm.length > 1 && (
+                      <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
+                        <div className="p-3">
+                          {searchLoading && (
+                            <div className="flex items-center justify-center py-4">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
+                              <span className="ml-2 text-gray-500">Searching...</span>
+                            </div>
+                          )}
+                          {!searchLoading &&
+                            searchResults.length === 0 &&
+                            pageResults.length === 0 && (
+                              <div className="text-center py-4 text-gray-500">
+                                <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
+                                <p>No results found for "{searchTerm}"</p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  Try searching for: shirt, jumpsuit, kaftan, dress,
+                                  coord set
+                                </p>
+                              </div>
+                            )}
+                          {!searchLoading &&
+                            (searchResults.length > 0 || pageResults.length > 0) && (
+                              <div className="divide-y divide-gray-100">
+                                {pageResults.length > 0 && (
+                                  <div className="mb-2">
+                                    <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
+                                      <ChevronDown className="w-4 h-4 mr-1 text-fashion-dark-gray" />
+                                      Categories & Pages ({pageResults.length})
+                                    </h3>
+                                    {pageResults.map((link) => (
+                                      <a
+                                        key={link._id}
+                                        href={link.url}
+                                        className="block px-2 py-1 hover:bg-gray-50 rounded transition-colors group"
+                                      >
+                                        <span className="font-medium text-blue-700 group-hover:text-blue-800">
+                                          {link.name}
+                                        </span>
+                                        <span className="ml-2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                                          {link.type === "category"
+                                            ? "Category"
+                                            : "Page"}
+                                        </span>
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                                {searchResults.length > 0 && (
+                                  <div>
+                                    <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
+                                      <ShoppingCart className="w-4 h-4 mr-1" />
+                                      Products ({searchResults.length})
+                                    </h3>
+                                    {searchResults.slice(0, 6).map((product) => (
+                                      <a
+                                        key={product._id || product.id}
+                                        href={`/product/${product._id || product.id}`}
+                                        className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
+                                      >
+                                        <div className="flex items-center space-x-2">
+                                          <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                            {product.images?.[0]?.url ||
+                                            product.imageUrl ? (
+                                              <img
+                                                src={
+                                                  product.images?.[0]?.url ||
+                                                  product.imageUrl
+                                                }
+                                                alt={product.name}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                              />
+                                            ) : (
+                                              <div className="w-full h-full bg-none flex items-center justify-center">
+                                                <ShoppingCart className="w-5 h-5 text-gray-400" />
+                                              </div>
+                                            )}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
+                                              {product.name}
+                                            </p>
+                                            <div className="flex items-center justify-between mt-1">
+                                              <span className="text-fashion-accent-brown font-semibold">
+                                                ₹{product.price}
+                                              </span>
+                                              {product.category && (
+                                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                  {product.category}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                        </div>
                       </div>
                     )}
-                    {!searchLoading &&
-                      searchResults.length === 0 &&
-                      pageResults.length === 0 && (
-                        <div className="text-center py-4 text-gray-500">
-                          <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
-                          <p>No results found for "{searchTerm}"</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Try searching for: shirt, jumpsuit, kaftan, dress,
-                            coord set
-                          </p>
-                        </div>
-                      )}
-                    {!searchLoading &&
-                      (searchResults.length > 0 || pageResults.length > 0) && (
-                        <div className="divide-y divide-gray-100">
-                          {pageResults.length > 0 && (
-                            <div className="mb-2">
-                              <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                <ChevronDown className="w-4 h-4 mr-1 text-fashion-dark-gray" />
-                                Categories & Pages ({pageResults.length})
-                              </h3>
-                              {pageResults.map((link) => (
-                                <a
-                                  key={link._id}
-                                  href={link.url}
-                                  className="block px-2 py-1 hover:bg-gray-50 rounded transition-colors group"
-                                >
-                                  <span className="font-medium text-blue-700 group-hover:text-blue-800">
-                                    {link.name}
-                                  </span>
-                                  <span className="ml-2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                                    {link.type === "category"
-                                      ? "Category"
-                                      : "Page"}
-                                  </span>
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                          {searchResults.length > 0 && (
-                            <div>
-                              <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                <ShoppingCart className="w-4 h-4 mr-1" />
-                                Products ({searchResults.length})
-                              </h3>
-                              {searchResults.slice(0, 6).map((product) => (
-                                <a
-                                  key={product._id || product.id}
-                                  href={`/product/${product._id || product.id}`}
-                                  className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                      {product.images?.[0]?.url ||
-                                      product.imageUrl ? (
-                                        <img
-                                          src={
-                                            product.images?.[0]?.url ||
-                                            product.imageUrl
-                                          }
-                                          alt={product.name}
-                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full bg-none flex items-center justify-center">
-                                          <ShoppingCart className="w-5 h-5 text-gray-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
-                                        {product.name}
-                                      </p>
-                                      <div className="flex items-center justify-between mt-1">
-                                        <span className="text-fashion-accent-brown font-semibold">
-                                          ₹{product.price}
-                                        </span>
-                                        {product.category && (
-                                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                            {product.category}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
                   </div>
                 </div>
               )}
@@ -698,7 +728,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               <button className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center" id="profile-icon">
                 <User className="w-5 h-5 text-fashion-dark-gray" />
               </button>
-              <span className="text-xs text-fashion-dark-gray">Profile</span>
               <div
                 className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
@@ -791,7 +820,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               >
                 <Heart className="w-5 h-5 text-fashion-dark-gray" />
               </button>
-              <span className="text-xs text-fashion-dark-gray">Wishlist</span>
             </div>
 
             <div className="flex flex-col items-center relative">
@@ -807,7 +835,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   </span>
                 )}
               </button>
-              <span className="text-xs text-fashion-dark-gray">Bag</span>
             </div>
           </div>
 
