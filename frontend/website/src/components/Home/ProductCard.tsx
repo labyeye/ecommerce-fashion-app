@@ -189,7 +189,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       )}
       {/* Heart Icon for Wishlist */}
       <button
-        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-tertiary/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
+        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-[#934E27] backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
         onClick={handleWishlist}
         disabled={!user}
         title={user ? (localWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist') : 'Login to use wishlist'}
@@ -198,7 +198,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <Heart
           className={`w-4 h-4 transition-colors duration-300
-            ${localWishlisted || isHovered ? 'fill-red-500 text-red-500' : 'text-primary'}
+            ${localWishlisted || isHovered ? 'fill-red-500 text-red-500' : 'text-[#FCF4EA]'}
           `}
         />
       </button>
@@ -210,7 +210,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         {/* New badge when product or category is marked new */}
         {(product.isNewArrival || (product as any).category?.isNewArrival) && (
-          <div className="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-semibold uppercase px-2 py-1 rounded shadow">
+          <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FCF4EA] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
             New
           </div>
         )}
