@@ -17,7 +17,7 @@ const HomePage = () => {
   const reviewsFade = useFadeOnScroll<HTMLElement>();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background" >
+    <div className="flex flex-col min-h-screen bg-background">
       <section
         ref={heroFade[0]}
         className={`w-full transition-all duration-700 ${
@@ -28,7 +28,7 @@ const HomePage = () => {
       </section>
       <section
         ref={newArrivalsFade[0]}
-        className={`w-full py-6 sm:py-8 lg:py-12 transition-all duration-700 ${
+        className={`w-full transition-all duration-700 ${
           newArrivalsFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -58,7 +58,7 @@ const HomePage = () => {
       </section>
       <section
         ref={bestSellersFade[0]}
-        className={`w-full py-6 sm:py-8 lg:py-12 transition-all duration-700 ${
+        className={`w-full  transition-all duration-700 ${
           bestSellersFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -66,8 +66,7 @@ const HomePage = () => {
       >
         <ProductSlider type="best-sellers" autoPlayInterval={5500} />
       </section>
-      
-      
+
       <section
         ref={featuresFade[0]}
         className={`w-full transition-all duration-700 ${
