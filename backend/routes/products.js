@@ -73,7 +73,7 @@ router.get('/', async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     const products = await Product.find(query)
-      .populate('category', 'name')
+      .populate('category', 'name isNewArrival')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit);
@@ -118,7 +118,7 @@ router.get('/:id', async (req, res) => {
         status: 'active',
         isNewArrival: true
       })
-      .populate('category', 'name')
+      .populate('category', 'name isNewArrival')
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -133,7 +133,7 @@ router.get('/:id', async (req, res) => {
         status: 'active',
         isBestSeller: true
       })
-      .populate('category', 'name')
+      .populate('category', 'name isNewArrival')
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -148,7 +148,7 @@ router.get('/:id', async (req, res) => {
         status: 'active',
         isComingSoon: true
       })
-      .populate('category', 'name')
+      .populate('category', 'name isNewArrival')
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -169,7 +169,8 @@ router.get('/:id', async (req, res) => {
     const product = await Product.findOne({
       _id: req.params.id,
       status: 'active'
-    }).populate('category', 'name');
+    }).populate('category', 'name isNewArrival');
+
 
     if (!product) {
       return res.status(404).json({

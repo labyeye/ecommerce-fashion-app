@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import axios from 'axios';
 
 interface Review {
   id: number;
@@ -9,51 +10,30 @@ interface Review {
   rating: number;
 }
 
-const Reviews: React.FC = () => {
-  const reviews: Review[] = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      role: 'Fashion Blogger',
-      comment: 'The quality of the fabrics is exceptional. Every piece feels luxurious and fits perfectly!',
-      rating: 5
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      role: 'Style Consultant',
-      comment: 'Great variety and timeless designs. My clients are always impressed with these pieces.',
-      rating: 4
-    },
-    {
-      id: 3,
-      name: 'Emily Rodriguez',
-      role: 'Fashion Enthusiast',
-      comment: 'Excellent customer service and the clothes arrived in perfect condition. Love the sustainable approach!',
-      rating: 5
-    },
-    {
-      id: 4,
-      name: 'David Wilson',
-      role: 'Creative Director',
-      comment: 'Perfect wardrobe essentials. The minimalist design philosophy is exactly what I was looking for.',
-      rating: 5
-    },
-    {
-      id: 5,
-      name: 'Lisa Thompson',
-      role: 'Fashion Editor',
-      comment: 'Amazing attention to detail. The quality is consistently excellent across all collections.',
-      rating: 5
-    },
-    {
-      id: 6,
-      name: 'James Brown',
-      role: 'Fashion Photographer',
-      comment: 'Best clothing line I\'ve worked with. Every piece photographs beautifully and the models love wearing them.',
-      rating: 5
+const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await axios.get('https://ecommerce-fashion-app-som7.vercel.app/api/reviews?limit=12');
+      const data = res.data && res.data.data ? res.data.data : [];
+      // Transform server reviews into local shape
+      const formatted = data.map((r: any, idx: number) => ({
+        id: r._id || idx,
+        name: r.name,
+        role: '',
+        comment: r.message,
+        rating: r.rating
+      }));
+      setReviews(formatted);
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [refreshKey]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -97,22 +77,38 @@ const Reviews: React.FC = () => {
 
   // Get the reviews to display (3 at a time) - infinite rotation
   const getVisibleReviews = () => {
+    if (!reviews || reviews.length === 0) return [];
+
     const visibleReviews = [];
-    for (let i = 0; i < 3; i++) {
+    const count = Math.min(5, reviews.length);
+    for (let i = 0; i < count; i++) {
       const index = (currentIndex + i) % reviews.length;
-      visibleReviews.push(reviews[index]);
+      const item = reviews[index];
+      if (item) visibleReviews.push(item);
     }
     return visibleReviews;
   };
 
+  // Ensure currentIndex stays within bounds when reviews length changes
+  useEffect(() => {
+    if (!reviews || reviews.length === 0) {
+      setCurrentIndex(0);
+      return;
+    }
+    setCurrentIndex((ci) => ci % reviews.length);
+  }, [reviews.length]);
+
   return (
-    <div className="relative max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-[#2B463C] mb-8 sm:mb-12 animate-fade-in">
-        What Our Customers Say
-      </h2>
-      
+    <div className="relative max-w-7.5xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="text-center mb-0 max-w-8xl mx-auto">
+            <h2 className="text-6xl sm:text-6xl font-bold mb-14">
+              <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+                What Our Customers Say
+              </span>
+            </h2>
+          </div>
       <div className="relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
           {getVisibleReviews().map((review, index) => (
             <div 
               key={`${review.id}-${currentIndex}-${index}`}
@@ -124,7 +120,7 @@ const Reviews: React.FC = () => {
                 animationDuration: '600ms'
               }}
             >
-              <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-[#688F4E] mb-3 sm:mb-4 animate-pulse" />
+              <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-[#tertiary] mb-3 sm:mb-4 animate-pulse" />
               <p className="text-sm sm:text-base lg:text-lg text-gray-700 italic mb-4 sm:mb-6 flex-grow leading-relaxed">
                 "{review.comment}"
               </p>
@@ -159,7 +155,7 @@ const Reviews: React.FC = () => {
             key={index}
             onClick={() => goToSlide(index)}
             className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
-              currentIndex === index ? 'bg-[#688F4E] scale-110' : 'bg-gray-300 hover:bg-gray-400'
+              currentIndex === index ? 'bg-tertiary scale-110' : 'bg-gray-300 hover:bg-gray-400'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

@@ -17,6 +17,7 @@ const paymentRoutes = require('./routes/payments');
 const heroRoutes = require('./routes/heroes');
 const blogRoutes = require('./routes/blogs');
 const wishlistRoutes = require('./routes/wishlist');
+const reviewsRoutes = require('./routes/reviews');
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -101,6 +102,7 @@ mongoose.connect(process.env.MONGODB_URI,{
   require('./models/Category');
   require('./models/Product');
   require('./models/NavigationLink');
+  require('./models/Review');
 })
 .catch(err => console.error('MongoDB connection error:', err));
 
@@ -115,6 +117,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/heroes', heroRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/reviews', reviewsRoutes);
 app.get('/api/health', (req, res) => {
   console.log('Health check request received from:', req.headers.origin);
   res.json({ 

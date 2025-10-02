@@ -54,6 +54,10 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isNewArrival: {
+    type: Boolean,
+    default: false
+  },
   color: {
     type: String,
     default: '#8B7355'

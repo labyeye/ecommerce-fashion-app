@@ -1,51 +1,41 @@
 import React from "react";
-import {
-  Sparkles,
-  Zap,
-  Shield,
-  Globe,
-  CheckCircle,
-  Star,
-} from "lucide-react";
-import FloatingElements from "../ui/FloatingElements";
+import { Zap,  Globe, IndianRupee, Heart, ThumbsUp } from "lucide-react";
 
 const Features: React.FC = () => {
   const features = [
-    { icon: Sparkles, name: "Premium Quality", description: "Curated materials" },
-    { icon: Zap, name: "Modern Design", description: "Contemporary styles" },
-    { icon: Shield, name: "Quality Assured", description: "Rigorous testing" },
-    { icon: Globe, name: "Global Shipping", description: "Worldwide delivery" },
-    { icon: CheckCircle, name: "Easy Returns", description: "Hassle-free policy" },
-    { icon: Star, name: "Customer Loved", description: "5-star reviews" },
+    { icon: Zap, name: "Modern Design" },
+    
+    {
+      icon: IndianRupee,
+      name: "Pocket Friendly",
+    },
+    { icon: ThumbsUp, name: "Quality Assured" },
+    { icon: Globe, name: "Global Shipping" },
+    { icon: Heart, name: "Customer Loved" },
   ];
 
   return (
     <section className="relative py-10 sm:py-16 lg:py-24 bg-[#FCF4EA] overflow-hidden">
-      <FloatingElements density="light" />
-      
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Brand Mark */}
-          <div className="mb-6 sm:mb-8 lg:mb-12">
-            <div className="text-2xl sm:text-3xl md:text-4xl font-dark text-[#2D2D2D] mb-3 tracking-[0.15em] sm:tracking-[0.2em]">FASHION</div>
-            <div className="h-0.5 w-16 sm:w-20 bg-secondary mx-auto"></div>
+        <div className="text-center max-w-5xl mx-auto">
+          {/* Main Heading */}
+          <div className="text-center mb-0 max-w-8xl mx-auto">
+            <h2 className="text-6xl sm:text-6xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+                Timeless elegance, crafted with precision
+              </span>
+            </h2>
           </div>
 
-          {/* Main Heading */}
-          <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-dark text-[#2D2D2D] mb-4 sm:mb-6 leading-tight tracking-wide">
-            Timeless elegance,
-            <br className="hidden sm:block" />
-            <span className="text-secondary">crafted with precision.</span>
-          </h2>
-
           <p className="text-base sm:text-lg text-[#2D2D2D] font-dark leading-relaxed mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
-            Every piece in our collection represents a commitment to exceptional quality, 
-            sustainable practices, and enduring style.
+            Every piece in our collection represents a commitment to exceptional
+            quality, sustainable practices, and enduring style.
           </p>
 
-          {/* Features Grid */}
+          {/* Features Grid for small screens (fallback) */}
           <div className="glass rounded-lg sm:rounded-fashion p-4 sm:p-8 lg:p-12 shadow-fashion border border-primary/5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Mobile / tablet: keep existing responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:hidden">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
@@ -59,12 +49,42 @@ const Features: React.FC = () => {
                     <h3 className="text-base sm:text-lg font-medium text-[#2D2D2D] mb-1 sm:mb-2 tracking-wide">
                       {feature.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-[#2D2D2D]/70 font-dark leading-relaxed">
-                      {feature.description}
-                    </p>
                   </div>
                 );
               })}
+            </div>
+
+            {/* Desktop: custom two-row layout (3 on first row, 2 centered on second) */}
+            <div className="hidden lg:block">
+              {/* first row: 3 centered */}
+              <div className="flex justify-center gap-6 sm:gap-8 mb-6">
+                {features.slice(0, 3).map((feature, index) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div key={index} className="flex flex-col items-center text-center p-3 w-60">
+                      <div className="circle-element w-14 h-14 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
+                        <Icon className="w-6 h-6 text-[#2D2D2D]" />
+                      </div>
+                      <h3 className="text-lg font-medium text-[#2D2D2D] tracking-wide">{feature.name}</h3>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* second row: 2 centered */}
+              <div className="flex justify-center gap-6 sm:gap-8">
+                {features.slice(3).map((feature, idx) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div key={idx} className="flex flex-col items-center text-center p-3 w-60">
+                      <div className="circle-element w-14 h-14 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
+                        <Icon className="w-6 h-6 text-[#2D2D2D]" />
+                      </div>
+                      <h3 className="text-lg font-medium text-[#2D2D2D] tracking-wide">{feature.name}</h3>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

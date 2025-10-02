@@ -6,6 +6,7 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const PromoCode = require('../models/PromoCode');
 const Category = require('../models/Category');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -687,6 +688,13 @@ router.put('/products/:id', async (req, res) => {
 
     // Update product with boolean field handling
     const updatedFields = { ...req.body };
+    // Sanitize category: ignore empty or invalid category values to avoid ObjectId cast errors
+    if (updatedFields.hasOwnProperty('category')) {
+      const cat = updatedFields.category;
+      if (cat === '' || cat === null || cat === 'null' || (typeof cat === 'string' && !mongoose.Types.ObjectId.isValid(cat))) {
+        delete updatedFields.category;
+      }
+    }
     
     // Ensure boolean fields are properly set
     ['isFeatured', 'isNewArrival', 'isBestSeller', 'isComingSoon'].forEach(field => {

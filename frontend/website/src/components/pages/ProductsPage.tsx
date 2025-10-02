@@ -265,12 +265,13 @@ const ProductPage: React.FC = () => {
         ) : data ? (
           <>
             {data.products && data.products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 sm:gap-8">
                 {data.products.map((product) => (
                   <div key={product._id || product.id} className="group relative transition-all duration-300 hover:z-10">
                     <ProductCard
                       key={product._id || product.id}
                       product={product}
+                      cardClassName="w-full sm:max-w-[360px] md:max-w-[420px] mx-auto"
                     />
                   </div>
                 ))}

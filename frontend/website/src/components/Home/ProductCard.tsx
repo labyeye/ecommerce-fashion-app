@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Heart, Lock } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLoyaltyTier, canAccessTier } from '../../hooks/useLoyaltyTier';
 
 export interface Product {
@@ -58,14 +58,17 @@ export interface Product {
 interface ProductCardProps {
   product: Product;
   viewDetailsLink?: string;
+  cardClassName?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   viewDetailsLink
+  , cardClassName
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isHovered, setIsHovered] = useState(false);
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [localWishlisted, setLocalWishlisted] = useState(false);
@@ -151,11 +154,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  // If rendering on a product details page, and no explicit cardClassName is provided,
+  // apply a slightly larger default max width so cards look bigger on the product page.
+  const isProductPage = location.pathname.startsWith('/product/');
+  // Larger default width on product pages: 480px on small, 640px on md and above
+  const defaultProductPageClass = isProductPage && !cardClassName ? 'w-full sm:max-w-[480px] md:max-w-[640px] mx-auto' : '';
+
   return (
     <div
       className={`group relative bg-background transition-all duration-300 ${
         isHovered ? 'shadow-lg' : ''
-      } ${!canAccess ? 'opacity-60' : ''}`}
+      } ${!canAccess ? 'opacity-60' : ''} ${cardClassName || defaultProductPageClass}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -196,9 +205,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Product Image with Hover Effect */}
       <div 
-        className="relative aspect-[3/4] overflow-hidden bg-gray-50 cursor-pointer"
+        className="relative aspect-[2/4] overflow-hidden bg-gray-50 cursor-pointer"
         onClick={handleViewDetails}
       >
+        {/* New badge when product or category is marked new */}
+        {(product.isNewArrival || (product as any).category?.isNewArrival) && (
+          <div className="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-semibold uppercase px-2 py-1 rounded shadow">
+            New
+          </div>
+        )}
         {/* Primary Image */}
         <img
           src={primary?.url}

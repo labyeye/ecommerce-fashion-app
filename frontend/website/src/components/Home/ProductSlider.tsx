@@ -23,8 +23,8 @@ const sliderConfigs: Record<ProductSliderProps["type"], SliderConfig> = {
     emptyMessage: "New arrivals coming soon",
   },
   "best-sellers": {
-    title: "Best Sellers",
-    description: "Most loved by our fashion community",
+    title: "Timeless Styles",
+    description: "Designed for Dreamers and Loved by Travelers",
     apiEndpoint: "https://ecommerce-fashion-app-som7.vercel.app/api/products?isBestSeller=true",
     emptyMessage: "Stay tuned for our best sellers",
   },
@@ -146,7 +146,7 @@ const ProductSlider = ({
   }
 
   return (
-    <section className="w-screen py-20 bg-[#FCF4EA]">
+    <section className="w-screen py-10 bg-[#FCF4EA]">
       <div className="w-full px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
