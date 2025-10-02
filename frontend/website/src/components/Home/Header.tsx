@@ -127,6 +127,23 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Lock body scroll and handle Escape when search panel is open
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSearchOpen(false);
+    };
+    if (isSearchOpen) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", onKey);
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isSearchOpen]);
+
   const { user } = useAuth();
   // Keep getTierInfo referenced during development to avoid unused lint warnings
   useEffect(() => {
@@ -618,140 +635,109 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               </button>
 
               {isSearchOpen && (
-                <div
-                  className="absolute left-1/2 transform -translate-x-1/2 mt-2 z-50"
-                  style={{ top: "100%" }}
-                >
-                  <div className="flex items-center w-96 max-w-xs bg-white border border-fashion-charcoal/20 rounded-lg shadow-sm px-3 py-1 relative">
-                    <Search className="w-5 h-5 mr-2 text-fashion-dark-gray" />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
-                      placeholder="Search products, categories..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button
-                      onClick={() => setIsSearchOpen(false)}
-                      className="ml-3 text-gray-400 hover:text-gray-600"
-                      aria-label="Close search"
-                    >
-                      ✕
-                    </button>
+                <>
+                  {/* Backdrop */}
+                  <div
+                    className="fixed inset-0 bg-black/40 z-40"
+                    onClick={() => setIsSearchOpen(false)}
+                    aria-hidden
+                  />
 
-                    {searchTerm.length > 1 && (
-                      <div className="absolute top-12 left-0 w-full bg-white border border-fashion-charcoal/10 rounded-lg shadow-lg z-50">
-                        <div className="p-3">
-                          {searchLoading && (
-                            <div className="flex items-center justify-center py-4">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                              <span className="ml-2 text-gray-500">
-                                Searching...
-                              </span>
-                            </div>
-                          )}
-                          {!searchLoading &&
-                            searchResults.length === 0 &&
-                            pageResults.length === 0 && (
+                  {/* Sliding panel */}
+                  <div className={`fixed top-0 right-0 w-[500px] h-full z-50 transform transition-transform duration-300 ${isSearchOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true">
+                    <div className="bg-white h-full flex flex-col">
+                      <div className="border-b border-fashion-charcoal/10 p-4">
+                        <div className="flex items-center">
+                          <Search className="w-5 h-5 mr-3 text-fashion-dark-gray" />
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
+                            placeholder="Search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            autoFocus
+                            aria-label="Search products"
+                          />
+                          <button
+                            onClick={() => setIsSearchOpen(false)}
+                            className="ml-3 text-gray-500 hover:text-gray-700 text-xl"
+                            aria-label="Close search"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Results container */}
+                      <div className="flex-1 overflow-y-auto p-4 bg-white">
+                        {searchLoading && (
+                          <div className="flex items-center justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
+                            <span className="ml-2 text-gray-500">Searching...</span>
+                          </div>
+                        )}
+
+                        {!searchLoading && searchTerm.length <= 1 && (
+                          <div className="text-center py-8 text-gray-500">
+                            <p>Start typing to search</p>
+                          </div>
+                        )}
+
+                        {!searchLoading && searchTerm.length > 1 && (
+                          <div className="space-y-4">
+                            {pageResults.length === 0 && searchResults.length === 0 ? (
                               <div className="text-center py-4 text-gray-500">
                                 <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                                 <p>No results found for "{searchTerm}"</p>
-                                <p className="text-xs text-gray-400 mt-1">
-                                  Try searching for: shirt, jumpsuit, kaftan,
-                                  dress, coord set
-                                </p>
                               </div>
-                            )}
-                          {!searchLoading &&
-                            (searchResults.length > 0 ||
-                              pageResults.length > 0) && (
-                              <div className="divide-y divide-gray-100">
+                            ) : (
+                              <>
                                 {pageResults.length > 0 && (
-                                  <div className="mb-2">
-                                    <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                      <ChevronDown className="w-4 h-4 mr-1 text-fashion-dark-gray" />
-                                      Categories & Pages ({pageResults.length})
-                                    </h3>
-                                    {pageResults.map((link) => (
-                                      <a
-                                        key={link._id}
-                                        href={link.url}
-                                        className="block px-2 py-1 hover:bg-gray-50 rounded transition-colors group"
-                                      >
-                                        <span className="font-medium text-blue-700 group-hover:text-blue-800">
-                                          {link.name}
-                                        </span>
-                                        <span className="ml-2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                                          {link.type === "category"
-                                            ? "Category"
-                                            : "Page"}
-                                        </span>
-                                      </a>
-                                    ))}
+                                  <div>
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Categories & Pages</h3>
+                                    <div className="space-y-1">
+                                      {pageResults.map((link) => (
+                                        <a key={link._id} href={link.url} className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                          <span className="font-medium text-blue-700">{link.name}</span>
+                                        </a>
+                                      ))}
+                                    </div>
                                   </div>
                                 )}
+
                                 {searchResults.length > 0 && (
                                   <div>
-                                    <h3 className="text-xs font-semibold text-gray-600 mb-1 flex items-center">
-                                      <ShoppingCart className="w-4 h-4 mr-1" />
-                                      Products ({searchResults.length})
-                                    </h3>
-                                    {searchResults
-                                      .slice(0, 6)
-                                      .map((product) => (
-                                        <a
-                                          key={product._id || product.id}
-                                          href={`/product/${
-                                            product._id || product.id
-                                          }`}
-                                          className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors group"
-                                        >
-                                          <div className="flex items-center space-x-2">
-                                            <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                              {product.images?.[0]?.url ||
-                                              product.imageUrl ? (
-                                                <img
-                                                  src={
-                                                    product.images?.[0]?.url ||
-                                                    product.imageUrl
-                                                  }
-                                                  alt={product.name}
-                                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                                />
-                                              ) : (
-                                                <div className="w-full h-full bg-none flex items-center justify-center">
-                                                  <ShoppingCart className="w-5 h-5 text-gray-400" />
-                                                </div>
-                                              )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                              <p className="font-medium text-gray-900 group-hover:text-fashion-accent-brown truncate">
-                                                {product.name}
-                                              </p>
-                                              <div className="flex items-center justify-between mt-1">
-                                                <span className="text-fashion-accent-brown font-semibold">
-                                                  ₹{product.price}
-                                                </span>
-                                                {product.category && (
-                                                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                                    {product.category}
-                                                  </span>
-                                                )}
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Products</h3>
+                                    <div className="space-y-2">
+                                      {searchResults.map((product) => (
+                                        <a key={product._id || product.id} href={`/product/${product._id || product.id}`} className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                          <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                            {product.images?.[0]?.url || product.imageUrl ? (
+                                              <img src={product.images?.[0]?.url || product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <ShoppingCart className="w-4 h-4" />
                                               </div>
-                                            </div>
+                                            )}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="font-medium text-gray-900 truncate text-sm">{product.name}</p>
+                                            <span className="text-fashion-accent-brown font-semibold text-sm">₹{product.price}</span>
                                           </div>
                                         </a>
                                       ))}
+                                    </div>
                                   </div>
                                 )}
-                              </div>
+                              </>
                             )}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
