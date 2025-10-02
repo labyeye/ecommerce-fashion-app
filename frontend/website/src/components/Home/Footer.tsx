@@ -117,11 +117,11 @@ const Footer: React.FC = () => {
                 Rate us
               </button>
             </div>
-            <div className="flex space-x-3 sm:space-x-4">
-              <button className="w-8 h-8 sm:w-10 sm:h-10 bg-tertiary/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300">
+            <div className="flex space-x-3 sm:space-x-4 mt-7">
+              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300 ml-[-15px]">
                 <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button className="w-8 h-8 sm:w-10 sm:h-10 bg-tertiary/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300">
+              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300">
                 <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <a
@@ -129,19 +129,16 @@ const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat on WhatsApp"
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-tertiary/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-green-100 hover:scale-110 transition-all duration-300"
+                className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:scale-110 transition-all duration-300"
               >
                 {/* WhatsApp SVG (inline) */}
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-black-600"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
-                >
-                  <path d="M20.52 3.48A11.88 11.88 0 0012 .5C6.21.5 1.5 5.21 1.5 11c0 1.94.51 3.84 1.48 5.5L.5 22.5l6.2-2.05A11.88 11.88 0 0012 22.5c5.79 0 10.5-4.71 10.5-10.5 0-3.02-1.18-5.83-3.98-8.52zM12 20.5c-1.5 0-2.96-.38-4.26-1.09l-.3-.17-3.68 1.22 1.22-3.58-.2-.34A8.5 8.5 0 013.5 11c0-4.7 3.8-8.5 8.5-8.5 2.27 0 4.4.88 6 2.48 1.6 1.6 2.48 3.74 2.48 6 0 4.7-3.8 8.5-8.5 8.5z" />
-                  <path d="M17.1 14.2c-.3-.15-1.75-.86-2.02-.96-.27-.1-.46-.15-.66.15s-.76.96-.93 1.16c-.17.2-.33.22-.62.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.33.46-.5.16-.17.22-.28.33-.47.1-.2.04-.37-.02-.51-.07-.15-.66-1.6-.9-2.19-.24-.57-.48-.5-.66-.51l-.56-.01c-.2 0-.52.07-.8.37-.28.3-1.08 1.05-1.08 2.56 0 1.5 1.11 2.95 1.26 3.15.15.2 2.18 3.33 5.29 4.67 3.12 1.35 3.12.9 3.69.84.57-.06 1.75-.71 2-1.4.24-.7.24-1.3.17-1.4-.07-.1-.27-.15-.57-.3z" />
-                </svg>
+                  {/* WhatsApp PNG icon (external) */}
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
+                    alt="WhatsApp"
+                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    loading="lazy"
+                  />
               </a>
             </div>
           </div>
