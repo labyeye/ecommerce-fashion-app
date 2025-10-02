@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Facebook, Instagram, Star } from "lucide-react";
 import axios from "axios";
-import photo from "../../assets/images/footer-back.jpeg";
+import photo from "../../assets/IMG_6285.webp";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();

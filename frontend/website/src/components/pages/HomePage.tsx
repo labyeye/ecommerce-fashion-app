@@ -17,7 +17,7 @@ const HomePage = () => {
   const reviewsFade = useFadeOnScroll<HTMLElement>();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background" >
       <section
         ref={heroFade[0]}
         className={`w-full transition-all duration-700 ${
