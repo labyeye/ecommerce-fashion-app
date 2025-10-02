@@ -198,7 +198,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <Heart
           className={`w-4 h-4 transition-colors duration-300
-            ${localWishlisted || isHovered ? 'fill-red-500 text-red-500' : 'text-[#FCF4EA]'}
+            ${localWishlisted || isHovered ? 'fill-[#FCF4EA] text-red-500' : 'text-[#FCF4EA]'}
           `}
         />
       </button>

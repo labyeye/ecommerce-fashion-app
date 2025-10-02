@@ -100,15 +100,12 @@ const Footer: React.FC = () => {
                       key={i}
                       className={`w-5 h-5 mr-1 ${
                         avgRating !== null && i < Math.round(avgRating)
-                          ? "text-yellow-400"
-                          : "text-gray-300"
+                          ? "text-yellow-700"
+                          : "text-white-300"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-sm font-semibold">
-                  {avgRating ?? "-"} / 5
-                </span>
               </div>
               <button
                 onClick={() => setShowModal(true)}

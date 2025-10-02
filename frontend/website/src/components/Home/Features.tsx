@@ -15,7 +15,7 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-10 sm:py-16 lg:py-24 bg-[#FCF4EA] overflow-hidden">
+    <section className="relative bg-[#FCF4EA] overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
           {/* Main Heading */}
