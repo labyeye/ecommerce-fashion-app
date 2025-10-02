@@ -168,7 +168,7 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
+            className={`w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300 hover:scale-125 ${
               currentIndex === index
                 ? "bg-tertiary scale-110"
                 : "bg-gray-300 hover:bg-gray-400"
