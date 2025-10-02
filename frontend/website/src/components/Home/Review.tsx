@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import axios from "axios";
 
 interface Review {
   id: number;
@@ -15,19 +15,19 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get('https://ecommerce-fashion-app-som7.vercel.app/api/reviews?limit=12');
+      const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/reviews?limit=12");
       const data = res.data && res.data.data ? res.data.data : [];
       // Transform server reviews into local shape
       const formatted = data.map((r: any, idx: number) => ({
         id: r._id || idx,
         name: r.name,
-        role: '',
+        role: "",
         comment: r.message,
-        rating: r.rating
+        rating: r.rating,
       }));
       setReviews(formatted);
     } catch (err) {
-      console.error('Failed to fetch reviews:', err);
+      console.error("Failed to fetch reviews:", err);
     }
   };
 
@@ -42,9 +42,9 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   // Auto slide every 3 seconds - infinite rotation
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(() => {
-      setCurrentIndex(prevIndex => (prevIndex + 1) % reviews.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -54,7 +54,7 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
     if (isTransitioning) return;
     setIsAutoPlaying(false);
     setIsTransitioning(true);
-    setCurrentIndex(prevIndex => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? reviews.length - 1 : prevIndex - 1
     );
     setTimeout(() => setIsTransitioning(false), 500);
@@ -63,7 +63,7 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const goToNext = () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
-    setCurrentIndex(prevIndex => (prevIndex + 1) % reviews.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
     setTimeout(() => setIsTransitioning(false), 500);
   };
 
@@ -101,23 +101,25 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   return (
     <div className="relative max-w-7.5xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="text-center mb-0 max-w-8xl mx-auto">
-            <h2 className="text-6xl sm:text-6xl font-bold mb-14">
-              <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
-                What Our Customers Say
-              </span>
-            </h2>
-          </div>
+        <h2 className="text-6xl sm:text-6xl font-bold mb-14">
+          <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+            What Our Customers Say
+          </span>
+        </h2>
+      </div>
       <div className="relative">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
           {getVisibleReviews().map((review, index) => (
-            <div 
+            <div
               key={`${review.id}-${currentIndex}-${index}`}
               className={`bg-white/90 p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg transition-all duration-500 hover:shadow-xl hover:scale-105 hover:bg-white/95 transform ${
-                isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+                isTransitioning
+                  ? "opacity-50 scale-95"
+                  : "opacity-100 scale-100"
               } animate-slide-in-up`}
               style={{
                 animationDelay: `${index * 100}ms`,
-                animationDuration: '600ms'
+                animationDuration: "600ms",
               }}
             >
               <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-[#tertiary] mb-3 sm:mb-4 animate-pulse" />
@@ -125,16 +127,28 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
                 "{review.comment}"
               </p>
               <div className="flex items-center justify-between">
-                <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                  <p className="font-semibold text-sm sm:text-base text-[#2B463C]">{review.name}</p>
-                  <p className="text-xs sm:text-sm text-gray-500">{review.role}</p>
+                <div
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: "200ms" }}
+                >
+                  <p className="font-semibold text-sm sm:text-base text-[#2B463C]">
+                    {review.name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {review.role}
+                  </p>
                 </div>
-                <div className="flex animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                <div
+                  className="flex animate-fade-in-up"
+                  style={{ animationDelay: "300ms" }}
+                >
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
                       className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${
-                        i < review.rating ? 'text-yellow-400 scale-110' : 'text-gray-300'
+                        i < review.rating
+                          ? "text-yellow-400 scale-110"
+                          : "text-gray-300"
                       }`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
@@ -155,21 +169,23 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
             key={index}
             onClick={() => goToSlide(index)}
             className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
-              currentIndex === index ? 'bg-tertiary scale-110' : 'bg-gray-300 hover:bg-gray-400'
+              currentIndex === index
+                ? "bg-tertiary scale-110"
+                : "bg-gray-300 hover:bg-gray-400"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
 
-      <button 
+      <button
         onClick={goToPrevious}
         className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-1.5 sm:p-2 rounded-full shadow-md hover:bg-[#688F4E] hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={isTransitioning}
       >
         <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
       </button>
-      <button 
+      <button
         onClick={goToNext}
         className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-1.5 sm:p-2 rounded-full shadow-md hover:bg-[#688F4E] hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={isTransitioning}
