@@ -234,7 +234,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                       <td className="px-4 py-2">{order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : '-'}</td>
                       <td className="px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
                       <td className="px-4 py-2">{order.items.map((item: any) => item.product?.name).join(', ')}</td>
-                      <td className="px-4 py-2 font-medium">${order.total.toFixed(2)}</td>
+                      <td className="px-4 py-2 font-medium">₹{order.total.toFixed(2)}</td>
                       <td className="px-4 py-2">
                         <div className="text-xs">
                           <div className="font-medium">{order.payment?.method === 'razorpay' ? 'Razorpay' : order.payment?.method?.replace('_', ' ').toUpperCase()}</div>

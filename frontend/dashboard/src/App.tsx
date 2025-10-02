@@ -19,6 +19,7 @@ import NavigationManagement from "./components/NavigationManagement";
 import CategoryManagement from "./components/CategoryManagement";
 import HeroManagement from "./components/HeroManagement";
 import BlogManagement from "./components/BlogManagement";
+import Newsletter from "./components/Newsletter";
 
 import { mockData } from "./data/mockData";
 
@@ -237,6 +238,8 @@ function DashboardApp() {
         return <NavigationManagement />;
       case "analytics":
         return <Analytics />;
+      case "newsletter":
+        return <Newsletter />;
       case "alerts":
         return (
           <div className="p-8 text-center text-gray-500">

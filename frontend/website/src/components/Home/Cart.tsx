@@ -98,9 +98,9 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <ShoppingBag className="w-6 h-6 text-[#688F4E]" />
-            <h2 className="text-xl font-bold text-[#2B463C]">Your Cart</h2>
-            <span className="bg-[#688F4E] text-white text-sm px-2 py-1 rounded-full">
+            <ShoppingBag className="w-6 h-6 text-[#914D26]" />
+            <h2 className="text-xl font-bold text-[#914D26]">Your Cart</h2>
+            <span className="bg-[#914D26] text-white text-sm px-2 py-1 rounded-full">
               {items.length}
             </span>
           </div>
@@ -116,14 +116,14 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {items.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-r from-[#B1D182] to-[#688F4E] rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-24 h-24 bg-gradient-to-r from-[#FFF2E1] to-[#914D26] rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShoppingBag className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-[#2B463C] mb-2">Your cart is empty</h3>
-              <p className="text-gray-600 mb-6">Add some stylish fashion items to get started!</p>
+              <h3 className="text-xl font-bold text-[#914D26] mb-2">Your cart is empty</h3>
+              <p className="text-[#914D26] mb-6">Add some stylish fashion items to get started!</p>
               <button
                 onClick={onClose}
-                className="bg-gradient-to-r from-[#2B463C] to-[#688F4E] text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+                className="bg-gradient-to-r from-[#914D26] to-[#FFF2E1] text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 Continue Shopping
               </button>
@@ -144,25 +144,25 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
 
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#2B463C] truncate">{item.name}</h3>
-                    <p className="text-sm text-gray-600">Size: {item.size} | Color: {item.color}</p>
-                    <p className="text-lg font-bold text-[#688F4E]">₹{item.price}</p>
+                    <h3 className="font-semibold text-[#914D26] truncate">{item.name}</h3>
+                    <p className="text-sm text-[#914D26]">Size: {item.size} | Color: {item.color}</p>
+                    <p className="text-lg font-bold text-[#914D26]">₹{item.price}</p>
                   </div>
 
                   {/* Quantity Controls */}
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => onUpdateQuantity(`${item.id}-${item.size}-${item.color}`, Math.max(0, item.quantity - 1))}
-                      className="w-8 h-8 rounded-full border-2 border-gray-200 hover:border-[#688F4E] flex items-center justify-center transition-colors duration-200"
+                      className="w-8 h-8 rounded-full border-2 border-gray-200 hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
-                      <Minus className="w-4 h-4 text-[#2B463C]" />
+                      <Minus className="w-4 h-4 text-[#914D26]" />
                     </button>
-                    <span className="w-8 text-center font-semibold text-[#2B463C]">{item.quantity}</span>
+                    <span className="w-8 text-center font-semibold text-[#914D26]">{item.quantity}</span>
                     <button
                       onClick={() => onUpdateQuantity(`${item.id}-${item.size}-${item.color}`, item.quantity + 1)}
-                      className="w-8 h-8 rounded-full border-2 border-gray-200 hover:border-[#688F4E] flex items-center justify-center transition-colors duration-200"
+                      className="w-8 h-8 rounded-full border-2 border-gray-200 hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
-                      <Plus className="w-4 h-4 text-[#2B463C]" />
+                      <Plus className="w-4 h-4 text-[#914D26]" />
                     </button>
                   </div>
 
@@ -189,7 +189,7 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                 <div className="space-y-2">
                   <button
                     onClick={() => setShowPromoInput(true)}
-                    className="flex items-center space-x-2 text-[#688F4E] hover:text-[#2B463C] transition-colors duration-200"
+                    className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                   >
                     <Tag className="w-4 h-4" />
                     <span className="text-sm font-medium">Have a promo code?</span>
@@ -198,7 +198,7 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                   {userEvolvPoints > 0 && (
                     <button
                       onClick={() => setShowEvolvPointsInput(true)}
-                      className="flex items-center space-x-2 text-[#688F4E] hover:text-[#2B463C] transition-colors duration-200"
+                      className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                     >
                       <Zap className="w-4 h-4" />
                       <span className="text-sm font-medium">
@@ -217,13 +217,13 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                       value={promoCodeInput}
                       onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
                       placeholder="Enter promo code"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#688F4E] focus:border-transparent text-sm"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#914D26] focus:border-transparent text-sm"
                       onKeyPress={(e) => e.key === 'Enter' && handleApplyPromoCode()}
                     />
                     <button
                       onClick={handleApplyPromoCode}
                       disabled={promoCodeLoading || !promoCodeInput.trim()}
-                      className="px-4 py-2 bg-[#688F4E] text-white rounded-lg hover:bg-[#2B463C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
+                      className="px-4 py-2 bg-[#914D26] text-white rounded-lg hover:bg-[#2B463C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
                     >
                       {promoCodeLoading ? 'Loading...' : 'Apply'}
                     </button>
@@ -256,13 +256,13 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                       placeholder={`Enter points (max ${userEvolvPoints})`}
                       max={userEvolvPoints}
                       min="1"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#688F4E] focus:border-transparent text-sm"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#914D26] focus:border-transparent text-sm"
                       onKeyPress={(e) => e.key === 'Enter' && handleApplyEvolvPoints()}
                     />
                     <button
                       onClick={handleApplyEvolvPoints}
                       disabled={evolvPointsLoading || !evolvPointsInput || parseInt(evolvPointsInput) <= 0}
-                      className="px-4 py-2 bg-[#688F4E] text-white rounded-lg hover:bg-[#2B463C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
+                      className="px-4 py-2 bg-[#914D26] text-white rounded-lg hover:bg-[#2B463C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
                     >
                       {evolvPointsLoading ? 'Loading...' : 'Redeem'}
                     </button>
@@ -332,7 +332,7 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[914D26">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toFixed(0)}</span>
               </div>
@@ -351,25 +351,25 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
                 </div>
               )}
               
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[914D26">
                 <span>Shipping</span>
                 <span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
               </div>
               
               {subtotal < 1000 && (
-                <p className="text-sm text-[#688F4E]">
+                <p className="text-sm text-[#914D26]">
                   Add ₹{1000 - subtotal} more for free shipping!
                 </p>
               )}
               
-              <div className="flex justify-between text-lg font-bold text-[#2B463C] pt-2 border-t border-gray-200">
+              <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-gray-200">
                 <span>Total</span>
                 <span>₹{Math.max(0, total).toFixed(0)}</span>
               </div>
             </div>
 
             <button
-              className="w-full bg-gradient-to-r from-[#2B463C] to-[#688F4E] text-white py-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+              className="w-full bg-gradient-to-r from-[#FFF2E1] to-[#914D26] text-white py-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
               onClick={() => {
                 if (onProceedToCheckout) {
                   onProceedToCheckout();
@@ -387,7 +387,7 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, onUpdateQuantity, o
             <div className="text-center">
               <button
                 onClick={onClose}
-                className="text-[#688F4E] hover:text-[#2B463C] font-medium transition-colors duration-200"
+                className="text-[#914D26] hover:text-[#2B463C] font-medium transition-colors duration-200"
               >
                 Continue Shopping
               </button>

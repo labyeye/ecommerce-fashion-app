@@ -10,6 +10,7 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const PromoCode = require('../models/PromoCode');
+const { sendOrderCancellationEmail } = require('../utils/emailService');
 
 const router = express.Router();
 
@@ -327,7 +328,9 @@ router.put('/orders/:id/cancel', [
     }
 
     // Check if order can be cancelled
-    if (!['pending', 'confirmed'].includes(order.status)) {
+    // Only allow cancellation when the order is still in 'pending' (order placed) state.
+    // If payment has been confirmed or order progressed, cancellation is not applicable here.
+    if (order.status !== 'pending') {
       return res.status(400).json({
         success: false,
         message: 'Order cannot be cancelled at this stage'
@@ -348,6 +351,18 @@ router.put('/orders/:id/cancel', [
     });
 
     await order.save();
+
+    // Send cancellation email to customer (do not block on email failures)
+    (async () => {
+      try {
+        const customer = await User.findById(req.user._id);
+        if (customer && customer.email) {
+          await sendOrderCancellationEmail(customer.email, customer.firstName || '', order.toObject ? order.toObject() : order);
+        }
+      } catch (emailErr) {
+        console.error('Failed to send cancellation email:', emailErr);
+      }
+    })();
 
     // Restore product stock
     for (const item of order.items) {

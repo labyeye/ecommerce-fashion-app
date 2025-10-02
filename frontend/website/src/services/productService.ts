@@ -1,6 +1,20 @@
 import axios from 'axios';
 
 const API_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
+// Derive backend base URL from the API_URL so we can build absolute image URLs
+const BACKEND_BASE = API_URL.replace('/api/products', '');
+
+const toAbsoluteUrl = (url?: string) => {
+  if (!url) return '';
+  // If already absolute, return as-is
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
+    return url;
+  }
+  // If starts with a leading slash, join directly to backend base
+  if (url.startsWith('/')) return `${BACKEND_BASE}${url}`;
+  // Otherwise, assume it's a relative path under the backend (e.g. "uploads/...")
+  return `${BACKEND_BASE}/${url}`;
+};
 
 export interface Product {
   _id?: string;
@@ -82,11 +96,23 @@ export const getProducts = async (): Promise<Product[]> => {
       brand: product.brand || '',
       minLoyaltyTier: product.minLoyaltyTier || 'bronze',
       sizes: Array.isArray(product.sizes) ? product.sizes : [],
-      colors: Array.isArray(product.colors) ? product.colors.map((color: any) => ({
-        ...color,
-        images: Array.isArray(color.images) ? color.images : []
-      })) : [],
-      images: Array.isArray(product.images) ? product.images : [],
+      colors: Array.isArray(product.colors)
+        ? product.colors.map((color: any) => ({
+            ...color,
+            images: Array.isArray(color.images)
+              ? color.images.map((img: any) => ({
+                  ...img,
+                  url: toAbsoluteUrl(img.url),
+                }))
+              : [],
+          }))
+        : [],
+      images: Array.isArray(product.images)
+        ? product.images.map((img: any) => ({
+            ...img,
+            url: toAbsoluteUrl(img.url),
+          }))
+        : [],
       material: product.material || '',
       careInstructions: product.careInstructions || '',
       fit: product.fit || 'regular',
@@ -123,8 +149,8 @@ export const getProductById = async (id: string): Promise<Product> => {
     const response = await axios.get(`${API_URL}/${id}`);
     console.log('Product API Response:', response.data); // Debug log
     
-    // Check different response structures
-    const productData = response.data.data?.product || response.data.data || null;
+    // Check different response structures - backend returns data: product directly
+    const productData = response.data?.data || null;
     
     if (!productData) {
       throw new Error('Product not found in response');
@@ -148,16 +174,25 @@ export const getProductById = async (id: string): Promise<Product> => {
         stock: Number(size.stock) || 0,
         price: Number(size.price) || 0
       })) : [],
-      colors: Array.isArray(productData.colors) ? productData.colors.map((color: any) => ({
-        name: color.name || '',
-        hexCode: color.hexCode || '#000000',
-        stock: Number(color.stock) || 0,
-        images: Array.isArray(color.images) ? color.images.map((img: any) => ({
-          url: img.url || '',
-          alt: img.alt || ''
-        })) : []
-      })) : [],
-      images: Array.isArray(productData.images) ? productData.images : [],
+      colors: Array.isArray(productData.colors)
+        ? productData.colors.map((color: any) => ({
+            name: color.name || '',
+            hexCode: color.hexCode || '#000000',
+            stock: Number(color.stock) || 0,
+            images: Array.isArray(color.images)
+              ? color.images.map((img: any) => ({
+                  url: toAbsoluteUrl(img.url || ''),
+                  alt: img.alt || '',
+                }))
+              : [],
+          }))
+        : [],
+      images: Array.isArray(productData.images)
+        ? productData.images.map((img: any) => ({
+            ...img,
+            url: toAbsoluteUrl(img.url || ''),
+          }))
+        : [],
       material: productData.material || '',
       careInstructions: productData.careInstructions || '',
       fit: productData.fit || 'regular',

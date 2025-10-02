@@ -351,3 +351,49 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail
 };
+
+// Send order cancellation email
+const sendOrderCancellationEmail = async (email, firstName, order) => {
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      to: email,
+      subject: `Your order ${order.orderNumber || ''} has been cancelled`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+          <div style="background:linear-gradient(135deg,#B5A084,#688F4E); color:#fff; padding:20px; border-radius:8px; text-align:center;">
+            <h2 style="margin:0">Order Cancelled</h2>
+          </div>
+          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+            <p>Hi ${firstName || ''},</p>
+            <p>We're writing to confirm that your order <strong>${order.orderNumber || ''}</strong> has been cancelled.</p>
+            ${order.cancellationReason ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>` : ''}
+            <h4>Order Summary</h4>
+            <ul>
+              ${order.items && order.items.length > 0 ? order.items.map(item => `<li>${item.quantity} × ${item.product?.name || item.name || 'Item'} — ₹${(item.price || 0).toFixed ? (item.price).toFixed(2) : item.price}</li>`).join('') : '<li>No items</li>'}
+            </ul>
+            <p><strong>Total refunded (if applicable):</strong> ₹${(order.total || 0).toFixed ? (order.total).toFixed(2) : order.total}</p>
+            <p>If you have any questions, reply to this email or contact our support.</p>
+            <p>Best regards,<br/>Flaunt By Nishi Team</p>
+          </div>
+        </div>
+      `,
+      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} has been cancelled.\n\nIf you have questions, contact support.`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Order cancellation email sent:', info.messageId || 'dev-message-id');
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending order cancellation email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Export the new function
+module.exports.sendOrderCancellationEmail = sendOrderCancellationEmail;
+
+// Export transporter creator for other modules that may want to send custom emails
+module.exports.createTransporter = createTransporter;

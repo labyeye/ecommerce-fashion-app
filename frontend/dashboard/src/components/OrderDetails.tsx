@@ -335,7 +335,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
               {order.items.map((item) => (
                 <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                   <img
-                    src={item.product.images?.[0]?.url || 'https://via.placeholder.com/80'}
+                    src={item.product.images?.[0]?.url || '/assets/img-placeholder-80.png'}
                     alt={item.product.name}
                     className="w-16 h-16 object-cover rounded-lg"
                   />

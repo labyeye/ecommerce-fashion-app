@@ -6,6 +6,12 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const PromoCode = require('../models/PromoCode');
 const Category = require('../models/Category');
+const Newsletter = require('../models/Newsletter');
+const { createTransporter } = require('../utils/emailService');
+const { sendWelcomeEmail } = require('../utils/emailService');
+const { sendVerificationEmail } = require('../utils/emailService');
+const { sendPasswordResetEmail } = require('../utils/emailService');
+const { sendOrderCancellationEmail } = require('../utils/emailService');
 const mongoose = require('mongoose');
 
 const router = express.Router();
@@ -392,6 +398,83 @@ router.get('/orders', async (req, res) => {
       success: false,
       message: 'Error fetching orders'
     });
+  }
+});
+
+// @desc    Create and send newsletter to all customers
+// @route   POST /api/admin/newsletters
+// @access  Admin only
+router.post('/newsletters', [
+  body('title').isString().notEmpty(),
+  body('subject').isString().notEmpty(),
+  body('message').isString().notEmpty(),
+  body('bannerUrl').optional().isString()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { title, subject, message, bannerUrl } = req.body;
+
+    // Create newsletter record (sent status will be updated after sending)
+    const newsletter = new Newsletter({ title, subject, message, bannerUrl, createdBy: req.user._id });
+    await newsletter.save();
+
+    // Fetch all active customers
+    const customers = await User.find({ role: 'customer', isActive: true }).select('firstName email');
+
+    const transporter = createTransporter();
+
+    let sent = 0;
+    for (const customer of customers) {
+      try {
+        const mailOptions = {
+          from: `"Flaunt By Nishi" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+          to: customer.email,
+          subject: subject,
+          html: `
+            <div style="font-family:Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+              <div style="text-align:center;">
+                ${bannerUrl ? `<img src="${bannerUrl}" alt="${title}" style="max-width:100%; border-radius:8px;"/>` : ''}
+                <h2 style="color:#2B463C">${title}</h2>
+              </div>
+              <div style="background:#fff; padding:16px; border-radius:8px; margin-top:12px;">
+                ${message}
+              </div>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+        sent++;
+      } catch (e) {
+        console.error('Newsletter send error to', customer.email, e.message || e);
+      }
+    }
+
+    newsletter.sentAt = new Date();
+    newsletter.recipientsCount = sent;
+    await newsletter.save();
+
+    res.status(200).json({ success: true, message: `Newsletter sent to ${sent} recipients`, data: newsletter });
+  } catch (error) {
+    console.error('Create newsletter error:', error);
+    res.status(500).json({ success: false, message: 'Error creating newsletter' });
+  }
+});
+
+// @desc    List newsletters
+// @route   GET /api/admin/newsletters
+// @access  Admin only
+router.get('/newsletters', async (req, res) => {
+  try {
+    const newsletters = await Newsletter.find().sort({ createdAt: -1 }).limit(50);
+    res.status(200).json({ success: true, data: newsletters });
+  } catch (error) {
+    console.error('Get newsletters error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching newsletters' });
   }
 });
 

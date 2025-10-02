@@ -36,6 +36,7 @@ const OrderDetailPage: React.FC = () => {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [canceling, setCanceling] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -54,13 +55,13 @@ const OrderDetailPage: React.FC = () => {
       try {
         setLoading(true);
         setError('');
-        
+
         const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${id}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to fetch order');
@@ -76,7 +77,11 @@ const OrderDetailPage: React.FC = () => {
       }
     };
 
+    // initial load
     fetchOrder();
+
+    // expose fetchOrder to the component scope for reuse after actions
+    (window as any).__fetchOrderDetails = fetchOrder;
   }, [id, token]);
 
   const getStatusIcon = (status: string) => {
@@ -277,9 +282,10 @@ const OrderDetailPage: React.FC = () => {
                 {order.order.items.map((item: any, index: number) => (
                   <div key={index} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
                     <img 
-                      src={item.product?.images?.[0] || 'https://via.placeholder.com/80'} 
+                      src={item.product?.images?.[0] || '/assets/img-placeholder-80.png'} 
                       alt={item.product?.name} 
                       className="w-20 h-20 object-cover rounded-lg"
+                      onError={(e) => { const t = e.target as HTMLImageElement; if (!t.dataset.errored) { t.dataset.errored = '1'; t.src = '/assets/img-placeholder-80.png'; } }}
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-[#2B463C]">{item.product?.name}</h3>
@@ -436,8 +442,33 @@ const OrderDetailPage: React.FC = () => {
               <div className="space-y-3">
                 {order.order.status === 'pending' && (
                   <>
-                    <button className="w-full px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
-                      Cancel Order
+                    <button onClick={async () => {
+                      if (!confirm('Are you sure you want to cancel this order?')) return;
+                      try {
+                        setCanceling(true);
+                        const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${id}/cancel`, {
+                          method: 'PUT',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                          },
+                          body: JSON.stringify({ reason: 'Cancelled by customer via UI' })
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) {
+                          throw new Error(data.message || 'Failed to cancel');
+                        }
+                        // Re-fetch order details so component has consistent data shape
+                        if ((window as any).__fetchOrderDetails) await (window as any).__fetchOrderDetails();
+                        alert('Order cancelled. A confirmation email has been sent to your registered email.');
+                      } catch (err: any) {
+                        console.error('Cancel error:', err);
+                        alert(err.message || 'Failed to cancel order');
+                      } finally {
+                        setCanceling(false);
+                      }
+                    }} className="w-full px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors" disabled={canceling}>
+                      {canceling ? 'Cancelling...' : 'Cancel Order'}
                     </button>
                     {order.order.payment?.method !== 'cash_on_delivery' && (
                       <button className="w-full px-4 py-2 bg-[#688F4E] text-white rounded-lg hover:bg-[#5a7a42] transition-colors">

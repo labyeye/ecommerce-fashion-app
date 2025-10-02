@@ -139,9 +139,10 @@ const Dashboard: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Processing' ? 'bg-yellow-100 text-yellow-800' :
-                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                        order.status === 'Delivered' || order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                        order.status === 'Processing' || order.status === 'processing' || order.status === 'Pending' || order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        order.status === 'Shipped' || order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                        order.status === 'Cancelled' || order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {order.status}
