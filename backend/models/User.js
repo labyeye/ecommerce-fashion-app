@@ -138,9 +138,10 @@ userSchema.statics.findByEmail = function (email) {
 };
 userSchema.methods.recalculateTier = function() {
   // Recalculate tier based on current points
-  if (this.loyaltyPoints >= 10000) {
+  // New thresholds: silver at 1000, gold at 2500
+  if (this.loyaltyPoints >= 2500) {
     this.loyaltyTier = 'gold';
-  } else if (this.loyaltyPoints >= 5000) {
+  } else if (this.loyaltyPoints >= 1000) {
     this.loyaltyTier = 'silver';
   } else {
     this.loyaltyTier = 'bronze';
@@ -149,19 +150,20 @@ userSchema.methods.recalculateTier = function() {
   return this.loyaltyTier;
 };
 userSchema.methods.getNextLoyaltyTier = function() {
+  // Use new thresholds: silver @1000, gold @2500
   if (this.loyaltyTier === 'bronze') {
     return {
       currentTier: 'bronze',
       nextTier: 'silver',
-      pointsNeeded: Math.max(0, 5000 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 5000) * 100))
+      pointsNeeded: Math.max(0, 1000 - this.loyaltyPoints),
+      progress: Math.min(100, Math.floor((this.loyaltyPoints / 1000) * 100))
     };
   } else if (this.loyaltyTier === 'silver') {
     return {
       currentTier: 'silver',
       nextTier: 'gold',
-      pointsNeeded: Math.max(0, 10000 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 10000) * 100))
+      pointsNeeded: Math.max(0, 2500 - this.loyaltyPoints),
+      progress: Math.min(100, Math.floor((this.loyaltyPoints / 2500) * 100))
     };
   } else {
     // Gold is the highest tier
@@ -174,22 +176,26 @@ userSchema.methods.getNextLoyaltyTier = function() {
   }
 };
 userSchema.methods.addLoyaltyPoints = async function(orderTotal, order, skipEvolvPoints = false) {
-  // Calculate points based on current tier
+  // Calculate loyalty points per ₹50 based on current tier
+  // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
+  const pointsPer50 = this.loyaltyTier === 'gold' ? 5 : (this.loyaltyTier === 'silver' ? 3 : 1);
+
+  const tierPoints = Math.floor(orderTotal / 50) * pointsPer50;
+
+  // Evolv points retained as a separate earned metric (keep previous multipliers)
   let multiplier = 0.10; // bronze
   if (this.loyaltyTier === 'silver') multiplier = 0.15;
   if (this.loyaltyTier === 'gold') multiplier = 0.20;
-
   const evolvPoints = skipEvolvPoints ? 0 : Math.floor(orderTotal * multiplier);
-  const tierPoints = Math.floor(orderTotal); // 1:1 ratio for tier points (always awarded)
 
   // Update points
   this.evolvPoints += evolvPoints;
   this.loyaltyPoints += tierPoints;
 
-  // Check for tier upgrade
-  if (this.loyaltyTier === 'bronze' && this.loyaltyPoints >= 5000) {
+  // Check for tier upgrade using new thresholds
+  if (this.loyaltyTier === 'bronze' && this.loyaltyPoints >= 1000) {
     this.loyaltyTier = 'silver';
-  } else if (this.loyaltyTier === 'silver' && this.loyaltyPoints >= 10000) {
+  } else if (this.loyaltyTier === 'silver' && this.loyaltyPoints >= 2500) {
     this.loyaltyTier = 'gold';
   }
 

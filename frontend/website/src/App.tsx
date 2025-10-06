@@ -35,6 +35,7 @@ import CheckoutPage from './components/pages/CheckoutPage';
 import VerifyEmailPage from './components/pages/VerifyEmailPage';
 import Wishlist from "./components/pages/Wishlist";
 import AddressesPage from './components/pages/AddressesPage';
+import OrderCompletePage from './components/pages/OrderCompletePage';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/newsletter" element={<NewsletterPage />} />
                 <Route path="/product/:id" element={<ProductDetailsPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-complete" element={<OrderCompletePage />} />
                 <Route path="/addresses" element={<AddressesPage />} />
                 <Route path="/wishlist" element={<Wishlist />} />
               </Routes>

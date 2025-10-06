@@ -251,14 +251,14 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                       </td>
                       <td className="px-4 py-2">
                         <button onClick={() => onViewDetails(order._id)} className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                        {order.status === 'pending' && order.payment?.method !== 'cash_on_delivery' && (
-                      <button 
-                            className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                            onClick={() => handleConfirmPayment(order._id)}
-                      >
-                            Confirm Payment
-                      </button>
-                        )}
+        {order.status === 'pending' && order.payment?.method === 'razorpay' && order.payment?.status !== 'paid' && (
+          <button 
+            className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+            onClick={() => handleConfirmPayment(order._id)}
+          >
+            Confirm Payment
+          </button>
+        )}
                         <select
                           className="ml-2 px-2 py-1 border rounded"
                           value={order.status}

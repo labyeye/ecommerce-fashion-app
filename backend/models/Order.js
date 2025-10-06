@@ -105,7 +105,7 @@ items: [{
   payment: {
     method: {
       type: String,
-      enum: ['credit_card', 'debit_card', 'paypal', 'stripe', 'cash_on_delivery', 'razorpay'],
+      enum: ['credit_card', 'debit_card', 'paypal', 'stripe', 'razorpay'],
       required: true
     },
     status: {

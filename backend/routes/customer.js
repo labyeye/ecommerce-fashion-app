@@ -446,58 +446,58 @@ router.put('/orders/:id/status', [
 
       await order.save();
 
-      // Add bonus loyalty points for delivery confirmation
-      const loyalty = await User.findOne({ user: req.user._id });
-      if (loyalty && order.payment.status === 'paid') {
-        const bonusPoints = Math.floor(order.total / 50); // 2 points per ₹100 for delivery bonus
-        loyalty.points += bonusPoints;
-        loyalty.lifetimePoints += bonusPoints;
-
-        loyalty.history.push({
-          type: 'earned',
-          points: bonusPoints,
-          order: order._id,
-          description: `Earned ${bonusPoints} bonus points for delivery confirmation of order #${order.orderNumber}`
+      // Award loyalty points on delivery confirmation (idempotent)
+      // Use the same per-₹50 rules as admin: Bronze=1/50, Silver=3/50, Gold=5/50
+      if (order.payment.status === 'paid') {
+        // Ensure we don't award twice for the same order
+        const alreadyAwarded = await User.findOne({
+          _id: req.user._id,
+          loyaltyHistory: { $elemMatch: { order: order._id } }
         });
 
-        // Check for tier upgrade
-        const { newTier, nextTierPoints } = loyalty.checkTierUpgrade();
-        if (newTier !== loyalty.tier) {
-          loyalty.history.push({
-            type: 'tier_upgrade',
-            points: 0,
-            description: `Upgraded from ${loyalty.tier} to ${newTier} tier`
-          });
-          loyalty.tier = newTier;
-          loyalty.nextTierPoints = nextTierPoints;
-        }
+        if (!alreadyAwarded) {
+          const customer = await User.findById(req.user._id);
+          const tier = (customer && customer.loyaltyTier) ? customer.loyaltyTier : 'bronze';
+          const per50 = tier === 'gold' ? 5 : (tier === 'silver' ? 3 : 1);
+          const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
+          const deliveryBonusPoints = Math.floor(order.total * 0.1);
+          const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
 
-        await loyalty.save();
-
-        // Update user document
-        await User.findByIdAndUpdate(req.user._id, {
-          loyaltyPoints: loyalty.points,
-          loyaltyTier: loyalty.tier,
-          $push: {
-            loyaltyHistory: {
-              date: new Date(),
-              action: 'delivery_bonus',
-              points: bonusPoints,
-              order: order._id
+          // Increment loyaltyPoints and evolvPoints and add history entry
+          await User.findByIdAndUpdate(req.user._id, {
+            $inc: {
+              loyaltyPoints: totalPoints,
+              evolvPoints: pointsEarnedOnDelivery
+            },
+            $push: {
+              loyaltyHistory: {
+                date: new Date(),
+                action: 'order_completion',
+                points: totalPoints,
+                order: order._id,
+                description: `Order ${order.orderNumber} delivered - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`
+              }
             }
-          }
-        });
+          });
 
-        return res.status(200).json({
-          success: true,
-          message: 'Order status updated successfully',
-          data: {
-            order,
-            bonusPointsEarned: bonusPoints,
-            newLoyaltyPoints: loyalty.points,
-            newTier: loyalty.tier
+          // Recalculate tier on the user document
+          const updatedCustomer = await User.findById(req.user._id);
+          if (updatedCustomer) {
+            updatedCustomer.recalculateTier();
+            await updatedCustomer.save();
           }
-        });
+
+          return res.status(200).json({
+            success: true,
+            message: 'Order status updated successfully',
+            data: {
+              order,
+              pointsEarned: totalPoints,
+              newLoyaltyPoints: updatedCustomer ? updatedCustomer.loyaltyPoints : null,
+              newTier: updatedCustomer ? updatedCustomer.loyaltyTier : null
+            }
+          });
+        }
       }
 
       return res.status(200).json({
@@ -849,7 +849,7 @@ router.post('/orders', [
     .isObject()
     .withMessage('Billing address must be an object if provided'),
   body('payment.method')
-    .isIn(['credit_card', 'debit_card', 'paypal', 'stripe', 'cash_on_delivery'])
+    .isIn(['credit_card', 'debit_card', 'paypal', 'stripe', 'razorpay'])
     .withMessage('Valid payment method is required'),
   body('subtotal')
     .isNumeric()
@@ -1049,7 +1049,7 @@ router.post('/orders', [
       total,
       payment: {
         method: payment.method,
-        status: payment.method === 'cash_on_delivery' ? 'pending' : 'pending',
+        status: 'pending',
         transactionId: payment.transactionId || null
       },
       shippingAddress,
@@ -1106,41 +1106,34 @@ router.post('/orders', [
       await order.save();
     }
 
-    // Process loyalty points
-const user = await User.findById(req.user._id);
-let loyaltyResponse = null;
+    // Project loyalty points (do not persist) — actual awarding happens on delivery
+    const user = await User.findById(req.user._id);
+    let loyaltyResponse = null;
 
-if (user) {
-  // Don't award Evolv points if user used promo code or redeemed Evolv points
-  const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
-  
-  const loyaltyResult = await user.addLoyaltyPoints(total, order, skipEvolvPoints); // Pass skipEvolvPoints flag
-  
-  await user.save();
-  
-  // Add to loyalty history
-  const historyDescription = skipEvolvPoints 
-    ? `Earned ${loyaltyResult.tierPoints} tier points from order (no Evolv points due to discount applied)`
-    : `Earned ${loyaltyResult.tierPoints} tier points and ${loyaltyResult.evolvPoints} evolv points from order`;
-    
-  user.loyaltyHistory.push({
-    date: new Date(),
-    action: 'order_points',
-    points: loyaltyResult.tierPoints,
-    order: order._id,
-    description: historyDescription
-  });
+    if (user) {
+      // Don't award Evolv points if user used promo code or redeemed Evolv points
+      const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
 
-  await user.save();
+      // Compute projected tier points using per-₹50 rules (based on user's current tier)
+      const pointsPer50 = user.loyaltyTier === 'gold' ? 5 : (user.loyaltyTier === 'silver' ? 3 : 1);
+      const projectedTierPoints = Math.floor(total / 50) * pointsPer50;
+      const projectedEvolvPoints = skipEvolvPoints ? 0 : Math.floor(total * (user.loyaltyTier === 'gold' ? 0.2 : (user.loyaltyTier === 'silver' ? 0.15 : 0.1)));
 
-  loyaltyResponse = {
-    pointsEarned: loyaltyResult.tierPoints,
-    evolvPointsEarned: loyaltyResult.evolvPoints,
-    newBalance: user.loyaltyPoints,
-    newTier: user.loyaltyTier,
-    nextTierInfo: user.getNextLoyaltyTier()
-  };
-}
+      const projectedLoyaltyPoints = (user.loyaltyPoints || 0) + projectedTierPoints;
+
+      // Compute projected tier without modifying DB
+      let projectedTier = user.loyaltyTier || 'bronze';
+      if (projectedLoyaltyPoints >= 2500) projectedTier = 'gold';
+      else if (projectedLoyaltyPoints >= 1000) projectedTier = 'silver';
+
+      loyaltyResponse = {
+        projectedTierPoints,
+        projectedEvolvPoints,
+        projectedLoyaltyPoints,
+        projectedTier,
+        note: 'Points are projected. Actual loyalty points are awarded when the order is marked delivered.'
+      };
+    }
 
     // Prepare response
     const response = {

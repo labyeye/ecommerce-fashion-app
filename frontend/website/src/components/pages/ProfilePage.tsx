@@ -22,7 +22,7 @@ import {
   ShoppingBag,
   Eye,
   X,
-  Save
+  Save,
 } from "lucide-react";
 
 const ProfilePage: React.FC = () => {
@@ -31,19 +31,19 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [ordersError, setOrdersError] = useState('');
+  const [ordersError, setOrdersError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
+    firstName: "",
+    lastName: "",
+    phone: "",
     address: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'India'
-    }
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "India",
+    },
   });
   const [saving, setSaving] = useState(false);
   const [orderStats, setOrderStats] = useState<any>(null);
@@ -56,26 +56,32 @@ const ProfilePage: React.FC = () => {
     setProfilePictureUploading(true);
     try {
       const formData = new FormData();
-      formData.append('profilePicture', file);
+      formData.append("profilePicture", file);
 
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile-picture', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile-picture",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (response.ok) {
         // Refresh the page to show the new profile picture
         window.location.reload();
       } else {
         const data = await response.json();
-        alert('Error uploading profile picture: ' + (data.message || 'Unknown error'));
+        alert(
+          "Error uploading profile picture: " +
+            (data.message || "Unknown error")
+        );
       }
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Error uploading profile picture. Please try again.');
+      console.error("Error uploading profile picture:", error);
+      alert("Error uploading profile picture. Please try again.");
     } finally {
       setProfilePictureUploading(false);
     }
@@ -83,13 +89,13 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
     } else {
-      console.log('ProfilePage - User data:', user);
-      console.log('ProfilePage - User loyalty data:', {
+      console.log("ProfilePage - User data:", user);
+      console.log("ProfilePage - User loyalty data:", {
         loyaltyPoints: user.loyaltyPoints,
         evolvPoints: user.evolvPoints,
-        loyaltyTier: user.loyaltyTier
+        loyaltyTier: user.loyaltyTier,
       });
     }
   }, [user, navigate]);
@@ -97,16 +103,16 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (user) {
       setEditForm({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        phone: user.phone || '',
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phone: user.phone || "",
         address: {
-          street: user.address?.street || '',
-          city: user.address?.city || '',
-          state: user.address?.state || '',
-          zipCode: user.address?.zipCode || '',
-          country: user.address?.country || 'India'
-        }
+          street: user.address?.street || "",
+          city: user.address?.city || "",
+          state: user.address?.state || "",
+          zipCode: user.address?.zipCode || "",
+          country: user.address?.country || "India",
+        },
       });
     }
   }, [user]);
@@ -119,30 +125,33 @@ const ProfilePage: React.FC = () => {
 
     setSaving(true);
     try {
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: editForm.firstName,
-          lastName: editForm.lastName,
-          phone: editForm.phone,
-          address: editForm.address  
-        }),
-      });
+      const response = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: editForm.firstName,
+            lastName: editForm.lastName,
+            phone: editForm.phone,
+            address: editForm.address,
+          }),
+        }
+      );
 
       if (response.ok) {
         setShowEditModal(false);
         window.location.reload();
       } else {
         const data = await response.json();
-        alert('Error updating profile: ' + (data.message || 'Unknown error'));
+        alert("Error updating profile: " + (data.message || "Unknown error"));
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error updating profile. Please try again.');
+      console.error("Error updating profile:", error);
+      alert("Error updating profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -155,102 +164,121 @@ const ProfilePage: React.FC = () => {
     name: `${user.firstName} ${user.lastName}`,
     email: user.email,
     phone: user.phone || "Not provided",
-    address: user.address 
-      ? `${user.address.street || ''}, ${user.address.city || ''}, ${user.address.state || ''} ${user.address.zipCode || ''}`
-          .replace(/^,\s*/, '')
-          .replace(/,\s*,/g, ',') 
+    address: user.address
+      ? `${user.address.street || ""}, ${user.address.city || ""}, ${
+          user.address.state || ""
+        } ${user.address.zipCode || ""}`
+          .replace(/^,\s*/, "")
+          .replace(/,\s*,/g, ",")
       : "Not provided",
-    joinDate: new Date(user.createdAt).toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
+    joinDate: new Date(user.createdAt).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
     }),
     profileImage: user.profileImage || null,
     totalOrders: orderStats?.total || 0,
     totalSpent: orderStats?.totalSpent || 0,
     loyaltyPoints: user.loyaltyPoints || 0,
     evolvPoints: user.evolvPoints || 0,
-    currentTier: user.loyaltyTier || 'bronze',
-    nextTier: user.loyaltyTier === 'bronze' ? 'silver' : user.loyaltyTier === 'silver' ? 'gold' : 'gold',
-    progressToNextTier: user.loyaltyTier === 'gold' ? 100 : 
-      user.loyaltyTier === 'bronze' ? Math.min(100, Math.floor((user.loyaltyPoints || 0) / 5000 * 100)) :
-      Math.min(100, Math.floor((user.loyaltyPoints || 0) / 10000 * 100)),
-    nextTierPoints: user.loyaltyTier === 'bronze' ? 5000 : user.loyaltyTier === 'silver' ? 10000 : 0
+    currentTier: user.loyaltyTier || "bronze",
+    nextTier:
+      user.loyaltyTier === "bronze"
+        ? "silver"
+        : user.loyaltyTier === "silver"
+        ? "gold"
+        : "gold",
+    progressToNextTier:
+      user.loyaltyTier === "gold"
+        ? 100
+        : user.loyaltyTier === "bronze"
+        ? Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 1000) * 100))
+        : Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 2500) * 100)),
+    nextTierPoints:
+      user.loyaltyTier === "bronze"
+        ? 1000
+        : user.loyaltyTier === "silver"
+        ? 2500
+        : 0,
   };
   const tiers = [
-    { 
-      name: "Bronze", 
-      minPoints: 0, 
-      maxPoints: 4999, 
-      color: "#8B7355",
-      bgColor: "#8B7355",
+    {
+      name: "Bronze",
+      minPoints: 0,
+      maxPoints: 999,
+      color: "#ffc4a1ff",
+      bgColor: "#ffc4a1ff",
       borderColor: "border-fashion-light-brown",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
       icon: Star,
       benefits: [
-        "1% Evolv Points on every purchase",
+        "1 Point on every purchase",
         "Welcome bonus: 100 points",
         "Standard shipping rates",
-        "Basic customer support"
-      ]
+        "Basic customer support",
+      ],
     },
-    { 
-      name: "Silver", 
-      minPoints: 5000, 
-      maxPoints: 9999, 
-      color: "#9b9b9bff",
-      bgColor: "#9b9b9bff",
+    {
+      name: "Silver",
+      minPoints: 999,
+      maxPoints: 2499,
+      color: "#e2966aff",
+      bgColor: "#e2966aff",
       borderColor: "border-fashion-warm-gray",
       textColor: "text-fashion-dark-gray",
       iconColor: "text-fashion-dark-gray",
       icon: Award,
       benefits: [
-        "2% Evolv Points on every purchase",
+        "3 Points on every purchase",
         "Priority customer support",
         "Free shipping on orders ₹500+",
         "Early access to new products",
-        "Birthday bonus: 500 points"
-      ]
+        "Birthday bonus: 500 points",
+      ],
     },
-    { 
-      name: "Gold", 
-      minPoints: 10000, 
-      maxPoints: 999999, 
-      color: "#fabd25ff",
-      bgColor: "#fabd25ff",
+    {
+      name: "Gold",
+      minPoints: 2499,
+      maxPoints: 999999,
+      color: "#95522C",
+      bgColor: "#95522C",
       borderColor: "border-fashion-nude",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
       icon: Crown,
       benefits: [
-        "3% Evolv Points on every purchase",
+        "5 Points on every purchase",
         "VIP customer support",
         "Free shipping on all orders",
         "Exclusive product launches",
         "Birthday bonus: 1000 points",
         "Monthly surprise gifts",
-        "Personal nutrition consultant"
-      ]
-    }
+        "Personal nutrition consultant",
+      ],
+    },
   ];
   useEffect(() => {
-    if (activeTab === 'orders' && user && token) {
+    if (activeTab === "orders" && user && token) {
       const fetchOrders = async () => {
         setOrdersLoading(true);
-        setOrdersError('');
+        setOrdersError("");
         try {
-          const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          const response = await fetch(
+            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
           const data = await response.json();
-          console.log('Fetched customer orders:', data); // Debug log
-          if (!response.ok) throw new Error(data.message || 'Failed to fetch orders');
+          console.log("Fetched customer orders:", data); // Debug log
+          if (!response.ok)
+            throw new Error(data.message || "Failed to fetch orders");
           setOrders(data.data.orders);
         } catch (err: any) {
-          setOrdersError(err.message || 'Failed to fetch orders');
+          setOrdersError(err.message || "Failed to fetch orders");
         } finally {
           setOrdersLoading(false);
         }
@@ -262,20 +290,23 @@ const ProfilePage: React.FC = () => {
     if (user && token) {
       const fetchDashboardData = async () => {
         try {
-          const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/dashboard', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
+          const response = await fetch(
+            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/dashboard",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
           const data = await response.json();
-          
+
           if (response.ok) {
             setOrderStats(data.data.orderStats);
           }
         } catch (error) {
-          console.error('Error fetching dashboard data:', error);
+          console.error("Error fetching dashboard data:", error);
         }
       };
-  
+
       fetchDashboardData();
     }
   }, [user, token]);
@@ -283,7 +314,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-fashion-cream pt-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
+        <div className="bg-white rounded-fashion border border-[#95522C]/10 shadow-soft p-8 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <ProfilePictureUpload
@@ -293,22 +324,30 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-light text-fashion-charcoal tracking-wide mb-3">{userData.name}</h1>
-              <p className="text-fashion-charcoal/70 mb-2">{userData.email}</p>
-              <p className="text-fashion-charcoal/60 mb-4 text-sm">Member since {userData.joinDate}</p>
+              <h1 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
+                {userData.name}
+              </h1>
+              <p className="text-[#95522C]/70 mb-2">{userData.email}</p>
+              <p className="text-[#95522C]/60 mb-4 text-sm">
+                Member since {userData.joinDate}
+              </p>
               <div className="flex items-center justify-center md:justify-start gap-4">
-                <div className="flex items-center gap-2 text-[#688F4E]">
+                <div className="flex items-center gap-2 text-[#95522C]">
                   <Package className="w-5 h-5" />
-                  <span className="font-medium">{userData.totalOrders} Orders</span>
+                  <span className="font-medium">
+                    {userData.totalOrders} Orders
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 text-[#688F4E]">
+                <div className="flex items-center gap-2 text-[#95522C]">
                   <TrendingUp className="w-5 h-5" />
-                  <span className="font-medium">₹{userData.totalSpent.toLocaleString('en-IN')}</span>
+                  <span className="font-medium">
+                    ₹{userData.totalSpent.toLocaleString("en-IN")}
+                  </span>
                 </div>
               </div>
               <button
                 onClick={handleEditProfile}
-                className="mt-4 bg-[#688F4E] text-white px-4 py-2 rounded-lg hover:bg-[#5a7a42] transition-colors flex items-center gap-2 mx-auto md:mx-0"
+                className="mt-4 bg-[#95522C] text-white px-4 py-2 rounded-lg hover:bg-[#5a7a42] transition-colors flex items-center gap-2 mx-auto md:mx-0"
               >
                 <Settings className="w-4 h-4" />
                 Edit Profile
@@ -317,31 +356,35 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        { }
+        {}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Crown className="w-8 h-8 text-[#FFD700]" />
-            <h2 className="text-2xl font-bold text-[#2B463C]">Loyalty Program</h2>
+            <h2 className="text-2xl font-bold text-[#95522c]">
+              Loyalty Program
+            </h2>
           </div>
           <div
             className="rounded-xl p-6 mb-6"
             style={{
               background:
                 userData.currentTier === "bronze"
-                  ? "linear-gradient(90deg, #CD7F32 0%, #A97142 100%)"
+                  ? "linear-gradient(90deg, #ffc4a1ff 0%, #ffc4a1ff 100%)"
                   : userData.currentTier === "silver"
-                  ? "linear-gradient(90deg, #C0C0C0 0%, #A9A9A9 100%)"
-                  : "linear-gradient(90deg, #FFD700 0%, #FFA500 100%)",
+                  ? "linear-gradient(90deg, #d46d32ff 0%, #d46d32ff 100%)"
+                  : "linear-gradient(90deg, #95522C 0%, #95522C 100%)",
             }}
           >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">
-                  Current Tier: {userData.currentTier.charAt(0).toUpperCase() + userData.currentTier.slice(1)}
+                  Current Tier:{" "}
+                  {userData.currentTier.charAt(0).toUpperCase() +
+                    userData.currentTier.slice(1)}
                 </h3>
                 <p className="text-white/90">
-                  Tier Points: {userData.loyaltyPoints} |
-                  Evolv Points: {userData.evolvPoints}
+                  Tier Points: {userData.loyaltyPoints} | Evolv Points:{" "}
+                  {userData.evolvPoints}
                 </p>
               </div>
               <Crown className="w-12 h-12 text-white" />
@@ -350,17 +393,17 @@ const ProfilePage: React.FC = () => {
 
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-700 font-medium">
-                Progress to {userData.nextTier === 'silver' ? 'Silver' : 'Gold'}
+              <span className="text-[#95522C] font-medium">
+                Progress to {userData.nextTier === "silver" ? "Silver" : "Gold"}
               </span>
-              <span className="text-[#688F4E] font-bold">
-                {userData.progressToNextTier}%
-                ({userData.loyaltyPoints}/{userData.nextTierPoints})
+              <span className="text-[#95522C] font-bold">
+                {userData.progressToNextTier}% ({userData.loyaltyPoints}/
+                {userData.nextTierPoints})
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-[#688F4E] to-[#B1D182] h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-[#95522C] to-[#FFF2E1] h-3 rounded-full transition-all duration-500"
                 style={{ width: `${userData.progressToNextTier}%` }}
               ></div>
             </div>
@@ -370,7 +413,8 @@ const ProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {tiers.map((tier) => {
               const Icon = tier.icon;
-              const isCurrentTier = tier.name.toLowerCase() === userData.currentTier;
+              const isCurrentTier =
+                tier.name.toLowerCase() === userData.currentTier;
               const isUnlocked = userData.loyaltyPoints >= tier.minPoints;
 
               return (
@@ -380,36 +424,70 @@ const ProfilePage: React.FC = () => {
                     isCurrentTier
                       ? `${tier.borderColor} ${tier.bgColor} ring-2 ring-offset-2 ring-opacity-50`
                       : isUnlocked
-                        ? `${tier.borderColor} ${tier.bgColor} opacity-90`
-                        : 'border-gray-200 bg-gray-50 opacity-60'
+                      ? `${tier.borderColor} ${tier.bgColor} opacity-90`
+                      : "border-gray-200 bg-gray-50 opacity-60"
                   }`}
                 >
                   <div className="text-center mb-4">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${tier.bgColor} border-2 ${tier.borderColor} mb-3`}>
-                      <Icon className={`w-8 h-8 ${isCurrentTier ? tier.iconColor : 'text-gray-400'}`} />
+                    <div
+                      className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${tier.bgColor} border-2 ${tier.borderColor} mb-3`}
+                    >
+                      <Icon
+                        className={`w-8 h-8 ${
+                          isCurrentTier ? tier.iconColor : "text-gray-400"
+                        }`}
+                      />
                     </div>
-                    <h4 className={`font-bold text-lg ${isCurrentTier ? tier.textColor : 'text-gray-600'}`}>
+                    <h4
+                      className={`font-bold text-lg ${
+                        isCurrentTier ? tier.textColor : "text-gray-600"
+                      }`}
+                    >
                       {tier.name}
                     </h4>
-                    <p className="text-sm text-gray-500">
-                      {tier.minPoints === 0 ? '0' : tier.minPoints.toLocaleString()}+ points
+                    <p className="text-sm text-[#95522C]">
+                      {tier.minPoints === 0
+                        ? "0"
+                        : tier.minPoints.toLocaleString()}
+                      + points
                     </p>
                     {isCurrentTier && (
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 ${tier.bgColor} ${tier.textColor}`}>
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 ${tier.bgColor} ${tier.textColor}`}
+                      >
                         Current Tier
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <h5 className={`font-semibold text-sm ${isCurrentTier ? tier.textColor : 'text-gray-700'}`}>
+                    <h5
+                      className={`font-semibold text-sm ${
+                        isCurrentTier ? tier.textColor : "text-[#95522C]"
+                      }`}
+                    >
                       Benefits:
                     </h5>
                     <ul className="space-y-1">
                       {tier.benefits.map((benefit, index) => (
-                        <li key={index} className="flex items-start space-x-2 text-xs">
-                          <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${isCurrentTier ? tier.iconColor.replace('text-', 'bg-') : 'bg-gray-300'}`}></div>
-                          <span className={`${isCurrentTier ? 'text-gray-700' : 'text-gray-500'}`}>
+                        <li
+                          key={index}
+                          className="flex items-start space-x-2 text-xs"
+                        >
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+                              isCurrentTier
+                                ? tier.iconColor.replace("text-", "bg-")
+                                : "bg-gray-300"
+                            }`}
+                          ></div>
+                          <span
+                            className={`${
+                              isCurrentTier
+                                ? "text-[#95522C]"
+                                : "text-[#95522C]"
+                            }`}
+                          >
                             {benefit}
                           </span>
                         </li>
@@ -422,14 +500,14 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        { }
-        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
-          <div className="flex flex-wrap border-b border-fashion-charcoal/10">
+        {}
+        <div className="bg-white rounded-fashion border border-[#95522C]/10 shadow-soft mb-8">
+          <div className="flex flex-wrap border-b border-[#95522C]/10">
             {[
               { id: "overview", label: "Overview", icon: User },
               { id: "orders", label: "Orders", icon: Package },
               { id: "wishlist", label: "Wishlist", icon: Heart },
-              { id: "settings", label: "Settings", icon: Settings }
+              { id: "settings", label: "Settings", icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -438,74 +516,104 @@ const ProfilePage: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'text-fashion-accent-brown border-b-2 border-fashion-accent-brown'
-                      : 'text-fashion-charcoal/70 hover:text-fashion-accent-brown'
+                      ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
+                      : "text-[#95522C]/70 hover:text-fashion-accent-brown"
                   }`}
                 >
-                  <Icon className={`w-5 h-5 transition-colors duration-300 ${
-                    activeTab === tab.id ? 'text-fashion-accent-brown' : 'text-fashion-charcoal/70'
-                  }`} />
+                  <Icon
+                    className={`w-5 h-5 transition-colors duration-300 ${
+                      activeTab === tab.id
+                        ? "text-fashion-accent-brown"
+                        : "text-[#95522C]/70"
+                    }`}
+                  />
                   {tab.label}
                 </button>
               );
             })}
           </div>
 
-          { }
+          {}
           <div className="p-6">
             {activeTab === "overview" && (
               <div className="space-y-6">
-                { }
+                {}
                 <div>
-                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">Personal Information</h3>
+                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
+                    Personal Information
+                  </h3>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Mail className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">Email</p>
-                        <p className="text-fashion-charcoal font-medium mt-1">{userData.email}</p>
+                        <p className="text-sm text-[#95522C]/60">Email</p>
+                        <p className="text-[#95522C] font-medium mt-1">
+                          {userData.email}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Phone className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">Phone</p>
-                        <p className="text-fashion-charcoal font-medium mt-1">{userData.phone}</p>
+                        <p className="text-sm text-[#95522C]/60">Phone</p>
+                        <p className="text-[#95522C] font-medium mt-1">
+                          {userData.phone}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
                       <MapPin className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">Address</p>
-                        <p className="text-fashion-charcoal font-medium mt-1">{userData.address}</p>
+                        <p className="text-sm text-[#95522C]/60">Address</p>
+                        <p className="text-[#95522C] font-medium mt-1">
+                          {userData.address}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                { }
+                {}
                 <div>
-                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">Quick Stats</h3>
+                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
+                    Quick Stats
+                  </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <ShoppingBag className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-fashion-charcoal">{userData.totalOrders}</p>
-                      <p className="text-sm text-fashion-charcoal/60 mt-1">Total Orders</p>
+                      <p className="text-2xl font-light text-[#95522C]">
+                        {userData.totalOrders}
+                      </p>
+                      <p className="text-sm text-[#95522C]/60 mt-1">
+                        Total Orders
+                      </p>
                     </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <TrendingUp className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-fashion-charcoal">₹{userData.totalSpent.toLocaleString()}</p>
-                      <p className="text-sm text-fashion-charcoal/60 mt-1">Total Spent</p>
+                      <p className="text-2xl font-light text-[#95522C]">
+                        ₹{userData.totalSpent.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-[#95522C]/60 mt-1">
+                        Total Spent
+                      </p>
                     </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Gift className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-fashion-charcoal">{userData.evolvPoints}</p>
-                      <p className="text-sm text-fashion-charcoal/60 mt-1">Evolv Points</p>
+                      <p className="text-2xl font-light text-[#95522C]">
+                        {userData.evolvPoints}
+                      </p>
+                      <p className="text-sm text-[#95522C]/60 mt-1">
+                        Evolv Points
+                      </p>
                     </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Crown className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-fashion-charcoal capitalize">{userData.currentTier}</p>
-                      <p className="text-sm text-fashion-charcoal/60 mt-1">Current Tier</p>
+                      <p className="text-2xl font-light text-[#95522C] capitalize">
+                        {userData.currentTier}
+                      </p>
+                      <p className="text-sm text-[#95522C]/60 mt-1">
+                        Current Tier
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -514,43 +622,76 @@ const ProfilePage: React.FC = () => {
 
             {activeTab === "orders" && (
               <div>
-                <h3 className="text-xl font-bold text-[#2B463C] mb-4">Recent Orders</h3>
+                <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                  Recent Orders
+                </h3>
                 {!token && (
-                  <div className="text-center py-8 text-red-600">You are not logged in. Please log in to view your orders.</div>
+                  <div className="text-center py-8 text-red-600">
+                    You are not logged in. Please log in to view your orders.
+                  </div>
                 )}
                 {ordersLoading ? (
                   <LoadingMountainSunsetBeach text="Loading orders..." />
                 ) : ordersError ? (
-                  <div className="text-center py-8 text-red-600">{ordersError}</div>
+                  <div className="text-center py-8 text-red-600">
+                    {ordersError}
+                  </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">No orders found.</div>
+                  <div className="text-center py-8 text-[#95522C]">
+                    No orders found.
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
-                      <div key={order._id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                      <div
+                        key={order._id}
+                        className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                      >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-[#2B463C]">{order.orderNumber}</h4>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${order.status === 'delivered'
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-blue-100 text-blue-800'
-                            }`}>
+                          <h4 className="font-semibold text-[#95522c]">
+                            {order.orderNumber}
+                          </h4>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              order.status === "delivered"
+                                ? "bg-green-100 text-green-800"
+                                : order.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
                             {order.status}
                           </span>
                         </div>
 
-                        <p className="text-gray-600 text-sm mb-2">{new Date(order.createdAt).toLocaleDateString()}</p>
                         <p className="text-gray-600 text-sm mb-2">
-                          {order.items.map((item: any) => item.product?.name).join(", ")}
+                          {new Date(order.createdAt).toLocaleDateString()}
                         </p>
-                        <p className="font-semibold text-[#2B463C]">₹{order.total}</p>
+                        <p className="text-gray-600 text-sm mb-2">
+                          {order.items
+                            .map((item: any) => item.product?.name)
+                            .join(", ")}
+                        </p>
+                        <p className="font-semibold text-[#95522c]">
+                          ₹{order.total}
+                        </p>
 
-                        <div className="mt-2 p-3 bg-[#688F4E]/10 rounded-lg">
+                        <div className="mt-2 p-3 bg-[#95522C]/10 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-[#2B463C] font-medium">Loyalty Points Earned:</span>
-                            <span className="text-[#688F4E] font-bold">
-                              {Math.floor(order.total)} points (Tier) + {Math.floor(order.total * (user.loyaltyTier === 'bronze' ? 0.10 : user.loyaltyTier === 'silver' ? 0.15 : 0.20))} points (Evolv)
+                            <span className="text-[#95522c] font-medium">
+                              Loyalty Points Earned:
+                            </span>
+                            <span className="text-[#95522C] font-bold">
+                              {Math.floor(order.total)} points (Tier) +{" "}
+                              {Math.floor(
+                                order.total *
+                                  (user.loyaltyTier === "bronze"
+                                    ? 0.1
+                                    : user.loyaltyTier === "silver"
+                                    ? 0.15
+                                    : 0.2)
+                              )}{" "}
+                              points (Evolv)
                             </span>
                           </div>
                         </div>
@@ -558,20 +699,27 @@ const ProfilePage: React.FC = () => {
                         <div className="flex items-center justify-between mt-3">
                           <button
                             onClick={() => navigate(`/order/${order._id}`)}
-                            className="px-4 py-2 bg-[#688F4E] text-white rounded hover:bg-[#2B463C] transition-colors text-sm"
+                            className="px-4 py-2 bg-[#95522C] text-white rounded hover:bg-[#95522c] transition-colors text-sm"
                           >
                             View Details
                           </button>
 
-                          { }
-                          {order.status === 'pending' && order.payment?.method !== 'cash_on_delivery' && (
-                            <button
-                              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                              onClick={() => alert('Redirect to payment gateway for order ' + order.orderNumber)}
-                            >
-                              Pay Now
-                            </button>
-                          )}
+                          {}
+                          {order.status === "pending" &&
+                            order.payment?.method === "razorpay" &&
+                            order.payment?.status !== "paid" && (
+                              <button
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                                onClick={() =>
+                                  alert(
+                                    "Redirect to payment gateway for order " +
+                                      order.orderNumber
+                                  )
+                                }
+                              >
+                                Pay Now
+                              </button>
+                            )}
                         </div>
                       </div>
                     ))}
@@ -582,11 +730,13 @@ const ProfilePage: React.FC = () => {
 
             {activeTab === "wishlist" && (
               <div>
-                <h3 className="text-xl font-bold text-[#2B463C] mb-4">My Wishlist</h3>
+                <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                  My Wishlist
+                </h3>
                 <div className="text-center py-8">
                   <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-600">Your wishlist is empty</p>
-                  <button className="mt-4 px-6 py-2 bg-[#688F4E] text-white rounded-lg hover:bg-[#5a7a42] transition-colors">
+                  <button className="mt-4 px-6 py-2 bg-[#95522C] text-white rounded-lg hover:bg-[#5a7a42] transition-colors">
                     Start Shopping
                   </button>
                 </div>
@@ -596,26 +746,30 @@ const ProfilePage: React.FC = () => {
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-bold text-[#2B463C] mb-4">Account Settings</h3>
+                  <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                    Account Settings
+                  </h3>
                   <div className="space-y-4">
                     <button
                       onClick={handleEditProfile}
                       className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <User className="w-5 h-5 text-[#688F4E]" />
+                      <User className="w-5 h-5 text-[#95522C]" />
                       <span className="text-left">Edit Profile</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Shield className="w-5 h-5 text-[#688F4E]" />
+                      <Shield className="w-5 h-5 text-[#95522C]" />
                       <span className="text-left">Privacy Settings</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <CreditCard className="w-5 h-5 text-[#688F4E]" />
+                      <CreditCard className="w-5 h-5 text-[#95522C]" />
                       <span className="text-left">Payment Methods</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Eye className="w-5 h-5 text-[#688F4E]" />
-                      <span className="text-left">Notification Preferences</span>
+                      <Eye className="w-5 h-5 text-[#95522C]" />
+                      <span className="text-left">
+                        Notification Preferences
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -635,13 +789,15 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      { }
+      {}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[#2B463C]">Edit Profile</h2>
+                <h2 className="text-2xl font-bold text-[#95522c]">
+                  Edit Profile
+                </h2>
                 <button
                   onClick={() => setShowEditModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -652,102 +808,153 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              { }
+              {}
               <div>
-                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">Personal Information</h3>
+                <h3 className="text-lg font-semibold text-[#95522c] mb-4">
+                  Personal Information
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      First Name
+                    </label>
                     <input
                       type="text"
                       value={editForm.firstName}
-                      onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, firstName: e.target.value })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      Last Name
+                    </label>
                     <input
                       type="text"
                       value={editForm.lastName}
-                      onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, lastName: e.target.value })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      Phone
+                    </label>
                     <input
                       type="tel"
                       value={editForm.phone}
-                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, phone: e.target.value })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                 </div>
               </div>
 
-              { }
+              {}
               <div>
-                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">Address Information</h3>
+                <h3 className="text-lg font-semibold text-[#95522c] mb-4">
+                  Address Information
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      Street Address
+                    </label>
                     <input
                       type="text"
                       value={editForm.address.street}
-                      onChange={(e) => setEditForm({
-                        ...editForm,
-                        address: { ...editForm.address, street: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          address: {
+                            ...editForm.address,
+                            street: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      City
+                    </label>
                     <input
                       type="text"
                       value={editForm.address.city}
-                      onChange={(e) => setEditForm({
-                        ...editForm,
-                        address: { ...editForm.address, city: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          address: {
+                            ...editForm.address,
+                            city: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      State
+                    </label>
                     <input
                       type="text"
                       value={editForm.address.state}
-                      onChange={(e) => setEditForm({
-                        ...editForm,
-                        address: { ...editForm.address, state: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          address: {
+                            ...editForm.address,
+                            state: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      ZIP Code
+                    </label>
                     <input
                       type="text"
                       value={editForm.address.zipCode}
-                      onChange={(e) => setEditForm({
-                        ...editForm,
-                        address: { ...editForm.address, zipCode: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          address: {
+                            ...editForm.address,
+                            zipCode: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                      Country
+                    </label>
                     <input
                       type="text"
                       value={editForm.address.country}
-                      onChange={(e) => setEditForm({
-                        ...editForm,
-                        address: { ...editForm.address, country: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          address: {
+                            ...editForm.address,
+                            country: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -764,7 +971,7 @@ const ProfilePage: React.FC = () => {
               <button
                 onClick={handleSaveProfile}
                 disabled={saving}
-                className="px-6 py-3 bg-[#688F4E] text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
+                className="px-6 py-3 bg-[#95522C] text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
               >
                 {saving ? (
                   <>

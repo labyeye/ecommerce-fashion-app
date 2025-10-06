@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Facebook, Instagram, Star } from "lucide-react";
 import axios from "axios";
-import photo from "../../assets/IMG_6283.webp";
+import photo from "../../assets/IMG_6285.jpg";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -16,31 +16,7 @@ const Footer: React.FC = () => {
     message: "",
   });
   const [submitting, setSubmitting] = useState(false);
-  const sandSvg = `
-      <svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 40 40'>
-        <defs>
-          <pattern id='p' x='0' y='0' width='40' height='40' patternUnits='userSpaceOnUse'>
-            <rect x='0' y='0' width='40' height='40' fill='%23f2e0cb' />
-            <!-- fine grain -->
-            <circle cx='4' cy='5' r='0.5' fill='rgba(0,0,0,0.035)' />
-            <circle cx='12' cy='14' r='0.45' fill='rgba(0,0,0,0.02)' />
-            <circle cx='28' cy='8' r='0.55' fill='rgba(0,0,0,0.03)' />
-            <circle cx='20' cy='30' r='0.4' fill='rgba(0,0,0,0.02)' />
-            <!-- small clusters -->
-            <g fill='rgba(0,0,0,0.03)'>
-              <circle cx='6' cy='28' r='0.25' />
-              <circle cx='7.5' cy='29' r='0.2' />
-              <circle cx='8.5' cy='27.5' r='0.18' />
-            </g>
-            <!-- subtle lines to suggest dunes -->
-            <path d='M0 32 Q10 28 20 32 T40 32 V40 H0 Z' fill='rgba(255,255,255,0.02)' />
-          </pattern>
-        </defs>
-        <rect width='100%' height='100%' fill='url(%23p)' />
-      </svg>`;
-
-  const sandDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(sandSvg)}`;
-
+  
   useEffect(() => {
     const loadAvg = async () => {
       try {

@@ -260,12 +260,12 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
                     <>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Current:</span>
-                        <span className="font-medium">{customer.loyaltyPoints || 0} / 5000</span>
+                        <span className="font-medium">{customer.loyaltyPoints || 0} / 1000</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-green-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 5000) * 100)}%` }}
+                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 1000) * 100)}%` }}
                         ></div>
                       </div>
                       <p className="text-xs text-gray-500">Next: Silver Tier</p>
@@ -275,12 +275,12 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
                     <>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Current:</span>
-                        <span className="font-medium">{customer.loyaltyPoints || 0} / 10000</span>
+                        <span className="font-medium">{customer.loyaltyPoints || 0} / 2500</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-green-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 10000) * 100)}%` }}
+                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 2500) * 100)}%` }}
                         ></div>
                       </div>
                       <p className="text-xs text-gray-500">Next: Gold Tier</p>

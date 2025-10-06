@@ -494,10 +494,13 @@ router.get('/orders/:id/details', async (req, res) => {
       });
     }
 
-    // Calculate loyalty points earned from this order
-    const pointsEarned = Math.floor(order.total);
-    const deliveryBonusPoints = order.status === 'delivered' ? Math.floor(order.total * 0.1) : 0;
-    const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
+  // Calculate loyalty points earned from this order using per-₹50 rules
+  // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
+  const customerTier = order.customer.loyaltyTier || 'bronze';
+  const pointsPer50 = customerTier === 'gold' ? 5 : (customerTier === 'silver' ? 3 : 1);
+  const pointsEarned = Math.floor(order.total / 50) * pointsPer50;
+  const deliveryBonusPoints = order.status === 'delivered' ? Math.floor(order.total * 0.1) : 0;
+  const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
 
     // Get loyalty information
     const loyaltyInfo = {
@@ -590,36 +593,48 @@ router.put('/orders/:id/status', [
 
     // Update loyalty points if order is delivered
     if (status === 'delivered' && order.customer) {
-      const pointsEarned = Math.floor(order.total);
-      const deliveryBonusPoints = Math.floor(order.total * 0.1);
-      const totalPoints = pointsEarned + deliveryBonusPoints;
-
-      // Update customer's loyalty points
-      await User.findByIdAndUpdate(order.customer._id, {
-        $inc: { 
-          loyaltyPoints: totalPoints,
-          evolvPoints: pointsEarned
-        }
+      // Prevent double-awarding: check if loyalty history already has an entry for this order
+      const alreadyAwarded = await User.findOne({
+        _id: order.customer._id,
+        loyaltyHistory: { $elemMatch: { order: order._id } }
       });
 
-      // Add to loyalty history
-      await User.findByIdAndUpdate(order.customer._id, {
-        $push: {
-          loyaltyHistory: {
-            type: 'order_completion',
-            points: totalPoints,
-            orderId: order._id,
-            orderNumber: order.orderNumber,
-            description: `Order ${order.orderNumber} completed - ${pointsEarned} points + ${deliveryBonusPoints} bonus`
+      if (!alreadyAwarded) {
+        // Calculate points based on customer's tier at time of delivery
+        const customer = await User.findById(order.customer._id);
+        const tier = (customer && customer.loyaltyTier) ? customer.loyaltyTier : 'bronze';
+        const per50 = tier === 'gold' ? 5 : (tier === 'silver' ? 3 : 1);
+        const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
+        const deliveryBonusPoints = Math.floor(order.total * 0.1);
+        const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
+
+        // Update customer's loyalty points (increment)
+        await User.findByIdAndUpdate(order.customer._id, {
+          $inc: { 
+            loyaltyPoints: totalPoints,
+            evolvPoints: pointsEarnedOnDelivery
           }
-        }
-      });
+        });
 
-      // Recalculate tier
-      const customer = await User.findById(order.customer._id);
-      if (customer) {
-        customer.recalculateTier();
-        await customer.save();
+        // Add to loyalty history
+        await User.findByIdAndUpdate(order.customer._id, {
+          $push: {
+            loyaltyHistory: {
+              date: new Date(),
+              action: 'order_completion',
+              points: totalPoints,
+              order: order._id,
+              orderNumber: order.orderNumber,
+              description: `Order ${order.orderNumber} completed - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`
+            }
+          }
+        });
+
+        // Recalculate tier on the customer document
+        if (customer) {
+          customer.recalculateTier();
+          await customer.save();
+        }
       }
     }
 
