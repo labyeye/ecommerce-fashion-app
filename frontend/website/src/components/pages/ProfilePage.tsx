@@ -17,9 +17,7 @@ import {
   Mail,
   CreditCard,
   Shield,
-  Gift,
   TrendingUp,
-  ShoppingBag,
   Eye,
   X,
   Save,
@@ -33,6 +31,7 @@ const ProfilePage: React.FC = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
@@ -205,8 +204,8 @@ const ProfilePage: React.FC = () => {
       name: "Bronze",
       minPoints: 0,
       maxPoints: 999,
-      color: "#ffc4a1ff",
-      bgColor: "#ffc4a1ff",
+      color: "#8B7355",
+      bgColor: "#8B7355",
       borderColor: "border-fashion-light-brown",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
@@ -222,8 +221,8 @@ const ProfilePage: React.FC = () => {
       name: "Silver",
       minPoints: 999,
       maxPoints: 2499,
-      color: "#e2966aff",
-      bgColor: "#e2966aff",
+      color: "#9b9b9bff",
+      bgColor: "#9b9b9bff",
       borderColor: "border-fashion-warm-gray",
       textColor: "text-fashion-dark-gray",
       iconColor: "text-fashion-dark-gray",
@@ -240,8 +239,8 @@ const ProfilePage: React.FC = () => {
       name: "Gold",
       minPoints: 2499,
       maxPoints: 999999,
-      color: "#95522C",
-      bgColor: "#95522C",
+      color: "#fabd25ff",
+      bgColor: "#fabd25ff",
       borderColor: "border-fashion-nude",
       textColor: "text-fashion-accent-brown",
       iconColor: "text-fashion-accent-brown",
@@ -312,9 +311,9 @@ const ProfilePage: React.FC = () => {
   }, [user, token]);
 
   return (
-    <div className="min-h-screen bg-fashion-cream pt-24">
+    <div className="min-h-screen pt-24" style={{ backgroundColor: "#FFF2E1" }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-fashion border border-[#95522C]/10 shadow-soft p-8 mb-8">
+        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <ProfilePictureUpload
@@ -324,11 +323,11 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
+              <h1 className="text-3xl font-light text-fashion-charcoal tracking-wide mb-3">
                 {userData.name}
               </h1>
-              <p className="text-[#95522C]/70 mb-2">{userData.email}</p>
-              <p className="text-[#95522C]/60 mb-4 text-sm">
+              <p className="text-fashion-charcoal/70 mb-2">{userData.email}</p>
+              <p className="text-fashion-charcoal/60 mb-4 text-sm">
                 Member since {userData.joinDate}
               </p>
               <div className="flex items-center justify-center md:justify-start gap-4">
@@ -347,7 +346,8 @@ const ProfilePage: React.FC = () => {
               </div>
               <button
                 onClick={handleEditProfile}
-                className="mt-4 bg-[#95522C] text-white px-4 py-2 rounded-lg hover:bg-[#5a7a42] transition-colors flex items-center gap-2 mx-auto md:mx-0"
+                className="mt-4 bg-[#95522C] text-white px-4 py-2 rounded-lg hover:bg-[#7a3f20] transition-colors flex items-center gap-2 mx-auto md:mx-0"
+                style={{ boxShadow: "0 2px 6px rgba(149,82,44,0.08)" }}
               >
                 <Settings className="w-4 h-4" />
                 Edit Profile
@@ -360,29 +360,28 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Crown className="w-8 h-8 text-[#FFD700]" />
-            <h2 className="text-2xl font-bold text-[#95522c]">
+            <h2 className="text-2xl font-bold" style={{ color: "#95522C" }}>
               Loyalty Program
             </h2>
           </div>
           <div
             className="rounded-xl p-6 mb-6"
             style={{
-              background:
-                userData.currentTier === "bronze"
-                  ? "linear-gradient(90deg, #ffc4a1ff 0%, #ffc4a1ff 100%)"
-                  : userData.currentTier === "silver"
-                  ? "linear-gradient(90deg, #d46d32ff 0%, #d46d32ff 100%)"
-                  : "linear-gradient(90deg, #95522C 0%, #95522C 100%)",
+              background: "#FFF2E1",
+              border: "1px solid rgba(149,82,44,0.06)",
             }}
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3
+                  className="text-xl font-bold mb-2"
+                  style={{ color: "#95522C" }}
+                >
                   Current Tier:{" "}
                   {userData.currentTier.charAt(0).toUpperCase() +
                     userData.currentTier.slice(1)}
                 </h3>
-                <p className="text-white/90">
+                <p style={{ color: "#5a4a42" }}>
                   Tier Points: {userData.loyaltyPoints} | Evolv Points:{" "}
                   {userData.evolvPoints}
                 </p>
@@ -393,18 +392,22 @@ const ProfilePage: React.FC = () => {
 
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[#95522C] font-medium">
+              <span className="font-medium" style={{ color: "#5a4a42" }}>
                 Progress to {userData.nextTier === "silver" ? "Silver" : "Gold"}
               </span>
-              <span className="text-[#95522C] font-bold">
+              <span className="font-bold" style={{ color: "#95522C" }}>
                 {userData.progressToNextTier}% ({userData.loyaltyPoints}/
                 {userData.nextTierPoints})
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-[#95522C] to-[#FFF2E1] h-3 rounded-full transition-all duration-500"
-                style={{ width: `${userData.progressToNextTier}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{
+                  width: `${userData.progressToNextTier}%`,
+                  background:
+                    "linear-gradient(90deg, #95522C 0%, #D18A6A 100%)",
+                }}
               ></div>
             </div>
           </div>
@@ -445,7 +448,7 @@ const ProfilePage: React.FC = () => {
                     >
                       {tier.name}
                     </h4>
-                    <p className="text-sm text-[#95522C]">
+                    <p className="text-sm text-gray-500">
                       {tier.minPoints === 0
                         ? "0"
                         : tier.minPoints.toLocaleString()}
@@ -463,7 +466,7 @@ const ProfilePage: React.FC = () => {
                   <div className="space-y-2">
                     <h5
                       className={`font-semibold text-sm ${
-                        isCurrentTier ? tier.textColor : "text-[#95522C]"
+                        isCurrentTier ? tier.textColor : "text-gray-700"
                       }`}
                     >
                       Benefits:
@@ -483,9 +486,7 @@ const ProfilePage: React.FC = () => {
                           ></div>
                           <span
                             className={`${
-                              isCurrentTier
-                                ? "text-[#95522C]"
-                                : "text-[#95522C]"
+                              isCurrentTier ? "text-gray-700" : "text-gray-500"
                             }`}
                           >
                             {benefit}
@@ -501,8 +502,8 @@ const ProfilePage: React.FC = () => {
         </div>
 
         {}
-        <div className="bg-white rounded-fashion border border-[#95522C]/10 shadow-soft mb-8">
-          <div className="flex flex-wrap border-b border-[#95522C]/10">
+        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
+          <div className="flex flex-wrap border-b border-fashion-charcoal/10">
             {[
               { id: "overview", label: "Overview", icon: User },
               { id: "orders", label: "Orders", icon: Package },
@@ -517,14 +518,14 @@ const ProfilePage: React.FC = () => {
                   className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 ${
                     activeTab === tab.id
                       ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
-                      : "text-[#95522C]/70 hover:text-fashion-accent-brown"
+                      : "text-fashion-charcoal/70 hover:text-fashion-accent-brown"
                   }`}
                 >
                   <Icon
                     className={`w-5 h-5 transition-colors duration-300 ${
                       activeTab === tab.id
                         ? "text-fashion-accent-brown"
-                        : "text-[#95522C]/70"
+                        : "text-fashion-charcoal/70"
                     }`}
                   />
                   {tab.label}
@@ -539,81 +540,42 @@ const ProfilePage: React.FC = () => {
               <div className="space-y-6">
                 {}
                 <div>
-                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
+                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">
                     Personal Information
                   </h3>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Mail className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-[#95522C]/60">Email</p>
-                        <p className="text-[#95522C] font-medium mt-1">
+                        <p className="text-sm text-fashion-charcoal/60">
+                          Email
+                        </p>
+                        <p className="text-fashion-charcoal font-medium mt-1">
                           {userData.email}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Phone className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-[#95522C]/60">Phone</p>
-                        <p className="text-[#95522C] font-medium mt-1">
+                        <p className="text-sm text-fashion-charcoal/60">
+                          Phone
+                        </p>
+                        <p className="text-fashion-charcoal font-medium mt-1">
                           {userData.phone}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
+                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
                       <MapPin className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-[#95522C]/60">Address</p>
-                        <p className="text-[#95522C] font-medium mt-1">
+                        <p className="text-sm text-fashion-charcoal/60">
+                          Address
+                        </p>
+                        <p className="text-fashion-charcoal font-medium mt-1">
                           {userData.address}
                         </p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {}
-                <div>
-                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
-                    Quick Stats
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <ShoppingBag className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-[#95522C]">
-                        {userData.totalOrders}
-                      </p>
-                      <p className="text-sm text-[#95522C]/60 mt-1">
-                        Total Orders
-                      </p>
-                    </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <TrendingUp className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-[#95522C]">
-                        ₹{userData.totalSpent.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-[#95522C]/60 mt-1">
-                        Total Spent
-                      </p>
-                    </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <Gift className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-[#95522C]">
-                        {userData.evolvPoints}
-                      </p>
-                      <p className="text-sm text-[#95522C]/60 mt-1">
-                        Evolv Points
-                      </p>
-                    </div>
-                    <div className="text-center p-6 bg-fashion-warm-white rounded-fashion border border-[#95522C]/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <Crown className="w-8 h-8 text-fashion-accent-brown mx-auto mb-3" />
-                      <p className="text-2xl font-light text-[#95522C] capitalize">
-                        {userData.currentTier}
-                      </p>
-                      <p className="text-sm text-[#95522C]/60 mt-1">
-                        Current Tier
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -622,7 +584,10 @@ const ProfilePage: React.FC = () => {
 
             {activeTab === "orders" && (
               <div>
-                <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                <h3
+                  className="text-xl font-bold mb-4"
+                  style={{ color: "#95522C" }}
+                >
                   Recent Orders
                 </h3>
                 {!token && (
@@ -637,7 +602,7 @@ const ProfilePage: React.FC = () => {
                     {ordersError}
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8 text-[#95522C]">
+                  <div className="text-center py-8 text-gray-500">
                     No orders found.
                   </div>
                 ) : (
@@ -648,7 +613,10 @@ const ProfilePage: React.FC = () => {
                         className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-[#95522c]">
+                          <h4
+                            className="font-semibold"
+                            style={{ color: "#95522C" }}
+                          >
                             {order.orderNumber}
                           </h4>
                           <span
@@ -672,16 +640,19 @@ const ProfilePage: React.FC = () => {
                             .map((item: any) => item.product?.name)
                             .join(", ")}
                         </p>
-                        <p className="font-semibold text-[#95522c]">
+                        <p className="font-semibold text-[#2B463C]">
                           ₹{order.total}
                         </p>
 
-                        <div className="mt-2 p-3 bg-[#95522C]/10 rounded-lg">
+                        <div className="mt-2 p-3 bg-[#688F4E]/10 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-[#95522c] font-medium">
+                            <span className="text-[#2B463C] font-medium">
                               Loyalty Points Earned:
                             </span>
-                            <span className="text-[#95522C] font-bold">
+                            <span
+                              className="font-bold"
+                              style={{ color: "#95522C" }}
+                            >
                               {Math.floor(order.total)} points (Tier) +{" "}
                               {Math.floor(
                                 order.total *
@@ -699,7 +670,7 @@ const ProfilePage: React.FC = () => {
                         <div className="flex items-center justify-between mt-3">
                           <button
                             onClick={() => navigate(`/order/${order._id}`)}
-                            className="px-4 py-2 bg-[#95522C] text-white rounded hover:bg-[#95522c] transition-colors text-sm"
+                            className="px-4 py-2 bg-[#95522C] text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
                           >
                             View Details
                           </button>
@@ -730,13 +701,13 @@ const ProfilePage: React.FC = () => {
 
             {activeTab === "wishlist" && (
               <div>
-                <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                <h3 className="text-xl font-bold text-[#2B463C] mb-4">
                   My Wishlist
                 </h3>
                 <div className="text-center py-8">
                   <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-600">Your wishlist is empty</p>
-                  <button className="mt-4 px-6 py-2 bg-[#95522C] text-white rounded-lg hover:bg-[#5a7a42] transition-colors">
+                  <button className="mt-4 px-6 py-2 bg-[#95522C] text-white rounded-lg hover:bg-[#7a3f20] transition-colors">
                     Start Shopping
                   </button>
                 </div>
@@ -746,7 +717,7 @@ const ProfilePage: React.FC = () => {
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-bold text-[#95522c] mb-4">
+                  <h3 className="text-xl font-bold text-[#2B463C] mb-4">
                     Account Settings
                   </h3>
                   <div className="space-y-4">
@@ -754,19 +725,25 @@ const ProfilePage: React.FC = () => {
                       onClick={handleEditProfile}
                       className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <User className="w-5 h-5 text-[#95522C]" />
+                      <User className="w-5 h-5" style={{ color: "#95522C" }} />
                       <span className="text-left">Edit Profile</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Shield className="w-5 h-5 text-[#95522C]" />
+                      <Shield
+                        className="w-5 h-5"
+                        style={{ color: "#95522C" }}
+                      />
                       <span className="text-left">Privacy Settings</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <CreditCard className="w-5 h-5 text-[#95522C]" />
+                      <CreditCard
+                        className="w-5 h-5"
+                        style={{ color: "#95522C" }}
+                      />
                       <span className="text-left">Payment Methods</span>
                     </button>
                     <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Eye className="w-5 h-5 text-[#95522C]" />
+                      <Eye className="w-5 h-5" style={{ color: "#95522C" }} />
                       <span className="text-left">
                         Notification Preferences
                       </span>
@@ -782,6 +759,13 @@ const ProfilePage: React.FC = () => {
                     <LogOut className="w-5 h-5" />
                     <span className="text-left">Sign Out</span>
                   </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="mt-3 flex items-center gap-3 w-full p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors text-red-700"
+                  >
+                    <X className="w-5 h-5" />
+                    <span className="text-left">Delete My Account</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -795,7 +779,7 @@ const ProfilePage: React.FC = () => {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[#95522c]">
+                <h2 className="text-2xl font-bold text-[#2B463C]">
                   Edit Profile
                 </h2>
                 <button
@@ -810,12 +794,12 @@ const ProfilePage: React.FC = () => {
             <div className="p-6 space-y-6">
               {}
               <div>
-                <h3 className="text-lg font-semibold text-[#95522c] mb-4">
+                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">
                   Personal Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       First Name
                     </label>
                     <input
@@ -824,11 +808,12 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, firstName: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent"
+                      style={{ boxShadow: "0 0 0 3px rgba(149,82,44,0.08)" }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Last Name
                     </label>
                     <input
@@ -837,11 +822,11 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, lastName: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Phone
                     </label>
                     <input
@@ -850,7 +835,7 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, phone: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -858,12 +843,12 @@ const ProfilePage: React.FC = () => {
 
               {}
               <div>
-                <h3 className="text-lg font-semibold text-[#95522c] mb-4">
+                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">
                   Address Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Street Address
                     </label>
                     <input
@@ -878,11 +863,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       City
                     </label>
                     <input
@@ -897,11 +882,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       State
                     </label>
                     <input
@@ -916,11 +901,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       ZIP Code
                     </label>
                     <input
@@ -935,11 +920,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#95522C] mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Country
                     </label>
                     <input
@@ -954,7 +939,7 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -971,7 +956,7 @@ const ProfilePage: React.FC = () => {
               <button
                 onClick={handleSaveProfile}
                 disabled={saving}
-                className="px-6 py-3 bg-[#95522C] text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
+                className="px-6 py-3 bg-[#688F4E] text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
               >
                 {saving ? (
                   <>
@@ -983,6 +968,40 @@ const ProfilePage: React.FC = () => {
                     <span>Save Changes</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold text-[#95522C] mb-4">Delete Account</h3>
+            <p className="text-sm text-gray-700 mb-6">This action will permanently delete your account and all related data (orders, wishlist, reviews). This cannot be undone. Are you sure you want to proceed?</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/account', {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                      }
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Failed to delete account');
+                    // On success, logout and redirect to home
+                    logout();
+                    window.location.href = '/';
+                  } catch (err: any) {
+                    alert('Error deleting account: ' + (err.message || 'Unknown error'));
+                  }
+                }}
+                className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
+              >
+                Delete
               </button>
             </div>
           </div>

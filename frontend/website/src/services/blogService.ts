@@ -8,6 +8,7 @@ export interface Blog {
     url: string;
     alt: string;
   };
+  images?: { url: string; alt?: string }[];
   author: {
     name: string;
     email: string;

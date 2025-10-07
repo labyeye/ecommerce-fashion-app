@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, Star, Search, Filter, X } from 'lucide-react';
-import { blogService, Blog, CreateBlogData, UpdateBlogData } from '../services/blogService';
+import { Plus, Edit, Trash2, Star, Search, Filter, X } from 'lucide-react';
+import { blogService, Blog, CreateBlogData } from '../services/blogService';
 import { useAuth } from '../context/AuthContext';
 
 const BlogManagement: React.FC = () => {
@@ -27,6 +27,7 @@ const BlogManagement: React.FC = () => {
       url: '',
       alt: ''
     },
+    images: [],
     tags: [],
     category: 'Technology',
     status: 'draft',
@@ -102,6 +103,22 @@ const BlogManagement: React.FC = () => {
     setFormData(prev => ({ ...prev, tags }));
   };
 
+  const addImage = () => {
+    setFormData(prev => ({ ...prev, images: [...(prev.images || []), { url: '', alt: '' }] }));
+  };
+
+  const updateImage = (index: number, key: 'url' | 'alt', value: string) => {
+    setFormData(prev => {
+      const images = [...(prev.images || [])];
+      images[index] = { ...(images[index] || { url: '', alt: '' }), [key]: value } as any;
+      return { ...prev, images };
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({ ...prev, images: (prev.images || []).filter((_, i) => i !== index) }));
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -111,6 +128,7 @@ const BlogManagement: React.FC = () => {
         url: '',
         alt: ''
       },
+      images: [],
       tags: [],
       category: 'Technology',
       status: 'draft',
@@ -156,6 +174,7 @@ const BlogManagement: React.FC = () => {
       excerpt: blog.excerpt,
       content: blog.content,
       featuredImage: blog.featuredImage,
+      images: blog.images || [],
       tags: blog.tags,
       category: blog.category,
       status: blog.status,
@@ -554,6 +573,35 @@ const BlogManagement: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Additional Images (optional)
+                  </label>
+                  <div className="space-y-3 mb-3">
+                    {(formData.images || []).map((img, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                        <input
+                          type="url"
+                          placeholder="Image URL"
+                          value={img.url}
+                          onChange={(e) => updateImage(idx, 'url', e.target.value)}
+                          className="col-span-5 border border-gray-300 rounded-lg px-3 py-2"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Alt text"
+                          value={img.alt}
+                          onChange={(e) => updateImage(idx, 'alt', e.target.value)}
+                          className="col-span-5 border border-gray-300 rounded-lg px-3 py-2"
+                        />
+                        <button type="button" onClick={() => removeImage(idx)} className="col-span-2 px-3 py-2 bg-red-100 rounded">Remove</button>
+                      </div>
+                    ))}
+                    <div>
+                      <button type="button" onClick={addImage} className="px-3 py-2 bg-blue-600 text-white rounded">Add Image</button>
+                    </div>
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Featured Image URL *

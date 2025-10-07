@@ -446,58 +446,58 @@ router.put('/orders/:id/status', [
 
       await order.save();
 
-      // Award loyalty points on delivery confirmation (idempotent)
-      // Use the same per-₹50 rules as admin: Bronze=1/50, Silver=3/50, Gold=5/50
-      if (order.payment.status === 'paid') {
-        // Ensure we don't award twice for the same order
-        const alreadyAwarded = await User.findOne({
-          _id: req.user._id,
-          loyaltyHistory: { $elemMatch: { order: order._id } }
+      // Add bonus loyalty points for delivery confirmation
+      const loyalty = await User.findOne({ user: req.user._id });
+      if (loyalty && order.payment.status === 'paid') {
+        const bonusPoints = Math.floor(order.total / 50); // 2 points per ₹100 for delivery bonus
+        loyalty.points += bonusPoints;
+        loyalty.lifetimePoints += bonusPoints;
+
+        loyalty.history.push({
+          type: 'earned',
+          points: bonusPoints,
+          order: order._id,
+          description: `Earned ${bonusPoints} bonus points for delivery confirmation of order #${order.orderNumber}`
         });
 
-        if (!alreadyAwarded) {
-          const customer = await User.findById(req.user._id);
-          const tier = (customer && customer.loyaltyTier) ? customer.loyaltyTier : 'bronze';
-          const per50 = tier === 'gold' ? 5 : (tier === 'silver' ? 3 : 1);
-          const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
-          const deliveryBonusPoints = Math.floor(order.total * 0.1);
-          const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
-
-          // Increment loyaltyPoints and evolvPoints and add history entry
-          await User.findByIdAndUpdate(req.user._id, {
-            $inc: {
-              loyaltyPoints: totalPoints,
-              evolvPoints: pointsEarnedOnDelivery
-            },
-            $push: {
-              loyaltyHistory: {
-                date: new Date(),
-                action: 'order_completion',
-                points: totalPoints,
-                order: order._id,
-                description: `Order ${order.orderNumber} delivered - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`
-              }
-            }
+        // Check for tier upgrade
+        const { newTier, nextTierPoints } = loyalty.checkTierUpgrade();
+        if (newTier !== loyalty.tier) {
+          loyalty.history.push({
+            type: 'tier_upgrade',
+            points: 0,
+            description: `Upgraded from ${loyalty.tier} to ${newTier} tier`
           });
-
-          // Recalculate tier on the user document
-          const updatedCustomer = await User.findById(req.user._id);
-          if (updatedCustomer) {
-            updatedCustomer.recalculateTier();
-            await updatedCustomer.save();
-          }
-
-          return res.status(200).json({
-            success: true,
-            message: 'Order status updated successfully',
-            data: {
-              order,
-              pointsEarned: totalPoints,
-              newLoyaltyPoints: updatedCustomer ? updatedCustomer.loyaltyPoints : null,
-              newTier: updatedCustomer ? updatedCustomer.loyaltyTier : null
-            }
-          });
+          loyalty.tier = newTier;
+          loyalty.nextTierPoints = nextTierPoints;
         }
+
+        await loyalty.save();
+
+        // Update user document
+        await User.findByIdAndUpdate(req.user._id, {
+          loyaltyPoints: loyalty.points,
+          loyaltyTier: loyalty.tier,
+          $push: {
+            loyaltyHistory: {
+              date: new Date(),
+              action: 'delivery_bonus',
+              points: bonusPoints,
+              order: order._id
+            }
+          }
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: 'Order status updated successfully',
+          data: {
+            order,
+            bonusPointsEarned: bonusPoints,
+            newLoyaltyPoints: loyalty.points,
+            newTier: loyalty.tier
+          }
+        });
       }
 
       return res.status(200).json({
@@ -1106,34 +1106,41 @@ router.post('/orders', [
       await order.save();
     }
 
-    // Project loyalty points (do not persist) — actual awarding happens on delivery
-    const user = await User.findById(req.user._id);
-    let loyaltyResponse = null;
+    // Process loyalty points
+const user = await User.findById(req.user._id);
+let loyaltyResponse = null;
 
-    if (user) {
-      // Don't award Evolv points if user used promo code or redeemed Evolv points
-      const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
+if (user) {
+  // Don't award Evolv points if user used promo code or redeemed Evolv points
+  const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
+  
+  const loyaltyResult = await user.addLoyaltyPoints(total, order, skipEvolvPoints); // Pass skipEvolvPoints flag
+  
+  await user.save();
+  
+  // Add to loyalty history
+  const historyDescription = skipEvolvPoints 
+    ? `Earned ${loyaltyResult.tierPoints} tier points from order (no Evolv points due to discount applied)`
+    : `Earned ${loyaltyResult.tierPoints} tier points and ${loyaltyResult.evolvPoints} evolv points from order`;
+    
+  user.loyaltyHistory.push({
+    date: new Date(),
+    action: 'order_points',
+    points: loyaltyResult.tierPoints,
+    order: order._id,
+    description: historyDescription
+  });
 
-      // Compute projected tier points using per-₹50 rules (based on user's current tier)
-      const pointsPer50 = user.loyaltyTier === 'gold' ? 5 : (user.loyaltyTier === 'silver' ? 3 : 1);
-      const projectedTierPoints = Math.floor(total / 50) * pointsPer50;
-      const projectedEvolvPoints = skipEvolvPoints ? 0 : Math.floor(total * (user.loyaltyTier === 'gold' ? 0.2 : (user.loyaltyTier === 'silver' ? 0.15 : 0.1)));
+  await user.save();
 
-      const projectedLoyaltyPoints = (user.loyaltyPoints || 0) + projectedTierPoints;
-
-      // Compute projected tier without modifying DB
-      let projectedTier = user.loyaltyTier || 'bronze';
-      if (projectedLoyaltyPoints >= 2500) projectedTier = 'gold';
-      else if (projectedLoyaltyPoints >= 1000) projectedTier = 'silver';
-
-      loyaltyResponse = {
-        projectedTierPoints,
-        projectedEvolvPoints,
-        projectedLoyaltyPoints,
-        projectedTier,
-        note: 'Points are projected. Actual loyalty points are awarded when the order is marked delivered.'
-      };
-    }
+  loyaltyResponse = {
+    pointsEarned: loyaltyResult.tierPoints,
+    evolvPointsEarned: loyaltyResult.evolvPoints,
+    newBalance: user.loyaltyPoints,
+    newTier: user.loyaltyTier,
+    nextTierInfo: user.getNextLoyaltyTier()
+  };
+}
 
     // Prepare response
     const response = {
@@ -1355,3 +1362,53 @@ router.delete('/profile-picture', protect, isCustomer, async (req, res) => {
 });
 
 module.exports = router; 
+
+// DELETE account (remove user and related data)
+// @route   DELETE /api/customer/account
+// @access  Customer only
+router.delete('/account', async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // Delete orders
+    await Order.deleteMany({ customer: userId });
+
+    // Delete wishlist
+    const Wishlist = require('../models/Wishlist');
+    await Wishlist.deleteOne({ user: userId });
+
+    // Delete reviews submitted by this user's email (best-effort)
+    const Review = require('../models/Review');
+    if (user.email) {
+      await Review.deleteMany({ email: user.email });
+    }
+
+    // Delete newsletter subscriptions if stored
+    const Newsletter = require('../models/Newsletter');
+    await Newsletter.deleteMany({ email: user.email });
+
+    // Remove profile picture file if exists and stored in uploads/profile-pictures
+    if (user.profileImage && typeof user.profileImage === 'string') {
+      try {
+        const imgPath = path.join(__dirname, '..', 'uploads', 'profile-pictures', path.basename(user.profileImage));
+        if (fs.existsSync(imgPath)) {
+          fs.unlinkSync(imgPath);
+        }
+      } catch (fileErr) {
+        console.error('Error deleting profile image:', fileErr);
+      }
+    }
+
+    // Finally delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ success: true, message: 'Account and related data deleted successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting account' });
+  }
+});

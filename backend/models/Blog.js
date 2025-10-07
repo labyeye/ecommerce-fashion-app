@@ -7,13 +7,6 @@ const blogSchema = new mongoose.Schema({
     trim: true,
     maxlength: [200, 'Blog title cannot exceed 200 characters']
   },
-  slug: {
-    type: String,
-    required: [true, 'Blog slug is required'],
-    unique: true,
-    trim: true,
-    lowercase: true
-  },
   excerpt: {
     type: String,
     required: [true, 'Blog excerpt is required'],
@@ -35,6 +28,12 @@ const blogSchema = new mongoose.Schema({
       trim: true
     }
   },
+  images: [
+    {
+      url: { type: String },
+      alt: { type: String, trim: true }
+    }
+  ],
   author: {
     name: {
       type: String,

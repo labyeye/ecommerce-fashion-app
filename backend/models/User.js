@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema({
     zipCode: String,
     country: {
       type: String,
-      default: 'USA'
+      default: 'India'
     }
   },
   loyaltyPoints: { type: Number, default: 0 },

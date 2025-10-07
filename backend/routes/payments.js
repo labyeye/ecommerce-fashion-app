@@ -1,6 +1,7 @@
 const express = require('express');
 const { protect } = require('../middleware/auth');
 const Order = require('../models/Order');
+const User = require('../models/User');
 const { createRazorpayOrder, verifyPaymentSignature, getPaymentDetails } = require('../services/paymentService');
 
 const router = express.Router();
@@ -184,6 +185,39 @@ router.post('/verify', async (req, res) => {
     order.status = 'confirmed'; // Change order status to confirmed
     
     await order.save();
+
+    // Award loyalty points on payment success (idempotent)
+    try {
+      if (!order.payment || !order.payment.loyaltyAwarded) {
+        const customer = await User.findById(order.customer);
+        if (customer) {
+          // Use the instance method to compute and update points
+          const result = await customer.addLoyaltyPoints(order.total, order, false);
+
+          // Push to loyalty history (record tier points and evolv points info)
+          customer.loyaltyHistory = customer.loyaltyHistory || [];
+          customer.loyaltyHistory.push({
+            date: new Date(),
+            action: 'order_payment',
+            points: result.tierPoints,
+            order: order._id,
+            description: `Order ${order.orderNumber} paid - ${result.tierPoints} loyalty points, ${result.evolvPoints} evolv points`
+          });
+
+          // Recalculate tier and persist customer
+          customer.recalculateTier();
+          await customer.save();
+
+          // Mark order as having awarded loyalty to avoid double-award
+          order.payment = order.payment || {};
+          order.payment.loyaltyAwarded = true;
+          await order.save();
+        }
+      }
+    } catch (awardErr) {
+      console.error('Error awarding loyalty points on payment:', awardErr);
+      // proceed without failing the payment verification response
+    }
 
     res.status(200).json({
       success: true,

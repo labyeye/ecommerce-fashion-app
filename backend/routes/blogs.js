@@ -24,7 +24,7 @@ router.get('/public', async (req, res) => {
     }
     
     const blogs = await Blog.find(query)
-      .select('title slug excerpt featuredImage category readTime views isFeatured publishedAt')
+      .select('title slug excerpt featuredImage images category readTime views isFeatured publishedAt')
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -85,7 +85,7 @@ router.get('/featured', async (req, res) => {
       status: 'published', 
       isFeatured: true 
     })
-    .select('title slug excerpt featuredImage category readTime')
+    .select('title slug excerpt featuredImage images category readTime')
     .sort({ publishedAt: -1 })
     .limit(6);
     

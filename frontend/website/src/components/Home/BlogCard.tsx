@@ -1,5 +1,5 @@
-import React from 'react';
-import { Calendar, Clock, Eye, Tag } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, Clock, Eye } from 'lucide-react';
 import { Blog } from '../../services/blogService';
 
 interface BlogCardProps {
@@ -23,6 +23,20 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
     return `${minutes} min read`;
   };
 
+  const images = (blog.images && blog.images.length > 0)
+    ? blog.images
+    : [{ url: blog.featuredImage.url, alt: blog.featuredImage.alt }];
+
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!images || images.length <= 1) return;
+    const id = setInterval(() => {
+      setIndex(i => (i + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [images]);
+
   return (
     <div 
       className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
@@ -31,16 +45,16 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
       {/* Featured Image */}
       <div className="relative h-48 overflow-hidden">
         <img
-          src={blog.featuredImage.url}
-          alt={blog.featuredImage.alt}
+          src={images[index]?.url}
+          alt={images[index]?.alt || blog.featuredImage.alt}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {blog.isFeatured && (
-          <div className="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          <div className="absolute top-3 right-3 text-white px-2 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#FFD166' }}>
             Featured
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+        <div className="absolute top-3 left-3 text-white px-2 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#95522C' }}>
           {blog.category}
         </div>
       </div>
@@ -48,7 +62,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
       {/* Content */}
       <div className="p-6">
         {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
+        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 transition-colors" style={{ color: '#2B463C' }}>
           {blog.title}
         </h3>
 
@@ -97,13 +111,14 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
         {/* Author */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-sm font-semibold">
-                {blog.author.name.charAt(0).toUpperCase()}
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#95522C' }}>
+              <span className="text-white text-sm font-semibold">
+                {(blog.author?.name || 'U').charAt(0).toUpperCase()
+              }
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">{blog.author.name}</p>
+              <p className="text-sm font-medium" style={{ color: '#95522C' }}>{blog.author?.name || 'Unknown'}</p>
               <p className="text-xs text-gray-500">Author</p>
             </div>
           </div>

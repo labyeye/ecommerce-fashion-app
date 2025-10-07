@@ -8,6 +8,7 @@ export interface Blog {
     url: string;
     alt: string;
   };
+  images?: { url: string; alt?: string }[];
   author: {
     name: string;
     email: string;
@@ -31,6 +32,7 @@ export interface CreateBlogData {
     url: string;
     alt: string;
   };
+  images?: { url: string; alt?: string }[];
   tags: string[];
   category: string;
   status: 'draft' | 'published' | 'archived';

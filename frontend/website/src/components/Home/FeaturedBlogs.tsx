@@ -41,13 +41,13 @@ const FeaturedBlogs: React.FC = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16" style={{ backgroundColor: '#FFF2E1' }}>
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <BookOpen className="w-8 h-8 text-blue-600 mr-3" />
-            <h2 className="text-3xl font-bold text-gray-900">Featured Articles</h2>
+            <BookOpen className="w-8 h-8 mr-3" style={{ color: '#95522C' }} />
+            <h2 className="text-3xl font-bold" style={{ color: '#95522C' }}>Featured Articles</h2>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover insights, tips, and stories from our expert team
@@ -69,7 +69,8 @@ const FeaturedBlogs: React.FC = () => {
         <div className="text-center">
           <a
             href="/blogs"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300 group"
+            className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-lg transition-colors duration-300 group"
+            style={{ backgroundColor: '#95522C' }}
           >
             View All Articles
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
