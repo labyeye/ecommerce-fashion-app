@@ -16,7 +16,7 @@ const Features: React.FC = () => {
 
   return (
     <section className="relative bg-[#FCF4EA] overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-10">
         <div className="text-center max-w-5xl mx-auto">
           {/* Main Heading */}
           <div className="text-center mb-0 max-w-8xl mx-auto">

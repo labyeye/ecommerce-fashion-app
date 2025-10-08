@@ -77,16 +77,6 @@ const HomePage = () => {
       >
         <Features />
       </section>
-      <section
-        ref={reviewsFade[0]}
-        className={`w-full transition-all duration-700 ${
-          reviewsFade[1]
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-8"
-        }`}
-      >
-        <Reviews />
-      </section>
     </div>
   );
 };

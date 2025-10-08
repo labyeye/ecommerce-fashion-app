@@ -7,6 +7,35 @@ const router = express.Router();
 // Apply optional authentication to all routes
 router.use(optionalAuth);
 
+// @desc    Check if current user has purchased a product
+// @route   GET /api/orders/has-purchased/:productId
+// @access  Private (requires auth)
+router.get('/has-purchased/:productId', async (req, res) => {
+  try {
+    // require authentication
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const { productId } = req.params;
+    const userId = req.user._id;
+
+    const matching = await Order.findOne({
+      customer: userId,
+      'items.product': productId,
+      $or: [
+        { 'payment.status': 'paid' },
+        { status: { $in: ['confirmed', 'processing', 'shipped', 'delivered'] } }
+      ]
+    }).lean();
+
+    res.status(200).json({ success: true, hasPurchased: Boolean(matching) });
+  } catch (err) {
+    console.error('has-purchased check error:', err);
+    res.status(500).json({ success: false, message: 'Error checking purchase' });
+  }
+});
+
 // @desc    Track order by order number (public)
 // @route   GET /api/orders/track/:orderNumber
 // @access  Public

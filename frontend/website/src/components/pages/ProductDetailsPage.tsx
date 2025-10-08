@@ -4,7 +4,7 @@ import {
   Heart,
   Star,
   Truck,
-  Shield,
+  ShieldCheck,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +15,8 @@ import { useCartContext } from "../../context/CartContext";
 import { getProductById, Product } from "../../services/productService";
 import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
 import { canAccessProduct } from "../../hooks/useProductAccess";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,14 @@ const ProductDetailsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "description" | "care" | "reviews"
   >("description");
+  const { user } = useAuth() || {};
+
+  // Product reviews state
+  const [productReviews, setProductReviews] = useState<any[]>([]);
+  const [reviewMessage, setReviewMessage] = useState("");
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState<boolean>(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
 
@@ -79,7 +89,39 @@ const ProductDetailsPage: React.FC = () => {
     };
 
     fetchProduct();
+    // Load product reviews when the product changes
+    if (id) fetchProductReviews();
+    // Check purchase status if user is logged in
+    if (id && user) checkPurchase();
   }, [id]);
+
+  const fetchProductReviews = async () => {
+    try {
+      const res = await axios.get(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/reviews?productId=${id}&limit=50`
+      );
+      const data = res.data && res.data.data ? res.data.data : [];
+      setProductReviews(data);
+    } catch (err) {
+      console.error("Failed to load product reviews", err);
+    }
+  };
+
+  const checkPurchase = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/orders/has-purchased/${id}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+      setHasPurchased(Boolean(res.data?.hasPurchased));
+    } catch (err) {
+      console.error("Purchase check failed", err);
+      setHasPurchased(false);
+    }
+  };
 
   // Compute derived state with proper null checks
   const currentColor = product?.colors?.find(
@@ -131,7 +173,7 @@ const ProductDetailsPage: React.FC = () => {
     // Remove duplicates by url
     const seen = new Set<string>();
     const uniq = combined.filter((img) => {
-      const url = (img.url || '').trim();
+      const url = (img.url || "").trim();
       if (!url) return false;
       if (seen.has(url)) return false;
       seen.add(url);
@@ -140,11 +182,14 @@ const ProductDetailsPage: React.FC = () => {
 
     return uniq.map((img) => ({
       url: img.url || PLACEHOLDER_IMAGE,
-      alt: img.alt || product?.name || 'Product Image',
+      alt: img.alt || product?.name || "Product Image",
     }));
   }, [currentImages, product]);
 
-  const displayImages = mergedImages.length > 0 ? mergedImages : [{ url: PLACEHOLDER_IMAGE, alt: product?.name || 'Product Image' }];
+  const displayImages =
+    mergedImages.length > 0
+      ? mergedImages
+      : [{ url: PLACEHOLDER_IMAGE, alt: product?.name || "Product Image" }];
 
   const handleAddToCart = () => {
     if (!product || !selectedSize || !hasAccess) {
@@ -367,7 +412,49 @@ const ProductDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-fashion-cream/50 pt-20">
+    <div
+      className="product-detail-page min-h-screen pt-20"
+      style={{ backgroundColor: "#FFF2E1" }}
+    >
+      <style>{`
+        /* Page-level enforcement: only two colors allowed */
+        .product-detail-page, .product-detail-page * {
+          color: #95522C !important;
+          background-color: #FFF2E1 !important;
+          border-color: #95522C !important;
+          box-shadow: none !important;
+        }
+
+        /* Keep images visually correct */
+        .product-detail-page img {
+          background-color: transparent !important;
+        }
+
+        /* Ensure SVG icons use the primary color */
+        .product-detail-page svg, .product-detail-page svg * {
+          color: #95522C !important;
+          fill: #FFF2E1 !important;
+          stroke: #95522C !important;
+        }
+
+        /* Buttons: background -> primary, text -> bg color for contrast, but keep only two colors */
+        .product-detail-page button, .product-detail-page .btn-primary {
+          color: #95522C !important;
+          border-color: #95522C !important;
+        }
+
+        /* Links */
+        .product-detail-page a {
+          color: #95522C !important;
+        }
+
+        /* Make inputs readable */
+        .product-detail-page input, .product-detail-page textarea, .product-detail-page select {
+          background-color: #FFF2E1 !important;
+          color: #95522C !important;
+          border-color: #95522C !important;
+        }
+      `}</style>
       {/* Size Chart Modal */}
       <SizeChartModal />
 
@@ -402,9 +489,9 @@ const ProductDetailsPage: React.FC = () => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 onError={(e) => {
                   const t = e.target as HTMLImageElement;
-                  if (t.src !== '/assets/img-placeholder-800x1000.png') {
-                      t.src = '/assets/img-placeholder-800x1000.png';
-                    }
+                  if (t.src !== "/assets/img-placeholder-800x1000.png") {
+                    t.src = "/assets/img-placeholder-800x1000.png";
+                  }
                 }}
               />
 
@@ -473,8 +560,10 @@ const ProductDetailsPage: React.FC = () => {
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== '/assets/img-placeholder-120x160.png') {
-                          target.src = '/assets/img-placeholder-120x160.png';
+                        if (
+                          target.src !== "/assets/img-placeholder-120x160.png"
+                        ) {
+                          target.src = "/assets/img-placeholder-120x160.png";
                         }
                       }}
                     />
@@ -655,10 +744,10 @@ const ProductDetailsPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedSize}
-                className={`w-full py-4 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden ${
+                className={`w-full py-4 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
                   selectedSize
-                    ? "bg-fashion-accent-brown hover:bg-fashion-charcoal text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                    : "bg-fashion-charcoal/20 text-fashion-charcoal/50 cursor-not-allowed"
+                    ? "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white transform hover:scale-[1.02]"
+                    : "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed bg-transparent"
                 }`}
               >
                 {!selectedSize ? (
@@ -719,7 +808,7 @@ const ProductDetailsPage: React.FC = () => {
                 <p className="text-xs text-fashion-charcoal/70">Easy Returns</p>
               </div>
               <div className="text-center">
-                <Shield className="w-6 h-6 text-fashion-accent-brown mx-auto mb-2" />
+                <ShieldCheck className="w-6 h-6 text-fashion-accent-brown mx-auto mb-2" />
                 <p className="text-xs text-fashion-charcoal/70">
                   Secure Payment
                 </p>
@@ -727,7 +816,7 @@ const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Material & Fit */}
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-lg">
               {product.material && (
                 <p>
                   <span className="font-medium">Material:</span>{" "}
@@ -782,10 +871,145 @@ const ProductDetailsPage: React.FC = () => {
             )}
 
             {activeTab === "reviews" && (
-              <div className="text-center py-12">
-                <p className="text-fashion-charcoal/60">
-                  No reviews yet. Be the first to review this product!
-                </p>
+              <div className="py-6">
+                {/* Reviews list */}
+                {productReviews.length === 0 ? (
+                  <p className="text-fashion-charcoal/60 text-center">
+                    No reviews yet. Be the first to review this product!
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {productReviews.map((r: any) => (
+                      <div
+                        key={r._id}
+                        className="p-4 bg-white rounded shadow-sm"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-semibold text-sm">
+                              {r.userName ||
+                                r.user?.name ||
+                                r.name ||
+                                "Customer"}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(r.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium mr-2">
+                              {r.rating}
+                            </span>
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < r.rating
+                                    ? "fill-fashion-accent-brown text-fashion-accent-brown"
+                                    : "text-fashion-charcoal/20"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-700">{r.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Review form (only for authenticated users who purchased) */}
+                <div className="mt-8">
+                  {!user ? (
+                    <p className="text-center text-sm">
+                      Please{" "}
+                      <a
+                        href="/login"
+                        className="text-fashion-accent-brown underline"
+                      >
+                        log in
+                      </a>{" "}
+                      to leave a review.
+                    </p>
+                  ) : !hasPurchased ? (
+                    <p className="text-center text-sm">
+                      Only customers who purchased this product can leave a
+                      review.
+                    </p>
+                  ) : (
+                    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Write a review
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <label className="text-sm">Your rating:</label>
+                          <select
+                            value={reviewRating}
+                            onChange={(e) =>
+                              setReviewRating(Number(e.target.value))
+                            }
+                            className="border px-2 py-1 rounded"
+                          >
+                            {[5, 4, 3, 2, 1].map((n) => (
+                              <option key={n} value={n}>
+                                {n} star{n > 1 ? "s" : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <textarea
+                          value={reviewMessage}
+                          onChange={(e) => setReviewMessage(e.target.value)}
+                          className="w-full border px-3 py-2 rounded h-28"
+                          placeholder="Share your experience..."
+                        />
+                        <div className="flex justify-end">
+                          <button
+                            onClick={async () => {
+                              if (!reviewMessage)
+                                return alert("Please add a message");
+                              setSubmittingReview(true);
+                              try {
+                                const token = localStorage.getItem("token");
+                                await axios.post(
+                                  "https://ecommerce-fashion-app-som7.vercel.app/api/reviews",
+                                  {
+                                    productId: id,
+                                    rating: reviewRating,
+                                    message: reviewMessage,
+                                  },
+                                  {
+                                    headers: token
+                                      ? { Authorization: `Bearer ${token}` }
+                                      : {},
+                                  }
+                                );
+                                setReviewMessage("");
+                                setReviewRating(5);
+                                await fetchProductReviews();
+                              } catch (err: any) {
+                                console.error("Failed to submit review", err);
+                                const msg =
+                                  err?.response?.data?.message ||
+                                  "Failed to submit review";
+                                alert(msg);
+                              } finally {
+                                setSubmittingReview(false);
+                              }
+                            }}
+                            disabled={submittingReview}
+                            className="px-4 py-2 bg-fashion-accent-brown text-white rounded"
+                          >
+                            {submittingReview
+                              ? "Submitting..."
+                              : "Submit review"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

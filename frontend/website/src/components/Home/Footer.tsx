@@ -1,37 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Facebook, Instagram, Star } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import axios from "axios";
 import photo from "../../assets/IMG_6285.jpg";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const [avgRating, setAvgRating] = useState<number | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [categories, setCategories] = useState<any[]>([]);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    rating: 5,
-    message: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  
+
   useEffect(() => {
-    const loadAvg = async () => {
-      try {
-        const res = await axios.get(
-          "https://ecommerce-fashion-app-som7.vercel.app/api/reviews?limit=50"
-        );
-        const data = res.data && res.data.data ? res.data.data : [];
-        if (data.length === 0) return setAvgRating(null);
-        const sum = data.reduce((s: number, r: any) => s + (r.rating || 0), 0);
-        setAvgRating(Number((sum / data.length).toFixed(1)));
-      } catch (err) {
-        console.error("Failed to load ratings:", err);
-      }
-    };
-    loadAvg();
     const loadCategories = async () => {
       try {
         const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/categories");
@@ -42,7 +18,7 @@ const Footer: React.FC = () => {
       }
     };
     loadCategories();
-  }, [refreshKey]);
+  }, []);
 
   return (
     // subtle SVG sand texture applied via data URL
@@ -68,28 +44,7 @@ const Footer: React.FC = () => {
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
             </p>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 mr-1 ${
-                        avgRating !== null && i < Math.round(avgRating)
-                          ? "text-yellow-700"
-                          : "text-white-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-              <button
-                onClick={() => setShowModal(true)}
-                className="text-sm bg-primary text-background px-3 py-1 rounded-md shadow hover:brightness-95 transition"
-              >
-                Rate us
-              </button>
-            </div>
+            {/* product reviews moved to product detail pages; general reviews removed to prevent spam */}
             <div className="flex space-x-3 sm:space-x-4 mt-7">
               <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300 ml-[-15px]">
                 <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -279,83 +234,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Review Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-4">Leave a Review</h3>
-            <div className="space-y-3">
-              <input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Your name"
-                className="w-full border px-3 py-2 rounded"
-              />
-              <input
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="Your email"
-                className="w-full border px-3 py-2 rounded"
-              />
-              <div className="flex items-center space-x-2">
-                <label className="text-sm">Rating:</label>
-                <select
-                  value={form.rating}
-                  onChange={(e) =>
-                    setForm({ ...form, rating: Number(e.target.value) })
-                  }
-                  className="border px-2 py-1 rounded"
-                >
-                  {[5, 4, 3, 2, 1].map((v) => (
-                    <option key={v} value={v}>
-                      {v} star{v > 1 ? "s" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <textarea
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                placeholder="Your review"
-                className="w-full border px-3 py-2 rounded h-24"
-              />
-              <div className="flex justify-end space-x-2 mt-2">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-3 py-1 rounded border"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!form.name || !form.email || !form.message)
-                      return alert("Please fill all fields");
-                    setSubmitting(true);
-                    try {
-                      await axios.post(
-                        "https://ecommerce-fashion-app-som7.vercel.app/api/reviews",
-                        form
-                      );
-                      setShowModal(false);
-                      setForm({ name: "", email: "", rating: 5, message: "" });
-                      setRefreshKey((k) => k + 1);
-                    } catch (err) {
-                      console.error("Submit review failed", err);
-                      alert("Failed to submit review");
-                    } finally {
-                      setSubmitting(false);
-                    }
-                  }}
-                  className="px-3 py-1 rounded bg-primary text-background disabled:opacity-60"
-                  disabled={submitting}
-                >
-                  {submitting ? "Submitting..." : "Submit"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* General review UI removed — product reviews live on product detail pages to prevent spam */}
     </footer>
   );
 };

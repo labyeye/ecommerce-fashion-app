@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
+
 const reviewSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   message: { type: String, required: true, trim: true },
   approved: { type: Boolean, default: true }, // auto-approve for demo; change later
