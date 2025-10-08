@@ -323,11 +323,11 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-light text-fashion-charcoal tracking-wide mb-3">
+              <h1 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
                 {userData.name}
               </h1>
-              <p className="text-fashion-charcoal/70 mb-2">{userData.email}</p>
-              <p className="text-fashion-charcoal/60 mb-4 text-sm">
+              <p className="text-[#95522C] mb-2 text-xl">{userData.email}</p>
+              <p className="text-[#95522C] mb-4 text-lg">
                 Member since {userData.joinDate}
               </p>
               <div className="flex items-center justify-center md:justify-start gap-4">
@@ -518,14 +518,14 @@ const ProfilePage: React.FC = () => {
                   className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 ${
                     activeTab === tab.id
                       ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
-                      : "text-fashion-charcoal/70 hover:text-fashion-accent-brown"
+                      : "text-[#95522C]/70 hover:text-fashion-accent-brown"
                   }`}
                 >
                   <Icon
                     className={`w-5 h-5 transition-colors duration-300 ${
                       activeTab === tab.id
                         ? "text-fashion-accent-brown"
-                        : "text-fashion-charcoal/70"
+                        : "text-[#95522C]/70"
                     }`}
                   />
                   {tab.label}
@@ -540,17 +540,17 @@ const ProfilePage: React.FC = () => {
               <div className="space-y-6">
                 {}
                 <div>
-                  <h3 className="text-2xl font-light text-fashion-charcoal mb-6 tracking-wide">
+                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
                     Personal Information
                   </h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Mail className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">
+                        <p className="text-sm text-[#95522C]/60">
                           Email
                         </p>
-                        <p className="text-fashion-charcoal font-medium mt-1">
+                        <p className="text-[#95522C] font-medium mt-1">
                           {userData.email}
                         </p>
                       </div>
@@ -558,10 +558,10 @@ const ProfilePage: React.FC = () => {
                     <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                       <Phone className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">
+                        <p className="text-sm text-[#95522C]/60">
                           Phone
                         </p>
-                        <p className="text-fashion-charcoal font-medium mt-1">
+                        <p className="text-[#95522C] font-medium mt-1">
                           {userData.phone}
                         </p>
                       </div>
@@ -569,10 +569,10 @@ const ProfilePage: React.FC = () => {
                     <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
                       <MapPin className="w-5 h-5 text-fashion-accent-brown" />
                       <div>
-                        <p className="text-sm text-fashion-charcoal/60">
+                        <p className="text-sm text-[#95522C]/60">
                           Address
                         </p>
-                        <p className="text-fashion-charcoal font-medium mt-1">
+                        <p className="text-[#95522C] font-medium mt-1">
                           {userData.address}
                         </p>
                       </div>

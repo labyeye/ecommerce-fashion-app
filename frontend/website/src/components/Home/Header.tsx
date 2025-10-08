@@ -148,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   // Keep getTierInfo referenced during development to avoid unused lint warnings
   useEffect(() => {
     // noop reference to keep helper available and avoid lint errors
-    void getTierInfo('bronze');
+    void getTierInfo("bronze");
   }, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const location = useLocation();
@@ -483,7 +483,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
   const getBackgroundClass = () => {
     if (isHomePage && !isScrolled) {
-      return "bg-[#fcf4ea]";
+      return "bg-[#FFF2E1]";
     }
     return "bg-white shadow-sm";
   };
@@ -644,7 +644,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   />
 
                   {/* Sliding panel */}
-                  <div className={`fixed top-0 right-0 w-[500px] h-full z-50 transform transition-transform duration-300 ${isSearchOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true">
+                  <div
+                    className={`fixed top-0 right-0 w-[500px] h-full z-50 transform transition-transform duration-300 ${
+                      isSearchOpen ? "translate-x-0" : "translate-x-full"
+                    }`}
+                    role="dialog"
+                    aria-modal="true"
+                  >
                     <div className="bg-white h-full flex flex-col">
                       <div className="border-b border-fashion-charcoal/10 p-4">
                         <div className="flex items-center">
@@ -674,7 +680,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         {searchLoading && (
                           <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                            <span className="ml-2 text-gray-500">Searching...</span>
+                            <span className="ml-2 text-gray-500">
+                              Searching...
+                            </span>
                           </div>
                         )}
 
@@ -686,7 +694,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                         {!searchLoading && searchTerm.length > 1 && (
                           <div className="space-y-4">
-                            {pageResults.length === 0 && searchResults.length === 0 ? (
+                            {pageResults.length === 0 &&
+                            searchResults.length === 0 ? (
                               <div className="text-center py-4 text-gray-500">
                                 <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                                 <p>No results found for "{searchTerm}"</p>
@@ -695,11 +704,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                               <>
                                 {pageResults.length > 0 && (
                                   <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Categories & Pages</h3>
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                      Categories & Pages
+                                    </h3>
                                     <div className="space-y-1">
                                       {pageResults.map((link) => (
-                                        <a key={link._id} href={link.url} className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors">
-                                          <span className="font-medium text-blue-700">{link.name}</span>
+                                        <a
+                                          key={link._id}
+                                          href={link.url}
+                                          className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
+                                        >
+                                          <span className="font-medium text-blue-700">
+                                            {link.name}
+                                          </span>
                                         </a>
                                       ))}
                                     </div>
@@ -708,13 +725,29 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                                 {searchResults.length > 0 && (
                                   <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Products</h3>
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                      Products
+                                    </h3>
                                     <div className="space-y-2">
                                       {searchResults.map((product) => (
-                                        <a key={product._id || product.id} href={`/product/${product._id || product.id}`} className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                        <a
+                                          key={product._id || product.id}
+                                          href={`/product/${
+                                            product._id || product.id
+                                          }`}
+                                          className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors"
+                                        >
                                           <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                            {product.images?.[0]?.url || product.imageUrl ? (
-                                              <img src={product.images?.[0]?.url || product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                            {product.images?.[0]?.url ||
+                                            product.imageUrl ? (
+                                              <img
+                                                src={
+                                                  product.images?.[0]?.url ||
+                                                  product.imageUrl
+                                                }
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                              />
                                             ) : (
                                               <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                 <ShoppingCart className="w-4 h-4" />
@@ -722,8 +755,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                             )}
                                           </div>
                                           <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 truncate text-sm">{product.name}</p>
-                                            <span className="text-fashion-accent-brown font-semibold text-sm">₹{product.price}</span>
+                                            <p className="font-medium text-gray-900 truncate text-sm">
+                                              {product.name}
+                                            </p>
+                                            <span className="text-fashion-accent-brown font-semibold text-sm">
+                                              ₹{product.price}
+                                            </span>
                                           </div>
                                         </a>
                                       ))}
@@ -869,20 +906,20 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
               aria-label="Wishlist"
             >
-              <Heart className="w-5 h-5 text-fashion-dark-gray" />
+              <Heart className="w-7 h-7 text-fashion-dark-gray" />
             </button>
             <button
               onClick={handleSearchOpen}
               className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <Search className="w-5 h-5 text-fashion-dark-gray" />
+              <Search className="w-7 h-7 text-fashion-dark-gray" />
             </button>
             <button
               onClick={onCartClick}
               data-cart-button
               className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
-              <HandbagIcon className="w-5 h-5 text-fashion-dark-gray" />
+              <HandbagIcon className="w-7 h-7 text-fashion-dark-gray" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
                   {cartCount}
@@ -895,27 +932,27 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 onClick={() => handleProtectedNav("/profile")}
                 className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
               >
-                <User className="w-5 h-5 text-fashion-dark-gray" />
+                <User className="w-7 h-7 text-fashion-dark-gray" />
               </button>
             </div>
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="relative circle-element w-10 h-10 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              className="relative circle-element w-5 h-5 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <div className="relative w-5 h-5">
                 <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                  className={`absolute top-1/4 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
                     isMenuOpen ? "rotate-45 translate-y-0" : "-translate-y-1"
                   }`}
                 />
                 <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transition-opacity duration-300 ${
+                  className={`absolute top-2 left-0 w-8 h-0.5 bg-current transition-opacity duration-300 ${
                     isMenuOpen ? "opacity-0" : "opacity-100"
                   }`}
                 />
                 <span
-                  className={`absolute top-1/2 left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                  className={`absolute top-3 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
                     isMenuOpen ? "-rotate-45 translate-y-0" : "translate-y-1"
                   }`}
                 />
@@ -949,7 +986,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   >
                     <a
                       href={link.url}
-                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-lg sm:text-xl tracking-wide flex items-center justify-between"
+                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-2xl sm:text-xl tracking-wide flex items-center justify-between"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
@@ -969,7 +1006,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                               <a
                                 key={dropdownIndex}
                                 href={item.url}
-                                className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base sm:text-lg transform"
+                                className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base text-xl sm:text-lg transform"
                                 style={{
                                   opacity: isMenuOpen ? 1 : 0,
                                   transform: `translateX(${

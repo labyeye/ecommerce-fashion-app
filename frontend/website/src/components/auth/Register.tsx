@@ -113,7 +113,19 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-4 py-12">
+    <div className="register-page min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: '#FFF2E1' }}>
+      <style>{`
+        .register-page, .register-page * {
+          color: #95522C !important;
+          background-color: #FFF2E1 !important;
+          border-color: #95522C !important;
+          box-shadow: none !important;
+        }
+        .register-page .form-card { background-color: #FFF2E1 !important; border: 2px solid #95522C !important; }
+        .register-page input, .register-page textarea, .register-page select { background-color: #FFF2E1 !important; color: #95522C !important; border: 1px solid #95522C !important; }
+        .register-page button[type="submit"], .register-page .primary-btn { background-color: #95522C !important; color: #FFF2E1 !important; border-color: #95522C !important; }
+        .register-page svg, .register-page svg * { fill: #FFF2E1 !important; stroke: #95522C !important; }
+      `}</style>
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -126,7 +138,7 @@ const Register: React.FC = () => {
               <h2 className="text-3xl font-bold text-black mb-2">
                 Create Account
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-md">
                 Join Flauntbynishi for exclusive fashion
               </p>
             </>
@@ -138,7 +150,7 @@ const Register: React.FC = () => {
               <h2 className="text-3xl font-bold text-black mb-2">
                 Check Your Email
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-md">
                 We've sent a verification link to {userEmail}
               </p>
             </>
@@ -147,11 +159,11 @@ const Register: React.FC = () => {
 
         {!registrationSuccess ? (
           /* Register Form */
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="form-card rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {Object.keys(errors).length > 0 && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-md">
                 {Object.values(errors)[0]}
               </div>
             )}
@@ -159,11 +171,11 @@ const Register: React.FC = () => {
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="firstName" className="block text-md font-medium text-black mb-2">
                   First Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
@@ -181,12 +193,12 @@ const Register: React.FC = () => {
                   />
                 </div>
                 {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                  <p className="mt-1 text-md text-red-600">{errors.firstName}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="lastName" className="block text-md font-medium text-black mb-2">
                   Last Name
                 </label>
                 <input
@@ -203,18 +215,18 @@ const Register: React.FC = () => {
                   placeholder="Last name"
                 />
                 {errors.lastName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                  <p className="mt-1 text-md text-red-600">{errors.lastName}</p>
                 )}
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="email" className="block text-md font-medium text-black mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -232,17 +244,17 @@ const Register: React.FC = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1 text-md text-red-600">{errors.email}</p>
               )}
             </div>
 
             {/* Phone Field */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="phone" className="block text-md font-medium text-black mb-2">
                 Phone Number (Optional)
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                   <Phone className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -259,18 +271,18 @@ const Register: React.FC = () => {
                 />
               </div>
               {errors.phone && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                <p className="mt-1 text-md text-red-600">{errors.phone}</p>
               )}
             </div>
 
             {/* Password Fields */}
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="password" className="block text-md font-medium text-black mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
@@ -288,7 +300,7 @@ const Register: React.FC = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute bottom-3.5 right-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -299,16 +311,16 @@ const Register: React.FC = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-md text-red-600">{errors.password}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="confirmPassword" className="block text-md font-medium text-black mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
@@ -326,7 +338,7 @@ const Register: React.FC = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute bottom-4 right-3 flex items-center"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
@@ -337,14 +349,14 @@ const Register: React.FC = () => {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  <p className="mt-1 text-md text-red-600">{errors.confirmPassword}</p>
                 )}
               </div>
             </div>
 
             {/* Address Fields (Optional) */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-black">Shipping Address (Optional)</h3>
+              <h3 className="text-md font-medium text-black">Shipping Address (Optional)</h3>
               
               <div>
                 <input
@@ -393,7 +405,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-3 px-4 border rounded-lg text-md font-medium primary-btn transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -412,7 +424,7 @@ const Register: React.FC = () => {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300/30"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
+              <div className="relative flex justify-center text-md">
                 <span className="px-2 bg-white text-gray-400">Or</span>
               </div>
             </div>
@@ -420,7 +432,7 @@ const Register: React.FC = () => {
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-black">
+            <p className="text-md text-black">
               Already have an account?{' '}
               <Link
                 to="/login"
@@ -438,7 +450,7 @@ const Register: React.FC = () => {
               <p className="text-gray-600">
                 Please check your email and click the verification link to activate your account.
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-md text-gray-400">
                 Didn't receive the email? Check your spam folder or{' '}
                 <button
                   onClick={() => {

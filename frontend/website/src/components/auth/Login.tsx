@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
@@ -13,49 +13,97 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    
+
     try {
       await login(email, password);
-      navigate('/');
+      navigate("/");
     } catch (error) {
       // Error is handled by the auth context
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-4 py-8 sm:py-12">
+    <div
+      className="login-page min-h-screen flex items-center justify-center px-4 py-8 sm:py-12"
+      style={{ backgroundColor: "#FFF2E1" }}
+    >
+      <style>{`
+        /* Enforce two-brand colors for login page */
+        .login-page, .login-page * {
+          color: #95522C !important;
+          background-color: #FFF2E1 !important;
+          border-color: #95522C !important;
+          box-shadow: none !important;
+        }
+
+        .login-page a { color: #95522C !important; }
+
+        .login-page .form-card {
+          background-color: #FFF2E1 !important;
+          border: 2px solid #95522C !important;
+        }
+
+        .login-page input, .login-page textarea, .login-page select {
+          background-color: #FFF2E1 !important;
+          color: #95522C !important;
+          border: 1px solid #95522C !important;
+        }
+
+        .login-page button[type="submit"] {
+          background-color: #95522C !important;
+          color: #FFF2E1 !important;
+          border-color: #95522C !important;
+        }
+
+        /* Icons */
+        .login-page svg, .login-page svg * { fill: #FFF2E1 !important; stroke: #95522C !important; color: #95522C !important; }
+      `}</style>
+
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-sm sm:text-base">
+          <Link
+            to="/"
+            className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-xl sm:text-base"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <h2 className="text-2xl sm:text-3xl font-bold text-black mb-2">
+          <h2 className="text-4xl sm:text-3xl font-bold text-black mb-2">
             Welcome Back
           </h2>
-          <p className="text-gray-600 text-xs sm:text-sm">
+          <p className="text-gray-600 text-xl sm:text-sm">
             Sign in to your Flauntbynishi account
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 border border-gray-100">
+        <div className="form-card rounded-xl sm:rounded-2xl p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div
+                className="px-4 py-3 rounded-lg text-sm"
+                style={{
+                  border: "1px solid #95522C",
+                  backgroundColor: "#FFF2E1",
+                  color: "#95522C",
+                }}
+              >
                 {error}
               </div>
             )}
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-black mb-1.5 sm:mb-2">
+              <label
+                htmlFor="email"
+                className="block text-xl sm:text-lg font-medium text-black mb-1.5 sm:mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute top-3 ml-3 flex items-center pointer-events-none">
                   <Mail className="h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
                 </div>
                 <input
@@ -74,17 +122,20 @@ const Login: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-black mb-1.5 sm:mb-2">
+              <label
+                htmlFor="password"
+                className="block text-xl sm:text-lg font-medium text-black mb-1.5 sm:mb-2"
+              >
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute top-3 ml-3 flex items-center pointer-events-none">
                   <Lock className="h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={password}
@@ -94,7 +145,7 @@ const Login: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute bottom-3 right-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -110,7 +161,7 @@ const Login: React.FC = () => {
             <div className="flex items-center justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm text-gray-600 hover:text-black transition-colors duration-300"
+                className="text-xl text-gray-600 hover:text-black transition-colors duration-300"
               >
                 Forgot your password?
               </Link>
@@ -120,7 +171,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-xl font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -128,7 +179,7 @@ const Login: React.FC = () => {
                   Signing in...
                 </div>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
@@ -147,8 +198,8 @@ const Login: React.FC = () => {
 
           {/* Register Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+            <p className="text-lg text-gray-600">
+              Don't have an account?{" "}
               <Link
                 to="/register"
                 className="font-medium text-black hover:text-gray-600 transition-colors duration-300"
@@ -161,12 +212,12 @@ const Login: React.FC = () => {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{' '}
+          <p className="text-lg text-gray-500">
+            By signing in, you agree to our{" "}
             <Link to="/terms" className="underline hover:text-black">
               Terms of Service
-            </Link>{' '}
-            and{' '}
+            </Link>{" "}
+            and{" "}
             <Link to="/privacy" className="underline hover:text-black">
               Privacy Policy
             </Link>
@@ -177,4 +228,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;
