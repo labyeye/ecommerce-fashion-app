@@ -164,10 +164,10 @@ const ProductPage: React.FC = () => {
       <div className="min-h-screen bg-fashion-cream">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-2xl mx-auto">
-            <h1 className="text-3xl font-light text-fashion-charcoal mb-4">Oops!</h1>
+            <h1 className="text-3xl font-light text-[#95522C] mb-4">Oops!</h1>
             <div className="bg-red-50 border border-red-200 rounded-fashion p-4 mb-8">
-              <p className="text-fashion-charcoal/70 mb-2">{error}</p>
-              <p className="text-sm text-fashion-charcoal/50">
+              <p className="text-[#95522C] mb-2">{error}</p>
+              <p className="text-sm text-[#95522C]">
                 If the issue persists, please make sure:
                 <br />1. The backend server is running at https://ecommerce-fashion-app-som7.vercel.app
                 <br />2. You have an active internet connection
@@ -183,7 +183,7 @@ const ProductPage: React.FC = () => {
               </button>
               <button
                 onClick={() => window.location.href = '/'}
-                className="bg-white border border-fashion-charcoal/20 text-fashion-charcoal px-6 py-3 rounded-fashion hover:bg-fashion-cream transition-colors"
+                className="bg-white border border-fashion-charcoal/20 text-[#95522C] px-6 py-3 rounded-fashion hover:bg-fashion-cream transition-colors"
               >
                 Go to Homepage
               </button>
@@ -199,14 +199,14 @@ const ProductPage: React.FC = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-fashion-charcoal/10">
         <div className="container mx-auto px-4 py-16 text-center mt-10">
-          <h1 className="text-4xl md:text-5xl font-light text-fashion-charcoal mb-4 tracking-wide">
+          <h1 className="text-4xl md:text-5xl font-light text-[#95522C] mb-4 tracking-wide">
             {getPageTitle()}
           </h1>
-          <p className="text-lg text-fashion-charcoal/70 max-w-2xl mx-auto">
+          <p className="text-lg text-[#95522C] max-w-2xl mx-auto">
             {getPageDescription()}
           </p>
           {data?.pagination && (
-            <p className="text-sm text-fashion-charcoal/50 mt-4">
+            <p className="text-sm text-[#95522C] mt-4">
               Showing {((data.pagination.page - 1) * data.pagination.limit) + 1} - {Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)} of {data.pagination.total} products
             </p>
           )}
@@ -218,7 +218,7 @@ const ProductPage: React.FC = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Category Breadcrumb */}
-            <div className="flex items-center space-x-2 text-sm text-fashion-charcoal/60">
+            <div className="flex items-center space-x-2 text-sm text-[#95522C]/60">
               <a href="/" className="hover:text-fashion-accent-brown transition-colors">Home</a>
               <span>/</span>
               <a href="/products" className="hover:text-fashion-accent-brown transition-colors">Products</a>
@@ -232,7 +232,7 @@ const ProductPage: React.FC = () => {
 
             {/* Sort Options */}
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-fashion-charcoal/70">Sort by:</span>
+              <span className="text-sm text-[#95522C]">Sort by:</span>
               <select
                 value={`${sortParam}-${orderParam}`}
                 onChange={(e) => {
@@ -257,7 +257,7 @@ const ProductPage: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         {loading ? (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-light text-fashion-charcoal mb-4">Loading Products...</h3>
+            <h3 className="text-2xl font-light text-[#95522C] mb-4">Loading Products...</h3>
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
             </div>
@@ -278,8 +278,8 @@ const ProductPage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <h3 className="text-2xl font-light text-fashion-charcoal mb-4">No products found</h3>
-                <p className="text-fashion-charcoal/70 mb-8">
+                <h3 className="text-2xl font-light text-[#95522C] mb-4">No products found</h3>
+                <p className="text-[#95522C] mb-8">
                   {categoryParam
                     ? `No products available in this category yet`
                     : searchQuery
@@ -305,7 +305,7 @@ const ProductPage: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 border border-fashion-charcoal/20 rounded-fashion text-fashion-charcoal disabled:opacity-50 disabled:cursor-not-allowed hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown transition-colors"
+                    className="px-4 py-2 border border-fashion-charcoal/20 rounded-fashion text-[#95522C] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown transition-colors"
                   >
                     Previous
                   </button>
@@ -318,7 +318,7 @@ const ProductPage: React.FC = () => {
                       className={`px-4 py-2 border rounded-fashion transition-colors ${
                         page === currentPage
                           ? 'bg-fashion-accent-brown text-white border-fashion-accent-brown'
-                          : 'border-fashion-charcoal/20 text-fashion-charcoal hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown'
+                          : 'border-fashion-charcoal/20 text-[#95522C] hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown'
                       }`}
                     >
                       {page}
@@ -329,7 +329,7 @@ const ProductPage: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === data.pagination.pages}
-                    className="px-4 py-2 border border-fashion-charcoal/20 rounded-fashion text-fashion-charcoal disabled:opacity-50 disabled:cursor-not-allowed hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown transition-colors"
+                    className="px-4 py-2 border border-fashion-charcoal/20 rounded-fashion text-[#95522C] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown transition-colors"
                   >
                     Next
                   </button>
@@ -339,7 +339,7 @@ const ProductPage: React.FC = () => {
           </>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-light text-fashion-charcoal mb-4">Loading Products...</h3>
+            <h3 className="text-2xl font-light text-[#95522C] mb-4">Loading Products...</h3>
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
             </div>
