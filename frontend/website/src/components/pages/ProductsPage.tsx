@@ -197,7 +197,7 @@ const ProductPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-fashion-cream">
       {/* Header Section */}
-      <div className="bg-white border-b border-fashion-charcoal/10">
+      <div className="bg-[#FFF2E1] border-b border-fashion-charcoal/10">
         <div className="container mx-auto px-4 py-16 text-center mt-10">
           <h1 className="text-4xl md:text-5xl font-light text-[#95522C] mb-4 tracking-wide">
             {getPageTitle()}
@@ -214,7 +214,7 @@ const ProductPage: React.FC = () => {
       </div>
 
       {/* Filters and Sort */}
-      <div className="bg-white border-b border-fashion-charcoal/10">
+      <div className="bg-[#FFF2E1] border-b border-fashion-charcoal/10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Category Breadcrumb */}

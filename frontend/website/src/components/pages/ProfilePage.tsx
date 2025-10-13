@@ -759,13 +759,13 @@ const ProfilePage: React.FC = () => {
                     <LogOut className="w-5 h-5" />
                     <span className="text-left">Sign Out</span>
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => setShowDeleteModal(true)}
                     className="mt-3 flex items-center gap-3 w-full p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors text-red-700"
                   >
                     <X className="w-5 h-5" />
                     <span className="text-left">Delete My Account</span>
-                  </button>
+                  </button> */}
                 </div>
               </div>
             )}

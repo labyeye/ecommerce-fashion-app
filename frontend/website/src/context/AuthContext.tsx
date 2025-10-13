@@ -41,6 +41,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
+  setCredentials?: (token: string, user: any) => void;
 }
 
 interface RegisterData {
@@ -236,6 +237,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   };
 
+  // Helper to set credentials after OTP login
+  const setCredentials = (newToken: string, newUser: any) => {
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -245,6 +254,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     error,
     clearError,
+    // expose internal setter for OTP flow
+    setCredentials
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

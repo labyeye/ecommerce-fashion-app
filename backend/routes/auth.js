@@ -38,6 +38,163 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
+  // OTP support: send and verify
+  const Otp = require('../models/Otp');
+  let twilioClient = null;
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    try {
+      const Twilio = require('twilio');
+      twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    } catch (err) {
+      console.warn('Twilio not available:', err.message);
+    }
+  }
+
+  // POST /api/auth/send-otp
+  router.post('/send-otp', [
+    body('phone').notEmpty().withMessage('Phone number is required')
+  ], async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { phone } = req.body;
+
+      // Normalize phone (basic)
+      const normalized = phone.trim();
+
+      // Generate 6-digit OTP
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Expire in 3 minutes
+      const expiresAt = new Date(Date.now() + 3 * 60 * 1000);
+
+      // Save otp (invalidate previous for this phone)
+      await Otp.updateMany({ phone: normalized, used: false }, { used: true });
+      await Otp.create({ phone: normalized, code, expiresAt });
+
+      // Send via Twilio if configured
+      if (twilioClient && process.env.TWILIO_FROM) {
+        try {
+          await twilioClient.messages.create({
+            body: `Your verification code is ${code}. It expires in 3 minutes.`,
+            from: process.env.TWILIO_FROM,
+            to: normalized
+          });
+        } catch (sendErr) {
+          console.error('Twilio send error:', sendErr);
+          // continue; OTP is still stored for development fallback
+        }
+      } else {
+        console.log(`OTP for ${normalized}: ${code}`); // fallback
+      }
+
+      res.json({ success: true, message: 'OTP sent' });
+    } catch (error) {
+      console.error('send-otp error:', error);
+      res.status(500).json({ success: false, message: 'Failed to send OTP' });
+    }
+  });
+
+  // POST /api/auth/verify-otp
+  router.post('/verify-otp', [
+    body('phone').notEmpty().withMessage('Phone number is required'),
+    body('code').notEmpty().withMessage('OTP code is required')
+  ], async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { phone, code } = req.body;
+      const normalized = phone.trim();
+
+      const otp = await Otp.findOne({ phone: normalized, code, used: false, expiresAt: { $gt: new Date() } }).sort({ createdAt: -1 });
+      if (!otp) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+      }
+
+      // mark used
+      otp.used = true;
+      await otp.save();
+
+      // Find user by phone
+      const user = await User.findOne({ phone: normalized });
+      if (user) {
+        // Existing user: login
+        return sendTokenResponse(user, 200, res);
+      }
+
+      // New phone number: return a short-lived temp token so frontend can collect
+      // registration details and create the user. The temp token proves OTP was verified.
+      const tempToken = jwt.sign({ phone: normalized, otpVerified: true }, process.env.JWT_SECRET, { expiresIn: '5m' });
+      return res.json({ success: true, userExists: false, tempToken });
+    } catch (error) {
+      console.error('verify-otp error:', error);
+      res.status(500).json({ success: false, message: 'OTP verification failed' });
+    }
+  });
+
+  // POST /api/auth/register-phone
+  router.post('/register-phone', [
+    body('tempToken').notEmpty().withMessage('tempToken is required'),
+    body('firstName').notEmpty().withMessage('First name is required'),
+    body('lastName').notEmpty().withMessage('Last name is required'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  ], async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
+
+      const { tempToken, firstName, lastName, password, email } = req.body;
+      let payload;
+      try {
+        payload = jwt.verify(tempToken, process.env.JWT_SECRET);
+      } catch (err) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired temp token' });
+      }
+
+      if (!payload || !payload.phone || !payload.otpVerified) {
+        return res.status(400).json({ success: false, message: 'Invalid temp token payload' });
+      }
+
+      const phone = payload.phone;
+
+      // Check again if user exists
+      const existing = await User.findOne({ phone });
+      if (existing) return res.status(400).json({ success: false, message: 'User with this phone already exists' });
+
+      // Create user
+      const user = await User.create({
+        firstName,
+        lastName,
+        email: email || `${Date.now()}_${Math.random().toString(36).slice(2,8)}@no-reply.local`,
+        password,
+        phone,
+        role: 'customer',
+        isEmailVerified: false
+      });
+
+      // Send welcome email only if email provided
+      if (email) {
+        try {
+          await sendWelcomeEmail(email, firstName);
+        } catch (err) {
+          console.warn('Failed to send welcome email:', err.message);
+        }
+      }
+
+      // Return JWT
+      sendTokenResponse(user, 201, res);
+    } catch (error) {
+      console.error('register-phone error:', error);
+      res.status(500).json({ success: false, message: 'Phone registration failed' });
+    }
+  });
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public

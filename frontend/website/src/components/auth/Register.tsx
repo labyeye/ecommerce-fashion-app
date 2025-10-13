@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+// react-phone-input-2 for country flags
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import 'flag-icon-css/css/flag-icons.min.css'
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -17,6 +21,7 @@ const Register: React.FC = () => {
     zipCode: '',
     country: 'USA'
   });
+  const [phoneLocal, setPhoneLocal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -84,12 +89,26 @@ const Register: React.FC = () => {
       return;
     }
 
+    // Normalize phoneLocal into E.164-like (+country + number)
+    let normalizedPhone = formData.phone || '';
+    if (phoneLocal && phoneLocal.length) {
+      const cleaned = phoneLocal.trim().replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+      if (cleaned.startsWith('+')) {
+        normalizedPhone = cleaned;
+      } else {
+        const digitsOnly = cleaned.replace(/\D/g, '');
+        // If digits start with country code already, prepend +
+        // Otherwise, assume phoneLocal includes country dial without + and add +
+        normalizedPhone = digitsOnly.startsWith('0') ? '+' + digitsOnly.replace(/^0+/, '') : '+' + digitsOnly;
+      }
+    }
+
     const userData = {
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      phone: formData.phone || undefined,
+      phone: normalizedPhone || undefined,
       address: {
         street: formData.street || undefined,
         city: formData.city || undefined,
@@ -257,17 +276,13 @@ const Register: React.FC = () => {
                 <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                   <Phone className="h-5 w-5 text-gray-400" />
                 </div>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
-                    errors.phone ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter your phone number"
+                {/* @ts-ignore */}
+                <PhoneInput
+                  country={'in'}
+                  value={phoneLocal}
+                  onChange={(value: string) => setPhoneLocal(value)}
+                  inputClass={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
+                  inputProps={{ name: 'phone', id: 'phone' }}
                 />
               </div>
               {errors.phone && (

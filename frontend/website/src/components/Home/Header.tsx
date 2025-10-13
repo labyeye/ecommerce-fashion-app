@@ -213,11 +213,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         sortOrder: 5,
       },
     ];
-
-    console.log(
-      "🚀 Setting fallback navigation with shirts:",
-      fallbackNavigation
-    );
     setNavigationLinks(fallbackNavigation);
 
     // Try to fetch from API
@@ -326,24 +321,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   };
   // Search function with detailed logging
   const performSearch = async (term: string) => {
-    console.log("🔍 Starting search for:", term);
 
     if (!term || term.length < 2) {
-      console.log("🔍 Search term too short, clearing results");
       setSearchResults([]);
       setPageResults([]);
       return;
     }
 
     setSearchLoading(true);
-    console.log("🔍 Search loading started");
 
     try {
       // Search in navigation first (guaranteed to work)
       const searchLower = term.toLowerCase();
       const matchingPages: NavigationLink[] = [];
-
-      console.log("🔍 Searching in navigation links:", navigationLinks);
 
       navigationLinks.forEach((link) => {
         if (!link.isActive) return;
@@ -395,21 +385,48 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         );
 
         if (productResponse.ok) {
-          const data = await productResponse.json();
-          products = data.products || [];
-          console.log("✅ Products found from main API:", products.length);
+          const contentType = (productResponse.headers.get("content-type") || "").toLowerCase();
+
+          if (contentType.includes("application/json")) {
+            try {
+              const data = await productResponse.json();
+              products = data.products || data.data || [];
+              console.log("✅ Products found from main API:", products.length);
+            } catch (parseErr) {
+              console.warn("⚠️ Failed to parse main API JSON, will try alternative:", parseErr);
+            }
+          } else {
+            console.warn("⚠️ Main API returned non-JSON response (Content-Type:", contentType, "), trying alternative...");
+          }
         } else {
-          console.log("❌ Main API failed, trying alternative...");
-          // Try alternative API
-          const altResponse = await fetch(
-            `https://ecommerce-fashion-app-som7.vercel.app/api/products?search=${encodeURIComponent(
-              term
-            )}`
-          );
-          if (altResponse.ok) {
-            const altData = await altResponse.json();
-            products = altData.products || altData.data || [];
-            console.log("✅ Products found from alt API:", products.length);
+          console.log("❌ Main API failed with status:", productResponse.status, "trying alternative...");
+        }
+
+        // If products still empty, try the local/alternative API as a fallback
+        if (!products || products.length === 0) {
+          try {
+            const altResponse = await fetch(
+              `https://ecommerce-fashion-app-som7.vercel.app/api/products?search=${encodeURIComponent(term)}&limit=10`
+            );
+
+            if (altResponse.ok) {
+              const altContentType = (altResponse.headers.get("content-type") || "").toLowerCase();
+              if (altContentType.includes("application/json")) {
+                try {
+                  const altData = await altResponse.json();
+                  products = altData.products || altData.data || [];
+                  console.log("✅ Products found from alt API:", products.length);
+                } catch (altParseErr) {
+                  console.warn("⚠️ Failed to parse alt API JSON:", altParseErr);
+                }
+              } else {
+                console.warn("⚠️ Alt API returned non-JSON response (Content-Type:", altContentType, ")");
+              }
+            } else {
+              console.log("❌ Alt API failed with status:", altResponse.status);
+            }
+          } catch (altErr) {
+            console.error("❌ Alternative Product API error:", altErr);
           }
         }
       } catch (error) {
@@ -485,7 +502,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     if (isHomePage && !isScrolled) {
       return "bg-[#FFF2E1]";
     }
-    return "bg-white shadow-sm";
+    return "bg-[#FFF2E1] shadow-sm";
   };
 
   const handleSearchOpen = () => {
@@ -1030,6 +1047,119 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             </nav>
           </div>
         </div>
+
+        {/* Mobile slide-in search panel (mirrors desktop side panel) */}
+        {isSearchOpen && (
+          <>
+            {/* Backdrop for mobile */}
+            <div
+              className="fixed inset-0 bg-black/40 z-40 md:hidden"
+              onClick={() => setIsSearchOpen(false)}
+              aria-hidden
+            />
+
+            {/* Sliding panel (mobile) */}
+            <div
+              className={`fixed top-0 right-0 md:hidden w-full sm:w-[420px] h-full z-50 transform transition-transform duration-300 ${
+                isSearchOpen ? "translate-x-0" : "translate-x-full"
+              }`}
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="bg-white h-full flex flex-col">
+                <div className="border-b border-fashion-charcoal/10 p-4">
+                  <div className="flex items-center">
+                    <Search className="w-5 h-5 mr-3 text-fashion-dark-gray" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      className="flex-1 text-base border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
+                      placeholder="Search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      autoFocus
+                      aria-label="Search products"
+                    />
+                    <button
+                      onClick={() => setIsSearchOpen(false)}
+                      className="ml-3 text-gray-500 hover:text-gray-700 text-xl"
+                      aria-label="Close search"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+
+                {/* Results container (same behavior as desktop) */}
+                <div className="flex-1 overflow-y-auto p-4 bg-white">
+                  {searchLoading && (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
+                      <span className="ml-2 text-gray-500">Searching...</span>
+                    </div>
+                  )}
+
+                  {!searchLoading && searchTerm.length <= 1 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Start typing to search</p>
+                    </div>
+                  )}
+
+                  {!searchLoading && searchTerm.length > 1 && (
+                    <div className="space-y-4">
+                      {pageResults.length === 0 && searchResults.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">
+                          <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
+                          <p>No results found for "{searchTerm}"</p>
+                        </div>
+                      ) : (
+                        <>
+                          {pageResults.length > 0 && (
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-600 mb-2">Categories & Pages</h3>
+                              <div className="space-y-1">
+                                {pageResults.map((link) => (
+                                  <a key={link._id} href={link.url} className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                    <span className="font-medium text-blue-700">{link.name}</span>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {searchResults.length > 0 && (
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-600 mb-2">Products</h3>
+                              <div className="space-y-2">
+                                {searchResults.map((product) => (
+                                  <a key={product._id || product.id} href={`/product/${product._id || product.id}`} className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                    <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                      {product.images?.[0]?.url || product.imageUrl ? (
+                                        <img src={product.images?.[0]?.url || product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                          <ShoppingCart className="w-4 h-4" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-gray-900 truncate text-sm">{product.name}</p>
+                                      <span className="text-fashion-accent-brown font-semibold text-sm">₹{product.price}</span>
+                                    </div>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </header>
   );
