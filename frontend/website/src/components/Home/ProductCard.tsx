@@ -204,8 +204,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className={`w-4 h-4 transition-colors duration-300
             ${
               localWishlisted || isHovered
-                ? "fill-[#FCF4EA] text-red-500"
-                : "text-[#FCF4EA]"
+                ? "fill-[#FFF2E1] text-red-500"
+                : "text-[#FFF2E1]"
             }
           `}
         />
@@ -215,7 +215,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onClick={handleViewDetails}
       >
         {(product.isNewArrival || (product as any).category?.isNewArrival) && (
-          <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FCF4EA] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
+          <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
             New
           </div>
         )}

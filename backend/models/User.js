@@ -1,111 +1,131 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: [true, 'First name is required'],
-    trim: true,
-    maxlength: [50, 'First name cannot exceed 50 characters']
-  },
-  lastName: {
-    type: String,
-    required: [true, 'Last name is required'],
-    trim: true,
-    maxlength: [50, 'Last name cannot exceed 50 characters']
-  },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
-  },
-  isEmailVerified: {
-    type: Boolean,
-    default: false
-  },
-  emailVerificationToken: {
-    type: String,
-    select: false
-  },
-  emailVerificationExpires: {
-    type: Date,
-    select: false
-  },
-  role: {
-    type: String,
-    enum: ['admin', 'customer'],
-    default: 'customer'
-  },
-  phone: {
-    type: String,
-    trim: true,
-    match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number']
-  },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: {
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
       type: String,
-      default: 'India'
-    }
+      required: [true, "First name is required"],
+      trim: true,
+      maxlength: [50, "First name cannot exceed 50 characters"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Last name is required"],
+      trim: true,
+      maxlength: [50, "Last name cannot exceed 50 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please enter a valid email",
+      ],
+    },
+    password: {
+      type: String,
+      required: function() {
+        // Password not required for Google OAuth users
+        return !this.googleId;
+      },
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "customer"],
+      default: "customer",
+    },
+    phone: {
+      type: String,
+      trim: true,
+      match: [/^[\+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number"],
+    },
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: {
+        type: String,
+        default: "India",
+      },
+    },
+    loyaltyPoints: { type: Number, default: 0 },
+    evolvPoints: { type: Number, default: 0 },
+    loyaltyTier: {
+      type: String,
+      enum: ["bronze", "silver", "gold"],
+      default: "bronze",
+    },
+    loyaltyHistory: [
+      {
+        date: Date,
+        action: String,
+        points: Number,
+        order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+        description: String,
+      },
+    ],
+    profileImage: {
+      type: String,
+      default: null,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLogin: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
   },
-  loyaltyPoints: { type: Number, default: 0 },
-evolvPoints: { type: Number, default: 0 },
-loyaltyTier: { type: String, enum: ['bronze', 'silver', 'gold'], default: 'bronze' },
-loyaltyHistory: [{
-  date: Date,
-  action: String,
-  points: Number,
-  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-  description: String
-}],
-  profileImage: {
-    type: String,
-    default: null
-  },
-  isEmailVerified: {
-    type: Boolean,
-    default: false
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  lastLogin: {
-    type: Date,
-    default: null
-  },
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  emailVerificationToken: String,
-  emailVerificationExpires: Date
-}, {
-  timestamps: true
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Index for better query performance
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 
 // Virtual for full name
-userSchema.virtual('fullName').get(function () {
+userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
 // Pre-save middleware to hash password
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
   try {
     const salt = await bcrypt.genSalt(12);
@@ -136,56 +156,61 @@ userSchema.methods.getPublicProfile = function () {
 userSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email.toLowerCase() });
 };
-userSchema.methods.recalculateTier = function() {
+userSchema.methods.recalculateTier = function () {
   // Recalculate tier based on current points
   // New thresholds: silver at 1000, gold at 2500
   if (this.loyaltyPoints >= 2500) {
-    this.loyaltyTier = 'gold';
+    this.loyaltyTier = "gold";
   } else if (this.loyaltyPoints >= 1000) {
-    this.loyaltyTier = 'silver';
+    this.loyaltyTier = "silver";
   } else {
-    this.loyaltyTier = 'bronze';
+    this.loyaltyTier = "bronze";
   }
-  
+
   return this.loyaltyTier;
 };
-userSchema.methods.getNextLoyaltyTier = function() {
+userSchema.methods.getNextLoyaltyTier = function () {
   // Use new thresholds: silver @1000, gold @2500
-  if (this.loyaltyTier === 'bronze') {
+  if (this.loyaltyTier === "bronze") {
     return {
-      currentTier: 'bronze',
-      nextTier: 'silver',
+      currentTier: "bronze",
+      nextTier: "silver",
       pointsNeeded: Math.max(0, 1000 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 1000) * 100))
+      progress: Math.min(100, Math.floor((this.loyaltyPoints / 1000) * 100)),
     };
-  } else if (this.loyaltyTier === 'silver') {
+  } else if (this.loyaltyTier === "silver") {
     return {
-      currentTier: 'silver',
-      nextTier: 'gold',
+      currentTier: "silver",
+      nextTier: "gold",
       pointsNeeded: Math.max(0, 2500 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 2500) * 100))
+      progress: Math.min(100, Math.floor((this.loyaltyPoints / 2500) * 100)),
     };
   } else {
     // Gold is the highest tier
     return {
-      currentTier: 'gold',
+      currentTier: "gold",
       nextTier: null,
       pointsNeeded: 0,
-      progress: 100
+      progress: 100,
     };
   }
 };
-userSchema.methods.addLoyaltyPoints = async function(orderTotal, order, skipEvolvPoints = false) {
+userSchema.methods.addLoyaltyPoints = async function (
+  orderTotal,
+  order,
+  skipEvolvPoints = false
+) {
   // Calculate loyalty points per ₹50 based on current tier
   // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
-  const pointsPer50 = this.loyaltyTier === 'gold' ? 5 : (this.loyaltyTier === 'silver' ? 3 : 1);
+  const pointsPer50 =
+    this.loyaltyTier === "gold" ? 5 : this.loyaltyTier === "silver" ? 3 : 1;
 
   const tierPoints = Math.floor(orderTotal / 50) * pointsPer50;
 
   // Evolv points retained as a separate earned metric (keep previous multipliers)
-  let multiplier = 0.10; // bronze
-  if (this.loyaltyTier === 'silver') multiplier = 0.15;
-  if (this.loyaltyTier === 'gold') multiplier = 0.20;
+  let multiplier = 0.1; // bronze
+  if (this.loyaltyTier === "silver") multiplier = 0.15;
+  if (this.loyaltyTier === "gold") multiplier = 0.2;
   const evolvPoints = skipEvolvPoints ? 0 : Math.floor(orderTotal * multiplier);
 
   // Update points
@@ -193,10 +218,10 @@ userSchema.methods.addLoyaltyPoints = async function(orderTotal, order, skipEvol
   this.loyaltyPoints += tierPoints;
 
   // Check for tier upgrade using new thresholds
-  if (this.loyaltyTier === 'bronze' && this.loyaltyPoints >= 1000) {
-    this.loyaltyTier = 'silver';
-  } else if (this.loyaltyTier === 'silver' && this.loyaltyPoints >= 2500) {
-    this.loyaltyTier = 'gold';
+  if (this.loyaltyTier === "bronze" && this.loyaltyPoints >= 1000) {
+    this.loyaltyTier = "silver";
+  } else if (this.loyaltyTier === "silver" && this.loyaltyPoints >= 2500) {
+    this.loyaltyTier = "gold";
   }
 
   return {
@@ -204,64 +229,68 @@ userSchema.methods.addLoyaltyPoints = async function(orderTotal, order, skipEvol
     evolvPoints,
     newTier: this.loyaltyTier,
     totalPoints: this.loyaltyPoints,
-    totalEvolvPoints: this.evolvPoints
+    totalEvolvPoints: this.evolvPoints,
   };
 };
 
 // Method to redeem Evolv points
-userSchema.methods.redeemEvolvPoints = function(pointsToRedeem, orderTotal) {
+userSchema.methods.redeemEvolvPoints = function (pointsToRedeem, orderTotal) {
   if (pointsToRedeem <= 0) {
-    throw new Error('Points to redeem must be greater than 0');
+    throw new Error("Points to redeem must be greater than 0");
   }
-  
+
   if (pointsToRedeem > this.evolvPoints) {
-    throw new Error(`Insufficient Evolv points. Available: ${this.evolvPoints}, Requested: ${pointsToRedeem}`);
+    throw new Error(
+      `Insufficient Evolv points. Available: ${this.evolvPoints}, Requested: ${pointsToRedeem}`
+    );
   }
-  
+
   // Calculate discount amount (1 Evolv point = ₹1 discount)
   const discountAmount = Math.min(pointsToRedeem, orderTotal);
   const actualPointsUsed = discountAmount; // Only use points up to order total
-  
+
   this.evolvPoints -= actualPointsUsed;
-  
+
   // Add to loyalty history
   this.loyaltyHistory.push({
     date: new Date(),
-    action: 'evolv_redemption',
+    action: "evolv_redemption",
     points: -actualPointsUsed,
-    description: `Redeemed ${actualPointsUsed} Evolv points for ₹${discountAmount} discount`
+    description: `Redeemed ${actualPointsUsed} Evolv points for ₹${discountAmount} discount`,
   });
-  
+
   return {
     pointsUsed: actualPointsUsed,
     discountAmount,
-    remainingPoints: this.evolvPoints
+    remainingPoints: this.evolvPoints,
   };
 };
 
 // Method to check if user can redeem points
-userSchema.methods.canRedeemEvolvPoints = function(pointsToRedeem) {
+userSchema.methods.canRedeemEvolvPoints = function (pointsToRedeem) {
   return pointsToRedeem > 0 && pointsToRedeem <= this.evolvPoints;
 };
 
 // Method to generate email verification token
-userSchema.methods.generateEmailVerificationToken = function() {
-  const crypto = require('crypto');
-  
+userSchema.methods.generateEmailVerificationToken = function () {
+  const crypto = require("crypto");
+
   // Generate token
-  const verificationToken = crypto.randomBytes(32).toString('hex');
-  
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+
   // Set token and expiration (24 hours)
   this.emailVerificationToken = verificationToken;
   this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  
+
   return verificationToken;
 };
 
 // Method to verify email token
-userSchema.methods.verifyEmailToken = function(token) {
-  return this.emailVerificationToken === token && 
-         this.emailVerificationExpires > Date.now();
+userSchema.methods.verifyEmailToken = function (token) {
+  return (
+    this.emailVerificationToken === token &&
+    this.emailVerificationExpires > Date.now()
+  );
 };
 
-module.exports = mongoose.model('User', userSchema); 
+module.exports = mongoose.model("User", userSchema);

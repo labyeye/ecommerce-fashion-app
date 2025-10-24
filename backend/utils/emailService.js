@@ -1,53 +1,49 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 // Create transporter
 const createTransporter = () => {
-  // For development, you can use Gmail or any SMTP service
-  // For production, use services like SendGrid, AWS SES, etc.
-  
-  if (process.env.NODE_ENV === 'production') {
-    // Production email service configuration
+
+  if (process.env.NODE_ENV === "production") {
     return nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
+      service: process.env.EMAIL_SERVICE || "gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
   } else {
-    // Development - use Gmail for testing
-    // Make sure to set EMAIL_USER and EMAIL_PASS in .env file
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       return nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
+          pass: process.env.EMAIL_PASS,
+        },
       });
     } else {
-      // Fallback to console transport if no email credentials
-      console.log('⚠️ No email credentials found, using console transport');
+      console.log("⚠️ No email credentials found, using console transport");
       return nodemailer.createTransport({
         streamTransport: true,
-        newline: 'unix',
-        buffer: true
+        newline: "unix",
+        buffer: true,
       });
     }
   }
 };
-
-// Send email verification
 const sendVerificationEmail = async (email, firstName, verificationToken) => {
   try {
     const transporter = createTransporter();
-    
-    const verificationUrl = `${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}/verify-email?token=${verificationToken}`;
-    
+
+    const verificationUrl = `${
+      process.env.FRONTEND_URL || "https://flauntbynishi.com"
+    }/verify-email?token=${verificationToken}`;
+
     const mailOptions = {
-      from: `"Flaunt by Nishi" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      from: `"Flaunt by Nishi" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
-      subject: 'Verify Your Email Address - Flaunt by Nishi',
+      subject: "Verify Your Email Address - Flaunt by Nishi",
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -153,32 +149,31 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
         
         Best regards,
         The Flaunt by Nishi Team
-      `
+      `,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    
-    console.log('Verification email sent:', info.messageId);
-    
+
+    console.log("Verification email sent:", info.messageId);
+
     // For development, log the email content
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('=== DEVELOPMENT EMAIL LOG ===');
-      console.log('To:', email);
-      console.log('Subject:', mailOptions.subject);
-      console.log('Verification URL:', verificationUrl);
-      console.log('Email content logged instead of sent');
-      console.log('=== END EMAIL LOG ===');
+    if (process.env.NODE_ENV !== "production") {
+      console.log("=== DEVELOPMENT EMAIL LOG ===");
+      console.log("To:", email);
+      console.log("Subject:", mailOptions.subject);
+      console.log("Verification URL:", verificationUrl);
+      console.log("Email content logged instead of sent");
+      console.log("=== END EMAIL LOG ===");
     }
-    
+
     return {
       success: true,
-      messageId: info.messageId || 'dev-message-id',
-      previewUrl: null
+      messageId: info.messageId || "dev-message-id",
+      previewUrl: null,
     };
-    
   } catch (error) {
-    console.error('Email sending error:', error);
-    throw new Error('Failed to send verification email');
+    console.error("Email sending error:", error);
+    throw new Error("Failed to send verification email");
   }
 };
 
@@ -186,11 +181,13 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
 const sendWelcomeEmail = async (email, firstName) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      from: `"Flaunt By Nishi Team" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
-      subject: '🎉 Welcome to Flaunt By Nishi - Your Journey Begins Now!',
+      subject: "🎉 Welcome to Flaunt By Nishi - Your Journey Begins Now!",
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -265,7 +262,9 @@ const sendWelcomeEmail = async (email, firstName) => {
             </div>
             
             <div style="text-align: center;">
-              <a href="${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}" class="button">Start Shopping</a>
+              <a href="${
+                process.env.FRONTEND_URL || "https://flauntbynishi.com"
+              }" class="button">Start Shopping</a>
             </div>
             
             <p>Ready to power up your fitness journey? Browse our products and make your first order!</p>
@@ -274,19 +273,18 @@ const sendWelcomeEmail = async (email, firstName) => {
           </div>
         </body>
         </html>
-      `
+      `,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Welcome email sent:', info.messageId);
-    
+    console.log("Welcome email sent:", info.messageId);
+
     return {
       success: true,
-      messageId: info.messageId
+      messageId: info.messageId,
     };
-    
   } catch (error) {
-    console.error('Welcome email sending error:', error);
+    console.error("Welcome email sending error:", error);
     // Don't throw error for welcome email as it's not critical
     return { success: false, error: error.message };
   }
@@ -297,12 +295,16 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
   try {
     const transporter = createTransporter();
 
-    const resetUrl = `${process.env.FRONTEND_URL || 'https://flauntbynishi.com'}/reset-password?token=${resetToken}`;
+    const resetUrl = `${
+      process.env.FRONTEND_URL || "https://flauntbynishi.com"
+    }/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      from: `"Flaunt By Nishi Team" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
-      subject: 'Reset your Flaunt By Nishi password',
+      subject: "Reset your Flaunt By Nishi password",
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -316,7 +318,7 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
           </style>
         </head>
         <body>
-          <h2>Hi ${firstName || ''},</h2>
+          <h2>Hi ${firstName || ""},</h2>
           <p>We received a request to reset your password. Click the button below to set a new password. This link will expire in 10 minutes.</p>
           <p style="text-align:center;"><a href="${resetUrl}" class="button">Reset your password</a></p>
           <p>If the button doesn't work, copy and paste the link below into your browser:</p>
@@ -326,30 +328,35 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
         </body>
         </html>
       `,
-      text: `Hi ${firstName || ''},\n\nUse the following link to reset your password (expires in 10 minutes):\n\n${resetUrl}\n\nIf you didn't request this, ignore this message.`
+      text: `Hi ${
+        firstName || ""
+      },\n\nUse the following link to reset your password (expires in 10 minutes):\n\n${resetUrl}\n\nIf you didn't request this, ignore this message.`,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent:', info.messageId || 'dev-message-id');
+    console.log(
+      "Password reset email sent:",
+      info.messageId || "dev-message-id"
+    );
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('=== PASSWORD RESET EMAIL LOG ===');
-      console.log('To:', email);
-      console.log('Reset URL:', resetUrl);
-      console.log('=== END EMAIL LOG ===');
+    if (process.env.NODE_ENV !== "production") {
+      console.log("=== PASSWORD RESET EMAIL LOG ===");
+      console.log("To:", email);
+      console.log("Reset URL:", resetUrl);
+      console.log("=== END EMAIL LOG ===");
     }
 
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Password reset email error:', error);
-    throw new Error('Failed to send password reset email');
+    console.error("Password reset email error:", error);
+    throw new Error("Failed to send password reset email");
   }
 };
 
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 };
 
 // Send order cancellation email
@@ -358,42 +365,188 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      from: `"Flaunt By Nishi Team" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
-      subject: `Your order ${order.orderNumber || ''} has been cancelled`,
+      subject: `Your order ${order.orderNumber || ""} has been cancelled`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
           <div style="background:linear-gradient(135deg,#B5A084,#688F4E); color:#fff; padding:20px; border-radius:8px; text-align:center;">
             <h2 style="margin:0">Order Cancelled</h2>
           </div>
           <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ''},</p>
-            <p>We're writing to confirm that your order <strong>${order.orderNumber || ''}</strong> has been cancelled.</p>
-            ${order.cancellationReason ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>` : ''}
+            <p>Hi ${firstName || ""},</p>
+            <p>We're writing to confirm that your order <strong>${
+              order.orderNumber || ""
+            }</strong> has been cancelled.</p>
+            ${
+              order.cancellationReason
+                ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>`
+                : ""
+            }
             <h4>Order Summary</h4>
             <ul>
-              ${order.items && order.items.length > 0 ? order.items.map(item => `<li>${item.quantity} × ${item.product?.name || item.name || 'Item'} — ₹${(item.price || 0).toFixed ? (item.price).toFixed(2) : item.price}</li>`).join('') : '<li>No items</li>'}
+              ${
+                order.items && order.items.length > 0
+                  ? order.items
+                      .map(
+                        (item) =>
+                          `<li>${item.quantity} × ${
+                            item.product?.name || item.name || "Item"
+                          } — ₹${
+                            (item.price || 0).toFixed
+                              ? item.price.toFixed(2)
+                              : item.price
+                          }</li>`
+                      )
+                      .join("")
+                  : "<li>No items</li>"
+              }
             </ul>
-            <p><strong>Total refunded (if applicable):</strong> ₹${(order.total || 0).toFixed ? (order.total).toFixed(2) : order.total}</p>
+            <p><strong>Total refunded (if applicable):</strong> ₹${
+              (order.total || 0).toFixed ? order.total.toFixed(2) : order.total
+            }</p>
             <p>If you have any questions, reply to this email or contact our support.</p>
             <p>Best regards,<br/>Flaunt By Nishi Team</p>
           </div>
         </div>
       `,
-      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} has been cancelled.\n\nIf you have questions, contact support.`
+      text: `Hi ${firstName || ""},\n\nYour order ${
+        order.orderNumber || ""
+      } has been cancelled.\n\nIf you have questions, contact support.`,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Order cancellation email sent:', info.messageId || 'dev-message-id');
+    console.log(
+      "Order cancellation email sent:",
+      info.messageId || "dev-message-id"
+    );
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Error sending order cancellation email:', error);
+    console.error("Error sending order cancellation email:", error);
     return { success: false, error: error.message };
+  }
+};
+
+// Send OTP Email
+const sendOTPEmail = async (email, otp, firstName = '') => {
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: `"Flaunt by Nishi" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
+      to: email,
+      subject: "Your Verification Code - Flaunt by Nishi",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>OTP Verification</title>
+          <style>
+            body {
+              font-family: 'Inter', 'Arial', sans-serif;
+              background: #FFF2E1;
+              color: #2B463C;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 0;
+            }
+            .header {
+              background: linear-gradient(135deg, #B5A084, #688F4E);
+              color: #fff;
+              text-align: center;
+              padding: 32px 24px 24px 24px;
+              border-radius: 18px 18px 0 0;
+            }
+            .content {
+              background: #fff;
+              padding: 32px 24px;
+              border-radius: 0 0 18px 18px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+            .otp-code {
+              display: inline-block;
+              background: linear-gradient(135deg, #B5A084, #688F4E);
+              color: #fff;
+              padding: 20px 40px;
+              font-size: 32px;
+              font-weight: bold;
+              letter-spacing: 8px;
+              border-radius: 12px;
+              margin: 20px 0;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            .footer {
+              text-align: center;
+              margin-top: 32px;
+              padding-top: 18px;
+              border-top: 1px solid #eee;
+              color: #B5A084;
+              font-size: 13px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1 style="font-size:1.8rem; font-weight:700; margin-bottom:8px;">Verification Code</h1>
+            <p style="font-size:1rem; font-weight:400;">Your One-Time Password</p>
+          </div>
+          <div class="content">
+            ${firstName ? `<h2 style="font-size:1.25rem; font-weight:600; color:#688F4E;">Hi ${firstName}!</h2>` : ''}
+            <p style="margin:16px 0 8px 0;">Please use the following verification code to complete your action:</p>
+            <div style="text-align: center;">
+              <div class="otp-code">${otp}</div>
+            </div>
+            <p style="margin:24px 0 8px 0; color:#B5A084; font-weight:600;">This code will expire in 5 minutes.</p>
+            <p style="margin-top:16px;">For your security, do not share this code with anyone.</p>
+            <p style="margin-top:24px;">If you didn't request this code, please ignore this email or contact our support team.</p>
+            <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
+          </div>
+          <div class="footer">
+            <p>&copy; 2025 Flaunt by Nishi. All rights reserved.</p>
+            <p>This is an automated email, please do not reply.</p>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        ${firstName ? `Hi ${firstName}!\n\n` : ''}Your verification code is: ${otp}
+        
+        This code will expire in 5 minutes.
+        
+        For your security, do not share this code with anyone.
+        
+        If you didn't request this code, please ignore this email.
+        
+        Best regards,
+        The Flaunt by Nishi Team
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("OTP email sent:", info.messageId || "dev-message-id");
+
+    // For development, log the OTP
+    if (process.env.NODE_ENV !== "production") {
+      console.log("=== DEVELOPMENT OTP LOG ===");
+      console.log("To:", email);
+      console.log("OTP:", otp);
+      console.log("=== END OTP LOG ===");
+    }
+
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Error sending OTP email:", error);
+    throw new Error("Failed to send OTP email");
   }
 };
 
 // Export the new function
 module.exports.sendOrderCancellationEmail = sendOrderCancellationEmail;
+module.exports.sendOTPEmail = sendOTPEmail;
 
 // Export transporter creator for other modules that may want to send custom emails
 module.exports.createTransporter = createTransporter;

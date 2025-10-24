@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 // Google Sign-In types
 interface Google {
   accounts: {
@@ -27,3 +25,5 @@ declare global {
     google?: Google;
   }
 }
+
+export {};

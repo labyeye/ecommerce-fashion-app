@@ -31,11 +31,9 @@
     "mongoose": "^7.5.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.4",
-    "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
     "razorpay": "^2.9.6",
     "sharp": "^0.34.3",
-    "twilio": "^4.15.0"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "jest": "^29.6.2",

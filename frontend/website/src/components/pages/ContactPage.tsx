@@ -24,10 +24,10 @@ const ContactPage: React.FC = () => {
             </p>
           </div>
         </section>
-        <section className="py-12 bg-white/80 backdrop-blur-sm">
+        <section className="py-12 bg-[#FFF2E1] backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
+              <div className="backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
                 <h2
                   className="text-4xl font-bold mb-6"
                   style={{ color: "#95522C" }}
@@ -110,7 +110,7 @@ const ContactPage: React.FC = () => {
                 </form>
               </div>
               <div className="space-y-8">
-                <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
+                <div className="bg-[#FFF2E1] backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
                   <h2 className="text-4xl font-bold text-dark mb-6">
                     <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
                       Contact Information
@@ -189,7 +189,7 @@ const ContactPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
+                <div className="bg-[#FFF2E1] backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
                   <h2
                     className="text-3xl font-bold mb-6"
                     style={{ color: "#95522C" }}

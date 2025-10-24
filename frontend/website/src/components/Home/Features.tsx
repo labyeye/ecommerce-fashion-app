@@ -1,10 +1,10 @@
 import React from "react";
-import { Zap,  Globe, IndianRupee, Heart, ThumbsUp } from "lucide-react";
+import { Zap, Globe, IndianRupee, Heart, ThumbsUp } from "lucide-react";
 
 const Features: React.FC = () => {
   const features = [
     { icon: Zap, name: "Modern Design" },
-    
+
     {
       icon: IndianRupee,
       name: "Pocket Friendly",
@@ -15,7 +15,7 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <section className="relative bg-[#FCF4EA] overflow-hidden">
+    <section className="relative bg-[#FFF2E1] overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-10">
         <div className="text-center max-w-5xl mx-auto">
           {/* Main Heading */}
@@ -32,16 +32,15 @@ const Features: React.FC = () => {
             quality, sustainable practices, and enduring style.
           </p>
 
-          {/* Features Grid for small screens (fallback) */}
+          {/* Single-row features layout: horizontal scroll on small screens, evenly spaced on large screens */}
           <div className="glass rounded-lg sm:rounded-fashion p-4 sm:p-8 lg:p-12 shadow-fashion border border-primary/5">
-            {/* Mobile / tablet: keep existing responsive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:hidden">
+            <div className="flex items-center w-full gap-6 overflow-x-auto py-6 px-2">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
                   <div
                     key={index}
-                    className="flex flex-col items-center text-center group p-2 sm:p-3"
+                    className="flex flex-col items-center text-center flex-shrink-0 min-w-[140px] sm:min-w-[160px] lg:min-w-0 lg:flex-1"
                   >
                     <div className="circle-element w-14 h-14 sm:w-16 sm:h-16 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
                       <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[#2D2D2D]" />
@@ -52,39 +51,6 @@ const Features: React.FC = () => {
                   </div>
                 );
               })}
-            </div>
-
-            {/* Desktop: custom two-row layout (3 on first row, 2 centered on second) */}
-            <div className="hidden lg:block">
-              {/* first row: 3 centered */}
-              <div className="flex justify-center gap-6 sm:gap-8 mb-6">
-                {features.slice(0, 3).map((feature, index) => {
-                  const Icon = feature.icon;
-                  return (
-                    <div key={index} className="flex flex-col items-center text-center p-3 w-60">
-                      <div className="circle-element w-14 h-14 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-6 h-6 text-[#2D2D2D]" />
-                      </div>
-                      <h3 className="text-lg font-medium text-[#2D2D2D] tracking-wide">{feature.name}</h3>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* second row: 2 centered */}
-              <div className="flex justify-center gap-6 sm:gap-8">
-                {features.slice(3).map((feature, idx) => {
-                  const Icon = feature.icon;
-                  return (
-                    <div key={idx} className="flex flex-col items-center text-center p-3 w-60">
-                      <div className="circle-element w-14 h-14 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-4 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-6 h-6 text-[#2D2D2D]" />
-                      </div>
-                      <h3 className="text-lg font-medium text-[#2D2D2D] tracking-wide">{feature.name}</h3>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </div>
         </div>

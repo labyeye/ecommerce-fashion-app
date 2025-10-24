@@ -8,8 +8,10 @@ const {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendOTPEmail,
 } = require("../utils/emailService");
-const crypto = require("crypto"); // Added for forgot password
+const crypto = require("crypto");
+const axios = require("axios");
 
 const router = express.Router();
 
@@ -38,69 +40,53 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
-  // OTP support: send and verify
-  const Otp = require('../models/Otp');
-  let twilioClient = null;
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-    try {
-      const Twilio = require('twilio');
-      twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    } catch (err) {
-      console.warn('Twilio not available:', err.message);
+// OTP support: send and verify (Email-based)
+const Otp = require('../models/Otp');
+
+// POST /api/auth/send-otp
+router.post('/send-otp', [
+  body('email').isEmail().withMessage('Valid email is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
+
+    const { email } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Generate 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Expire in 5 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    // Save otp (invalidate previous for this email)
+    await Otp.updateMany({ email: normalizedEmail, used: false }, { used: true });
+    await Otp.create({ email: normalizedEmail, code, expiresAt, type: 'login' });
+
+    // Find user to get firstName
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Send OTP via email
+    try {
+      await sendOTPEmail(normalizedEmail, code, user?.firstName || '');
+    } catch (sendErr) {
+      console.error('Email send error:', sendErr);
+      return res.status(500).json({ success: false, message: 'Failed to send OTP email' });
+    }
+
+    res.json({ success: true, message: 'OTP sent to your email' });
+  } catch (error) {
+    console.error('send-otp error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
   }
-
-  // POST /api/auth/send-otp
-  router.post('/send-otp', [
-    body('phone').notEmpty().withMessage('Phone number is required')
-  ], async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, errors: errors.array() });
-      }
-
-      const { phone } = req.body;
-
-      // Normalize phone (basic)
-      const normalized = phone.trim();
-
-      // Generate 6-digit OTP
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-      // Expire in 3 minutes
-      const expiresAt = new Date(Date.now() + 3 * 60 * 1000);
-
-      // Save otp (invalidate previous for this phone)
-      await Otp.updateMany({ phone: normalized, used: false }, { used: true });
-      await Otp.create({ phone: normalized, code, expiresAt });
-
-      // Send via Twilio if configured
-      if (twilioClient && process.env.TWILIO_FROM) {
-        try {
-          await twilioClient.messages.create({
-            body: `Your verification code is ${code}. It expires in 3 minutes.`,
-            from: process.env.TWILIO_FROM,
-            to: normalized
-          });
-        } catch (sendErr) {
-          console.error('Twilio send error:', sendErr);
-          // continue; OTP is still stored for development fallback
-        }
-      } else {
-        console.log(`OTP for ${normalized}: ${code}`); // fallback
-      }
-
-      res.json({ success: true, message: 'OTP sent' });
-    } catch (error) {
-      console.error('send-otp error:', error);
-      res.status(500).json({ success: false, message: 'Failed to send OTP' });
-    }
-  });
+});
 
   // POST /api/auth/verify-otp
   router.post('/verify-otp', [
-    body('phone').notEmpty().withMessage('Phone number is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
     body('code').notEmpty().withMessage('OTP code is required')
   ], async (req, res) => {
     try {
@@ -109,28 +95,38 @@ const sendTokenResponse = (user, statusCode, res) => {
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { phone, code } = req.body;
-      const normalized = phone.trim();
+      const { email, code } = req.body;
+      const normalizedEmail = email.toLowerCase().trim();
 
-      const otp = await Otp.findOne({ phone: normalized, code, used: false, expiresAt: { $gt: new Date() } }).sort({ createdAt: -1 });
+      const otp = await Otp.findOne({ 
+        email: normalizedEmail, 
+        code, 
+        used: false, 
+        expiresAt: { $gt: new Date() } 
+      }).sort({ createdAt: -1 });
+
       if (!otp) {
         return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
       }
 
-      // mark used
+      // Mark used
       otp.used = true;
       await otp.save();
 
-      // Find user by phone
-      const user = await User.findOne({ phone: normalized });
+      // Find user by email
+      const user = await User.findOne({ email: normalizedEmail });
       if (user) {
         // Existing user: login
         return sendTokenResponse(user, 200, res);
       }
 
-      // New phone number: return a short-lived temp token so frontend can collect
+      // New email: return a short-lived temp token so frontend can collect
       // registration details and create the user. The temp token proves OTP was verified.
-      const tempToken = jwt.sign({ phone: normalized, otpVerified: true }, process.env.JWT_SECRET, { expiresIn: '5m' });
+      const tempToken = jwt.sign(
+        { email: normalizedEmail, otpVerified: true }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: '10m' }
+      );
       return res.json({ success: true, userExists: false, tempToken });
     } catch (error) {
       console.error('verify-otp error:', error);
@@ -138,8 +134,8 @@ const sendTokenResponse = (user, statusCode, res) => {
     }
   });
 
-  // POST /api/auth/register-phone
-  router.post('/register-phone', [
+  // POST /api/auth/register-with-otp
+  router.post('/register-with-otp', [
     body('tempToken').notEmpty().withMessage('tempToken is required'),
     body('firstName').notEmpty().withMessage('First name is required'),
     body('lastName').notEmpty().withMessage('Last name is required'),
@@ -147,9 +143,11 @@ const sendTokenResponse = (user, statusCode, res) => {
   ], async (req, res) => {
     try {
       const errors = validationResult(req);
-      if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
 
-      const { tempToken, firstName, lastName, password, email } = req.body;
+      const { tempToken, firstName, lastName, password, phone } = req.body;
       let payload;
       try {
         payload = jwt.verify(tempToken, process.env.JWT_SECRET);
@@ -157,41 +155,41 @@ const sendTokenResponse = (user, statusCode, res) => {
         return res.status(400).json({ success: false, message: 'Invalid or expired temp token' });
       }
 
-      if (!payload || !payload.phone || !payload.otpVerified) {
+      if (!payload || !payload.email || !payload.otpVerified) {
         return res.status(400).json({ success: false, message: 'Invalid temp token payload' });
       }
 
-      const phone = payload.phone;
+      const email = payload.email;
 
       // Check again if user exists
-      const existing = await User.findOne({ phone });
-      if (existing) return res.status(400).json({ success: false, message: 'User with this phone already exists' });
+      const existing = await User.findOne({ email });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'User with this email already exists' });
+      }
 
       // Create user
       const user = await User.create({
         firstName,
         lastName,
-        email: email || `${Date.now()}_${Math.random().toString(36).slice(2,8)}@no-reply.local`,
+        email,
         password,
-        phone,
+        phone: phone || '',
         role: 'customer',
-        isEmailVerified: false
+        isEmailVerified: true // Email verified via OTP
       });
 
-      // Send welcome email only if email provided
-      if (email) {
-        try {
-          await sendWelcomeEmail(email, firstName);
-        } catch (err) {
-          console.warn('Failed to send welcome email:', err.message);
-        }
+      // Send welcome email
+      try {
+        await sendWelcomeEmail(email, firstName);
+      } catch (err) {
+        console.warn('Failed to send welcome email:', err.message);
       }
 
       // Return JWT
       sendTokenResponse(user, 201, res);
     } catch (error) {
-      console.error('register-phone error:', error);
-      res.status(500).json({ success: false, message: 'Phone registration failed' });
+      console.error('register-with-otp error:', error);
+      res.status(500).json({ success: false, message: 'Registration failed' });
     }
   });
 
@@ -829,5 +827,87 @@ router.post(
     }
   }
 );
+
+// @desc    Google Sign-In with ID Token
+// @route   POST /api/auth/google
+// @access  Public
+router.post('/google', [
+  body('idToken').notEmpty().withMessage('Google ID token is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { idToken } = req.body;
+
+    // Verify the Google ID token
+    let googleUser;
+    try {
+      const response = await axios.get(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
+      );
+      googleUser = response.data;
+
+      // Verify the token is for our app
+      if (googleUser.aud !== process.env.GOOGLE_CLIENT_ID) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid token audience' 
+        });
+      }
+    } catch (error) {
+      console.error('Google token verification error:', error.response?.data || error.message);
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid Google token' 
+      });
+    }
+
+    // Check if user exists with this Google ID
+    let user = await User.findOne({ googleId: googleUser.sub });
+
+    if (!user) {
+      // Check if email already exists
+      user = await User.findOne({ email: googleUser.email });
+
+      if (user) {
+        // Link Google account to existing user
+        user.googleId = googleUser.sub;
+        user.isEmailVerified = true;
+        await user.save();
+      } else {
+        // Create new user
+        const nameParts = googleUser.name?.split(' ') || ['User', ''];
+        user = await User.create({
+          googleId: googleUser.sub,
+          firstName: nameParts[0] || googleUser.given_name || 'User',
+          lastName: nameParts.slice(1).join(' ') || googleUser.family_name || '',
+          email: googleUser.email,
+          isEmailVerified: true,
+          role: "customer",
+          password: crypto.randomBytes(32).toString("hex"), // Random password for OAuth users
+        });
+
+        // Send welcome email
+        try {
+          await sendWelcomeEmail(user.email, user.firstName);
+        } catch (err) {
+          console.warn("Failed to send welcome email:", err.message);
+        }
+      }
+    }
+
+    // Generate JWT and send response
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Google sign-in failed' 
+    });
+  }
+});
 
 module.exports = router;

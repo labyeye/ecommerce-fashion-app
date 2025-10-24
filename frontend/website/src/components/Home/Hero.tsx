@@ -195,7 +195,7 @@ const HeroComponent: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center ">
                 <a
                   href={currentHero.ctaButton.link}
-                  className="group inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-[#FCF4EA] text-[#914D26] font-semibold rounded-full hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   {currentHero.ctaButton.text}
                   <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform text-[#914D26]" />

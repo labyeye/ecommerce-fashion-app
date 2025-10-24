@@ -110,7 +110,7 @@ const CategorySlider: React.FC = () => {
   }
 
   return (
-    <div className="relative py-8 w-screen bg-[#FCF4EA]">
+    <div className="relative py-8 w-screen bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-4 lg:px-6">
         <div className="text-center mb-16 max-w-7xl mx-auto">
           <h2 className="text-6xl sm:text-6xl font-bold mb-6">

@@ -46,9 +46,6 @@ const ProductSlider = ({
   }, [products]);
 
   const config = sliderConfigs[type];
-
-  // Update visible count based on window size
-  // Fetch products based on type
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -65,13 +62,10 @@ const ProductSlider = ({
 
     fetchProducts();
   }, [config.apiEndpoint]);
-
-  // Update visible count based on window size
   useEffect(() => {
     const updateVisibleCount = () => {
       const width = window.innerWidth;
       if (type === "new-arrivals") {
-        // For new arrivals we want 5 per row on larger screens
         if (width >= 1024) setVisibleCount(5);
         else if (width >= 768) setVisibleCount(3);
         else if (width >= 640) setVisibleCount(2);
@@ -122,9 +116,11 @@ const ProductSlider = ({
 
   if (error) {
     return (
-      <section className="w-screen py-16 bg-[#FCF4EA] ">
+      <section className="w-screen py-16 bg-[#FFF2E1] ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-dark/80 font-body">{error}</p>
+          <p className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent font-body">
+            {error}
+          </p>
         </div>
       </section>
     );
@@ -132,21 +128,19 @@ const ProductSlider = ({
 
   if (products.length === 0) {
     return (
-      <section className="w-screen py-16 bg-[#FCF4EA] ">
+      <section className="w-screen py-16 bg-[#FFF2E1] ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-dark text-4xl sm:text-5xl font-display mb-4">
+          <h2 className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent text-6xl sm:text-6xl font-display mb-4">
             {config.title}
           </h2>
-          <p className="text-dark/80 font-body text-lg">
-            {config.emptyMessage}
-          </p>
+          <p className="text-dark font-body text-lg">{config.emptyMessage}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-screen py-10 bg-[#FCF4EA]">
+    <section className="w-screen py-10 bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
@@ -155,7 +149,7 @@ const ProductSlider = ({
               {config.title}
             </span>
           </h2>
-          <p className="text-lg text-dark/80 max-w-2xl mx-auto">
+          <p className="text-lg bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
             {config.description}
           </p>
         </div>
@@ -194,7 +188,7 @@ const ProductSlider = ({
               onClick={() => setCurrentIndex(index * visibleCount)}
               className={`transition-all duration-300 rounded-full ${
                 Math.floor(currentIndex / visibleCount) === index
-                  ? "w-1.5 h-1.5 bg-[#FCF4EA]"
+                  ? "w-1.5 h-1.5 bg-[#FFF2E1]"
                   : "w-1.5 h-1.5 bg-dark/60 hover:bg-dark"
               }`}
             />
