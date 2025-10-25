@@ -16,7 +16,7 @@ function ScrollToTopOnMount() {
 
   return null;
 }
-import Cart, { CartItem } from "./components/Home/Cart";
+import Cart from "./components/Home/Cart";
 import Footer from "./components/Home/Footer";
 import HomePage from "./components/pages/HomePage";
 import AboutPage from "./components/pages/AboutPage";
@@ -36,6 +36,7 @@ import VerifyEmailPage from './components/pages/VerifyEmailPage';
 import Wishlist from "./components/pages/Wishlist";
 import AddressesPage from './components/pages/AddressesPage';
 import OrderCompletePage from './components/pages/OrderCompletePage';
+import ComingSoon from './components/ComingSoon';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -70,6 +71,8 @@ function App() {
               <Footer />
               <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
             </div>
+            {/* Coming Soon Overlay */}
+            <ComingSoon />
           </Router>
         </WishlistProvider>
       </CartProvider>
