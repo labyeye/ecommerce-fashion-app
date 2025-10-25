@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Newsletter: React.FC = () => {
@@ -9,6 +9,7 @@ const Newsletter: React.FC = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +38,32 @@ const Newsletter: React.FC = () => {
     }
   };
 
+  const fetchHistory = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/admin/newsletters', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setHistory(data.data || []);
+      }
+    } catch (err) {
+      // ignore history fetch errors for now
+      console.error('Failed to fetch newsletter history', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, [token]);
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Compose Newsletter</h2>
+    <div className="max-w-4xl mx-auto p-6 bg-ds-100 rounded-xl shadow-sm border border-ds-200">
+  <h2 className="text-xl font-semibold mb-4">Compose Newsletter</h2>
       <form onSubmit={handleSend} className="space-y-4">
         <div>
           <label className="block text-sm font-medium">Title</label>
@@ -63,6 +87,38 @@ const Newsletter: React.FC = () => {
         </div>
         {result && <div className="mt-2 text-sm">{result}</div>}
       </form>
+      {/* Newsletter History */}
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-3">Newsletter History</h3>
+        {history.length === 0 ? (
+          <div className="text-sm text-gray-600">No newsletters sent yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left">Date</th>
+                  <th className="px-3 py-2 text-left">Title</th>
+                  <th className="px-3 py-2 text-left">Subject</th>
+                  <th className="px-3 py-2 text-left">Recipients</th>
+                  <th className="px-3 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {history.map((n) => (
+                  <tr key={n._id}>
+                    <td className="px-3 py-2">{n.sentAt ? new Date(n.sentAt).toLocaleString() : '-'}</td>
+                    <td className="px-3 py-2">{n.title}</td>
+                    <td className="px-3 py-2">{n.subject}</td>
+                    <td className="px-3 py-2">{n.recipientsCount ?? '-'}</td>
+                    <td className="px-3 py-2">{n.sentAt ? 'Sent' : 'Pending'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

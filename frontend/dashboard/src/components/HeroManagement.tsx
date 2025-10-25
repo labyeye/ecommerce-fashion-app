@@ -357,22 +357,18 @@ const HeroManagement: React.FC = () => {
 
   return (
     <div className="p-6">
-      {/* Test element to see if component is rendering */}
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg mb-4">
-        <strong>Debug Info:</strong> Component is rendering. Heroes: {heroes.length}, ShowForm: {showForm.toString()}, Loading: {loading.toString()}, Error: {error || 'none'}
-      </div>
       
       <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Hero Slider Management</h1>
-            <p className="text-gray-600 mt-1">Manage your website's hero slider images and content</p>
+            <h1 className="text-2xl font-bold text-ds-900">Hero Slider Management</h1>
+            <p className="text-ds-700 mt-1">Manage your website's hero slider images and content</p>
           </div>
           <button
             onClick={() => {
               console.log('Add Hero button clicked, setting showForm to true');
               setShowForm(true);
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add Hero Slide
@@ -385,24 +381,10 @@ const HeroManagement: React.FC = () => {
           {error}
         </div>
       )}
-
-      {/* Test Modal */}
-      <div className="mb-4">
-        <button
-          onClick={() => {
-            console.log('Test modal button clicked');
-            alert('Test modal button works! showForm state: ' + showForm);
-          }}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-        >
-          Test Modal Button
-        </button>
-      </div>
-
       {/* Hero Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-ds-100 rounded-lg shadow-xl w-full max-w-4xl m-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -415,36 +397,36 @@ const HeroManagement: React.FC = () => {
                     setEditingHero(null);
                     resetForm();
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-ds-500 hover:text-ds-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
               
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       Title 
                     </label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => handleInputChange('title', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       
                       placeholder="Enter hero title"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       Subtitle 
                     </label>
                     <input
                       type="text"
                       value={formData.subtitle}
                       onChange={(e) => handleInputChange('subtitle', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       
                       placeholder="Enter hero subtitle"
                     />
@@ -452,46 +434,46 @@ const HeroManagement: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ds-700 mb-1">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                     placeholder="Enter hero description (optional)"
                   />
                 </div>
 
                 {/* Desktop Image Section */}
-                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="border border-ds-200 rounded-lg p-4 bg-ds-100">
                   <div className="flex items-center gap-2 mb-3">
-                    <Monitor className="w-5 h-4 text-blue-600" />
-                    <h3 className="text-lg font-medium text-gray-900">Desktop Image</h3>
+                    <Monitor className="w-5 h-4 text-ds-700" />
+                    <h3 className="text-lg font-medium text-ds-900">Desktop Image</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ds-700 mb-1">
                         Desktop Image URL *
                       </label>
                       <input
                         type="url"
                         value={formData.image.desktop.url}
                         onChange={(e) => handleInputChange('image.desktop.url', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ds-700 mb-1">
                         Desktop Image Alt Text
                       </label>
                       <input
                         type="text"
                         value={formData.image.desktop.alt}
                         onChange={(e) => handleInputChange('image.desktop.alt', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                         placeholder="Desktop hero image"
                       />
                     </div>
@@ -499,33 +481,33 @@ const HeroManagement: React.FC = () => {
                 </div>
 
                 {/* Mobile Image Section */}
-                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="border border-ds-200 rounded-lg p-4 bg-ds-100">
                   <div className="flex items-center gap-2 mb-3">
-                    <Smartphone className="w-5 h-4 text-green-600" />
-                    <h3 className="text-lg font-medium text-gray-900">Mobile Image</h3>
+                    <Smartphone className="w-5 h-4 text-ds-700" />
+                    <h3 className="text-lg font-medium text-ds-900">Mobile Image</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ds-700 mb-1">
                         Mobile Image URL *
                       </label>
                       <input
                         type="url"
                         value={formData.image.mobile.url}
                         onChange={(e) => handleInputChange('image.mobile.url', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-ds-700 mb-1">
                         Mobile Image Alt Text
                       </label>
                       <input
                         type="text"
                         value={formData.image.mobile.alt}
                         onChange={(e) => handleInputChange('image.mobile.alt', e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                         placeholder="Mobile hero image"
                       />
                     </div>
@@ -534,27 +516,27 @@ const HeroManagement: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       CTA Button Text
                     </label>
                     <input
                       type="text"
                       value={formData.ctaButton.text}
                       onChange={(e) => handleInputChange('ctaButton.text', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       placeholder="Shop Now"
                       maxLength={50}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       CTA Button Link
                     </label>
                     <input
                       type="text"
                       value={formData.ctaButton.link}
                       onChange={(e) => handleInputChange('ctaButton.link', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       placeholder="/products"
                     />
                   </div>
@@ -562,30 +544,30 @@ const HeroManagement: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       Background Color
                     </label>
                     <input
                       type="text"
                       value={formData.backgroundColor}
                       onChange={(e) => handleInputChange('backgroundColor', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       placeholder="rgba(0, 0, 0, 0.4)"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       Text Color
                     </label>
                     <input
                       type="color"
                       value={formData.textColor}
                       onChange={(e) => handleInputChange('textColor', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ds-700 mb-1">
                       Animation Duration (ms)
                     </label>
                     <input
@@ -593,7 +575,7 @@ const HeroManagement: React.FC = () => {
                       value={formData.animationDuration}
                       onChange={(e) => handleInputChange('animationDuration', Number(e.target.value))}
                       placeholder="4000"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-ds-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ds-600"
                       min={1000}
                       max={10000}
                     />
@@ -606,18 +588,18 @@ const HeroManagement: React.FC = () => {
                       type="checkbox"
                       checked={formData.ctaButton.enabled}
                       onChange={(e) => handleInputChange('ctaButton.enabled', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-ds-200 text-ds-700 focus:ring-ds-600"
                     />
-                    <span className="text-sm text-gray-700">Enable CTA Button</span>
+                    <span className="text-sm text-ds-700">Enable CTA Button</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.isActive}
                       onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-ds-200 text-ds-700 focus:ring-ds-600"
                     />
-                    <span className="text-sm text-gray-700">Active</span>
+                    <span className="text-sm text-ds-700">Active</span>
                   </label>
                 </div>
 
@@ -625,14 +607,14 @@ const HeroManagement: React.FC = () => {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-ds-700 border border-ds-200 rounded-md hover:bg-ds-100"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                    className="px-4 py-2 bg-ds-200 text-ds-900 rounded-md hover:bg-ds-300 disabled:opacity-50 flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     {submitting ? 'Saving...' : 'Save Hero'}
@@ -645,48 +627,48 @@ const HeroManagement: React.FC = () => {
       )}
 
       {/* Heroes List */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-ds-100 rounded-lg shadow">
         {heroes.length === 0 ? (
           <div className="p-8 text-center">
-            <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Hero Slides</h3>
-            <p className="text-gray-500 mb-4">Get started by creating your first hero slide</p>
+            <ImageIcon className="w-16 h-16 text-ds-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-ds-900 mb-2">No Hero Slides</h3>
+            <p className="text-ds-700 mb-4">Get started by creating your first hero slide</p>
             <button
               onClick={() => setShowForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300"
             >
               Add Hero Slide
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-ds-300">
+              <thead className="bg-ds-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Order
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Preview
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Content
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-ds-100 divide-y divide-ds-300">
                 {heroes.map((hero) => (
-                  <tr key={hero._id} className="hover:bg-gray-50">
+                  <tr key={hero._id} className="hover:bg-ds-200">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <Move className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900">
+                        <Move className="w-4 h-4 text-ds-500" />
+                        <span className="text-sm font-medium text-ds-900">
                           {hero.order}
                         </span>
                       </div>
@@ -694,7 +676,7 @@ const HeroManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
                         {/* Desktop Preview */}
-                        <div className="w-20 h-12 bg-gray-200 rounded overflow-hidden">
+                        <div className="w-20 h-12 bg-ds-200 rounded overflow-hidden">
                           <img
                             src={hero.image?.desktop?.url || hero.image?.url || ''}
                             alt={hero.image?.desktop?.alt || hero.image?.alt || 'Desktop image'}
@@ -703,12 +685,12 @@ const HeroManagement: React.FC = () => {
                               (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNkM5LjggMTYgOCAxNC4yIDggMTJTOS44IDggMTIgOFMxNiA5LjggMTYgMTJTMTQuMiAxNiAxMiAxNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
                             }}
                           />
-                          <div className="text-xs text-center text-gray-500 bg-gray-100 py-1">
+                          <div className="text-xs text-center text-ds-700 bg-ds-100 py-1">
                             <Monitor className="w-3 h-3 mx-auto" />
                           </div>
                         </div>
                         {/* Mobile Preview */}
-                        <div className="w-20 h-12 bg-gray-200 rounded overflow-hidden">
+                        <div className="w-20 h-12 bg-ds-200 rounded overflow-hidden">
                           <img
                             src={hero.image?.mobile?.url || hero.image?.url || ''}
                             alt={hero.image?.mobile?.alt || hero.image?.alt || 'Mobile image'}
@@ -717,7 +699,7 @@ const HeroManagement: React.FC = () => {
                               (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiOiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMTIgMTZDOS44IDE2IDggMTQuMiA4IDEyUzkuOCA4IDEyIDhTMTYgOS44IDE2IDEyUzE0LjIgMTYgMTIgMTZaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPg==';
                             }}
                           />
-                          <div className="text-xs text-center text-gray-500 bg-gray-100 py-1">
+                          <div className="text-xs text-center text-ds-700 bg-ds-100 py-1">
                             <Smartphone className="w-3 h-3 mx-auto" />
                           </div>
                         </div>
@@ -725,14 +707,14 @@ const HeroManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="max-w-xs">
-                        <div className="text-sm font-medium text-gray-900 truncate">
+                        <div className="text-sm font-medium text-ds-900 truncate">
                           {hero.title}
                         </div>
-                        <div className="text-sm text-gray-500 truncate">
+                        <div className="text-sm text-ds-700 truncate">
                           {hero.subtitle}
                         </div>
                         {hero.ctaButton.enabled && (
-                          <div className="text-xs text-blue-600 flex items-center gap-1 mt-1">
+                          <div className="text-xs text-ds-700 flex items-center gap-1 mt-1">
                             <ExternalLink className="w-3 h-3" />
                             {hero.ctaButton.text}
                           </div>

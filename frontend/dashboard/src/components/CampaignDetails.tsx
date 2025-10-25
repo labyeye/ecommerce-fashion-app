@@ -12,8 +12,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
     switch (status) {
       case 'Active': return 'bg-green-100 text-green-800';
       case 'Paused': return 'bg-yellow-100 text-yellow-800';
-      case 'Ended': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Ended': return 'bg-ds-100 text-ds-800';
+      default: return 'bg-ds-100 text-ds-800';
     }
   };
 
@@ -41,22 +41,19 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+          <button onClick={onBack} className="p-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
-            <p className="text-gray-600 mt-1">{campaign.type} Campaign</p>
+            <h1 className="text-2xl font-bold text-ds-900">{campaign.name}</h1>
+            <p className="text-ds-700 mt-1">{campaign.type} Campaign</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(campaign.status)}`}>
             {campaign.status}
           </span>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">
             <Edit className="w-4 h-4" />
             <span>Edit Campaign</span>
           </button>
@@ -69,10 +66,10 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
           {/* Campaign Overview */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Campaign Overview</h3>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h3 className="text-lg font-semibold text-ds-900 mb-6">Campaign Overview</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-blue-50 rounded-lg p-4">
                 <div className="flex items-center space-x-3">
@@ -105,15 +102,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
           </div>
 
           {/* Performance Metrics */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Performance Metrics</h3>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h3 className="text-lg font-semibold text-ds-900 mb-6">Performance Metrics</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {performanceData.map((metric, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="p-4 bg-ds-100 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">{metric.metric}</p>
-                      <p className="text-xl font-bold text-gray-900">{metric.value}</p>
+                      <p className="text-sm text-ds-700">{metric.metric}</p>
+                      <p className="text-xl font-bold text-ds-900">{metric.value}</p>
                     </div>
                     <div className={`flex items-center space-x-1 ${metric.positive ? 'text-green-600' : 'text-red-600'}`}>
                       <TrendingUp className="w-4 h-4" />
@@ -126,22 +123,22 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
           </div>
 
           {/* Top Performing Products */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Performing Products</h3>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h3 className="text-lg font-semibold text-ds-900 mb-6">Top Performing Products</h3>
             <div className="space-y-4">
               {topPerformingProducts.map((product, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-4 bg-ds-100 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.sales} sales from campaign</p>
+                      <p className="font-medium text-ds-900">{product.name}</p>
+                      <p className="text-sm text-ds-700">{product.sales} sales from campaign</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${product.revenue.toLocaleString()}</p>
+                    <p className="font-semibold text-ds-900">${product.revenue.toLocaleString()}</p>
                     <p className="text-sm text-green-600">Revenue</p>
                   </div>
                 </div>
@@ -150,8 +147,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
           </div>
 
           {/* Campaign Timeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Campaign Timeline</h3>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h3 className="text-lg font-semibold text-ds-900 mb-6">Campaign Timeline</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -187,101 +184,92 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Campaign Settings */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Campaign Settings</h4>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h4 className="font-semibold text-ds-900 mb-4">Campaign Settings</h4>
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-500">Campaign Type</label>
-                <p className="text-gray-900">{campaign.type}</p>
+                <label className="text-sm font-medium text-ds-700">Campaign Type</label>
+                <p className="text-ds-900">{campaign.type}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Status</label>
-                <p className="text-gray-900">{campaign.status}</p>
+                <label className="text-sm font-medium text-ds-700">Status</label>
+                <p className="text-ds-900">{campaign.status}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Start Date</label>
-                <p className="text-gray-900">January 1, 2024</p>
+                <label className="text-sm font-medium text-ds-700">Start Date</label>
+                <p className="text-ds-900">January 1, 2024</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">End Date</label>
-                <p className="text-gray-900">March 31, 2024</p>
+                <label className="text-sm font-medium text-ds-700">End Date</label>
+                <p className="text-ds-900">March 31, 2024</p>
               </div>
               {campaign.type === 'Discount Code' && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Discount Amount</label>
-                  <p className="text-gray-900">20% off</p>
+                  <label className="text-sm font-medium text-ds-700">Discount Amount</label>
+                  <p className="text-ds-900">20% off</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Audience Breakdown */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Audience Breakdown</h4>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h4 className="font-semibold text-ds-900 mb-4">Audience Breakdown</h4>
             <div className="space-y-4">
               {audienceBreakdown.map((segment, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">{segment.segment}</span>
-                    <span className="text-sm text-gray-500">{segment.percentage}%</span>
+                    <span className="text-sm font-medium text-ds-700">{segment.segment}</span>
+                    <span className="text-sm text-ds-700">{segment.percentage}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${segment.percentage}%` }}
-                    />
+                  <div className="w-full bg-ds-200 rounded-full h-2">
+                    <div className="bg-ds-700 h-2 rounded-full" style={{ width: `${segment.percentage}%` }} />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{segment.count.toLocaleString()} customers</p>
+                  <p className="text-xs text-ds-700 mt-1">{segment.count.toLocaleString()} customers</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Quick Actions</h4>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h4 className="font-semibold text-ds-900 mb-4">Quick Actions</h4>
             <div className="space-y-3">
               {campaign.status === 'Active' ? (
-                <button className="w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors">
+                <button className="w-full text-left px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">
                   Pause Campaign
                 </button>
               ) : (
-                <button className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
+                <button className="w-full text-left px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">
                   Resume Campaign
                 </button>
               )}
-              <button className="w-full text-left px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
-                Duplicate Campaign
-              </button>
-              <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
-                Export Report
-              </button>
-              <button className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
-                View Full Analytics
-              </button>
+              <button className="w-full text-left px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">Duplicate Campaign</button>
+              <button className="w-full text-left px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">Export Report</button>
+              <button className="w-full text-left px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300 transition-colors">View Full Analytics</button>
             </div>
           </div>
 
           {/* Budget Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Budget & Spend</h4>
+          <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+            <h4 className="font-semibold text-ds-900 mb-4">Budget & Spend</h4>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Budget</span>
-                <span className="text-sm font-medium text-gray-900">$5,000</span>
+                <span className="text-sm text-ds-700">Total Budget</span>
+                <span className="text-sm font-medium text-ds-900">$5,000</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Spent</span>
-                <span className="text-sm font-medium text-gray-900">$3,250</span>
+                <span className="text-sm text-ds-700">Spent</span>
+                <span className="text-sm font-medium text-ds-900">$3,250</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Remaining</span>
+                <span className="text-sm text-ds-700">Remaining</span>
                 <span className="text-sm font-medium text-green-600">$1,750</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '65%' }} />
+              <div className="w-full bg-ds-200 rounded-full h-2 mt-3">
+                <div className="bg-ds-700 h-2 rounded-full" style={{ width: '65%' }} />
               </div>
-              <p className="text-xs text-gray-500">65% of budget used</p>
+              <p className="text-xs text-ds-700">65% of budget used</p>
             </div>
           </div>
         </div>

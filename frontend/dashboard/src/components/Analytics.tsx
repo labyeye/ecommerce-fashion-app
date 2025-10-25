@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
+  import { 
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
@@ -9,11 +9,28 @@ import {
   Package,
   Calendar,
   BarChart3,
-  PieChart,
+  
   Activity,
   Loader2,
   AlertCircle
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 interface AnalyticsData {
   revenue: {
@@ -72,6 +89,7 @@ const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [timeRange, setTimeRange] = useState('30'); // days
+  const [chartView, setChartView] = useState<'revenue' | 'orders' | 'customers'>('revenue');
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -181,14 +199,14 @@ const Analytics: React.FC = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.revenue.total)}</p>
+              <p className="text-sm font-medium text-ds-700">Total Revenue</p>
+              <p className="text-2xl font-bold text-ds-900">{formatCurrency(data.revenue.total)}</p>
             </div>
-            <div className={`p-3 rounded-full ${data.revenue.growth >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
-              <DollarSign className={`w-6 h-6 ${data.revenue.growth >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+            <div className={`p-3 rounded-full ${data.revenue.growth >= 0 ? 'bg-ds-200' : 'bg-red-100'}`}>
+              <DollarSign className={`w-6 h-6 ${data.revenue.growth >= 0 ? 'text-ds-700' : 'text-red-600'}`} />
             </div>
           </div>
           <div className="flex items-center mt-4">
@@ -203,14 +221,14 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.orders.total)}</p>
+              <p className="text-sm font-medium text-ds-700">Total Orders</p>
+              <p className="text-2xl font-bold text-ds-900">{formatNumber(data.orders.total)}</p>
             </div>
-            <div className="p-3 rounded-full bg-blue-100">
-              <ShoppingCart className="w-6 h-6 text-blue-600" />
+            <div className="p-3 rounded-full bg-ds-200">
+              <ShoppingCart className="w-6 h-6 text-ds-700" />
             </div>
           </div>
           <div className="flex items-center mt-4">
@@ -225,14 +243,14 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Customers</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.customers.total)}</p>
+              <p className="text-sm font-medium text-ds-700">Total Customers</p>
+              <p className="text-2xl font-bold text-ds-900">{formatNumber(data.customers.total)}</p>
             </div>
-            <div className="p-3 rounded-full bg-purple-100">
-              <Users className="w-6 h-6 text-purple-600" />
+            <div className="p-3 rounded-full bg-ds-200">
+              <Users className="w-6 h-6 text-ds-700" />
             </div>
           </div>
           <div className="flex items-center mt-4">
@@ -247,86 +265,127 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Products</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.products.total)}</p>
+              <p className="text-sm font-medium text-ds-700">Total Products</p>
+              <p className="text-2xl font-bold text-ds-900">{formatNumber(data.products.total)}</p>
             </div>
-            <div className="p-3 rounded-full bg-orange-100">
-              <Package className="w-6 h-6 text-orange-600" />
+            <div className="p-3 rounded-full bg-ds-200">
+              <Package className="w-6 h-6 text-ds-700" />
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ds-700">
               {data.products.lowStock} low stock, {data.products.outOfStock} out of stock
             </p>
           </div>
         </div>
       </div>
 
-      {/* Revenue Breakdown */}
+      {/* Revenue / Orders / Customers charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Breakdown</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Monthly Revenue</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(data.revenue.monthly)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Weekly Revenue</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(data.revenue.weekly)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Daily Revenue</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(data.revenue.daily)}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Status</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Pending Orders</span>
-              <span className="font-semibold text-yellow-600">{data.orders.pending}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Delivered Orders</span>
-              <span className="font-semibold text-green-600">{data.orders.delivered}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Cancelled Orders</span>
-              <span className="font-semibold text-red-600">{data.orders.cancelled}</span>
+        <div className="lg:col-span-2 bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-ds-900">Trends</h3>
+            <div className="flex items-center space-x-3">
+              <div className="inline-flex rounded-md shadow-sm" role="tablist" aria-label="Chart view">
+                <button onClick={() => setChartView('revenue')} className={`px-3 py-1 rounded ${chartView === 'revenue' ? 'bg-ds-200 text-ds-900' : 'bg-transparent text-ds-700'}`}>
+                  Revenue
+                </button>
+                <button onClick={() => setChartView('orders')} className={`px-3 py-1 rounded ${chartView === 'orders' ? 'bg-ds-200 text-ds-900' : 'bg-transparent text-ds-700'}`}>
+                  Orders
+                </button>
+                <button onClick={() => setChartView('customers')} className={`px-3 py-1 rounded ${chartView === 'customers' ? 'bg-ds-200 text-ds-900' : 'bg-transparent text-ds-700'}`}>
+                  Customers
+                </button>
+              </div>
             </div>
           </div>
+
+          <div style={{ width: '100%', height: 320 }}>
+            <ResponsiveContainer>
+              {
+                (() => {
+                  // build the appropriate chart element as a single child for ResponsiveContainer
+                  if (chartView === 'revenue') {
+                    return (
+                      <AreaChart data={data.monthlyRevenue} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#34D399" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#34D399" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="month" tick={{ fill: '#374151' }} />
+                        <YAxis tickFormatter={(val) => `${val / 1000}k`} />
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                        <Area type="monotone" dataKey="revenue" stroke="#10B981" fillOpacity={1} fill="url(#colorRev)" />
+                      </AreaChart>
+                    );
+                  }
+
+                  if (chartView === 'orders') {
+                    return (
+                      <LineChart data={data.monthlyRevenue} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                        <XAxis dataKey="month" tick={{ fill: '#374151' }} />
+                        <YAxis />
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="orders" stroke="#3B82F6" strokeWidth={2} dot={{ r: 3 }} />
+                      </LineChart>
+                    );
+                  }
+
+                  // customers view: try to use customersSeries if provided, otherwise approximate distribution
+                  const customersSeries = (data as any).customersSeries;
+                  let series: Array<{ month: string; customers: number }> = [];
+
+                  if (customersSeries && Array.isArray(customersSeries)) {
+                    series = customersSeries.map((c: any) => ({ month: c.month, customers: c.count }));
+                  } else {
+                    const totalNew = data.customers.new || 0;
+                    const totalOrders = data.monthlyRevenue.reduce((s, m) => s + (m.orders || 0), 0) || 1;
+                    series = data.monthlyRevenue.map((m) => ({ month: m.month, customers: Math.round(((m.orders || 0) / totalOrders) * totalNew) }));
+                  }
+
+                  return (
+                    <BarChart data={series} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="month" tick={{ fill: '#374151' }} />
+                      <YAxis />
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <Tooltip />
+                      <Bar dataKey="customers" fill="#8B5CF6" />
+                    </BarChart>
+                  );
+                })()
+              }
+            </ResponsiveContainer>
+          </div>
+          <p className="text-sm text-ds-700 mt-3">Tip: change the time range above to view daily/monthly/yearly trends.</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Insights</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">New Customers</span>
-              <span className="font-semibold text-blue-600">{data.customers.new}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Active Customers</span>
-              <span className="font-semibold text-green-600">{data.customers.active}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Growth Rate</span>
-              <span className={`font-semibold ${data.customers.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {data.customers.growth}%
-              </span>
-            </div>
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <h3 className="text-lg font-semibold text-ds-900 mb-4">Order Status Distribution</h3>
+          <div style={{ width: '100%', height: 240 }}>
+            <ResponsiveContainer>
+              <RechartsPieChart>
+                <Pie data={data.orderStatusDistribution} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} label>
+                  {data.orderStatusDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.status === 'delivered' ? '#10B981' : entry.status === 'pending' ? '#F59E0B' : entry.status === 'cancelled' ? '#EF4444' : '#3B82F6'} />
+                  ))}
+                </Pie>
+                <Legend />
+              </RechartsPieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
 
       {/* Top Products and Customers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-100 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Products</h3>
           <div className="space-y-3">
             {data.topProducts.map((product, index) => (
@@ -348,7 +407,7 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-100 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Customers</h3>
           <div className="space-y-3">
             {data.topCustomers.map((customer, index) => (
@@ -372,7 +431,7 @@ const Analytics: React.FC = () => {
       </div>
 
       {/* Monthly Revenue Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-ds-100 rounded-xl shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Revenue Trend</h3>
         <div className="space-y-4">
           {data.monthlyRevenue.map((month, index) => (
@@ -393,10 +452,10 @@ const Analytics: React.FC = () => {
       </div>
 
       {/* Order Status Distribution */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-ds-100 rounded-xl shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Order Status Distribution</h3>
         <div className="space-y-4">
-          {data.orderStatusDistribution.map((status, index) => (
+          {data.orderStatusDistribution.map((status) => (
             <div key={status.status} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={`w-4 h-4 rounded-full ${

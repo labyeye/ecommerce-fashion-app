@@ -216,17 +216,17 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Product & Inventory</h1>
-          <p className="text-gray-600 mt-1">Manage your Flauntbynishi product catalog and track inventory levels</p>
+          <h1 className="text-2xl font-bold text-ds-900">Product & Inventory</h1>
+          <p className="text-ds-700 mt-1">Manage your Flauntbynishi product catalog and track inventory levels</p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Package className="w-4 h-4" />
-            <span>Bulk Edit</span>
+          <button className="flex items-center space-x-2 px-4 py-2 bg-ds-100 border border-ds-200 rounded-lg hover:bg-ds-200 transition-colors">
+            <Package className="w-4 h-4 text-ds-700" />
+            <span className="text-ds-700">Bulk Edit</span>
           </button>
           <button 
             onClick={onAddProduct}
-            className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-ds-200 text-ds-900 rounded-lg hover:bg-ds-300"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -235,30 +235,30 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="text-2xl font-bold text-gray-900">{products.length}</div>
-          <div className="text-sm text-gray-600">Total Products</div>
-          <div className="text-xs text-green-600 mt-1">Active catalog</div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <div className="text-2xl font-bold text-ds-900">{products.length}</div>
+          <div className="text-sm text-ds-700">Total Products</div>
+          <div className="text-xs text-ds-700 mt-1">Active catalog</div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <div className="text-2xl font-bold text-ds-900">
             {products.filter(p => getTotalStock(p) > 0).length}
           </div>
-          <div className="text-sm text-gray-600">In Stock</div>
-          <div className="text-xs text-green-600 mt-1">Available items</div>
+          <div className="text-sm text-ds-700">In Stock</div>
+          <div className="text-xs text-ds-700 mt-1">Available items</div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="text-2xl font-bold text-yellow-600">{lowStockProducts.length}</div>
-          <div className="text-sm text-gray-600">Low Stock</div>
-          <div className="text-xs text-yellow-600 mt-1">Needs attention</div>
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <div className="text-2xl font-bold text-ds-900">{lowStockProducts.length}</div>
+          <div className="text-sm text-ds-700">Low Stock</div>
+          <div className="text-xs text-ds-700 mt-1">Needs attention</div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="text-2xl font-bold text-red-600">
+        <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+          <div className="text-2xl font-bold text-ds-900">
             {products.filter(p => getTotalStock(p) === 0).length}
           </div>
-          <div className="text-sm text-gray-600">Out of Stock</div>
-          <div className="text-xs text-red-600 mt-1">Urgent restock</div>
+          <div className="text-sm text-ds-700">Out of Stock</div>
+          <div className="text-xs text-ds-700 mt-1">Urgent restock</div>
         </div>
       </div>
 
@@ -302,30 +302,30 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       )}
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ds-500 w-5 h-5" />
             <input
               type="text"
               placeholder="Search products by name, SKU, or category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-ds-200 rounded-lg focus:ring-2 focus:ring-ds-600 focus:border-transparent"
             />
           </div>
           <div className="flex space-x-2">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              className="px-4 py-2 border border-ds-200 rounded-lg focus:ring-2 focus:ring-ds-600 focus:border-transparent"
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="draft">Draft</option>
               <option value="inactive">Inactive</option>
             </select>
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="flex items-center space-x-2 px-4 py-2 border border-ds-200 rounded-lg hover:bg-ds-200">
               <Filter className="w-4 h-4" />
               <span>More Filters</span>
             </button>
@@ -334,15 +334,15 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-ds-300">
+          <h3 className="text-lg font-semibold text-ds-900">
             Product Catalog ({products.length} products)
           </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-ds-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
@@ -370,7 +370,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-ds-100 divide-y divide-ds-300">
               {products.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
@@ -396,7 +396,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                   const totalStock = getTotalStock(product);
                   
                   return (
-                    <tr key={product._id} className="hover:bg-gray-50">
+                    <tr key={product._id} className="hover:bg-ds-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {product.images && product.images.length > 0 && (
@@ -407,23 +407,23 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                             />
                           )}
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm font-medium text-ds-900">{product.name}</div>
+                              <div className="text-sm text-ds-700">
                               {typeof product.category === 'string' ? product.category : product.category?.name || 'No Category'}
                             </div>
                             <div className="flex space-x-1 mt-1">
                               {product.isFeatured && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-ds-200 text-ds-700">
                                   Featured
                                 </span>
                               )}
                               {product.isNewArrival && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-ds-200 text-ds-700">
                                   New
                                 </span>
                               )}
                               {product.isBestSeller && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-ds-200 text-ds-700">
                                   Best Seller
                                 </span>
                               )}
@@ -435,7 +435,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                         {product.sku}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">₹{product.price.toFixed(2)}</div>
+                        <div className="text-sm font-medium text-ds-900">₹{product.price.toFixed(2)}</div>
                         {product.comparePrice && product.comparePrice > product.price && (
                           <div className="text-sm text-gray-500 line-through">₹{product.comparePrice.toFixed(2)}</div>
                         )}
@@ -444,7 +444,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{totalStock} units</div>
+                        <div className="text-sm text-ds-900">{totalStock} units</div>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockStatus.class}`}>
                           {stockStatus.status}
                         </span>
@@ -452,7 +452,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-wrap gap-1">
                           {product.sizes.filter(size => size.stock > 0).map((size) => (
-                            <span key={size.size} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
+                            <span key={size.size} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-ds-100 text-ds-800">
                               {size.size} ({size.stock})
                             </span>
                           ))}
@@ -461,7 +461,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-wrap gap-1">
                           {product.colors.filter(color => color.stock > 0).map((color) => (
-                            <span key={color.name} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
+                            <span key={color.name} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-ds-100 text-ds-800">
                               {color.name} ({color.stock})
                             </span>
                           ))}
@@ -471,7 +471,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           product.status === 'active' ? 'bg-green-100 text-green-800' :
                           product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-ds-100 text-ds-800'
                         }`}>
                           {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
                         </span>
@@ -479,7 +479,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button 
                           onClick={() => onViewDetails(product._id)}
-                          className="text-black hover:text-gray-700"
+                          className="text-ds-700 hover:text-ds-900"
                           title="Edit Product"
                         >
                           <Edit className="w-4 h-4" />

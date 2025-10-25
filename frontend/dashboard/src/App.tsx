@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
 import Overview from "./components/Overview";
@@ -269,7 +269,7 @@ function DashboardApp() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-ds-200 text-ds-900">
       <Sidebar
         activeSection={activeSection}
         onSectionChange={handleSectionChange}
