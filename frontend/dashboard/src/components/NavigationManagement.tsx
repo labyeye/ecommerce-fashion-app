@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, ChevronDown, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Plus, Edit2, Trash2, ChevronDown, Save, X } from "lucide-react";
 
 interface Category {
   _id: string;
@@ -12,7 +12,7 @@ interface NavigationLink {
   name: string;
   slug: string;
   url: string;
-  type: 'category' | 'page' | 'external';
+  type: "category" | "page" | "external";
   category?: Category;
   isActive: boolean;
   showInNavigation: boolean;
@@ -31,7 +31,7 @@ interface NavigationLink {
 interface FormData {
   name: string;
   url: string;
-  type: 'category' | 'page' | 'external';
+  type: "category" | "page" | "external";
   category: string;
   isActive: boolean;
   showInNavigation: boolean;
@@ -54,16 +54,16 @@ const NavigationManagement: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    url: '',
-    type: 'page',
-    category: '',
+    name: "",
+    url: "",
+    type: "page",
+    category: "",
     isActive: true,
     showInNavigation: true,
     sortOrder: 0,
     hasDropdown: false,
     dropdownItems: [],
-    icon: ''
+    icon: "",
   });
 
   useEffect(() => {
@@ -73,11 +73,11 @@ const NavigationManagement: React.FC = () => {
 
   const fetchNavigationLinks = async () => {
     try {
-      const token = localStorage.getItem('dashboard_token');
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/navigation', {
+      const token = localStorage.getItem("dashboard_token");
+      const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/navigation", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -88,7 +88,7 @@ const NavigationManagement: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching navigation links:', error);
+      console.error("Error fetching navigation links:", error);
     } finally {
       setLoading(false);
     }
@@ -96,13 +96,16 @@ const NavigationManagement: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('dashboard_token');
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const token = localStorage.getItem("dashboard_token");
+      const response = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -111,69 +114,104 @@ const NavigationManagement: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
-      const token = localStorage.getItem('dashboard_token');
-      const url = editingId 
+      const token = localStorage.getItem("dashboard_token");
+      const url = editingId
         ? `https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${editingId}`
-        : 'https://ecommerce-fashion-app-som7.vercel.app/api/navigation';
-      
-      const method = editingId ? 'PUT' : 'POST';
+        : "https://ecommerce-fashion-app-som7.vercel.app/api/navigation";
+
+      const method = editingId ? "PUT" : "POST";
 
       // Client-side validation
       if (!formData.name || !formData.url) {
-        alert('Please provide both a Name and URL for the navigation link.');
+        alert("Please provide both a Name and URL for the navigation link.");
         return;
       }
 
       // Sanitize payload: remove empty dropdown items (backend also filters, but do it here for better UX)
-      const normalizeVal = (v: any) => (v === undefined || v === null || (typeof v === 'string' && v.trim() === '') ? null : v);
+      const normalizeVal = (v: any) =>
+        v === undefined ||
+        v === null ||
+        (typeof v === "string" && v.trim() === "")
+          ? null
+          : v;
 
       const payload = {
         ...formData,
+        // Ensure a slug is always sent (client-side fallback) to avoid server-side `slug` validation errors
+        slug: formData.name
+          ? formData.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "")
+          : undefined,
         category: normalizeVal(formData.category),
         dropdownItems: Array.isArray(formData.dropdownItems)
           ? formData.dropdownItems
-              .filter(it => it && it.name && it.url)
-              .map(it => ({ ...it, category: normalizeVal(it.category) }))
-          : []
+              .filter((it) => it && it.name && it.url)
+              .map((it) => ({ ...it, category: normalizeVal(it.category) }))
+          : [],
       };
 
       // Debug: log outgoing request data to help diagnose 400 Bad Request
-      console.debug('[NavigationManagement] submitting', { url, method, body: payload });
+      console.debug("[NavigationManagement] submitting", {
+        url,
+        method,
+        body: payload,
+      });
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
-        if (response.ok) {
-          await fetchNavigationLinks();
-          resetForm();
-        } else {
-          // try to show server-side validation / error messages
-          let errorText = 'Failed to save navigation link';
-          try {
-            const err = await response.json();
-            errorText = err && err.message ? err.message : JSON.stringify(err);
-          } catch (e) {
-            errorText = response.statusText || errorText;
+      if (response.ok) {
+        await fetchNavigationLinks();
+        resetForm();
+      } else {
+        // Provide richer client-side logging for debugging server 4xx/5xx responses
+        let errorText = `Request failed with status ${response.status}`;
+        try {
+          // Try to read as JSON first (most API errors return JSON)
+          const errJson = await response.json();
+          // If the backend provides validation `details`, include them in the message
+          if (errJson && errJson.details && typeof errJson.details === 'object') {
+            const detailsObj = errJson.details;
+            const detailsStr = Object.keys(detailsObj)
+              .map(k => `${k}: ${detailsObj[k]}`)
+              .join('; ');
+            errorText = `${errJson.message || 'Error'} — ${detailsStr}`;
+          } else {
+            errorText = errJson && errJson.message ? errJson.message : JSON.stringify(errJson);
           }
-          console.warn('[NavigationManagement] server error', response.status, errorText);
-          alert(`Navigation update failed: ${errorText}`);
+          console.warn('[NavigationManagement] server JSON error', response.status, errJson);
+        } catch (jsonErr) {
+          // Fallback: read plain text (in case server returned non-JSON body)
+          try {
+            const text = await response.text();
+            errorText = text || errorText;
+            console.warn('[NavigationManagement] server text error', response.status, text);
+          } catch (textErr) {
+            console.warn('[NavigationManagement] failed to read error body', textErr);
+          }
         }
+        // Also log the outgoing payload (helps debug validation issues like missing fields or duplicates)
+        console.debug('[NavigationManagement] last payload sent', payload);
+        alert(`Navigation update failed: ${errorText}`);
+      }
     } catch (error) {
-      console.error('Error saving navigation link:', error);
+      console.error("Error saving navigation link:", error);
     }
   };
 
@@ -183,53 +221,57 @@ const NavigationManagement: React.FC = () => {
       name: link.name,
       url: link.url,
       type: link.type,
-      category: link.category?._id || '',
+      category: link.category?._id || "",
       isActive: link.isActive,
       showInNavigation: link.showInNavigation,
       sortOrder: link.sortOrder,
       hasDropdown: link.hasDropdown,
-      dropdownItems: link.dropdownItems.map(item => ({
+      dropdownItems: link.dropdownItems.map((item) => ({
         ...item,
-        category: item.category || ''
+        category: item.category || "",
       })),
-      icon: link.icon || ''
+      icon: link.icon || "",
     });
     setIsAddingNew(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this navigation link?')) return;
-    
+    if (!confirm("Are you sure you want to delete this navigation link?"))
+      return;
+
     try {
-      const token = localStorage.getItem('dashboard_token');
-      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const token = localStorage.getItem("dashboard_token");
+      const response = await fetch(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         await fetchNavigationLinks();
       }
     } catch (error) {
-      console.error('Error deleting navigation link:', error);
+      console.error("Error deleting navigation link:", error);
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      url: '',
-      type: 'page',
-      category: '',
+      name: "",
+      url: "",
+      type: "page",
+      category: "",
       isActive: true,
       showInNavigation: true,
       sortOrder: 0,
       hasDropdown: false,
       dropdownItems: [],
-      icon: ''
+      icon: "",
     });
     setIsAddingNew(false);
     setEditingId(null);
@@ -241,13 +283,13 @@ const NavigationManagement: React.FC = () => {
       dropdownItems: [
         ...formData.dropdownItems,
         {
-          name: '',
-          url: '',
-          category: '',
+          name: "",
+          url: "",
+          category: "",
           isActive: true,
-          sortOrder: formData.dropdownItems.length + 1
-        }
-      ]
+          sortOrder: formData.dropdownItems.length + 1,
+        },
+      ],
     });
   };
 
@@ -263,13 +305,17 @@ const NavigationManagement: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">Loading...</div>
+    );
   }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Navigation Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Navigation Management
+        </h1>
         <button
           onClick={() => setIsAddingNew(true)}
           className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
@@ -283,9 +329,9 @@ const NavigationManagement: React.FC = () => {
       {isAddingNew && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6 border">
           <h2 className="text-lg font-semibold mb-4">
-            {editingId ? 'Edit Navigation Link' : 'Add Navigation Link'}
+            {editingId ? "Edit Navigation Link" : "Add Navigation Link"}
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -295,7 +341,9 @@ const NavigationManagement: React.FC = () => {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   required
                 />
@@ -308,7 +356,9 @@ const NavigationManagement: React.FC = () => {
                 <input
                   type="text"
                   value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="/about, /contact, etc."
                   required
@@ -321,7 +371,12 @@ const NavigationManagement: React.FC = () => {
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'category' | 'page' | 'external' })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      type: e.target.value as "category" | "page" | "external",
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 >
                   <option value="page">Page</option>
@@ -337,7 +392,12 @@ const NavigationManagement: React.FC = () => {
                 <input
                   type="number"
                   value={formData.sortOrder}
-                  onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      sortOrder: parseInt(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
@@ -348,7 +408,9 @@ const NavigationManagement: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isActive: e.target.checked })
+                  }
                   className="rounded"
                 />
                 <span className="text-sm text-gray-700">Active</span>
@@ -358,17 +420,26 @@ const NavigationManagement: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={formData.showInNavigation}
-                  onChange={(e) => setFormData({ ...formData, showInNavigation: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      showInNavigation: e.target.checked,
+                    })
+                  }
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">Show in Navigation</span>
+                <span className="text-sm text-gray-700">
+                  Show in Navigation
+                </span>
               </label>
 
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   checked={formData.hasDropdown}
-                  onChange={(e) => setFormData({ ...formData, hasDropdown: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, hasDropdown: e.target.checked })
+                  }
                   className="rounded"
                 />
                 <span className="text-sm text-gray-700">Has Dropdown</span>
@@ -379,7 +450,9 @@ const NavigationManagement: React.FC = () => {
             {formData.hasDropdown && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-medium text-gray-700">Dropdown Items</h3>
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Dropdown Items
+                  </h3>
                   <button
                     type="button"
                     onClick={addDropdownItem}
@@ -390,7 +463,10 @@ const NavigationManagement: React.FC = () => {
                 </div>
 
                 {formData.dropdownItems.map((item, index) => (
-                  <div key={index} className="border border-gray-200 p-4 rounded-lg">
+                  <div
+                    key={index}
+                    className="border border-gray-200 p-4 rounded-lg"
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -399,7 +475,9 @@ const NavigationManagement: React.FC = () => {
                         <input
                           type="text"
                           value={item.name}
-                          onChange={(e) => updateDropdownItem(index, 'name', e.target.value)}
+                          onChange={(e) =>
+                            updateDropdownItem(index, "name", e.target.value)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           placeholder="Category name"
                         />
@@ -412,7 +490,9 @@ const NavigationManagement: React.FC = () => {
                         <input
                           type="text"
                           value={item.url}
-                          onChange={(e) => updateDropdownItem(index, 'url', e.target.value)}
+                          onChange={(e) =>
+                            updateDropdownItem(index, "url", e.target.value)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           placeholder="/products?category=..."
                         />
@@ -439,7 +519,7 @@ const NavigationManagement: React.FC = () => {
                 className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {editingId ? 'Update' : 'Save'}
+                {editingId ? "Update" : "Save"}
               </button>
               <button
                 type="button"
@@ -508,19 +588,23 @@ const NavigationManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex space-x-2">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          link.isActive 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {link.isActive ? 'Active' : 'Inactive'}
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            link.isActive
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {link.isActive ? "Active" : "Inactive"}
                         </span>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          link.showInNavigation 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {link.showInNavigation ? 'Visible' : 'Hidden'}
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            link.showInNavigation
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {link.showInNavigation ? "Visible" : "Hidden"}
                         </span>
                       </div>
                     </td>

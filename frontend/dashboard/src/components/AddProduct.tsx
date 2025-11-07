@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, X, Plus } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Save, X, Plus } from "lucide-react";
 
 interface Category {
   _id: string;
@@ -7,55 +7,107 @@ interface Category {
   slug: string;
 }
 
+interface Size {
+  size: string;
+  stock: number;
+  price: number;
+}
+
+interface Color {
+  name: string;
+  hexCode: string;
+  stock: number;
+  images: { url: string; alt: string }[];
+}
+
+interface ImageItem {
+  url: string;
+  alt: string;
+  isPrimary?: boolean;
+}
+
+interface ProductFormData {
+  name: string;
+  sku: string;
+  description: string;
+  shortDescription: string;
+  price: string;
+  comparePrice: string;
+  salePrice: string;
+  category: string;
+  brand: string;
+  material: string;
+  careInstructions: string;
+  fit: string;
+  tags: string[];
+  status: string;
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isBestSeller: boolean;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string[];
+}
+
+interface ServerValidationError {
+  param?: string;
+  msg?: string;
+}
+
 interface AddProductProps {
   onBack: () => void;
-  onSave: (product: any) => void;
+  onSave: (product: unknown) => void;
 }
 
 const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    sku: '',
-    description: '',
-    shortDescription: '',
-    price: '',
-    comparePrice: '',
-    salePrice: '',
-    category: '',
-    brand: 'Flauntbynishi',
-    material: '',
-    careInstructions: '',
-    fit: 'regular',
-    tags: [] as string[],
-    status: 'active',
+
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: "",
+    sku: "",
+    description: "",
+    shortDescription: "",
+    price: "",
+    comparePrice: "",
+    salePrice: "",
+    category: "",
+    brand: "Flauntbynishi",
+    material: "",
+    careInstructions: "",
+    fit: "regular",
+    tags: [],
+    status: "active",
     isFeatured: false,
     isNewArrival: false,
     isBestSeller: false,
-    seoTitle: '',
-    seoDescription: '',
-    seoKeywords: [] as string[]
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: [],
   });
 
-  const [sizes, setSizes] = useState([
-    { size: 'XS', stock: 0, price: 0 },
-    { size: 'S', stock: 0, price: 0 },
-    { size: 'M', stock: 0, price: 0 },
-    { size: 'L', stock: 0, price: 0 },
-    { size: 'XL', stock: 0, price: 0 },
-    { size: 'XXL', stock: 0, price: 0 }
+  const [sizes, setSizes] = useState<Size[]>([
+    { size: "XS", stock: 0, price: 0 },
+    { size: "S", stock: 0, price: 0 },
+    { size: "M", stock: 0, price: 0 },
+    { size: "L", stock: 0, price: 0 },
+    { size: "XL", stock: 0, price: 0 },
+    { size: "XXL", stock: 0, price: 0 },
   ]);
 
-  const [colors, setColors] = useState([
-    { name: 'Black', hexCode: '#000000', stock: 0, images: [{ url: '', alt: '' }] }
+  const [colors, setColors] = useState<Color[]>([
+    {
+      name: "Black",
+      hexCode: "#000000",
+      stock: 0,
+      images: [{ url: "", alt: "" }],
+    },
   ]);
 
-  const [images, setImages] = useState([{ url: '', alt: '', isPrimary: true }]);
-  const [currentTag, setCurrentTag] = useState('');
-  const [currentKeyword, setCurrentKeyword] = useState('');
+  const [images, setImages] = useState<ImageItem[]>([{ url: "", alt: "", isPrimary: true }]);
+  const [currentTag, setCurrentTag] = useState("");
+  const [currentKeyword, setCurrentKeyword] = useState("");
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -64,30 +116,36 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('dashboard_token');
-      console.log('Fetching categories with token:', token ? 'Token exists' : 'No token found');
-      
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const token = localStorage.getItem("dashboard_token");
+      console.log(
+        "Fetching categories with token:",
+        token ? "Token exists" : "No token found"
+      );
 
-      console.log('Categories response status:', response.status);
-      
+      const response = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Categories response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Categories data:', data);
+        console.log("Categories data:", data);
         if (data.success) {
           setCategories(data.data);
         }
       } else {
         const errorData = await response.json();
-        console.error('Categories fetch error:', errorData);
+        console.error("Categories fetch error:", errorData);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
@@ -97,153 +155,240 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('dashboard_token');
-      
-      console.log('Token from localStorage:', token ? 'Token exists' : 'No token found');
-      
+      const token = localStorage.getItem("dashboard_token");
+
+      console.log(
+        "Token from localStorage:",
+        token ? "Token exists" : "No token found"
+      );
+
       if (!token) {
-        setError('Authentication token not found. Please login again.');
+        setError("Authentication token not found. Please login again.");
         setLoading(false);
         return;
       }
 
+      // Basic client-side validation to avoid obvious server validation failures
+      const priceValue = parseFloat(formData.price);
+      if (Number.isNaN(priceValue)) {
+        setError("Price must be a valid number");
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.category || formData.category === "") {
+        setError("Please select a category for the product");
+        setLoading(false);
+        return;
+      }
+
+      const comparePriceValue = formData.comparePrice
+        ? parseFloat(formData.comparePrice)
+        : undefined;
+      const salePriceValue = formData.salePrice
+        ? parseFloat(formData.salePrice)
+        : undefined;
+
       const productData = {
         ...formData,
-        description: formData.description || formData.shortDescription || 'No description provided',
-        price: parseFloat(formData.price),
-        comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : undefined,
-        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : undefined,
-        sizes: sizes.filter(size => size.stock > 0).map(size => ({
-          ...size,
-          price: size.price || parseFloat(formData.price)
-        })),
-        colors: colors.map(color => ({
+        description:
+          formData.description ||
+          formData.shortDescription ||
+          "No description provided",
+        price: priceValue,
+        comparePrice: Number.isFinite(comparePriceValue)
+          ? comparePriceValue
+          : undefined,
+        salePrice: Number.isFinite(salePriceValue) ? salePriceValue : undefined,
+        sizes: sizes
+          .filter((size) => size.stock > 0)
+          .map((size) => ({
+            ...size,
+            // ensure per-size price is valid, else fall back
+            price:
+              Number.isFinite(Number(size.price)) && Number(size.price) > 0
+                ? Number(size.price)
+                : priceValue,
+          })),
+        colors: colors.map((color) => ({
           ...color,
-          stock: color.stock || 0
+          stock: color.stock || 0,
         })),
-        images: images.filter(img => img.url),
+        images: images.filter((img) => img.url),
         seo: {
           title: formData.seoTitle,
           description: formData.seoDescription,
-          keywords: formData.seoKeywords
-        }
+          keywords: formData.seoKeywords,
+        },
       };
 
-      console.log('Sending product data:', productData);
-      console.log('Request headers:', {
-        'Authorization': `Bearer ${token.substring(0, 20)}...`,
-        'Content-Type': 'application/json'
+      console.log("Sending product data:", productData);
+      console.log("Request headers:", {
+        Authorization: `Bearer ${token ? token.substring(0, 20) + "..." : ""}`,
+        "Content-Type": "application/json",
       });
 
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/admin/products', {
-        method: 'POST',
+      const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/admin/products", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(productData),
       });
 
-      console.log('Response status:', response.status);
-      
+      console.log("Response status:", response.status);
+
       const data = await response.json();
-      console.log('Response data:', data);
+      console.log("Response data:", data);
 
       if (response.ok && data.success) {
-        console.log('Product created successfully:', data.data);
+        console.log("Product created successfully:", data.data);
         onSave(data.data);
         onBack(); // Navigate back to products list
       } else {
-        setError(data.message || 'Failed to create product');
-        console.error('API Error:', data);
+        // Surface validation errors from server (express-validator)
+        if (data && Array.isArray(data.errors) && data.errors.length > 0) {
+          const msg = (data.errors as ServerValidationError[])
+            .map((e) =>
+              e && e.msg ? `${e.param || "field"}: ${e.msg}` : JSON.stringify(e)
+            )
+            .join("; ");
+          setError(msg || data.message || "Failed to create product");
+        } else {
+          setError(data.message || "Failed to create product");
+        }
+        console.error("API Error:", data);
       }
     } catch (error) {
-      console.error('Error creating product:', error);
-      setError('Network error. Please try again.');
+      console.error("Error creating product:", error);
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof ProductFormData,
+    value: string | boolean | string[]
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const addTag = () => {
     if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, currentTag.trim()]
+        tags: [...prev.tags, currentTag.trim()],
       }));
-      setCurrentTag('');
+      setCurrentTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const addKeyword = () => {
-    if (currentKeyword.trim() && !formData.seoKeywords.includes(currentKeyword.trim())) {
-      setFormData(prev => ({
+    if (
+      currentKeyword.trim() &&
+      !formData.seoKeywords.includes(currentKeyword.trim())
+    ) {
+      setFormData((prev) => ({
         ...prev,
-        seoKeywords: [...prev.seoKeywords, currentKeyword.trim()]
+        seoKeywords: [...prev.seoKeywords, currentKeyword.trim()],
       }));
-      setCurrentKeyword('');
+      setCurrentKeyword("");
     }
   };
 
   const removeKeyword = (keywordToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      seoKeywords: prev.seoKeywords.filter(keyword => keyword !== keywordToRemove)
+      seoKeywords: prev.seoKeywords.filter(
+        (keyword) => keyword !== keywordToRemove
+      ),
     }));
   };
 
-  const updateSize = (index: number, field: string, value: any) => {
-    setSizes(prev => prev.map((size, i) => 
-      i === index ? { ...size, [field]: field === 'stock' || field === 'price' ? parseInt(value) || 0 : value } : size
-    ));
+  const updateSize = (
+    index: number,
+    field: keyof Size,
+    value: string | number
+  ) => {
+    setSizes((prev) =>
+      prev.map((size, i) =>
+        i === index
+          ? {
+              ...size,
+              [field]:
+                field === "stock" || field === "price"
+                  ? parseInt(String(value)) || 0
+                  : value,
+            }
+          : size
+      )
+    );
   };
 
-  const updateColor = (index: number, field: string, value: any) => {
-    setColors(prev => prev.map((color, i) => 
-      i === index ? { 
-        ...color, 
-        [field]: field === 'stock' ? parseInt(value) || 0 : value 
-      } : color
-    ));
+  const updateColor = (
+    index: number,
+    field: keyof Color,
+    value: string | number
+  ) => {
+    setColors((prev) =>
+      prev.map((color, i) =>
+        i === index
+          ? {
+              ...color,
+              [field]: field === "stock" ? parseInt(String(value)) || 0 : value,
+            }
+          : color
+      )
+    );
   };
 
   const addColor = () => {
-    setColors(prev => [...prev, { name: '', hexCode: '#000000', stock: 0, images: [{ url: '', alt: '' }] }]);
+    setColors((prev) => [
+      ...prev,
+      {
+        name: "",
+        hexCode: "#000000",
+        stock: 0,
+        images: [{ url: "", alt: "" }],
+      },
+    ]);
   };
 
   const removeColor = (index: number) => {
     if (colors.length > 1) {
-      setColors(prev => prev.filter((_, i) => i !== index));
+      setColors((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
   const addImage = () => {
-    setImages(prev => [...prev, { url: '', alt: '', isPrimary: false }]);
+    setImages((prev) => [...prev, { url: "", alt: "", isPrimary: false }]);
   };
 
-  const updateImage = (index: number, field: string, value: any) => {
-    setImages(prev => prev.map((img, i) => 
-      i === index ? { ...img, [field]: value } : img
-    ));
+  const updateImage = (
+    index: number,
+    field: keyof ImageItem,
+    value: string | boolean
+  ) => {
+    setImages((prev) =>
+      prev.map((img, i) => (i === index ? { ...img, [field]: value } : img))
+    );
   };
 
   const removeImage = (index: number) => {
     if (images.length > 1) {
-      setImages(prev => prev.filter((_, i) => i !== index));
+      setImages((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -259,8 +404,12 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
-            <p className="text-gray-600 mt-1">Create a new fashion product for Flauntbynishi</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Add New Product
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Create a new fashion product for Flauntbynishi
+            </p>
           </div>
         </div>
         <div className="flex space-x-3">
@@ -277,7 +426,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            <span>{loading ? 'Saving...' : 'Save Product'}</span>
+            <span>{loading ? "Saving..." : "Save Product"}</span>
           </button>
         </div>
       </div>
@@ -291,12 +440,17 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Basic Information
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -305,7 +459,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Enter product name"
                   required
@@ -320,7 +474,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   <input
                     type="text"
                     value={formData.sku}
-                    onChange={(e) => handleInputChange('sku', e.target.value)}
+                    onChange={(e) => handleInputChange("sku", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="e.g., FBN-001"
                     required
@@ -333,7 +487,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   <input
                     type="text"
                     value={formData.brand}
-                    onChange={(e) => handleInputChange('brand', e.target.value)}
+                    onChange={(e) => handleInputChange("brand", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="Brand name"
                   />
@@ -347,7 +501,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 <input
                   type="text"
                   value={formData.shortDescription}
-                  onChange={(e) => handleInputChange('shortDescription', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("shortDescription", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Brief product description (appears on product cards)"
                 />
@@ -359,7 +515,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Detailed product description"
@@ -370,7 +528,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
 
           {/* Pricing */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Pricing
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -380,7 +540,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   type="number"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="0.00"
                   required
@@ -394,7 +554,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   type="number"
                   step="0.01"
                   value={formData.comparePrice}
-                  onChange={(e) => handleInputChange('comparePrice', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("comparePrice", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="0.00"
                 />
@@ -407,7 +569,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   type="number"
                   step="0.01"
                   value={formData.salePrice}
-                  onChange={(e) => handleInputChange('salePrice', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("salePrice", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="0.00"
                 />
@@ -417,7 +581,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
 
           {/* Fashion Details */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Fashion Details</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Fashion Details
+            </h3>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -427,7 +593,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   <input
                     type="text"
                     value={formData.material}
-                    onChange={(e) => handleInputChange('material', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("material", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="e.g., 100% Cotton, Polyester Blend"
                   />
@@ -438,7 +606,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   </label>
                   <select
                     value={formData.fit}
-                    onChange={(e) => handleInputChange('fit', e.target.value)}
+                    onChange={(e) => handleInputChange("fit", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   >
                     <option value="slim">Slim Fit</option>
@@ -454,7 +622,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 </label>
                 <textarea
                   value={formData.careInstructions}
-                  onChange={(e) => handleInputChange('careInstructions', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("careInstructions", e.target.value)
+                  }
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="e.g., Machine wash cold, tumble dry low, do not bleach"
@@ -465,7 +635,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
 
           {/* Sizes & Stock */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sizes & Stock</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Sizes & Stock
+            </h3>
             <div className="space-y-4">
               <div className="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-700 border-b pb-2">
                 <div>Size</div>
@@ -474,13 +646,18 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 <div>Display</div>
               </div>
               {sizes.map((size, index) => (
-                <div key={size.size} className="grid grid-cols-4 gap-4 items-center">
+                <div
+                  key={size.size}
+                  className="grid grid-cols-4 gap-4 items-center"
+                >
                   <div className="font-medium text-gray-700">{size.size}</div>
                   <div>
                     <input
                       type="number"
                       value={size.stock}
-                      onChange={(e) => updateSize(index, 'stock', e.target.value)}
+                      onChange={(e) =>
+                        updateSize(index, "stock", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="Stock"
                       min="0"
@@ -491,14 +668,16 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                       type="number"
                       step="0.01"
                       value={size.price}
-                      onChange={(e) => updateSize(index, 'price', e.target.value)}
+                      onChange={(e) =>
+                        updateSize(index, "price", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="Price (optional)"
                       min="0"
                     />
                   </div>
                   <div className="text-sm text-gray-500">
-                    {size.price > 0 ? `₹${size.price}` : 'Default price'}
+                    {size.price > 0 ? `₹${size.price}` : "Default price"}
                   </div>
                 </div>
               ))}
@@ -520,7 +699,10 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             </div>
             <div className="space-y-4">
               {colors.map((color, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-lg p-4"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -529,7 +711,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                       <input
                         type="text"
                         value={color.name}
-                        onChange={(e) => updateColor(index, 'name', e.target.value)}
+                        onChange={(e) =>
+                          updateColor(index, "name", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                         placeholder="e.g., Black, Navy"
                       />
@@ -542,13 +726,17 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                         <input
                           type="color"
                           value={color.hexCode}
-                          onChange={(e) => updateColor(index, 'hexCode', e.target.value)}
+                          onChange={(e) =>
+                            updateColor(index, "hexCode", e.target.value)
+                          }
                           className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
                         />
                         <input
                           type="text"
                           value={color.hexCode}
-                          onChange={(e) => updateColor(index, 'hexCode', e.target.value)}
+                          onChange={(e) =>
+                            updateColor(index, "hexCode", e.target.value)
+                          }
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                           placeholder="#000000"
                         />
@@ -561,7 +749,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                       <input
                         type="number"
                         value={color.stock}
-                        onChange={(e) => updateColor(index, 'stock', e.target.value)}
+                        onChange={(e) =>
+                          updateColor(index, "stock", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                         placeholder="0"
                         min="0"
@@ -587,7 +777,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
           {/* Images */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Product Images</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Product Images
+              </h3>
               <button
                 type="button"
                 onClick={addImage}
@@ -599,7 +791,10 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             </div>
             <div className="space-y-4">
               {images.map((image, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-lg p-4"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -608,7 +803,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                       <input
                         type="url"
                         value={image.url}
-                        onChange={(e) => updateImage(index, 'url', e.target.value)}
+                        onChange={(e) =>
+                          updateImage(index, "url", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                         placeholder="https://example.com/image.jpg"
                         required
@@ -621,7 +818,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                       <input
                         type="text"
                         value={image.alt}
-                        onChange={(e) => updateImage(index, 'alt', e.target.value)}
+                        onChange={(e) =>
+                          updateImage(index, "alt", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                         placeholder="Image description"
                       />
@@ -631,7 +830,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                         <input
                           type="checkbox"
                           checked={image.isPrimary}
-                          onChange={(e) => updateImage(index, 'isPrimary', e.target.checked)}
+                          onChange={(e) =>
+                            updateImage(index, "isPrimary", e.target.checked)
+                          }
                           className="rounded"
                         />
                         <span className="text-sm text-gray-700">Primary</span>
@@ -661,7 +862,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   type="text"
                   value={currentTag}
                   onChange={(e) => setCurrentTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTag())
+                  }
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Add tag..."
                 />
@@ -700,7 +903,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         <div className="space-y-6">
           {/* Status & Features */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Status & Features</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Status & Features
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -708,7 +913,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  onChange={(e) => handleInputChange("status", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 >
                   <option value="active">Active</option>
@@ -723,7 +928,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 </label>
                 <select
                   value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   required
                 >
@@ -737,21 +944,29 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-sm font-medium text-gray-700">Product Features</h4>
+                <h4 className="text-sm font-medium text-gray-700">
+                  Product Features
+                </h4>
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={formData.isFeatured}
-                    onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("isFeatured", e.target.checked)
+                    }
                     className="rounded"
                   />
-                  <span className="text-sm text-gray-700">Featured Product</span>
+                  <span className="text-sm text-gray-700">
+                    Featured Product
+                  </span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={formData.isNewArrival}
-                    onChange={(e) => handleInputChange('isNewArrival', e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("isNewArrival", e.target.checked)
+                    }
                     className="rounded"
                   />
                   <span className="text-sm text-gray-700">New Arrival</span>
@@ -760,7 +975,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   <input
                     type="checkbox"
                     checked={formData.isBestSeller}
-                    onChange={(e) => handleInputChange('isBestSeller', e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("isBestSeller", e.target.checked)
+                    }
                     className="rounded"
                   />
                   <span className="text-sm text-gray-700">Best Seller</span>
@@ -780,7 +997,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 <input
                   type="text"
                   value={formData.seoTitle}
-                  onChange={(e) => handleInputChange('seoTitle', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("seoTitle", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="SEO title"
                 />
@@ -791,7 +1010,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 </label>
                 <textarea
                   value={formData.seoDescription}
-                  onChange={(e) => handleInputChange('seoDescription', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("seoDescription", e.target.value)
+                  }
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="SEO description"
@@ -806,7 +1027,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                     type="text"
                     value={currentKeyword}
                     onChange={(e) => setCurrentKeyword(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addKeyword())
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="Add keyword..."
                   />

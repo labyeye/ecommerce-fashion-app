@@ -72,7 +72,7 @@ const BlogManagement: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => {
@@ -90,11 +90,11 @@ const BlogManagement: React.FC = () => {
         }
         return prev;
       });
-    } else {
+      } else {
       setFormData(prev => ({
         ...prev,
         [field]: value
-      }));
+      } as CreateBlogData));
     }
   };
 
@@ -109,9 +109,9 @@ const BlogManagement: React.FC = () => {
 
   const updateImage = (index: number, key: 'url' | 'alt', value: string) => {
     setFormData(prev => {
-      const images = [...(prev.images || [])];
-      images[index] = { ...(images[index] || { url: '', alt: '' }), [key]: value } as any;
-      return { ...prev, images };
+      const images = [...(prev.images || [])] as Array<{ url: string; alt: string }>;
+      images[index] = { ...(images[index] || { url: '', alt: '' }), [key]: value } as { url: string; alt: string };
+      return { ...prev, images } as CreateBlogData;
     });
   };
 

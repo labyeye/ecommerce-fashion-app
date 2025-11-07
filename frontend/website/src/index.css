@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,6 +34,68 @@
     font-family: 'Playfair Display', 'Baskerville', Georgia, serif;
     font-weight: 500;
     line-height: 1.2;
+  }
+
+  /* Global heading/subheading/description sizes requested */
+  h1 {
+    @apply text-6xl;
+  }
+
+  h2 {
+    @apply text-4xl;
+  }
+
+  /* Use .description class for larger descriptive paragraphs */
+  .description,
+  p.description {
+    @apply text-2xl;
+  }
+
+  /* Stronger enforcement to override per-component utility classes when necessary */
+  h1 {
+    font-size: 2.25rem !important; /* Tailwind text-6xl */
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: 4.25rem !important; /* Tailwind text-4xl */
+    line-height: 1.15;
+  }
+
+  .description,
+  p.description {
+    font-size: 1.5rem !important; /* Tailwind text-2xl */
+    line-height: 1.6;
+  }
+
+  /* Poppins for numeric content */
+  .poppins-numeric {
+    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -moz-font-feature-settings: "tnum" 1;
+    -webkit-font-feature-settings: "tnum" 1;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Apply Poppins to common numeric selectors (prices, counts, badges, inputs) */
+  .price,
+  .price-value,
+  .product-price,
+  .cart-count,
+  .cart-qty,
+  .badge-number,
+  .badge,
+  .count,
+  .qty,
+  .order-total,
+  .stat-number,
+  .metric-value,
+  .numeric,
+  input[type="number"],
+  .number {
+    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
   
   .font-display {

@@ -64,7 +64,7 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       } else {
         setError('Failed to fetch customers');
       }
-    } catch (error) {
+    } catch {
       setError('Network error');
     } finally {
       setLoading(false);

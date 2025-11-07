@@ -72,7 +72,7 @@ function App() {
               <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
             </div>
             {/* Coming Soon Overlay */}
-            <ComingSoon />
+            {/* <ComingSoon /> */}
           </Router>
         </WishlistProvider>
       </CartProvider>

@@ -149,31 +149,21 @@ const Login: React.FC = () => {
           background-color: #95522C !important;
           color: #FFF2E1 !important;
         }
-
-        /* Icons */
-        .login-page svg, .login-page svg * { fill: #FFF2E1 !important; stroke: #95522C !important; color: #95522C !important; }
-        
-        /* Google button override */
-        .login-page #google-signin-button * {
-          background-color: white !important;
-          color: #333 !important;
-          border-color: #ddd !important;
-        }
       `}</style>
 
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
           <Link
             to="/"
-            className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-xl sm:text-base"
+            className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-2xl sm:text-xl"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <h2 className="text-4xl sm:text-3xl font-bold text-black mb-2">
+          <h2 className="w-[480px] text-4xl sm:text-3xl font-bold text-black mb-12">
             Welcome Back
           </h2>
-          <p className="text-gray-600 text-xl sm:text-sm">
+          <p className="text-gray-600 text-2xl sm:text-xl">
             Sign in to your Flaunt by Nishi account
           </p>
         </div>
@@ -284,7 +274,7 @@ const Login: React.FC = () => {
 
         {/* Register Link */}
         <div className="text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-l">
             Don't have an account?{" "}
             <Link to="/register" className="font-semibold hover:underline">
               Sign Up

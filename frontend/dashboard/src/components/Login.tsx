@@ -53,7 +53,7 @@ const Login: React.FC = () => {
 
     try {
       await login(formData.email, formData.password);
-    } catch (error) {
+    } catch {
       // Error is handled by the auth context
     }
   };

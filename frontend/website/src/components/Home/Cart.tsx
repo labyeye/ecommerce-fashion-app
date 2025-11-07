@@ -122,7 +122,7 @@ const Cart: React.FC<CartProps> = ({
             <ShoppingBag className="w-6 h-6 text-[#914D26]" />
             <h2 className="text-xl text-[#914D26]">Your Cart</h2>
             <span
-              className="text-[#914D26] text-lg px-0 py-0 rounded-full"
+              className="text-[#914D26] text-lg px-0 py-0 rounded-full poppins-numeric"
               style={{
                 fontVariantNumeric: "lining-nums",
                 fontFeatureSettings: '"tnum"',
@@ -180,7 +180,7 @@ const Cart: React.FC<CartProps> = ({
                       {item.name}
                     </h3>
                     <p className="text-sm text-[#914D26]">Size: {item.size}</p>
-                    <p className="text-lg font-bold text-[#914D26]">
+                    <p className="text-lg font-bold text-[#914D26] poppins-numeric">
                       ₹{item.price}
                     </p>
                   </div>
@@ -199,7 +199,7 @@ const Cart: React.FC<CartProps> = ({
                       <Minus className="w-4 h-4 text-[#914D26]" />
                     </button>
                     <span
-                      className="w-8 text-center font-semibold text-[#914D26]"
+                      className="w-8 text-center font-semibold text-[#914D26] poppins-numeric"
                       style={{
                         fontVariantNumeric: "lining-nums",
                         fontFeatureSettings: '"tnum"',
@@ -406,40 +406,40 @@ const Cart: React.FC<CartProps> = ({
               )}
             </div>
 
-            <div className="space-y-2">
+                  <div className="space-y-2">
               <div className="flex justify-between text-[914D26">
                 <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(0)}</span>
+                <span className="poppins-numeric">₹{subtotal.toFixed(0)}</span>
               </div>
 
               {promoCode && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount ({promoCode.code})</span>
-                  <span>-₹{promoDiscount.toFixed(0)}</span>
+                  <span className="poppins-numeric">-₹{promoDiscount.toFixed(0)}</span>
                 </div>
               )}
 
               {evolvPointsRedemption && (
                 <div className="flex justify-between text-blue-600">
                   <span>Flaunt By Nishi Points Discount</span>
-                  <span>-₹{evolvDiscount.toFixed(0)}</span>
+                  <span className="poppins-numeric">-₹{evolvDiscount.toFixed(0)}</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-[914D26">
+                <div className="flex justify-between text-[914D26">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+                <span className="poppins-numeric">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
               </div>
 
               {subtotal < 1000 && (
                 <p className="text-sm text-[#914D26]">
-                  Add ₹{1000 - subtotal} more for free shipping!
+                  Add <span className="poppins-numeric">₹{1000 - subtotal}</span> more for free shipping!
                 </p>
               )}
 
-              <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-gray-200">
+                <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span>₹{Math.max(0, total).toFixed(0)}</span>
+                <span className="poppins-numeric">₹{Math.max(0, total).toFixed(0)}</span>
               </div>
             </div>
 

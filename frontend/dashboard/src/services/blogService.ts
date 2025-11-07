@@ -40,7 +40,7 @@ export interface CreateBlogData {
   isFeatured: boolean;
 }
 
-export interface UpdateBlogData extends Partial<CreateBlogData> {}
+export type UpdateBlogData = Partial<CreateBlogData>;
 
 export interface BlogListResponse {
   blogs: Blog[];

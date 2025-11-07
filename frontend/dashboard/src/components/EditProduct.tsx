@@ -1,53 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, X, Plus, Trash2, Upload, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, X, Plus, Trash2 } from 'lucide-react';
 
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  shortDescription?: string;
-  sku: string;
-  price: number;
-  comparePrice?: number;
-  salePrice?: number;
-  category: {
-    _id: string;
-    name: string;
-  } | string;
-  status: 'active' | 'draft' | 'inactive';
-  sizes: Array<{
-    size: string;
-    stock: number;
-    price?: number;
-  }>;
-  colors: Array<{
-    name: string;
-    hexCode: string;
-    stock: number;
-    images?: Array<{
-      url: string;
-      alt: string;
-    }>;
-  }>;
-  images: Array<{
-    url: string;
-    alt: string;
-    isPrimary: boolean;
-  }>;
-  material?: string;
-  careInstructions?: string;
-  fit?: 'slim' | 'regular' | 'loose' | 'oversized';
-  tags?: string[];
-  isFeatured: boolean;
-  isNewArrival: boolean;
-  isBestSeller: boolean;
-  isComingSoon?: boolean;
-  minLoyaltyTier: 'bronze' | 'silver' | 'gold';
-}
+// Product shape is provided by the backend; we only define local form types below.
 
 interface Category {
   _id: string;
   name: string;
+}
+
+interface EditProductFormData {
+  name: string;
+  description: string;
+  shortDescription: string;
+  sku: string;
+  price: number;
+  comparePrice: number;
+  salePrice: number;
+  category: string;
+  status: 'active' | 'draft' | 'inactive';
+  minLoyaltyTier: 'bronze' | 'silver' | 'gold';
+  material: string;
+  careInstructions: string;
+  fit: 'slim' | 'regular' | 'loose' | 'oversized';
+  tags: string[];
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isBestSeller: boolean;
+  isComingSoon: boolean;
+  sizes: Array<{ size: string; stock: number; price?: number }>;
+  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>;
+  images: Array<{ url: string; alt: string; isPrimary: boolean }>;
 }
 
 interface EditProductProps {
@@ -57,7 +39,7 @@ interface EditProductProps {
 }
 
 const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) => {
-  const [product, setProduct] = useState<Product | null>(null);
+  // product state intentionally omitted; form is the single source of truth
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -65,7 +47,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   const [activeTab, setActiveTab] = useState<'basic' | 'inventory' | 'images' | 'seo'>('basic');
 
   // Form states
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<EditProductFormData>({
     name: '',
     description: '',
     shortDescription: '',
@@ -90,9 +72,10 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   });
 
   const [newTag, setNewTag] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // imagePreview removed (unused)
 
   // Helper function to initialize form data from product data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const initializeFormData = (productData: any) => {
     return {
       name: productData.name || '',
@@ -157,13 +140,12 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
           
           if (data.success) {
             // Find the specific product in the list
-            const productData = data.data.products.find((p: any) => p._id === productId);
+            const productData = data.data.products.find((p: { _id: string }) => p._id === productId);
             
             if (!productData) {
               throw new Error('Product not found');
             }
-            
-            setProduct(productData);
+
             setFormData(initializeFormData(productData));
           }
         } else if (!response.ok) {
@@ -174,7 +156,6 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
           
           if (data.success) {
             const productData = data.data;
-            setProduct(productData);
             setFormData(initializeFormData(productData));
           }
     }
@@ -201,7 +182,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
             setCategories(data.data);
           }
         }
-      } catch (err) {https://ecommerce-fashion-app-som7.vercel.app
+  } catch (err) {
         console.error('Failed to fetch categories:', err);
       }
     };
@@ -212,15 +193,30 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }
   }, [productId]);
 
-  const handleInputChange = (field: string, value: any) => {
+  type SizeItem = EditProductFormData['sizes'][number];
+  type ColorItem = EditProductFormData['colors'][number];
+  type ImageItem = EditProductFormData['images'][number];
+
+  const handleInputChange = (
+    field: keyof EditProductFormData,
+    value: string | number | boolean | string[]
+  ) => {
     // Ensure boolean fields are properly set as boolean values
-    const booleanFields = ['isFeatured', 'isNewArrival', 'isBestSeller', 'isComingSoon'];
+    const booleanFields: Array<keyof EditProductFormData> = [
+      'isFeatured',
+      'isNewArrival',
+      'isBestSeller',
+      'isComingSoon',
+    ];
+
     const finalValue = booleanFields.includes(field) ? Boolean(value) : value;
 
-    setFormData(prev => ({
-      ...prev,
-      [field]: finalValue
-    }));
+    setFormData((prev) =>
+      ({
+        ...prev,
+        [field]: finalValue,
+      } as unknown as EditProductFormData)
+    );
   };
 
   const addSize = () => {
@@ -230,12 +226,16 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }));
   };
 
-  const updateSize = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+  const updateSize = (
+    index: number,
+    field: keyof SizeItem,
+    value: string | number
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      sizes: prev.sizes.map((size, i) => 
-        i === index ? { ...size, [field]: value } : size
-      )
+      sizes: prev.sizes.map((size, i) =>
+        i === index ? { ...size, [field]: field === 'stock' || field === 'price' ? Number(value) : value } : size
+      ),
     }));
   };
 
@@ -253,12 +253,16 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }));
   };
 
-  const updateColor = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+  const updateColor = (
+    index: number,
+    field: keyof ColorItem,
+    value: string | number
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      colors: prev.colors.map((color, i) => 
-        i === index ? { ...color, [field]: value } : color
-      )
+      colors: prev.colors.map((color, i) =>
+        i === index ? { ...color, [field]: field === 'stock' ? Number(value) : value } : color
+      ),
     }));
   };
 
@@ -276,12 +280,14 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }));
   };
 
-  const updateImage = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+  const updateImage = (
+    index: number,
+    field: keyof ImageItem,
+    value: string | boolean
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.map((image, i) => 
-        i === index ? { ...image, [field]: value } : image
-      )
+      images: prev.images.map((image, i) => (i === index ? { ...image, [field]: value } : image)),
     }));
   };
 
@@ -444,7 +450,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'basic' | 'inventory' | 'images' | 'seo')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
                   ? 'border-black text-black'

@@ -99,7 +99,7 @@ function DashboardApp() {
     // Handle Detail Views
     if (currentView.view === "details") {
       switch (currentView.section) {
-        case "products":
+        case "products": {
           const product = mockData.products.find(
             (p) => p.id === currentView.itemId
           );
@@ -122,7 +122,8 @@ function DashboardApp() {
             );
           }
           break;
-        case "customers":
+        }
+        case "customers": {
           const customer = mockData.customers.find(
             (c) => c.id === currentView.itemId
           );
@@ -137,7 +138,8 @@ function DashboardApp() {
             );
           }
           break;
-        case "orders":
+        }
+        case "orders": {
           const order = mockData.orders.find(
             (o) => o.id === currentView.itemId
           );
@@ -152,8 +154,9 @@ function DashboardApp() {
             );
           }
           break;
+        }
 
-        case "marketing":
+        case "marketing": {
           const campaign = mockData.campaigns.find(
             (c) => c.id === currentView.itemId
           );
@@ -168,6 +171,7 @@ function DashboardApp() {
             );
           }
           break;
+        }
       }
     }
 

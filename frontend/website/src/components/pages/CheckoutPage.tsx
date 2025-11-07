@@ -964,9 +964,9 @@ const CheckoutPage: React.FC = () => {
                     <div className="flex-1">
                       <h4>{item.name}</h4>
                       <p>
-                        Size: {item.size} || Qty: {item.quantity}
+                        Size: {item.size} || Qty: <span className="poppins-numeric">{item.quantity}</span>
                       </p>
-                      <p>₹{(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="poppins-numeric">₹{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -976,13 +976,13 @@ const CheckoutPage: React.FC = () => {
               <div className="border-t border-gray-200 pt-4 space-y-2">
                 <div className="flex justify-between text-[#95522C]">
                   <span>Subtotal</span>
-                  <span>₹{subtotal.toFixed(0)}</span>
+                  <span className="poppins-numeric">₹{subtotal.toFixed(0)}</span>
                 </div>
 
                 {promoCode && promoDiscountAmount > 0 && (
                   <div className="flex justify-between TEXT-[#95522C]">
                     <span>Discount ({promoCode.code})</span>
-                    <span>-₹{promoDiscountAmount.toFixed(0)}</span>
+                    <span className="poppins-numeric">-₹{promoDiscountAmount.toFixed(0)}</span>
                   </div>
                 )}
 
@@ -991,23 +991,23 @@ const CheckoutPage: React.FC = () => {
                     <span>
                       Flaunt By Nishi Points ({evolvPointsRedemption.pointsToRedeem} pts)
                     </span>
-                    <span>-₹{evolvDiscountAmount.toFixed(0)}</span>
+                    <span className="poppins-numeric">-₹{evolvDiscountAmount.toFixed(0)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-[#95522C]">
                   <span>Shipping</span>
-                  <span>
+                  <span className="poppins-numeric">
                     {shippingCost === 0 ? "Free" : `₹${shippingCost}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-[#95522C]">
                   <span>Tax</span>
-                  <span>₹{tax.toFixed(0)}</span>
+                  <span className="poppins-numeric">₹{tax.toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                   <span>Total</span>
-                  <span>₹{total.toFixed(0)}</span>
+                  <span className="poppins-numeric">₹{total.toFixed(0)}</span>
                 </div>
               </div>
 

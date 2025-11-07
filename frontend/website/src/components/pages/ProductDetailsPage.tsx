@@ -609,12 +609,12 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Price */}
             <div className="flex items-center space-x-3">
-              <span className="text-2xl font-medium text-fashion-charcoal">
+              <span className="text-2xl font-medium text-fashion-charcoal poppins-numeric">
                 ₹{currentPrice.toLocaleString()}
               </span>
               {hasDiscount && product.comparePrice && (
                 <>
-                  <span className="text-lg text-fashion-charcoal/50 line-through">
+                  <span className="text-lg text-fashion-charcoal/50 line-through poppins-numeric">
                     ₹{product.comparePrice.toLocaleString()}
                   </span>
                   <span className="text-sm text-red-600 font-medium">
@@ -626,7 +626,7 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Short Description */}
             {product.shortDescription && (
-              <p className="text-fashion-charcoal/80 leading-relaxed">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
                 {product.shortDescription}
               </p>
             )}
@@ -726,7 +726,7 @@ const ProductDetailsPage: React.FC = () => {
                   >
                     -
                   </button>
-                  <span className="px-4 py-3 border-x border-fashion-charcoal/20 min-w-[60px] text-center">
+                  <span className="px-4 py-3 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
                     {quantity}
                   </span>
                   <button
@@ -757,7 +757,7 @@ const ProductDetailsPage: React.FC = () => {
                 ) : (
                   <span className="flex items-center justify-center space-x-2">
                     <span>ADD TO BAG</span>
-                    <span className="text-sm opacity-80">
+                    <span className="text-sm opacity-80 poppins-numeric">
                       ₹{currentPrice.toLocaleString()}
                     </span>
                   </span>
@@ -840,7 +840,7 @@ const ProductDetailsPage: React.FC = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 text-sm font-medium tracking-wide transition-colors duration-300 relative ${
+                  className={`py-4 text-xl font-medium tracking-wide transition-colors duration-300 relative ${
                     activeTab === tab
                       ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
                       : "text-fashion-charcoal/70 hover:text-fashion-accent-brown"
@@ -855,7 +855,7 @@ const ProductDetailsPage: React.FC = () => {
           <div className="py-8">
             {activeTab === "description" && (
               <div className="prose prose-fashion max-w-none">
-                <p className="text-fashion-charcoal/80 leading-relaxed">
+                <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
                   {product.description || "No description available."}
                 </p>
               </div>
@@ -863,7 +863,7 @@ const ProductDetailsPage: React.FC = () => {
 
             {activeTab === "care" && (
               <div className="prose prose-fashion max-w-none">
-                <p className="text-fashion-charcoal/80 leading-relaxed">
+                <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
                   {product.careInstructions ||
                     "Care instructions not available."}
                 </p>

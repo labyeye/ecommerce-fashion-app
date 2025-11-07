@@ -8,7 +8,7 @@ const User = require('../models/User');
 const createAdminUser = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://labhbother12:13801234@cluster0.mfkxtlj.mongodb.net/', {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://flauntbynishi_db_user:nYHebBsLgUEfYE7j@main.tj7h1ns.mongodb.net/', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -29,7 +29,7 @@ const createAdminUser = async () => {
       email: 'admin@flauntbynishi.com',
       password: 'admin123456',
       role: 'admin',
-      phone: '+91-9876543210',
+      phone: '+919876543210',
       address: {
         street: 'Fashion District',
         city: 'Mumbai',

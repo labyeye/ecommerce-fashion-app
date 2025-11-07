@@ -321,7 +321,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   };
   // Search function with detailed logging
   const performSearch = async (term: string) => {
-
     if (!term || term.length < 2) {
       setSearchResults([]);
       setPageResults([]);
@@ -385,7 +384,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         );
 
         if (productResponse.ok) {
-          const contentType = (productResponse.headers.get("content-type") || "").toLowerCase();
+          const contentType = (
+            productResponse.headers.get("content-type") || ""
+          ).toLowerCase();
 
           if (contentType.includes("application/json")) {
             try {
@@ -393,34 +394,56 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               products = data.products || data.data || [];
               console.log("✅ Products found from main API:", products.length);
             } catch (parseErr) {
-              console.warn("⚠️ Failed to parse main API JSON, will try alternative:", parseErr);
+              console.warn(
+                "⚠️ Failed to parse main API JSON, will try alternative:",
+                parseErr
+              );
             }
           } else {
-            console.warn("⚠️ Main API returned non-JSON response (Content-Type:", contentType, "), trying alternative...");
+            console.warn(
+              "⚠️ Main API returned non-JSON response (Content-Type:",
+              contentType,
+              "), trying alternative..."
+            );
           }
         } else {
-          console.log("❌ Main API failed with status:", productResponse.status, "trying alternative...");
+          console.log(
+            "❌ Main API failed with status:",
+            productResponse.status,
+            "trying alternative..."
+          );
         }
 
         // If products still empty, try the local/alternative API as a fallback
         if (!products || products.length === 0) {
           try {
             const altResponse = await fetch(
-              `https://ecommerce-fashion-app-som7.vercel.app/api/products?search=${encodeURIComponent(term)}&limit=10`
+              `https://ecommerce-fashion-app-som7.vercel.app/api/products?search=${encodeURIComponent(
+                term
+              )}&limit=10`
             );
 
             if (altResponse.ok) {
-              const altContentType = (altResponse.headers.get("content-type") || "").toLowerCase();
+              const altContentType = (
+                altResponse.headers.get("content-type") || ""
+              ).toLowerCase();
               if (altContentType.includes("application/json")) {
                 try {
                   const altData = await altResponse.json();
                   products = altData.products || altData.data || [];
-                  console.log("✅ Products found from alt API:", products.length);
+                  console.log(
+                    "✅ Products found from alt API:",
+                    products.length
+                  );
                 } catch (altParseErr) {
                   console.warn("⚠️ Failed to parse alt API JSON:", altParseErr);
                 }
               } else {
-                console.warn("⚠️ Alt API returned non-JSON response (Content-Type:", altContentType, ")");
+                console.warn(
+                  "⚠️ Alt API returned non-JSON response (Content-Type:",
+                  altContentType,
+                  ")"
+                );
               }
             } else {
               console.log("❌ Alt API failed with status:", altResponse.status);
@@ -1107,7 +1130,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                   {!searchLoading && searchTerm.length > 1 && (
                     <div className="space-y-4">
-                      {pageResults.length === 0 && searchResults.length === 0 ? (
+                      {pageResults.length === 0 &&
+                      searchResults.length === 0 ? (
                         <div className="text-center py-4 text-gray-500">
                           <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                           <p>No results found for "{searchTerm}"</p>
@@ -1116,11 +1140,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         <>
                           {pageResults.length > 0 && (
                             <div>
-                              <h3 className="text-sm font-semibold text-gray-600 mb-2">Categories & Pages</h3>
+                              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                Categories & Pages
+                              </h3>
                               <div className="space-y-1">
                                 {pageResults.map((link) => (
-                                  <a key={link._id} href={link.url} className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors">
-                                    <span className="font-medium text-blue-700">{link.name}</span>
+                                  <a
+                                    key={link._id}
+                                    href={link.url}
+                                    className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
+                                  >
+                                    <span className="font-medium text-blue-700">
+                                      {link.name}
+                                    </span>
                                   </a>
                                 ))}
                               </div>
@@ -1129,13 +1161,29 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                           {searchResults.length > 0 && (
                             <div>
-                              <h3 className="text-sm font-semibold text-gray-600 mb-2">Products</h3>
+                              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                Products
+                              </h3>
                               <div className="space-y-2">
                                 {searchResults.map((product) => (
-                                  <a key={product._id || product.id} href={`/product/${product._id || product.id}`} className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors">
+                                  <a
+                                    key={product._id || product.id}
+                                    href={`/product/${
+                                      product._id || product.id
+                                    }`}
+                                    className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors"
+                                  >
                                     <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                      {product.images?.[0]?.url || product.imageUrl ? (
-                                        <img src={product.images?.[0]?.url || product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                      {product.images?.[0]?.url ||
+                                      product.imageUrl ? (
+                                        <img
+                                          src={
+                                            product.images?.[0]?.url ||
+                                            product.imageUrl
+                                          }
+                                          alt={product.name}
+                                          className="w-full h-full object-cover"
+                                        />
                                       ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-400">
                                           <ShoppingCart className="w-4 h-4" />
@@ -1143,8 +1191,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                       )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-gray-900 truncate text-sm">{product.name}</p>
-                                      <span className="text-fashion-accent-brown font-semibold text-sm">₹{product.price}</span>
+                                      <p className="font-medium text-gray-900 truncate text-sm">
+                                        {product.name}
+                                      </p>
+                                      <span className="text-fashion-accent-brown font-semibold text-sm">
+                                        ₹{product.price}
+                                      </span>
                                     </div>
                                   </a>
                                 ))}

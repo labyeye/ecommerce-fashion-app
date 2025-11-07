@@ -18,9 +18,7 @@ interface Category {
   icon?: string;
 }
 
-interface CategoryManagementProps {}
-
-const CategoryManagement: React.FC<CategoryManagementProps> = () => {
+const CategoryManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -175,7 +173,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = () => {
         try {
           const body = await response.json();
           alert(body.message || body.error || 'Failed to delete category');
-        } catch (e) {
+        } catch {
           alert('Failed to delete category');
         }
       }

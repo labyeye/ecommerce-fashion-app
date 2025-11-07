@@ -55,7 +55,7 @@ const AdminLoyalty: React.FC = () => {
       } else {
         setError('Failed to fetch loyalty accounts');
       }
-    } catch (error) {
+    } catch {
       setError('Network error');
     } finally {
       setLoading(false);

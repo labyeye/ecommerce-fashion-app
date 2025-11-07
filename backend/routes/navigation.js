@@ -78,6 +78,8 @@ router.get('/:id', auth, adminAuth, async (req, res) => {
 // Create new navigation link
 router.post('/', auth, adminAuth, async (req, res) => {
   try {
+    // Temporary debug log to help diagnose 400 responses from clients
+    console.log('POST /api/navigation payload:', JSON.stringify(req.body));
     const {
       name,
       url,
@@ -137,15 +139,31 @@ router.post('/', auth, adminAuth, async (req, res) => {
       data: populatedLink
     });
   } catch (error) {
-    if (error.code === 11000) {
+    // Provide richer error details for validation errors to the client (dev-friendly)
+    if (error && error.name === 'ValidationError') {
+      const details = {};
+      Object.keys(error.errors || {}).forEach(key => {
+        details[key] = error.errors[key].message;
+      });
       return res.status(400).json({
         success: false,
-        message: 'Navigation link slug already exists'
+        message: 'Validation failed',
+        details
       });
     }
+
+    if (error && error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Navigation link slug already exists',
+        keyValue: error.keyValue || null
+      });
+    }
+
+    console.error('Navigation POST error:', error);
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to create navigation link'
     });
   }
 });
@@ -204,15 +222,31 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
       data: populated
     });
   } catch (error) {
-    if (error.code === 11000) {
+    // Provide richer error details for validation errors to the client (dev-friendly)
+    if (error && error.name === 'ValidationError') {
+      const details = {};
+      Object.keys(error.errors || {}).forEach(key => {
+        details[key] = error.errors[key].message;
+      });
       return res.status(400).json({
         success: false,
-        message: 'Navigation link slug already exists'
+        message: 'Validation failed',
+        details
       });
     }
+
+    if (error && error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Navigation link slug already exists',
+        keyValue: error.keyValue || null
+      });
+    }
+
+    console.error('Navigation PUT error:', error);
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to update navigation link'
     });
   }
 });
