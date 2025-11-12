@@ -553,7 +553,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-xl shadow-xl p-8 max-w-xs w-full flex flex-col items-center">
         <User className="w-10 h-10 text-fashion-accent-brown mb-2" />
-        <h2 className="text-lg font-semibold mb-2">Login Required</h2>
+        <span className="text-4xl font-semibold mb-2">Login Required</span>
         <p className="text-gray-600 mb-4 text-center">
           Please login to view this page or use wishlist features.
         </p>
@@ -613,7 +613,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <div key={link._id} className="relative group">
                       <a
                         href={link.url}
-                        className={`text-lg font-small tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
+                        className={`text-lg font-small font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
                       >
                         {link.name}
                         <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180 text-fashion-dark-gray" />
@@ -630,7 +630,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                 <a
                                   key={index}
                                   href={item.url}
-                                  className="block px-4 py-3 text-lg hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300 text-fashion-dark-gray"
+                                  className="block px-4 py-3 font-bold text-lg hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300 text-fashion-dark-gray"
                                 >
                                   {item.name}
                                 </a>
@@ -643,7 +643,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <a
                       key={link._id}
                       href={link.url}
-                      className={`text-lg font-medium tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
+                      className={`text-lg font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
                     >
                       {link.name}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>

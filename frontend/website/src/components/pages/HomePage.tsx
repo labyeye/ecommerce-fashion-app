@@ -3,7 +3,6 @@ import ProductSlider from "../Home/ProductSlider";
 import CategoryCards from "../Home/CategoryCards";
 import CategorySlider from "../Home/CategorySlider";
 import Features from "../Home/Features";
-import Reviews from "../Home/Review";
 import useFadeOnScroll from "../ui/useFadeOnScroll";
 import useRevealOnScroll from "../ui/useRevealOnScroll";
 
@@ -14,7 +13,6 @@ const HomePage = () => {
   const newArrivalsFade = useFadeOnScroll<HTMLElement>();
   const bestSellersFade = useFadeOnScroll<HTMLElement>();
   const featuresFade = useFadeOnScroll<HTMLElement>();
-  const reviewsFade = useFadeOnScroll<HTMLElement>();
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -28,7 +26,7 @@ const HomePage = () => {
       </section>
       <section
         ref={newArrivalsFade[0]}
-        className={`w-full transition-all duration-700 ${
+        className={`w-full transition-all duration-700 mt-10 ${
           newArrivalsFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"

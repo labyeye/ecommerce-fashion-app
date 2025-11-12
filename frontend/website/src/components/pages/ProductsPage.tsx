@@ -210,11 +210,11 @@ const ProductPage: React.FC = () => {
           <p className="text-xl text-[#95522C] max-w-2xl mx-auto mt-6">
             {getPageDescription()}
           </p>
-          {data?.pagination && (
+          {/* {data?.pagination && (
             <p className="text-xl text-[#95522C] mt-4">
               Showing {((data.pagination.page - 1) * data.pagination.limit) + 1} - {Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)} of {data.pagination.total} products
             </p>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -270,13 +270,13 @@ const ProductPage: React.FC = () => {
         ) : data ? (
           <>
             {data.products && data.products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 sm:gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                 {data.products.map((product) => (
                   <div key={product._id || product.id} className="group relative transition-all duration-300 hover:z-10">
                     <ProductCard
                       key={product._id || product.id}
                       product={product}
-                      cardClassName="w-full sm:max-w-[360px] md:max-w-[420px] mx-auto"
+                      cardClassName="w-full md:max-w-[420px] mx-auto"
                     />
                   </div>
                 ))}

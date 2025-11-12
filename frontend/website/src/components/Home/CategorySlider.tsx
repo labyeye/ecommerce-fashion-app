@@ -118,7 +118,7 @@ const CategorySlider: React.FC = () => {
               Suitcase Staples Sorted
             </span>
           </h2>
-          <p className="text-lg text-dark/80 max-w-2xl mx-auto">
+          <p className="text-2xl text-[#B56932] max-w-2xl mx-auto">
             Discover our curated collection for your next
             adventure.
           </p>

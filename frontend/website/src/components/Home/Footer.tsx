@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
               {categories.map((cat) => (
                 <li key={cat._id}>
                   <a
-                    href={`/category/${cat.slug}`}
+                    href={`/products?category=${encodeURIComponent(cat.slug)}`}
                     className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
                   >
                     {cat.name}
@@ -105,7 +105,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-3 mb-4">
               <li>
                 <a
-                  href="#"
+                  href="/about"
                   className="bg-clip-text text-lg text-dark/80 hover:text-dark transition-colors duration-200"
                 >
                   Our Story
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/blogs"
                   className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
                 >
                   Blog
@@ -180,7 +180,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/contact"
                   className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
                 >
                   Contact Us

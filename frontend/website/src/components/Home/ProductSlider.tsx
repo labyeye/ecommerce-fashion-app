@@ -149,7 +149,7 @@ const ProductSlider = ({
               {config.title}
             </span>
           </h2>
-          <p className="text-lg bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
+          <p className="text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
             {config.description}
           </p>
         </div>

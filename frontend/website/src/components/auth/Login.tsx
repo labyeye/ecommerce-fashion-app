@@ -160,9 +160,6 @@ const Login: React.FC = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <h2 className="w-[480px] text-4xl sm:text-3xl font-bold text-black mb-12">
-            Welcome Back
-          </h2>
           <p className="text-gray-600 text-2xl sm:text-xl">
             Sign in to your Flaunt by Nishi account
           </p>
@@ -178,10 +175,7 @@ const Login: React.FC = () => {
               )}
 
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-2"
-                >
+                <label htmlFor="email" className="block text-xl font-bold mb-2">
                   Email Address
                 </label>
                 <div className="relative">
@@ -201,7 +195,7 @@ const Login: React.FC = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xl font-bold mb-2"
                 >
                   Password
                 </label>
@@ -230,7 +224,7 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-lg font-bold">
                 <Link to="/forgot-password" className="hover:underline">
                   Forgot Password?
                 </Link>
@@ -253,7 +247,7 @@ const Login: React.FC = () => {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-xl font-bold">
               <span className="px-2 bg-[#FFF2E1] text-gray-500">
                 Or continue with
               </span>
@@ -274,7 +268,7 @@ const Login: React.FC = () => {
 
         {/* Register Link */}
         <div className="text-center">
-          <p className="text-gray-600 text-l">
+          <p className="text-gray-600 text-xl">
             Don't have an account?{" "}
             <Link to="/register" className="font-semibold hover:underline">
               Sign Up
