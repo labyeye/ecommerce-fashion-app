@@ -34,9 +34,7 @@ const ProductDetailsPage: React.FC = () => {
   const hasAccess = product ? canAccessProduct(product, userTier) : true;
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<
-    "description" | "care" | "reviews"
-  >("description");
+  
   const { user } = useAuth() || {};
 
   // Product reviews state
@@ -855,187 +853,130 @@ const ProductDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Tabs */}
-        <div className="mt-16">
-          <div className="border-b border-fashion-charcoal/10">
-            <nav className="flex space-x-8">
-              {(["description", "care", "reviews"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`py-4 text-xl font-medium tracking-wide transition-colors duration-300 relative ${
-                    activeTab === tab
-                      ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
-                      : "text-fashion-charcoal/70 hover:text-fashion-accent-brown"
-                  }`}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </nav>
-          </div>
+        {/* Sequential product sections: Description -> Key Features -> Care -> Reviews */}
+        <div className="mt-16 space-y-10">
+          {/* Description */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Description</h2>
+            <div className="prose prose-fashion max-w-none">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
+                {product.description || "No description available."}
+              </p>
+            </div>
+          </section>
 
-          <div className="py-8">
-            {activeTab === "description" && (
-              <div className="prose prose-fashion max-w-none">
-                <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
-                  {product.description || "No description available."}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "care" && (
-              <div className="prose prose-fashion max-w-none">
-                <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
-                  {product.careInstructions ||
-                    "Care instructions not available."}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div className="py-6">
-                {/* Reviews list */}
-                {productReviews.length === 0 ? (
-                  <p className="text-fashion-charcoal/60 text-center">
-                    No reviews yet. Be the first to review this product!
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {productReviews.map((r: any) => (
-                      <div
-                        key={r._id}
-                        className="p-4 bg-white rounded shadow-sm"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <p className="font-semibold text-sm">
-                              {r.userName ||
-                                r.user?.name ||
-                                r.name ||
-                                "Customer"}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(r.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium mr-2">
-                              {r.rating}
-                            </span>
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-4 h-4 ${
-                                  i < r.rating
-                                    ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                                    : "text-fashion-charcoal/20"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-700">{r.message}</p>
-                      </div>
-                    ))}
+          {/* Key Features */}
+          {product.keyFeatures && product.keyFeatures.length > 0 && (
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {product.keyFeatures.map((kf, i) => (
+                  <div key={i} className="p-3 bg-white rounded shadow-sm">
+                    <p className="text-fashion-charcoal">{kf}</p>
                   </div>
-                )}
+                ))}
+              </div>
+            </section>
+          )}
 
-                {/* Review form (only for authenticated users who purchased) */}
-                <div className="mt-8">
-                  {!user ? (
-                    <p className="text-center text-sm">
-                      Please{" "}
-                      <a
-                        href="/login"
-                        className="text-fashion-accent-brown underline"
-                      >
-                        log in
-                      </a>{" "}
-                      to leave a review.
-                    </p>
-                  ) : !hasPurchased ? (
-                    <p className="text-center text-sm">
-                      Only customers who purchased this product can leave a
-                      review.
-                    </p>
-                  ) : (
-                    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-                      <h3 className="text-lg font-semibold mb-3">
-                        Write a review
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <label className="text-sm">Your rating:</label>
-                          <select
-                            value={reviewRating}
-                            onChange={(e) =>
-                              setReviewRating(Number(e.target.value))
+          {/* Care Instructions */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Care</h2>
+            <div className="prose prose-fashion max-w-none">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
+                {product.careInstructions || "Care instructions not available."}
+              </p>
+            </div>
+          </section>
+
+          {/* Reviews */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+            <div className="py-6">
+              {productReviews.length === 0 ? (
+                <p className="text-fashion-charcoal/60 text-center">
+                  No reviews yet. Be the first to review this product!
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {productReviews.map((r: any) => (
+                    <div key={r._id} className="p-4 bg-white rounded shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="font-semibold text-sm">
+                            {r.userName || r.user?.name || r.name || "Customer"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(r.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium mr-2">{r.rating}</span>
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${i < r.rating ? "fill-fashion-accent-brown text-fashion-accent-brown" : "text-fashion-charcoal/20"}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-700">{r.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-8">
+                {!user ? (
+                  <p className="text-center text-sm">
+                    Please <a href="/login" className="text-fashion-accent-brown underline">log in</a> to leave a review.
+                  </p>
+                ) : !hasPurchased ? (
+                  <p className="text-center text-sm">Only customers who purchased this product can leave a review.</p>
+                ) : (
+                  <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+                    <h3 className="text-lg font-semibold mb-3">Write a review</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <label className="text-sm">Your rating:</label>
+                        <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="border px-2 py-1 rounded">
+                          {[5,4,3,2,1].map(n => (
+                            <option key={n} value={n}>{n} star{n>1? 's':''}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <textarea value={reviewMessage} onChange={(e) => setReviewMessage(e.target.value)} className="w-full border px-3 py-2 rounded h-28" placeholder="Share your experience..." />
+                      <div className="flex justify-end">
+                        <button
+                          onClick={async () => {
+                            if (!reviewMessage) return alert('Please add a message');
+                            setSubmittingReview(true);
+                            try {
+                              const token = localStorage.getItem('token');
+                              await axios.post('https://ecommerce-fashion-app-som7.vercel.app/api/reviews', { productId: id, rating: reviewRating, message: reviewMessage }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+                              setReviewMessage('');
+                              setReviewRating(5);
+                              await fetchProductReviews();
+                            } catch (err: any) {
+                              console.error('Failed to submit review', err);
+                              const msg = err?.response?.data?.message || 'Failed to submit review';
+                              alert(msg);
+                            } finally {
+                              setSubmittingReview(false);
                             }
-                            className="border px-2 py-1 rounded"
-                          >
-                            {[5, 4, 3, 2, 1].map((n) => (
-                              <option key={n} value={n}>
-                                {n} star{n > 1 ? "s" : ""}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <textarea
-                          value={reviewMessage}
-                          onChange={(e) => setReviewMessage(e.target.value)}
-                          className="w-full border px-3 py-2 rounded h-28"
-                          placeholder="Share your experience..."
-                        />
-                        <div className="flex justify-end">
-                          <button
-                            onClick={async () => {
-                              if (!reviewMessage)
-                                return alert("Please add a message");
-                              setSubmittingReview(true);
-                              try {
-                                const token = localStorage.getItem("token");
-                                await axios.post(
-                                  "https://ecommerce-fashion-app-som7.vercel.app/api/reviews",
-                                  {
-                                    productId: id,
-                                    rating: reviewRating,
-                                    message: reviewMessage,
-                                  },
-                                  {
-                                    headers: token
-                                      ? { Authorization: `Bearer ${token}` }
-                                      : {},
-                                  }
-                                );
-                                setReviewMessage("");
-                                setReviewRating(5);
-                                await fetchProductReviews();
-                              } catch (err: any) {
-                                console.error("Failed to submit review", err);
-                                const msg =
-                                  err?.response?.data?.message ||
-                                  "Failed to submit review";
-                                alert(msg);
-                              } finally {
-                                setSubmittingReview(false);
-                              }
-                            }}
-                            disabled={submittingReview}
-                            className="px-4 py-2 bg-fashion-accent-brown text-white rounded"
-                          >
-                            {submittingReview
-                              ? "Submitting..."
-                              : "Submit review"}
-                          </button>
-                        </div>
+                          }}
+                          disabled={submittingReview}
+                          className="px-4 py-2 bg-fashion-accent-brown text-white rounded"
+                        >
+                          {submittingReview ? 'Submitting...' : 'Submit review'}
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>

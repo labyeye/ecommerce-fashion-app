@@ -57,6 +57,7 @@ export interface Product {
   careInstructions?: string;
   fit?: 'slim' | 'regular' | 'loose' | 'oversized';
   tags?: string[];
+  keyFeatures?: string[];
   status?: 'active' | 'inactive' | 'draft';
   isFeatured?: boolean;
   isNewArrival?: boolean;
@@ -225,6 +226,7 @@ export const getProductById = async (id: string): Promise<Product> => {
             url: toAbsoluteUrl(img.url || ''),
           }))
         : [],
+      keyFeatures: Array.isArray(productData.keyFeatures) ? productData.keyFeatures : [],
       material: productData.material || '',
       careInstructions: productData.careInstructions || '',
       fit: productData.fit || 'regular',
