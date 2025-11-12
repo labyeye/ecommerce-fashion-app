@@ -15,6 +15,7 @@ import { canAccessProduct } from "../../hooks/useProductAccess";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import sizechart from "../../assets/images/sizechart.jpg";
+import ProductCard from "../Home/ProductCard";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +44,10 @@ const ProductDetailsPage: React.FC = () => {
   const [hasPurchased, setHasPurchased] = useState<boolean>(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
+  // Delivery check state
+  const [pincode, setPincode] = useState("");
+  const [checkingDelivery, setCheckingDelivery] = useState(false);
+  const [deliveryInfo, setDeliveryInfo] = useState<null | { deliverable: boolean; estDays?: number; message?: string }>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -87,9 +92,55 @@ const ProductDetailsPage: React.FC = () => {
     fetchProduct();
     // Load product reviews when the product changes
     if (id) fetchProductReviews();
+    // Load related products when product changes
+    if (id) fetchOtherProducts();
     // Check purchase status if user is logged in
     if (id && user) checkPurchase();
   }, [id]);
+
+  // Other products (recommendations)
+  const [otherProducts, setOtherProducts] = useState<any[]>([]);
+  const fetchOtherProducts = async () => {
+    try {
+      // Try a simple products endpoint; backend can provide better related-product API
+      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`);
+      const data = res?.data?.data || res?.data || [];
+      // Filter out current product
+      const filtered = Array.isArray(data)
+        ? data.filter((p: any) => p._id !== id).slice(0, 6)
+        : [];
+      setOtherProducts(filtered);
+    } catch (err) {
+      console.warn("Failed to fetch other products", err);
+      setOtherProducts([]);
+    }
+  };
+
+  const checkDelivery = async () => {
+    if (!pincode || pincode.trim().length < 3) {
+      setDeliveryInfo({ deliverable: false, message: "Enter a valid pincode" });
+      return;
+    }
+
+    try {
+      setCheckingDelivery(true);
+      setDeliveryInfo(null);
+      // Backend endpoint expectation: GET /api/shipping/check?pincode=XXXXX
+      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
+        pincode
+      )}`);
+      // Expect response { deliverable: boolean, estDays?: number, message?: string }
+      const info = res?.data || null;
+      if (info) setDeliveryInfo(info);
+      else setDeliveryInfo({ deliverable: false, message: "No delivery info" });
+    } catch (err: any) {
+      console.warn("Delivery check failed", err?.response?.data || err.message || err);
+      // Graceful fallback message if endpoint not implemented
+      setDeliveryInfo({ deliverable: false, message: "Delivery info unavailable" });
+    } finally {
+      setCheckingDelivery(false);
+    }
+  };
 
   const fetchProductReviews = async () => {
     try {
@@ -546,7 +597,29 @@ const ProductDetailsPage: React.FC = () => {
                   </span>
                 </>
               )}
+              
             </div>
+            {/* Compact rating summary next to price */}
+              {product.ratings && (
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center -space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-6 h-6 ${
+                          i < Math.round(product.ratings?.average || 0)
+                            ? "fill-fashion-accent-brown text-fashion-accent-brown"
+                            : "text-fashion-charcoal/20"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xl text-fashion-charcoal/70">
+                    {product.ratings.average?.toFixed(1) || "0.0"} (
+                    {product.ratings.count || 0})
+                  </span>
+                </div>
+              )}
 
             {/* Short Description */}
             {product.shortDescription && (
@@ -679,6 +752,33 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Add to Cart */}
             <div className="space-y-4">
+              {/* Delivery check widget */}
+              <div className="flex items-center space-x-3">
+                <input
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  placeholder="Enter pincode"
+                  className="border px-3 py-2 rounded w-40 text-xl"
+                />
+                <button
+                  onClick={checkDelivery}
+                  disabled={checkingDelivery}
+                  className="px-4 py-2 bg-[#E4A95D] text-white rounded text-xl"
+                >
+                  {checkingDelivery ? "Checking..." : "Check Delivery"}
+                </button>
+                {deliveryInfo && (
+                  <div className="text-xl text-fashion-charcoal/80">
+                    {deliveryInfo.deliverable ? (
+                      <span className="text-green-600">
+                        Deliverable{deliveryInfo.estDays ? ` · ${deliveryInfo.estDays} day(s)` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-red-600">{deliveryInfo.message || "Not deliverable"}</span>
+                    )}
+                  </div>
+                )}
+              </div>
               {(() => {
                 const isOutOfStock = selectedSizeData?.stock === 0;
                 return (
@@ -938,6 +1038,22 @@ const ProductDetailsPage: React.FC = () => {
               </div>
             </div>
           </section>
+        </div>
+
+        {/* Related / recommended products */}
+        <div className="mt-12">
+          <span className="text-6xl font-semibold mb-6">You might also like</span>
+          {otherProducts.length === 0 ? (
+            <p className="">No recommendations available.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+              {otherProducts.map((p: any) => (
+                <div key={p._id} className="">
+                  <ProductCard product={p} hidePromoBadge={true} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

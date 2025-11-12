@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Heart, Lock } from "lucide-react";
+import { Heart, Lock, Star } from "lucide-react";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -59,12 +59,14 @@ interface ProductCardProps {
   product: Product;
   viewDetailsLink?: string;
   cardClassName?: string;
+  hidePromoBadge?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   viewDetailsLink,
   cardClassName,
+  hidePromoBadge,
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -96,8 +98,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     !product.minLoyaltyTier || canAccessTier(userTier, product.minLoyaltyTier);
 
   const currentPrice = product.salePrice || product.price;
-  const hasDiscount =
-    product.comparePrice && product.comparePrice > currentPrice;
   const getProductImages = () => {
     const images = [];
     if (product.images && product.images.length > 0) {
@@ -153,8 +153,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-background transition-all duration-300 ${
-        isHovered ? "shadow-lg" : ""
+      className={`group relative bg-background transition-all duration-300 fashion-card rounded-2xl overflow-hidden ${
+        isHovered ? "shadow-2xl -translate-y-1" : ""
       } ${!canAccess ? "opacity-60" : ""} ${
         cardClassName || defaultProductPageClass
       }`}
@@ -214,11 +214,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         className="relative aspect-[2/4] overflow-hidden bg-gray-50 cursor-pointer"
         onClick={handleViewDetails}
       >
-        {(product.isNewArrival || (product as any).category?.isNewArrival) && (
-          <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
-            New
-          </div>
-        )}
+        {!hidePromoBadge && !isProductPage &&
+          (product.isNewArrival || (product as any).category?.isNewArrival) && (
+            <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
+              New
+            </div>
+          )}
         <img
           src={primary?.url}
           alt={primary?.alt || product.name}
@@ -253,16 +254,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Name */}
         <div>
           <h3
-            className="text-xl font-semibold text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
+            className="text-xl  text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
             onClick={handleViewDetails}
           >
             {product.name}
           </h3>
         </div>
 
+        {/* Rating Stars */}
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
+            {Array.from({ length: 5 }).map((_, i) => {
+              const avg = product.ratings?.average || 0;
+              const filled = Math.round(avg) >= i + 1;
+              return (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 ${filled ? 'text-[#914D26]' : 'text-[#C17237]'}`}
+                />
+              );
+            })}
+          </div>
+          <div className="text-sm text-[#7A5A3E]">({product.ratings?.count || 0})</div>
+        </div>
+
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <span className="text-xl font-semibold text-[#95522C] font-['Sans-Serif'] poppins-numeric">
+          <span className="text-xl  text-[#95522C] font-['Sans-Serif'] poppins-numeric">
             ₹{currentPrice.toLocaleString()}
           </span>
           {/* {hasDiscount && product.comparePrice && (
