@@ -95,16 +95,31 @@ app.use('/uploads', (req, res, next) => {
 mongoose.connect(process.env.MONGODB_URI,{
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  // Wait up to 10s for server selection (adjust if needed)
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
 })
 .then(() => {
   console.log('Connected to MongoDB');
+  // require models after successful connection to register schemas
   require('./models/User'); // Make sure you have this file
   require('./models/Category');
   require('./models/Product');
   require('./models/NavigationLink');
   require('./models/Review');
+
+  // Start Express server only after DB connection is established
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+  });
 })
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  // Fail fast: exit process when DB connection fails at startup
+  // so platforms (PM2, systemd, or container orchestrators) can retry
+  process.exit(1);
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -144,7 +159,21 @@ app.use('*', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-}); 
+// Mongoose connection events for runtime diagnostics
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connected (event)');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('Mongoose connection error (event):', err);
+});
+mongoose.connection.on('disconnected', () => {
+  console.warn('Mongoose disconnected');
+});
+
+// Optional: disable mongoose command buffering so operations fail fast
+// instead of being buffered and timing out. Uncomment to enable.
+// mongoose.set('bufferCommands', false);
+
+// If you prefer the old behavior (server starts even if DB is slower to connect),
+// keep app.listen outside of the connection promise. Waiting for the DB is
+// recommended to avoid buffered/timeout errors like the one you saw.
