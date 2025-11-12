@@ -164,6 +164,15 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
   }, [page, search, statusFilter]);
 
   const getTotalStock = (product: Product) => {
+    // Prefer sizes inside colors if available
+    if (Array.isArray(product.colors) && product.colors.length > 0) {
+      return product.colors.reduce((pTotal, color) => {
+        if (Array.isArray((color as any).sizes) && (color as any).sizes.length > 0) {
+          return pTotal + (color as any).sizes.reduce((cTotal: number, s: any) => cTotal + (Number(s.stock) || 0), 0);
+        }
+        return pTotal + (color.stock || 0);
+      }, 0);
+    }
     return product.sizes.reduce((total, size) => total + size.stock, 0);
   };
 

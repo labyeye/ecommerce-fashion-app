@@ -127,6 +127,8 @@ const ProductDetailsPage: React.FC = () => {
   const currentColor = product?.colors?.find(
     (color) => color.name === selectedColor
   );
+  const selectedColorData = product?.colors?.find((c) => c.name === selectedColor);
+  const selectedSizeData = (selectedColorData as any)?.sizes?.find((s: any) => s.size === selectedSize) || product?.sizes?.find((s) => s.size === selectedSize);
   const currentImages = React.useMemo(() => {
     // Priority: Color-specific images > General product images > Fallback
     if (currentColor?.images?.length) {
@@ -201,12 +203,17 @@ const ProductDetailsPage: React.FC = () => {
       return;
     }
 
-    const selectedSizeData = product.sizes?.find(
-      (s) => s.size === selectedSize
-    );
     const selectedColorData = product.colors?.find(
       (c) => c.name === selectedColor
     );
+    const selectedSizeData =
+      (selectedColorData as any)?.sizes?.find((s: any) => s.size === selectedSize) ||
+      product.sizes?.find((s) => s.size === selectedSize);
+
+    if (selectedSizeData && selectedSizeData.stock < quantity) {
+      alert(`Requested quantity not available. Only ${selectedSizeData.stock} left in stock for ${selectedColor} / ${selectedSize}`);
+      return;
+    }
 
     const cartItem = {
       id: product._id || product.id || "",
@@ -418,9 +425,12 @@ const ProductDetailsPage: React.FC = () => {
     >
       <style>{`
         /* Page-level enforcement: only two colors allowed */
+        /* Set page background only on the container so child elements can keep their own backgrounds (e.g. color swatches) */
+        .product-detail-page {
+          background-color: #FFF2E1 !important;
+        }
         .product-detail-page, .product-detail-page * {
           color: #95522C !important;
-          background-color: #FFF2E1 !important;
           border-color: #95522C !important;
           box-shadow: none !important;
         }
@@ -661,7 +671,7 @@ const ProductDetailsPage: React.FC = () => {
             )}
 
             {/* Sizes */}
-            {product.sizes && product.sizes.length > 0 && (
+            {((currentColor && currentColor.sizes && currentColor.sizes.length > 0) || (product.sizes && product.sizes.length > 0)) && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-fashion-charcoal">
@@ -685,20 +695,22 @@ const ProductDetailsPage: React.FC = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-2">
-                  {product.sizes.map((size) => (
+                  {(currentColor?.sizes || product.sizes).map((size) => (
                     <button
                       key={size.size}
                       onClick={() => setSelectedSize(size.size)}
-                      disabled={size.stock === 0}
                       className={`py-3 text-sm font-medium border transition-all duration-300 relative ${
                         selectedSize === size.size
                           ? "border-fashion-accent-brown bg-fashion-accent-brown text-white shadow-md scale-105"
                           : size.stock > 0
                           ? "border-fashion-charcoal/20 hover:border-fashion-accent-brown hover:shadow-sm text-fashion-charcoal"
-                          : "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed line-through"
+                          : "border-fashion-charcoal/10 text-fashion-charcoal/60"
                       }`}
                     >
                       {size.size}
+                      {size.stock === 0 && (
+                        <div className="text-xs text-red-600 mt-1">Out of Stock</div>
+                      )}
                       {size.stock <= 5 && size.stock > 0 && (
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
                       )}
@@ -741,28 +753,39 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Add to Cart */}
             <div className="space-y-4">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedSize}
-                className={`w-full py-4 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
-                  selectedSize
-                    ? "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white transform hover:scale-[1.02]"
-                    : "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed bg-transparent"
-                }`}
-              >
-                {!selectedSize ? (
-                  <span className="flex items-center justify-center space-x-2">
-                    <span>SELECT SIZE TO ADD TO BAG</span>
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center space-x-2">
-                    <span>ADD TO BAG</span>
-                    <span className="text-sm opacity-80 poppins-numeric">
-                      ₹{currentPrice.toLocaleString()}
-                    </span>
-                  </span>
-                )}
-              </button>
+              {(() => {
+                const isOutOfStock = selectedSizeData?.stock === 0;
+                return (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!selectedSize || isOutOfStock}
+                    className={`w-full py-4 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
+                      !selectedSize
+                        ? "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed bg-transparent"
+                        : isOutOfStock
+                        ? "border-red-600 text-red-600 cursor-not-allowed bg-transparent"
+                        : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white transform hover:scale-[1.02]"
+                    }`}
+                  >
+                    {!selectedSize ? (
+                      <span className="flex items-center justify-center space-x-2">
+                        <span>SELECT SIZE TO ADD TO BAG</span>
+                      </span>
+                    ) : isOutOfStock ? (
+                      <span className="flex items-center justify-center space-x-2">
+                        <span>OUT OF STOCK</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center space-x-2">
+                        <span>ADD TO BAG</span>
+                        <span className="text-sm opacity-80 poppins-numeric">
+                          ₹{currentPrice.toLocaleString()}
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                );
+              })()}
 
               {addedToCart && (
                 <div className="flex items-center justify-center space-x-2 text-green-600 bg-green-50 py-3 px-4 rounded-lg border border-green-200 animate-pulse">

@@ -41,6 +41,11 @@ export interface Product {
       url: string;
       alt?: string;
     }>;
+    sizes?: Array<{
+      size: string;
+      stock: number;
+      price: number;
+    }>;
     stock: number;
   }>;
   images: Array<{
@@ -95,7 +100,27 @@ export const getProducts = async (): Promise<Product[]> => {
       category: product.category || '',
       brand: product.brand || '',
       minLoyaltyTier: product.minLoyaltyTier || 'bronze',
-      sizes: Array.isArray(product.sizes) ? product.sizes : [],
+      // Derive a flat sizes array from colors if present for backward compatibility
+      sizes: (() => {
+        if (Array.isArray(product.sizes) && product.sizes.length > 0) return product.sizes;
+        if (Array.isArray(product.colors) && product.colors.length > 0) {
+          const map = new Map<string, any>();
+          product.colors.forEach((color: any) => {
+            if (Array.isArray(color.sizes)) {
+              color.sizes.forEach((s: any) => {
+                if (!map.has(s.size)) map.set(s.size, { size: s.size, stock: Number(s.stock) || 0, price: Number(s.price) || 0 });
+                else {
+                  const existing = map.get(s.size);
+                  existing.stock += Number(s.stock) || 0;
+                  if (!existing.price && s.price) existing.price = Number(s.price);
+                }
+              });
+            }
+          });
+          return Array.from(map.values());
+        }
+        return [];
+      })(),
       colors: Array.isArray(product.colors)
         ? product.colors.map((color: any) => ({
             ...color,
@@ -179,6 +204,13 @@ export const getProductById = async (id: string): Promise<Product> => {
             name: color.name || '',
             hexCode: color.hexCode || '#000000',
             stock: Number(color.stock) || 0,
+            sizes: Array.isArray(color.sizes)
+              ? color.sizes.map((s: any) => ({
+                  size: s.size || '',
+                  stock: Number(s.stock) || 0,
+                  price: Number(s.price) || 0,
+                }))
+              : [],
             images: Array.isArray(color.images)
               ? color.images.map((img: any) => ({
                   url: toAbsoluteUrl(img.url || ''),

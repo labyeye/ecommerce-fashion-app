@@ -368,11 +368,14 @@ router.put('/orders/:id/cancel', [
     for (const item of order.items) {
       const product = await Product.findById(item.product);
       
-      if (product && product.sizes && product.sizes.length > 0) {
-        // Clothing product - restore size-specific stock
+      if (product && Array.isArray(product.colors) && product.colors.length > 0) {
+        // Clothing product - restore specific color/size stock
         await Product.findOneAndUpdate(
-          { _id: item.product, 'sizes.size': item.size },
-          { $inc: { 'sizes.$.stock': item.quantity } }
+          { _id: item.product },
+          { $inc: { 'colors.$[c].sizes.$[s].stock': item.quantity } },
+          {
+            arrayFilters: [ { 'c.name': item.color }, { 's.size': item.size } ]
+          }
         );
       } else if (product && product.stock && product.stock.trackStock) {
         // Legacy product - restore general stock
@@ -927,21 +930,21 @@ router.post('/orders', [
       }
 
       // Check stock based on product type
-      if (product.sizes && product.sizes.length > 0) {
-        // Clothing product - check size-specific stock
-        const selectedSize = product.sizes.find(s => s.size === item.size);
-        if (!selectedSize) {
-          return res.status(400).json({
-            success: false,
-            message: `Size ${item.size} not available for ${product.name}`
-          });
+      if (Array.isArray(product.colors) && product.colors.length > 0) {
+        // Clothing product with colors and sizes - find the color then the size
+        const color = product.colors.find(c => c.name === item.color);
+        if (!color) {
+          return res.status(400).json({ success: false, message: `Color ${item.color} not available for ${product.name}` });
         }
-        
+        if (!Array.isArray(color.sizes) || color.sizes.length === 0) {
+          return res.status(400).json({ success: false, message: `No sizes available for color ${item.color} of ${product.name}` });
+        }
+        const selectedSize = color.sizes.find(s => s.size === item.size);
+        if (!selectedSize) {
+          return res.status(400).json({ success: false, message: `Size ${item.size} not available for ${product.name} in color ${item.color}` });
+        }
         if (selectedSize.stock < item.quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Insufficient stock for ${product.name} in size ${item.size} (available: ${selectedSize.stock})`
-          });
+          return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name} in ${item.color} / ${item.size} (available: ${selectedSize.stock})` });
         }
       } else if (product.stock && product.stock.trackStock) {
         // Legacy product - check general stock
@@ -1067,11 +1070,14 @@ router.post('/orders', [
     for (const item of items) {
       const product = await Product.findById(item.product);
       
-      if (product.sizes && product.sizes.length > 0) {
-        // Clothing product - update size-specific stock
+      if (Array.isArray(product.colors) && product.colors.length > 0) {
+        // Decrement stock for specific color/size using arrayFilters
         await Product.findOneAndUpdate(
-          { _id: item.product, 'sizes.size': item.size },
-          { $inc: { 'sizes.$.stock': -item.quantity } }
+          { _id: item.product },
+          { $inc: { 'colors.$[c].sizes.$[s].stock': -item.quantity } },
+          {
+            arrayFilters: [ { 'c.name': item.color }, { 's.size': item.size } ]
+          }
         );
       } else if (product.stock && product.stock.trackStock) {
         // Legacy product - update general stock

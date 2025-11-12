@@ -18,6 +18,7 @@ interface Color {
   hexCode: string;
   stock: number;
   images: { url: string; alt: string }[];
+  sizes?: Size[];
 }
 
 interface ImageItem {
@@ -47,6 +48,7 @@ interface ProductFormData {
   seoTitle: string;
   seoDescription: string;
   seoKeywords: string[];
+  keyFeatures: string[];
 }
 
 interface ServerValidationError {
@@ -77,6 +79,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     material: "",
     careInstructions: "",
     fit: "regular",
+    keyFeatures: [] as string[],
     tags: [],
     status: "active",
     isFeatured: false,
@@ -87,14 +90,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     seoKeywords: [],
   });
 
-  const [sizes, setSizes] = useState<Size[]>([
-    { size: "XS", stock: 0, price: 0 },
-    { size: "S", stock: 0, price: 0 },
-    { size: "M", stock: 0, price: 0 },
-    { size: "L", stock: 0, price: 0 },
-    { size: "XL", stock: 0, price: 0 },
-    { size: "XXL", stock: 0, price: 0 },
-  ]);
+  // top-level sizes removed; sizes will be managed per-color
 
   const [colors, setColors] = useState<Color[]>([
     {
@@ -102,12 +98,18 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
       hexCode: "#000000",
       stock: 0,
       images: [{ url: "", alt: "" }],
+      sizes: [
+        { size: "S", stock: 0, price: 0 },
+        { size: "M", stock: 0, price: 0 },
+        { size: "L", stock: 0, price: 0 }
+      ]
     },
   ]);
 
   const [images, setImages] = useState<ImageItem[]>([{ url: "", alt: "", isPrimary: true }]);
   const [currentTag, setCurrentTag] = useState("");
   const [currentKeyword, setCurrentKeyword] = useState("");
+  const [currentFeature, setCurrentFeature] = useState("");
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -200,19 +202,20 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
           ? comparePriceValue
           : undefined,
         salePrice: Number.isFinite(salePriceValue) ? salePriceValue : undefined,
-        sizes: sizes
-          .filter((size) => size.stock > 0)
-          .map((size) => ({
-            ...size,
-            // ensure per-size price is valid, else fall back
-            price:
-              Number.isFinite(Number(size.price)) && Number(size.price) > 0
-                ? Number(size.price)
-                : priceValue,
-          })),
+        // keyFeatures
+        keyFeatures: (formData as any).keyFeatures || [],
+        // Colors include their own sizes
         colors: colors.map((color) => ({
           ...color,
           stock: color.stock || 0,
+          sizes: (color.sizes || []).map((s) => ({
+            size: s.size,
+            stock: Number(s.stock) || 0,
+            price:
+              Number.isFinite(Number(s.price)) && Number(s.price) > 0
+                ? Number(s.price)
+                : priceValue,
+          })),
         })),
         images: images.filter((img) => img.url),
         seo: {
@@ -317,22 +320,46 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     }));
   };
 
-  const updateSize = (
-    index: number,
+              
+  // Per-color size management
+  const addColorSize = (colorIndex: number) => {
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex
+          ? { ...c, sizes: [...(c.sizes || []), { size: "", stock: 0, price: 0 }] }
+          : c
+      )
+    );
+  };
+
+  const updateColorSize = (
+    colorIndex: number,
+    sizeIndex: number,
     field: keyof Size,
     value: string | number
   ) => {
-    setSizes((prev) =>
-      prev.map((size, i) =>
-        i === index
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex
           ? {
-              ...size,
-              [field]:
-                field === "stock" || field === "price"
-                  ? parseInt(String(value)) || 0
-                  : value,
+              ...c,
+              sizes: (c.sizes || []).map((s, si) =>
+                si === sizeIndex
+                  ? { ...s, [field]: field === "stock" || field === "price" ? Number(value) : value }
+                  : s
+              ),
             }
-          : size
+          : c
+      )
+    );
+  };
+
+  const removeColorSize = (colorIndex: number, sizeIndex: number) => {
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex
+          ? { ...c, sizes: (c.sizes || []).filter((_, si) => si !== sizeIndex) }
+          : c
       )
     );
   };
@@ -355,6 +382,12 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
   };
 
   const addColor = () => {
+    // Prefill a new color with default size options so admin can enter qty per size
+    const defaultSizes: Size[] = [
+      { size: 'S', stock: 0, price: 0 },
+      { size: 'M', stock: 0, price: 0 },
+      { size: 'L', stock: 0, price: 0 },
+    ];
     setColors((prev) => [
       ...prev,
       {
@@ -362,6 +395,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         hexCode: "#000000",
         stock: 0,
         images: [{ url: "", alt: "" }],
+        sizes: defaultSizes,
       },
     ]);
   };
@@ -633,52 +667,35 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             </div>
           </div>
 
-          {/* Sizes & Stock */}
+          {/* Key Features */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Sizes & Stock
-            </h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-700 border-b pb-2">
-                <div>Size</div>
-                <div>Stock</div>
-                <div>Price (Optional)</div>
-                <div>Display</div>
-              </div>
-              {sizes.map((size, index) => (
-                <div
-                  key={size.size}
-                  className="grid grid-cols-4 gap-4 items-center"
-                >
-                  <div className="font-medium text-gray-700">{size.size}</div>
-                  <div>
-                    <input
-                      type="number"
-                      value={size.stock}
-                      onChange={(e) =>
-                        updateSize(index, "stock", e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      placeholder="Stock"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={size.price}
-                      onChange={(e) =>
-                        updateSize(index, "price", e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      placeholder="Price (optional)"
-                      min="0"
-                    />
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {size.price > 0 ? `₹${size.price}` : "Default price"}
-                  </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={currentFeature}
+                onChange={(e) => setCurrentFeature(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                placeholder="Add a feature (e.g., Breathable fabric, Machine washable)"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (currentFeature.trim()) {
+                    setFormData(prev => ({ ...prev, keyFeatures: [...prev.keyFeatures, currentFeature.trim()] }));
+                    setCurrentFeature("");
+                  }
+                }}
+                className="px-3 py-2 bg-black text-white rounded-lg"
+              >
+                Add
+              </button>
+            </div>
+            <div className="mt-3 space-y-2">
+              {formData.keyFeatures.map((f, i) => (
+                <div key={i} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded">
+                  <div className="text-sm">{f}</div>
+                  <button type="button" onClick={() => setFormData(prev => ({ ...prev, keyFeatures: prev.keyFeatures.filter((_, idx) => idx !== i) }))} className="text-red-500 text-sm">Remove</button>
                 </div>
               ))}
             </div>
@@ -767,6 +784,26 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                           <X className="w-4 h-4 mx-auto" />
                         </button>
                       )}
+                    </div>
+                  </div>
+                  {/* Sizes for this color */}
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium">Sizes for {color.name || `Color ${index + 1}`}</h4>
+                      <button type="button" onClick={() => addColorSize(index)} className="px-2 py-1 bg-black text-white rounded text-sm">Add Size</button>
+                    </div>
+                    <div className="space-y-2">
+                      {(color.sizes || []).map((s, si) => (
+                        <div key={si} className="grid grid-cols-4 gap-3 items-center">
+                          <input type="text" value={s.size} onChange={(e) => updateColorSize(index, si, 'size', e.target.value)} placeholder="Size (e.g., S)" className="px-3 py-2 border rounded" />
+                          <input type="number" value={s.stock} min={0} onChange={(e) => updateColorSize(index, si, 'stock', Number(e.target.value))} className="px-3 py-2 border rounded" />
+                          <input type="number" step="0.01" value={s.price} min={0} onChange={(e) => updateColorSize(index, si, 'price', Number(e.target.value))} className="px-3 py-2 border rounded" />
+                          <div className="flex items-center space-x-2">
+                            <div className="text-sm text-gray-500">{s.price > 0 ? `₹${s.price}` : 'Default price'}</div>
+                            <button type="button" onClick={() => removeColorSize(index, si)} className="text-red-500 text-sm">Remove</button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

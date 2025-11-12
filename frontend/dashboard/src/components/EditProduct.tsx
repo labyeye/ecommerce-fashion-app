@@ -27,8 +27,9 @@ interface EditProductFormData {
   isNewArrival: boolean;
   isBestSeller: boolean;
   isComingSoon: boolean;
+  keyFeatures: string[];
   sizes: Array<{ size: string; stock: number; price?: number }>;
-  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>;
+  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }>; sizes?: Array<{ size: string; stock: number; price?: number }> }>;
   images: Array<{ url: string; alt: string; isPrimary: boolean }>;
 }
 
@@ -66,17 +67,27 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     isNewArrival: false,
     isBestSeller: false,
     isComingSoon: false,
+      keyFeatures: [] as string[],
     sizes: [] as Array<{ size: string; stock: number; price?: number }>,
     colors: [] as Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>,
     images: [] as Array<{ url: string; alt: string; isPrimary: boolean }>
   });
 
   const [newTag, setNewTag] = useState('');
+  const [newFeature, setNewFeature] = useState('');
   // imagePreview removed (unused)
 
   // Helper function to initialize form data from product data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const initializeFormData = (productData: any) => {
+    const defaultSizes = [
+      { size: 'XS', stock: 0, price: 0 },
+      { size: 'S', stock: 0, price: 0 },
+      { size: 'M', stock: 0, price: 0 },
+      { size: 'L', stock: 0, price: 0 },
+      { size: 'XL', stock: 0, price: 0 },
+      { size: 'XXL', stock: 0, price: 0 },
+    ];
     return {
       name: productData.name || '',
       description: productData.description || '',
@@ -91,13 +102,18 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
       material: productData.material || '',
       careInstructions: productData.careInstructions || '',
       fit: productData.fit || 'regular',
-      tags: productData.tags || [],
+  tags: productData.tags || [],
+  keyFeatures: productData.keyFeatures || [],
       isFeatured: productData.isFeatured || false,
       isNewArrival: productData.isNewArrival || false,
       isBestSeller: productData.isBestSeller || false,
       isComingSoon: productData.isComingSoon || false,
+      // If productData has colors with sizes, use them. Otherwise if legacy top-level sizes exist, create a default color
       sizes: productData.sizes || [],
-      colors: productData.colors || [],
+      colors: (productData.colors && productData.colors.length > 0)
+        ? // ensure each color has sizes; if missing, prefill defaultSizes
+          productData.colors.map((c: any) => ({ ...c, sizes: Array.isArray(c.sizes) && c.sizes.length > 0 ? c.sizes : defaultSizes }))
+        : [{ name: 'Default', hexCode: '#000000', stock: 0, images: [], sizes: Array.isArray(productData.sizes) && productData.sizes.length > 0 ? productData.sizes : defaultSizes }],
       images: productData.images || []
     };
   };
@@ -193,7 +209,6 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }
   }, [productId]);
 
-  type SizeItem = EditProductFormData['sizes'][number];
   type ColorItem = EditProductFormData['colors'][number];
   type ImageItem = EditProductFormData['images'][number];
 
@@ -219,30 +234,26 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     );
   };
 
-  const addSize = () => {
+  
+
+  const addColorSize = (colorIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      sizes: [...prev.sizes, { size: '', stock: 0, price: 0 }]
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, sizes: [...(c.sizes || []), { size: '', stock: 0, price: 0 }] } : c)
     }));
   };
 
-  const updateSize = (
-    index: number,
-    field: keyof SizeItem,
-    value: string | number
-  ) => {
-    setFormData((prev) => ({
+  const updateColorSize = (colorIndex: number, sizeIndex: number, field: string, value: any) => {
+    setFormData(prev => ({
       ...prev,
-      sizes: prev.sizes.map((size, i) =>
-        i === index ? { ...size, [field]: field === 'stock' || field === 'price' ? Number(value) : value } : size
-      ),
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, sizes: (c.sizes || []).map((s, si) => si === sizeIndex ? { ...s, [field]: field === 'stock' || field === 'price' ? Number(value) : value } : s) } : c)
     }));
   };
 
-  const removeSize = (index: number) => {
+  const removeColorSize = (colorIndex: number, sizeIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      sizes: prev.sizes.filter((_, i) => i !== index)
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, sizes: (c.sizes || []).filter((_, si) => si !== sizeIndex) } : c)
     }));
   };
 
@@ -627,59 +638,46 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                     placeholder="Care instructions for the product"
                   />
                 </div>
+                {/* Key Features */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Key Features</h4>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <input
+                      type="text"
+                      value={newFeature}
+                      onChange={(e) => setNewFeature(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      placeholder="Add a feature (e.g., Breathable fabric)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newFeature.trim()) {
+                          setFormData(prev => ({ ...prev, keyFeatures: [...prev.keyFeatures, newFeature.trim()] }));
+                          setNewFeature('');
+                        }
+                      }}
+                      className="px-3 py-2 bg-black text-white rounded-lg"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {formData.keyFeatures.map((f, i) => (
+                      <div key={i} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded">
+                        <div className="text-sm">{f}</div>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, keyFeatures: prev.keyFeatures.filter((_, idx) => idx !== i) }))} className="text-red-500 text-sm">Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'inventory' && (
             <div className="space-y-6">
-              {/* Sizes */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Sizes & Stock</h3>
-                  <button
-                    onClick={addSize}
-                    className="flex items-center space-x-2 px-3 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Size</span>
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {formData.sizes.map((size, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <input
-                        type="text"
-                        value={size.size}
-                        onChange={(e) => updateSize(index, 'size', e.target.value)}
-                        placeholder="Size (e.g., S, M, L)"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                      <input
-                        type="number"
-                        value={size.stock}
-                        onChange={(e) => updateSize(index, 'stock', parseInt(e.target.value) || 0)}
-                        placeholder="Stock"
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                      <input
-                        type="number"
-                        value={size.price || 0}
-                        onChange={(e) => updateSize(index, 'price', parseFloat(e.target.value) || 0)}
-                        placeholder="Price (optional)"
-                        className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                      <button
-                        onClick={() => removeSize(index)}
-                        className="p-2 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Sizes are now managed per-color in the Colors section below */}
 
               {/* Colors */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -696,7 +694,8 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
 
                 <div className="space-y-3">
                   {formData.colors.map((color, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <React.Fragment key={index}>
+                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                       <input
                         type="text"
                         value={color.name}
@@ -724,6 +723,26 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
+                    {/* Sizes for this color */}
+                    <div className="w-full mt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium">Sizes for {color.name || `Color ${index + 1}`}</h4>
+                        <button type="button" onClick={() => addColorSize(index)} className="px-2 py-1 bg-black text-white rounded text-sm">Add Size</button>
+                      </div>
+                      <div className="space-y-2">
+                        {(color.sizes || []).map((s, si) => (
+                          <div key={si} className="flex items-center space-x-2">
+                            {/* Show size name as label (not editable) so admin doesn't have to type it */}
+                            <div className="px-3 py-2 border rounded w-28 font-medium text-sm">{s.size}</div>
+                            {/* Single input to enter quantity (stock) for the given size */}
+                            <input type="number" value={s.stock} min={0} onChange={(e) => updateColorSize(index, si, 'stock', Number(e.target.value))} className="px-3 py-2 border rounded w-28" />
+                            {/* Optional remove size button */}
+                            <button type="button" onClick={() => removeColorSize(index, si)} className="p-1 text-red-600"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    </React.Fragment>
                   ))}
                 </div>
               </div>

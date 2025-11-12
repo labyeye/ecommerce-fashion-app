@@ -45,20 +45,10 @@ const productSchema = new mongoose.Schema({
     trim: true
   },
   // Clothing specific fields
-  sizes: [{
-    size: {
-      type: String,
-      required: true // XS, S, M, L, XL, XXL
-    },
-    stock: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-    price: {
-      type: Number,
-      required: true
-    }
+  // Key features list for product highlights
+  keyFeatures: [{
+    type: String,
+    trim: true
   }],
   colors: [{
     name: {
@@ -73,10 +63,23 @@ const productSchema = new mongoose.Schema({
       url: String,
       alt: String
     }],
-    stock: {
-      type: Number,
-      default: 0
-    }
+    // Each color can have multiple sizes (e.g., S, M, L) with their own stock and price
+    sizes: [{
+      size: {
+        type: String,
+        required: true
+      },
+      stock: {
+        type: Number,
+        default: 0,
+        min: 0
+      },
+      price: {
+        type: Number,
+        required: true,
+        min: 0
+      }
+    }]
   }],
   images: [{
     url: {

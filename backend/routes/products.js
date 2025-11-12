@@ -78,19 +78,32 @@ router.get('/', async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // Transform products to include prices
+    // Transform products to include prices per color and aggregated available sizes
     const transformedProducts = products.map(product => {
-      const prices = {};
-      if (product.sizes && product.sizes.length > 0) {
-        product.sizes.forEach(size => {
-          prices[size.size] = size.price || product.price;
+      const prices = {}; // { colorName: { size: price } }
+      const availableSizes = {}; // { size: totalStock }
+
+      if (Array.isArray(product.colors) && product.colors.length > 0) {
+        product.colors.forEach(color => {
+          prices[color.name] = {};
+          if (Array.isArray(color.sizes) && color.sizes.length > 0) {
+            color.sizes.forEach(s => {
+              prices[color.name][s.size] = s.price || product.price;
+              availableSizes[s.size] = (availableSizes[s.size] || 0) + (s.stock || 0);
+            });
+          } else {
+            // No sizes for this color - fallback to product price
+            prices[color.name].default = product.price;
+          }
         });
       } else {
         prices.default = product.price;
       }
+
       return {
         ...product.toObject(),
-        prices
+        prices,
+        availableSizes
       };
     });
 
@@ -179,11 +192,21 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // Transform product to include prices
+    // Transform product to include prices grouped by color and aggregated available sizes
     const prices = {};
-    if (product.sizes && product.sizes.length > 0) {
-      product.sizes.forEach(size => {
-        prices[size.size] = size.price || product.price;
+    const availableSizes = {};
+
+    if (Array.isArray(product.colors) && product.colors.length > 0) {
+      product.colors.forEach(color => {
+        prices[color.name] = {};
+        if (Array.isArray(color.sizes) && color.sizes.length > 0) {
+          color.sizes.forEach(s => {
+            prices[color.name][s.size] = s.price || product.price;
+            availableSizes[s.size] = (availableSizes[s.size] || 0) + (s.stock || 0);
+          });
+        } else {
+          prices[color.name].default = product.price;
+        }
       });
     } else {
       prices.default = product.price;
@@ -191,7 +214,8 @@ router.get('/:id', async (req, res) => {
 
     const transformedProduct = {
       ...product.toObject(),
-      prices
+      prices,
+      availableSizes
     };
 
     res.status(200).json({
