@@ -173,7 +173,8 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
         return pTotal + (color.stock || 0);
       }, 0);
     }
-    return product.sizes.reduce((total, size) => total + size.stock, 0);
+    // Fallback to top-level sizes; guard against undefined
+    return Array.isArray(product.sizes) ? product.sizes.reduce((total, size) => total + (Number(size.stock) || 0), 0) : 0;
   };
 
   const getStockStatus = (product: Product) => {
@@ -460,7 +461,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-wrap gap-1">
-                          {product.sizes.filter(size => size.stock > 0).map((size) => (
+                          {(Array.isArray(product.sizes) ? product.sizes : []).filter(size => (size && size.stock) ? size.stock > 0 : false).map((size) => (
                             <span key={size.size} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-ds-100 text-ds-800">
                               {size.size} ({size.stock})
                             </span>
@@ -469,7 +470,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-wrap gap-1">
-                          {product.colors.filter(color => color.stock > 0).map((color) => (
+                          {(Array.isArray(product.colors) ? product.colors : []).filter(color => (color && color.stock) ? color.stock > 0 : false).map((color) => (
                             <span key={color.name} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-ds-100 text-ds-800">
                               {color.name} ({color.stock})
                             </span>

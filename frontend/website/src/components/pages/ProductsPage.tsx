@@ -1,6 +1,6 @@
 import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../Home/ProductCard';
 import { Product } from '../Home/ProductCard';
 
@@ -23,8 +23,8 @@ interface ProductsPageData {
 }
 
 const ProductPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   const [data, setData] = useState<ProductsPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,10 +119,15 @@ const ProductPage: React.FC = () => {
   };
 
   const handleSortChange = (sortBy: string, order: string) => {
-    const newParams = new URLSearchParams(searchParams);
+    // Update the URL search params using react-router's setSearchParams so
+    // the component re-renders and fetchProducts picks up the new sort/order.
+    const newParams = new URLSearchParams(searchParams.toString());
     newParams.set('sort', sortBy);
     newParams.set('order', order);
-    window.history.pushState(null, '', `${location.pathname}?${newParams.toString()}`);
+    // reset to first page when sorting changes
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
@@ -199,14 +204,14 @@ const ProductPage: React.FC = () => {
       {/* Header Section */}
       <div className="bg-[#FFF2E1] border-b border-fashion-charcoal/10">
         <div className="container mx-auto px-4 py-16 text-center mt-10">
-          <h1 className="text-4xl md:text-5xl font-light text-[#95522C] mb-4 tracking-wide">
+          <h1 className="text-5xl md:text-5xl font-light text-[#95522C] mb-4 tracking-wide">
             {getPageTitle()}
           </h1>
-          <p className="text-lg text-[#95522C] max-w-2xl mx-auto">
+          <p className="text-xl text-[#95522C] max-w-2xl mx-auto mt-6">
             {getPageDescription()}
           </p>
           {data?.pagination && (
-            <p className="text-sm text-[#95522C] mt-4">
+            <p className="text-xl text-[#95522C] mt-4">
               Showing {((data.pagination.page - 1) * data.pagination.limit) + 1} - {Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)} of {data.pagination.total} products
             </p>
           )}
@@ -219,9 +224,9 @@ const ProductPage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Category Breadcrumb */}
             <div className="flex items-center space-x-2 text-sm text-[#95522C]/60">
-              <a href="/" className="hover:text-fashion-accent-brown transition-colors">Home</a>
+              <a href="/" className="hover:text-fashion-accent-brown transition-colors text-xl">Home</a>
               <span>/</span>
-              <a href="/products" className="hover:text-fashion-accent-brown transition-colors">Products</a>
+              <a href="/products" className="hover:text-fashion-accent-brown transition-colors text-xl">Products</a>
               {data?.category && (
                 <>
                   <span>/</span>
@@ -239,7 +244,7 @@ const ProductPage: React.FC = () => {
                   const [sort, order] = e.target.value.split('-');
                   handleSortChange(sort, order);
                 }}
-                className="px-3 py-1 border border-fashion-charcoal/20 rounded-fashion text-sm focus:outline-none focus:ring-2 focus:ring-fashion-accent-brown focus:border-transparent"
+                className="px-3 py-1 bg-[#fffaf4] border border-fashion-charcoal/20 rounded-fashion text-sm focus:outline-none focus:ring-2 focus:ring-fashion-accent-brown focus:border-transparent"
               >
                 <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>

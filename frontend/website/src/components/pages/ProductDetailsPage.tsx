@@ -3,9 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Heart,
   Star,
-  Truck,
-  ShieldCheck,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
   Ruler,
@@ -17,6 +14,7 @@ import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
 import { canAccessProduct } from "../../hooks/useProductAccess";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import sizechart from "../../assets/images/sizechart.jpg";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +32,7 @@ const ProductDetailsPage: React.FC = () => {
   const hasAccess = product ? canAccessProduct(product, userTier) : true;
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  
+
   const { user } = useAuth() || {};
 
   // Product reviews state
@@ -125,8 +123,13 @@ const ProductDetailsPage: React.FC = () => {
   const currentColor = product?.colors?.find(
     (color) => color.name === selectedColor
   );
-  const selectedColorData = product?.colors?.find((c) => c.name === selectedColor);
-  const selectedSizeData = (selectedColorData as any)?.sizes?.find((s: any) => s.size === selectedSize) || product?.sizes?.find((s) => s.size === selectedSize);
+  const selectedColorData = product?.colors?.find(
+    (c) => c.name === selectedColor
+  );
+  const selectedSizeData =
+    (selectedColorData as any)?.sizes?.find(
+      (s: any) => s.size === selectedSize
+    ) || product?.sizes?.find((s) => s.size === selectedSize);
   const currentImages = React.useMemo(() => {
     // Priority: Color-specific images > General product images > Fallback
     if (currentColor?.images?.length) {
@@ -205,11 +208,14 @@ const ProductDetailsPage: React.FC = () => {
       (c) => c.name === selectedColor
     );
     const selectedSizeData =
-      (selectedColorData as any)?.sizes?.find((s: any) => s.size === selectedSize) ||
-      product.sizes?.find((s) => s.size === selectedSize);
+      (selectedColorData as any)?.sizes?.find(
+        (s: any) => s.size === selectedSize
+      ) || product.sizes?.find((s) => s.size === selectedSize);
 
     if (selectedSizeData && selectedSizeData.stock < quantity) {
-      alert(`Requested quantity not available. Only ${selectedSizeData.stock} left in stock for ${selectedColor} / ${selectedSize}`);
+      alert(
+        `Requested quantity not available. Only ${selectedSizeData.stock} left in stock for ${selectedColor} / ${selectedSize}`
+      );
       return;
     }
 
@@ -231,21 +237,7 @@ const ProductDetailsPage: React.FC = () => {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
-  // Size Chart Data
-  const sizeChartData = [
-    { size: "XS", shoulder: "14", chest: "32", waist: "24-25", hip: "35-36" },
-    { size: "S", shoulder: "14.5", chest: "34", waist: "26-27", hip: "37-38" },
-    { size: "M", shoulder: "15", chest: "36", waist: "28-29", hip: "39-40" },
-    { size: "L", shoulder: "15.5", chest: "38", waist: "30-31", hip: "41-42" },
-    { size: "XL", shoulder: "16", chest: "40", waist: "32-33", hip: "43-44" },
-    {
-      size: "XXL",
-      shoulder: "16.5",
-      chest: "42",
-      waist: "34-35",
-      hip: "45-46",
-    },
-  ];
+  
 
   const SizeChartModal = () => {
     if (!showSizeChart) return null;
@@ -264,113 +256,38 @@ const ProductDetailsPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Size Chart Table */}
-            <div className="overflow-x-auto mb-6">
-              <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
-                <thead>
-                  <tr className="bg-black text-white">
-                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">
-                      SIZE
-                    </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">
-                      SHOULDER
-                    </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">
-                      CHEST
-                    </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">
-                      WAIST
-                    </th>
-                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">
-                      HIP
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sizeChartData.map((row, index) => (
-                    <tr
-                      key={row.size}
-                      className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                    >
-                      <td className="border border-gray-300 px-4 py-3 font-semibold text-black">
-                        {row.size}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-gray-700">
-                        {row.shoulder}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-gray-700">
-                        {row.chest}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-gray-700">
-                        {row.waist}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-gray-700">
-                        {row.hip}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Size Chart Image (replace the old table) */}
+            <div className="mb-6">
+              <div className="w-full flex items-center justify-center">
+                {/*
+                  Place your size chart image at `/assets/size-chart.png` (public folder)
+                  or update the src below to the correct path where you store assets.
+                */}
+                <a
+                  href={sizechart}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full max-w-4xl"
+                >
+                  <img
+                    src={sizechart}
+                    alt="Size chart"
+                    className="w-full h-auto object-contain rounded-lg shadow-sm"
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      // fallback to placeholder if not found
+                      if (t.src.indexOf("img-placeholder-800x1000.png") === -1) {
+                        t.src = "/assets/img-placeholder-800x1000.png";
+                      }
+                    }}
+                  />
+                </a>
+
+              </div>
             </div>
 
             {/* Measurement Instructions */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-black">
-                How to Measure
-              </h4>
-              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="space-y-2">
-                  <div className="flex items-start space-x-2">
-                    <span className="font-semibold text-black min-w-[80px]">
-                      Chest:
-                    </span>
-                    <span>
-                      Measure around the fullest part of your chest, keeping the
-                      tape parallel to the floor.
-                    </span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <span className="font-semibold text-black min-w-[80px]">
-                      Waist:
-                    </span>
-                    <span>
-                      Measure around the narrowest part of your waist, typically
-                      just above your hip bones.
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start space-x-2">
-                    <span className="font-semibold text-black min-w-[80px]">
-                      Hip:
-                    </span>
-                    <span>
-                      Measure around the fullest part of your hips, typically
-                      7-9 inches below your waist.
-                    </span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <span className="font-semibold text-black min-w-[80px]">
-                      Shoulder:
-                    </span>
-                    <span>
-                      Measure from the edge of one shoulder to the edge of the
-                      other shoulder across your back.
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                <p className="text-sm text-gray-700">
-                  <strong className="text-black">Note:</strong> All measurements
-                  are in inches. For the best fit, we recommend measuring
-                  yourself while wearing well-fitting undergarments. If you're
-                  between sizes, we suggest sizing up for a more comfortable
-                  fit.
-                </p>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -473,17 +390,19 @@ const ProductDetailsPage: React.FC = () => {
             onClick={() => navigate("/")}
             className="hover:text-fashion-accent-brown"
           >
-            Home
+            <span className="text-xl">
+              Home
+            </span>
           </button>
           <span>/</span>
           <button
             onClick={() => navigate("/products")}
             className="hover:text-fashion-accent-brown"
           >
-            Products
+            <span className="text-xl">Products</span>
           </button>
           <span>/</span>
-          <span className="text-fashion-charcoal">{product.name}</span>
+          <span className="text-fashion-charcoal text-xl">{product.name}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -585,9 +504,6 @@ const ProductDetailsPage: React.FC = () => {
           <div className="space-y-6">
             {/* Brand & Name */}
             <div>
-              <p className="text-sm text-fashion-charcoal/70 font-medium tracking-wide mb-1">
-                {product.brand}
-              </p>
               <h1 className="text-2xl md:text-3xl font-light text-fashion-charcoal leading-tight">
                 {product.name}
               </h1>
@@ -634,7 +550,7 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Short Description */}
             {product.shortDescription && (
-              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.shortDescription}
               </p>
             )}
@@ -643,7 +559,7 @@ const ProductDetailsPage: React.FC = () => {
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-fashion-charcoal">
+                  <span className="font-medium text-fashion-charcoal text-xl">
                     Color: <span className="font-normal">{selectedColor}</span>
                   </span>
                 </div>
@@ -669,16 +585,19 @@ const ProductDetailsPage: React.FC = () => {
             )}
 
             {/* Sizes */}
-            {((currentColor && currentColor.sizes && currentColor.sizes.length > 0) || (product.sizes && product.sizes.length > 0)) && (
+            {((currentColor &&
+              currentColor.sizes &&
+              currentColor.sizes.length > 0) ||
+              (product.sizes && product.sizes.length > 0)) && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-fashion-charcoal">
+                  <span className="font-medium text-fashion-charcoal text-xl">
                     Size:{" "}
                     {selectedSize && (
                       <span className="font-normal">{selectedSize}</span>
                     )}
                     {!selectedSize && (
-                      <span className="text-fashion-accent-brown text-sm font-normal">
+                      <span className="text-fashion-accent-brown text-xl font-normal">
                         {" "}
                         - Please select a size
                       </span>
@@ -688,36 +607,45 @@ const ProductDetailsPage: React.FC = () => {
                     onClick={() => setShowSizeChart(true)}
                     className="text-sm text-fashion-accent-brown hover:underline flex items-center space-x-1"
                   >
-                    <Ruler className="w-4 h-4" />
-                    <span>Size Guide</span>
+                    <Ruler className="w-7 h-7" />
+                    <span className="text-xl">Size Guide</span>
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-2">
                   {(currentColor?.sizes || product.sizes).map((size) => (
                     <button
                       key={size.size}
-                      onClick={() => setSelectedSize(size.size)}
-                      className={`py-3 text-sm font-medium border transition-all duration-300 relative ${
+                      onClick={() => size.stock > 0 && setSelectedSize(size.size)}
+                      aria-disabled={size.stock === 0}
+                      className={`py-3 text-xl font-medium border transition-all duration-300 relative group ${
                         selectedSize === size.size
-                          ? "border-fashion-accent-brown bg-fashion-accent-brown text-white shadow-md scale-105"
+                          ? "border-fashion-accent-brown bg-[#E4A95D] text-white shadow-md scale-105"
                           : size.stock > 0
-                          ? "border-fashion-charcoal/20 hover:border-fashion-accent-brown hover:shadow-sm text-fashion-charcoal"
-                          : "border-fashion-charcoal/10 text-fashion-charcoal/60"
+                          ? "border-fashion-charcoal/20 hover:border-fashion-accent-brown hover:shadow-sm text-[#E4A95D]"
+                          : "border-fashion-charcoal/10 text-[#E4A95D] cursor-not-allowed"
                       }`}
                     >
-                      {size.size}
+                      {/* Size label (fades out on hover when out of stock) */}
+                      <span className={`relative z-10 transition-opacity ${
+                        size.stock === 0 ? 'group-hover:opacity-0' : ''
+                      }`}>{size.size}</span>
+
+                      {/* Replace label with 'Out of Stock' on hover for OOS sizes */}
                       {size.stock === 0 && (
-                        <div className="text-xs text-red-600 mt-1">Out of Stock</div>
+                        <span className="absolute inset-0 flex items-center justify-center text-[#E4A95D] text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          Out of Stock
+                        </span>
                       )}
+
                       {size.stock <= 5 && size.stock > 0 && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#C17237] rounded-full"></span>
                       )}
                     </button>
                   ))}
                 </div>
                 {!selectedSize && (
-                  <p className="text-sm text-fashion-charcoal/70 bg-fashion-cream/50 p-3 rounded-lg">
-                    👆 Please select your size to continue
+                  <p className="text-2xl text-fashion-charcoal/70 rounded-lg">
+                   Please select your size to continue
                   </p>
                 )}
               </div>
@@ -725,7 +653,7 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Quantity */}
             <div className="space-y-3">
-              <span className="font-medium text-fashion-charcoal">
+              <span className="font-medium text-fashion-charcoal text-xl">
                 Quantity
               </span>
               <div className="flex items-center space-x-4">
@@ -766,17 +694,17 @@ const ProductDetailsPage: React.FC = () => {
                     }`}
                   >
                     {!selectedSize ? (
-                      <span className="flex items-center justify-center space-x-2">
+                      <span className="flex items-center justify-center space-x-2 text-xl">
                         <span>SELECT SIZE TO ADD TO BAG</span>
                       </span>
                     ) : isOutOfStock ? (
-                      <span className="flex items-center justify-center space-x-2">
+                      <span className="flex items-center justify-center space-x-2 text-xl">
                         <span>OUT OF STOCK</span>
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center space-x-2">
+                      <span className="flex items-center justify-center space-x-2 text-xl">
                         <span>ADD TO BAG</span>
-                        <span className="text-sm opacity-80 poppins-numeric">
+                        <span className="text-xl opacity-80 poppins-numeric">
                           ₹{currentPrice.toLocaleString()}
                         </span>
                       </span>
@@ -806,7 +734,7 @@ const ProductDetailsPage: React.FC = () => {
 
               <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`w-full py-4 border-2 font-medium tracking-wide transition-all duration-300 ${
+                className={`w-full py-4 border-2 font-medium tracking-wide transition-all duration-300 text-xl ${
                   isWishlisted
                     ? "border-red-500 bg-red-50 text-red-600"
                     : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white"
@@ -817,39 +745,24 @@ const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-3 gap-4 py-6 border-t border-fashion-charcoal/10">
+            {/* <div className="grid grid-cols-3 gap-4 py-6 border-t border-fashion-charcoal/10">
               <div className="text-center">
-                <Truck className="w-6 h-6 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xs text-fashion-charcoal/70">
+                <Truck className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
+                <p className="text-xl text-fashion-charcoal/70">
                   Free Shipping
                 </p>
               </div>
               <div className="text-center">
-                <RefreshCw className="w-6 h-6 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xs text-fashion-charcoal/70">Easy Returns</p>
+                <RefreshCw className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
+                <p className="text-xl text-fashion-charcoal/70">Easy Returns</p>
               </div>
               <div className="text-center">
-                <ShieldCheck className="w-6 h-6 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xs text-fashion-charcoal/70">
+                <ShieldCheck className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
+                <p className="text-xl text-fashion-charcoal/70">
                   Secure Payment
                 </p>
               </div>
-            </div>
-
-            {/* Material & Fit */}
-            <div className="space-y-2 text-lg">
-              {product.material && (
-                <p>
-                  <span className="font-medium">Material:</span>{" "}
-                  {product.material}
-                </p>
-              )}
-              {product.fit && (
-                <p>
-                  <span className="font-medium">Fit:</span> {product.fit}
-                </p>
-              )}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -857,9 +770,9 @@ const ProductDetailsPage: React.FC = () => {
         <div className="mt-16 space-y-10">
           {/* Description */}
           <section>
-            <span className="text-6xl font-semibold mb-4">Description</span>
+            <span className="text-5xl font-semibold mb-4">Description</span>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.description || "No description available."}
               </p>
             </div>
@@ -868,11 +781,11 @@ const ProductDetailsPage: React.FC = () => {
           {/* Key Features */}
           {product.keyFeatures && product.keyFeatures.length > 0 && (
             <section>
-              <span className="text-6xl font-semibold mb-4">Key Features</span>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-10">
+              <span className="text-5xl font-semibold mb-4">Key Features</span>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
-                  <div key={i} className="p-3 bg-white rounded shadow-sm">
-                    <p className="text-xl text-fashion-charcoal">{kf}</p>
+                  <div key={i} className="  rounded shadow-sm">
+                    <p className="text-2xl text-fashion-charcoal">• {kf}</p>
                   </div>
                 ))}
               </div>
@@ -881,9 +794,11 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <span className="text-6xl font-semibold mb-4">Care Instructions</span>
+            <span className="text-5xl font-semibold mb-4">
+              Care Instructions
+            </span>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
+              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
               </p>
             </div>
@@ -891,10 +806,10 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Reviews */}
           <section>
-            <span className="text-6xl font-semibold mb-4">Reviews</span>
+            <span className="text-5xl font-semibold mb-4">Reviews</span>
             <div className="py-6">
               {productReviews.length === 0 ? (
-                <p className="text-fashion-charcoal/60 text-center text-xl">
+                <p className="text-fashion-charcoal/60 text-center text-2xl">
                   No reviews yet. Be the first to review this product!
                 </p>
               ) : (
@@ -911,11 +826,17 @@ const ProductDetailsPage: React.FC = () => {
                           </p>
                         </div>
                         <div className="flex items-center">
-                          <span className="text-sm font-medium mr-2">{r.rating}</span>
+                          <span className="text-sm font-medium mr-2">
+                            {r.rating}
+                          </span>
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${i < r.rating ? "fill-fashion-accent-brown text-fashion-accent-brown" : "text-fashion-charcoal/20"}`}
+                              className={`w-4 h-4 ${
+                                i < r.rating
+                                  ? "fill-fashion-accent-brown text-fashion-accent-brown"
+                                  : "text-fashion-charcoal/20"
+                              }`}
                             />
                           ))}
                         </div>
@@ -929,37 +850,77 @@ const ProductDetailsPage: React.FC = () => {
               <div className="mt-8">
                 {!user ? (
                   <p className="text-center text-sm">
-                    Please <a href="/login" className="text-fashion-accent-brown underline">log in</a> to leave a review.
+                    Please{" "}
+                    <a
+                      href="/login"
+                      className="text-fashion-accent-brown underline"
+                    >
+                      log in
+                    </a>{" "}
+                    to leave a review.
                   </p>
                 ) : !hasPurchased ? (
-                  <p className="text-center text-sm">Only customers who purchased this product can leave a review.</p>
+                  <p className="text-center text-sm">
+                    Only customers who purchased this product can leave a
+                    review.
+                  </p>
                 ) : (
                   <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-                    <h3 className="text-lg font-semibold mb-3">Write a review</h3>
+                    <h3 className="text-lg font-semibold mb-3">
+                      Write a review
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
                         <label className="text-sm">Your rating:</label>
-                        <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="border px-2 py-1 rounded">
-                          {[5,4,3,2,1].map(n => (
-                            <option key={n} value={n}>{n} star{n>1? 's':''}</option>
+                        <select
+                          value={reviewRating}
+                          onChange={(e) =>
+                            setReviewRating(Number(e.target.value))
+                          }
+                          className="border px-2 py-1 rounded"
+                        >
+                          {[5, 4, 3, 2, 1].map((n) => (
+                            <option key={n} value={n}>
+                              {n} star{n > 1 ? "s" : ""}
+                            </option>
                           ))}
                         </select>
                       </div>
-                      <textarea value={reviewMessage} onChange={(e) => setReviewMessage(e.target.value)} className="w-full border px-3 py-2 rounded h-28" placeholder="Share your experience..." />
+                      <textarea
+                        value={reviewMessage}
+                        onChange={(e) => setReviewMessage(e.target.value)}
+                        className="w-full border px-3 py-2 rounded h-28"
+                        placeholder="Share your experience..."
+                      />
                       <div className="flex justify-end">
                         <button
                           onClick={async () => {
-                            if (!reviewMessage) return alert('Please add a message');
+                            if (!reviewMessage)
+                              return alert("Please add a message");
                             setSubmittingReview(true);
                             try {
-                              const token = localStorage.getItem('token');
-                              await axios.post('https://ecommerce-fashion-app-som7.vercel.app/api/reviews', { productId: id, rating: reviewRating, message: reviewMessage }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-                              setReviewMessage('');
+                              const token = localStorage.getItem("token");
+                              await axios.post(
+                                "https://ecommerce-fashion-app-som7.vercel.app/api/reviews",
+                                {
+                                  productId: id,
+                                  rating: reviewRating,
+                                  message: reviewMessage,
+                                },
+                                {
+                                  headers: token
+                                    ? { Authorization: `Bearer ${token}` }
+                                    : {},
+                                }
+                              );
+                              setReviewMessage("");
                               setReviewRating(5);
                               await fetchProductReviews();
                             } catch (err: any) {
-                              console.error('Failed to submit review', err);
-                              const msg = err?.response?.data?.message || 'Failed to submit review';
+                              console.error("Failed to submit review", err);
+                              const msg =
+                                err?.response?.data?.message ||
+                                "Failed to submit review";
                               alert(msg);
                             } finally {
                               setSubmittingReview(false);
@@ -968,7 +929,7 @@ const ProductDetailsPage: React.FC = () => {
                           disabled={submittingReview}
                           className="px-4 py-2 bg-fashion-accent-brown text-white rounded"
                         >
-                          {submittingReview ? 'Submitting...' : 'Submit review'}
+                          {submittingReview ? "Submitting..." : "Submit review"}
                         </button>
                       </div>
                     </div>

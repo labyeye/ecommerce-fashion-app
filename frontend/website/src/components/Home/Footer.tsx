@@ -40,13 +40,13 @@ const Footer: React.FC = () => {
                 Flaunt by Nishi
               </span>
             </div>
-            <p className="text-sm sm:text-base text-dark mb-4 sm:mb-6 leading-relaxed max-w-[190px]">
+            <p className="text-lg text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[190px] space-y-3">
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
             </p>
             {/* product reviews moved to product detail pages; general reviews removed to prevent spam */}
-            <div className="flex space-x-3 sm:space-x-4 mt-7">
-              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300 ml-[-15px]">
+            <div className="flex space-x-3 sm:space-x-4 mt-7 mb-6">
+              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300 ml-[-9px]">
                 <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300">
@@ -72,13 +72,13 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Categories Column */}
-          <div className="lg:col-span-1 ml-16 sm:ml-20 lg:ml-24">
-            <h4 className="text-2xl font-semibold mb-6 text-dark">
+          <div className="lg:col-span-1">
+            <h4 className="text-2xl font-semibold mb-3 text-dark">
               <span className="text-transparent bg-clip-text bg-black">
                 Categories
               </span>
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3 mb-6">
               {categories.length === 0 && (
                 <li className="text-sm text-dark/70">No categories</li>
               )}
@@ -96,13 +96,13 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Company Column */}
-          <div className="lg:col-span-1 ml-16 sm:ml-20 lg:ml-24 ">
-            <h4 className="text-2xl font-semibold mb-6 text-dark ">
+          <div className="lg:col-span-1 ">
+            <h4 className="text-2xl font-semibold mb-3 text-dark ">
               <span className="text-transparent bg-clip-text bg-black">
                 Company
               </span>
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-3 mb-4">
               <li>
                 <a
                   href="#"
@@ -139,8 +139,8 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Support Column */}
-          <div className="lg:col-span-1 ml-16 sm:ml-20 lg:ml-24">
-            <h4 className="text-2xl font-semibold mb-6 text-dark ">
+          <div className="lg:col-span-1">
+            <h4 className="text-2xl font-semibold mb-3 text-dark ">
               <span className="text-transparent bg-clip-text bg-black">
                 Support
               </span>
