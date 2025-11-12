@@ -22,6 +22,7 @@ import BlogManagement from "./components/BlogManagement";
 import Newsletter from "./components/Newsletter";
 
 import { mockData } from "./data/mockData";
+import { Menu } from "lucide-react";
 
 interface ViewState {
   section: string;
@@ -36,6 +37,7 @@ function DashboardApp() {
     section: "overview",
     view: "list",
   });
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // If not authenticated, show login
   if (!user) {
@@ -274,11 +276,31 @@ function DashboardApp() {
 
   return (
     <div className="flex min-h-screen bg-ds-200 text-ds-900">
+      {/* Sidebar (desktop) and mobile overlay when open */}
       <Sidebar
         activeSection={activeSection}
-        onSectionChange={handleSectionChange}
+        onSectionChange={(s: string) => {
+          handleSectionChange(s);
+          setMobileOpen(false);
+        }}
+        mobileOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
       />
-      <main className="flex-1 p-8">{renderContent()}</main>
+
+      {/* Topbar for mobile */}
+      <header className="md:hidden flex items-center justify-between p-4 border-b border-ds-300 bg-ds-100">
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="p-2 rounded hover:bg-ds-200"
+          aria-label="Open menu"
+        >
+          <Menu className="w-6 h-6 text-ds-900" />
+        </button>
+        <div className="text-lg font-semibold">Commerce Hub</div>
+        <div />
+      </header>
+
+      <main className="flex-1 p-4 md:p-8">{renderContent()}</main>
     </div>
   );
 }

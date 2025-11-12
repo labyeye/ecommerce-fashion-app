@@ -5,16 +5,16 @@ export default {
     extend: {
       colors: {
         ds: {
-          100: '#C6DEC6',
-          200: '#B8D2B3',
-          300: '#A9C5A0',
-          400: '#8FA38A',
-          500: '#758173',
-          600: '#647A67',
-          700: '#3C433B',
-          800: '#1F241F',
-          900: '#020402'
-        }
+  100: '#F8FAFC', // very light
+  200: '#D9EAFD', // light bluish-gray
+  300: '#BCCCDC', // soft cool gray
+  400: '#9AA6B2', // mid-gray-blue
+  500: '#7B8794', // muted slate
+  600: '#616E7C', // deep gray-blue
+  700: '#4A5568', // dark slate gray
+  800: '#2D3748', // darker steel gray
+  900: '#1A202C', // near-black cool gray
+}
       }
     },
   },

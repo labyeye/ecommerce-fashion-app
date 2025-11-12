@@ -384,7 +384,7 @@ const HeroManagement: React.FC = () => {
       {/* Hero Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-ds-100 rounded-lg shadow-xl w-full max-w-4xl m-4 max-h-[90vh] overflow-y-auto">
+          <div className="dash-card bg-ds-100 rounded-lg shadow-xl w-full max-w-4xl m-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -447,7 +447,7 @@ const HeroManagement: React.FC = () => {
                 </div>
 
                 {/* Desktop Image Section */}
-                <div className="border border-ds-200 rounded-lg p-4 bg-ds-100">
+                <div className="dash-card border border-ds-200 rounded-lg p-4 bg-ds-100">
                   <div className="flex items-center gap-2 mb-3">
                     <Monitor className="w-5 h-4 text-ds-700" />
                     <h3 className="text-lg font-medium text-ds-900">Desktop Image</h3>
@@ -481,7 +481,7 @@ const HeroManagement: React.FC = () => {
                 </div>
 
                 {/* Mobile Image Section */}
-                <div className="border border-ds-200 rounded-lg p-4 bg-ds-100">
+                <div className="dash-card border border-ds-200 rounded-lg p-4 bg-ds-100">
                   <div className="flex items-center gap-2 mb-3">
                     <Smartphone className="w-5 h-4 text-ds-700" />
                     <h3 className="text-lg font-medium text-ds-900">Mobile Image</h3>
@@ -627,7 +627,7 @@ const HeroManagement: React.FC = () => {
       )}
 
       {/* Heroes List */}
-      <div className="bg-ds-100 rounded-lg shadow">
+  <div className="dash-card bg-ds-100 rounded-lg shadow">
         {heroes.length === 0 ? (
           <div className="p-8 text-center">
             <ImageIcon className="w-16 h-16 text-ds-500 mx-auto mb-4" />

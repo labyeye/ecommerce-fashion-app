@@ -258,9 +258,19 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   };
 
   const addColor = () => {
+    // When adding a new color in edit mode, prefill it with the default size set
+    const newSizes = [
+      { size: 'XS', stock: 0, price: 0 },
+      { size: 'S', stock: 0, price: 0 },
+      { size: 'M', stock: 0, price: 0 },
+      { size: 'L', stock: 0, price: 0 },
+      { size: 'XL', stock: 0, price: 0 },
+      { size: 'XXL', stock: 0, price: 0 },
+    ];
+
     setFormData(prev => ({
       ...prev,
-      colors: [...prev.colors, { name: '', hexCode: '#000000', stock: 0, images: [] }]
+      colors: [...prev.colors, { name: '', hexCode: '#000000', stock: 0, images: [], sizes: newSizes }]
     }));
   };
 

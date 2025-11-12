@@ -857,8 +857,8 @@ const ProductDetailsPage: React.FC = () => {
         <div className="mt-16 space-y-10">
           {/* Description */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Description</h2>
-            <div className="prose prose-fashion max-w-none">
+            <span className="text-6xl font-semibold mb-4">Description</span>
+            <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
                 {product.description || "No description available."}
               </p>
@@ -868,11 +868,11 @@ const ProductDetailsPage: React.FC = () => {
           {/* Key Features */}
           {product.keyFeatures && product.keyFeatures.length > 0 && (
             <section>
-              <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <span className="text-6xl font-semibold mb-4">Key Features</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
                   <div key={i} className="p-3 bg-white rounded shadow-sm">
-                    <p className="text-fashion-charcoal">{kf}</p>
+                    <p className="text-xl text-fashion-charcoal">{kf}</p>
                   </div>
                 ))}
               </div>
@@ -881,8 +881,8 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Care</h2>
-            <div className="prose prose-fashion max-w-none">
+            <span className="text-6xl font-semibold mb-4">Care Instructions</span>
+            <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-xl">
                 {product.careInstructions || "Care instructions not available."}
               </p>
@@ -891,10 +891,10 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Reviews */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+            <span className="text-6xl font-semibold mb-4">Reviews</span>
             <div className="py-6">
               {productReviews.length === 0 ? (
-                <p className="text-fashion-charcoal/60 text-center">
+                <p className="text-fashion-charcoal/60 text-center text-xl">
                   No reviews yet. Be the first to review this product!
                 </p>
               ) : (
