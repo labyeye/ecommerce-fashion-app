@@ -121,21 +121,6 @@ const BlogsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FFF2E1" }}>
-      {/* Hero Section */}
-      <section className="pt-24 pb-12" style={{ backgroundColor: "#95522C" }}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-              Blogs
-            </h1>
-            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
-              Expert insights, research-backed articles, and practical tips for
-              your health and wellness journey.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Search and Category Filter */}
       <section
         className="py-8"
@@ -300,7 +285,7 @@ const BlogsPage: React.FC = () => {
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2
-            className="text-2xl sm:text-3xl font-bold mb-8 text-center"
+            className="font-bold mb-8 text-center"
             style={{ color: "#95522C" }}
           >
             Latest Articles
@@ -384,7 +369,7 @@ const BlogsPage: React.FC = () => {
                             className="text-sm font-medium"
                             style={{ color: "#95522C" }}
                           >
-                            {blog.author?.name || 'Unknown'}
+                            {blog.author?.name || "Unknown"}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-gray-500">

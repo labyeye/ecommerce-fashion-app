@@ -76,11 +76,11 @@ const AboutPage: React.FC = () => {
               self-made label built with heart.
             </p>
           </div>
-          <div className="relative h-80 md:h-auto">
+          <div className="relative h-60 md:h-80">
             <img
               src={p1}
               alt="travel scene"
-              className="w-[800px] h-[500px] object-cover"
+              className="w-full h-full object-cover"
               style={{ objectPosition: "center 10%" }}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
@@ -97,12 +97,12 @@ const AboutPage: React.FC = () => {
           }`}
           data-reveal-id="panel2"
         >
-          <div className="relative h-80 md:h-auto">
+          <div className="relative h-60 md:h-80">
             <img
               src={p2}
               alt="founder stitching"
-              className="w-[800px] h-[500px] object-cover"
-              style={{ objectPosition: "center 30%" }}
+              className="w-full h-full object-cover"
+              style={{ objectPosition: "center 20%" }}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
                   getPlaceholder("travel2.jpg");
@@ -140,12 +140,12 @@ const AboutPage: React.FC = () => {
               and chic.
             </p>
           </div>
-          <div className="relative h-80 md:h-auto">
+          <div className="relative h-60 md:h-80">
             <img
               src={p3}
               alt="designer sketching"
-              className="w-[800px] h-[500px] object-cover"
-              style={{ objectPosition: "center 35%" }}
+              className="w-full h-full object-cover"
+              style={{ objectPosition: "center 40%" }}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
                   getPlaceholder("travel3.jpg");
