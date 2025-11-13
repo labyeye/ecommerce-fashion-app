@@ -18,6 +18,7 @@ function ScrollToTopOnMount() {
 }
 import Cart from "./components/Home/Cart";
 import Footer from "./components/Home/Footer";
+import LoadingMountainSunsetBeach from "./components/ui/LoadingMountainSunsetBeach";
 import HomePage from "./components/pages/HomePage";
 import AboutPage from "./components/pages/AboutPage";
 import ProductPage from "./components/pages/ProductsPage";
@@ -36,7 +37,6 @@ import VerifyEmailPage from './components/pages/VerifyEmailPage';
 import Wishlist from "./components/pages/Wishlist";
 import AddressesPage from './components/pages/AddressesPage';
 import OrderCompletePage from './components/pages/OrderCompletePage';
-import ComingSoon from './components/ComingSoon';
 import TermsPage from './components/pages/TermsPage';
 import PrivacyPage from './components/pages/PrivacyPage';
 import FaqPage from './components/pages/FaqPage';
@@ -44,11 +44,18 @@ import ReturnPolicy from './components/pages/ReturnPolicy';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // Show a one-time splash on initial load that cycles all logos once
+  const [showSplash, setShowSplash] = useState(true);
   return (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <Router>
+            {showSplash ? (
+              <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
+                <LoadingMountainSunsetBeach text="Welcome" loop={false} onComplete={() => setShowSplash(false)} />
+              </div>
+            ) : null}
             <ScrollToTopOnMount />
             <div className="min-h-screen bg-white">
               <HeaderWithCartCount onCartClick={() => setIsCartOpen(true)} />
