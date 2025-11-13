@@ -64,53 +64,90 @@ const PrivacyPage: React.FC = () => {
 
           <span className="text-4xl font-medium mt-4 mb-2">• Cookies</span>
           <p className="mb-4 text-2xl mt-4 text-justify">
-            Like almost all e-commerce web sites, we use cookies. Our cookies
-            don't store any of your personal information, but they do allow us
-            to do things like keep items in your shopping cart during your visit
-            or provide you with a more personalized user experience. We may use
-            selected third parties for marketing and analysis purposes. This
-            anonymous information is collected through the use of a pixel tag,
-            which is industry standard technology used by most major web sites.
-            We feel that the use of 3rd party services such as mentioned above,
-            this improve your online experience, because they allow you to see
-            ads that will be more likely to be something you are interested in.
-            If you want to opt-out from some cookies or tags that we collect,
-            please visit these pages for more information:
+            Like almost all e-commerce websites, we use cookies. Our cookies do
+            not store your sensitive personal information, but they help us with
+            essential functions (for example keeping items in your shopping
+            cart) and to collect anonymous usage data for improving the site.
+            You can manage or disable cookies through your browser settings;
+            doing so may affect some features of the site.
           </p>
+
+          <h3 className="text-5xl font-medium mt-6 mb-4 text-center">
+            What We Use / हम क्या उपयोग करते हैं
+          </h3>
+          <p className="mb-4 text-2xl mt-4 text-justify">
+            We use a few third-party services to provide login, payments,
+            shipping, and email features. Below is a short summary in English
+            and Hindi so you know which services may process your data:
+          </p>
+
           <ul className="list-disc list-inside mb-4 text-2xl mt-4 text-justify">
             <li>
+              <strong>Google Sign-In:</strong> We offer Google Sign-In to make
+              account creation and login faster. When you sign in with Google we
+              receive basic profile information (name, email). For details see
+              Google's privacy policy:{" "}
               <a
                 className="text-fashion-accent-brown"
-                href="https://www.google.com/ads/preferences"
+                href="https://policies.google.com/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                www.google.com/ads/preferences
+                policies.google.com/privacy
               </a>
+              .
             </li>
-            <li>
+            <li className="mt-3">
+              <strong>Razorpay (Payments):</strong> We use Razorpay as our
+              payment gateway for processing card and UPI payments. Payment data
+              is processed by Razorpay — we never store your full card details
+              on our servers. Razorpay's privacy information:{" "}
               <a
                 className="text-fashion-accent-brown"
-                href="https://www.adroll.com/about/privacy#optpolicy"
+                href="https://razorpay.com/privacy/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                www.adroll.com/about/privacy#optpolicy
+                razorpay.com/privacy
               </a>
+              .
             </li>
-            <li>
+            <li className="mt-3">
+              <strong>Delhivery (Shipping):</strong> For shipping and tracking
+              we integrate with Delhivery. We share minimal shipment details
+              (name, address, phone, order items) so your parcel can be
+              delivered and tracked. Delhivery privacy:{" "}
               <a
                 className="text-fashion-accent-brown"
-                href="https://www.networkadvertising.org/choices"
+                href="https://delhivery.com/privacy/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                www.networkadvertising.org/choices
+                delhivery.com/privacy
               </a>
+              .
             </li>
+            <li className="mt-3">
+              <strong>Email & Transactional Messaging:</strong> We send order
+              confirmations, verification emails, and notifications using
+              server-side email services (configured via SMTP / Nodemailer).
+              Depending on environment this may use providers such as Gmail or
+              other SMTP-based services; those providers may process the email
+              content to deliver messages.
+            </li>
+            {/* Advertising and large-scale third-party advertising partners are not used by default in this project. */}
           </ul>
 
-          <h3 className="text-5xl font-medium mt-4 mb-2 text-center">Security</h3>
+          <p className="mb-4 text-2xl mt-4 text-justify">
+            Hindi (संक्षेप): हम Google Sign-In का उपयोग करते हैं (नाम, ईमेल) —
+            भुगतान के लिए Razorpay, शिपिंग के लिए Delhivery, और ईमेल भेजने के
+            लिए SMTP/नोडमेलर आधारित सेवाएँ। हम आपके कार्ड की पूर्ण जानकारी अपने
+            सर्वर पर संग्रहीत नहीं करते।
+          </p>
+
+          <h3 className="text-5xl font-medium mt-4 mb-2 text-center">
+            Security
+          </h3>
           <p className="mb-4 text-2xl mt-4 text-justify">
             We maintain best practices to protect your information, which
             include appropriate physical as well as electronic security
