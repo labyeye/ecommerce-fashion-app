@@ -186,6 +186,30 @@ router.post('/verify', async (req, res) => {
     
     await order.save();
 
+    // After confirming order, attempt to create Delhivery shipment
+    try {
+      const { createShipmentForOrder } = require('../services/delhiveryService');
+      const createRes = await createShipmentForOrder(order);
+      if (!createRes.success) {
+        // Fail-safe: revert order status to pending and log reason
+        console.error('Delhivery shipment creation failed for order', order._id, createRes.error || createRes.raw);
+        order.status = 'pending';
+        order.addTimelineEntry('shipment_creation_failed', `Delhivery error: ${JSON.stringify(createRes.error || createRes.raw || 'unknown')}`);
+        await order.save();
+        return res.status(500).json({ success: false, message: 'Payment verified but shipment creation failed', error: createRes.error || createRes.raw });
+      }
+      // If created successfully, push timeline
+      order.addTimelineEntry('shipment_created', `Shipment created with AWB ${order.shipment && order.shipment.awb}`);
+      await order.save();
+    } catch (delErr) {
+      console.error('Error while creating Delhivery shipment:', delErr);
+      // revert to pending as a precaution
+      order.status = 'pending';
+      order.addTimelineEntry('shipment_creation_failed', `Delhivery error: ${delErr.message}`);
+      await order.save();
+      return res.status(500).json({ success: false, message: 'Payment verified but shipment creation encountered an error' });
+    }
+
     // Award loyalty points on payment success (idempotent)
     try {
       if (!order.payment || !order.payment.loyaltyAwarded) {

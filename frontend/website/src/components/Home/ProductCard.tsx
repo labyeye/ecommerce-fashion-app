@@ -214,7 +214,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         className="relative aspect-[2/4] overflow-hidden bg-gray-50 cursor-pointer"
         onClick={handleViewDetails}
       >
-        {!hidePromoBadge && !isProductPage &&
+        {!hidePromoBadge &&
+          !isProductPage &&
           (product.isNewArrival || (product as any).category?.isNewArrival) && (
             <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
               New
@@ -270,19 +271,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
               return (
                 <Star
                   key={i}
-                  className={`w-4 h-4 ${filled ? 'text-[#914D26]' : 'text-[#C17237]'}`}
+                  className={`w-4 h-4 ${
+                    filled ? "text-[#914D26]" : "text-[#C17237]"
+                  }`}
                 />
               );
             })}
           </div>
-          <div className="text-sm text-[#7A5A3E]">({product.ratings?.count || 0})</div>
+          <div className="text-sm text-[#7A5A3E]">
+            ({product.ratings?.count || 0})
+          </div>
         </div>
 
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <span className="text-xl  text-[#95522C] font-['Sans-Serif'] poppins-numeric">
+          <p className="text-[#95522C] font-['Sans-Serif'] poppins-numeric">
             ₹{currentPrice.toLocaleString()}
-          </span>
+          </p>
           {/* {hasDiscount && product.comparePrice && (
             <span className="text-base text-[#95522C] line-through poppins-numeric">
               ₹{product.comparePrice.toLocaleString()}

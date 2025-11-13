@@ -131,6 +131,45 @@ const OrderDetailsPage: React.FC = () => {
     fetchOrderDetails();
   }, [token, orderId]);
 
+  // Poll order status and shipment every 12 seconds
+  useEffect(() => {
+    if (!token || !orderId) return;
+    let mounted = true;
+    const fetchStatus = async () => {
+      try {
+        const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/orders/status/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (mounted && json.success && json.data) {
+          setOrder(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              status: json.data.orderStatus,
+              timeline: json.data.timeline || prev.timeline,
+              estimatedDelivery: json.data.estimatedDelivery || prev.estimatedDelivery,
+              // include shipment info if present
+              // @ts-ignore
+              shipment: json.data.shipment || prev['shipment']
+            } as Order;
+          });
+        }
+      } catch (err) {
+        // ignore polling errors
+      }
+    };
+
+    const interval = setInterval(fetchStatus, 12000);
+    // initial fetch
+    fetchStatus();
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [token, orderId]);
+
   const handleConfirmDelivery = async () => {
     if (!token || !orderId) return;
 
@@ -447,6 +486,16 @@ const OrderDetailsPage: React.FC = () => {
                   <Mail className="w-4 h-4" />
                   <span>{order.shippingAddress.email}</span>
                 </div>
+                {/* AWB / Tracking */}
+                {/** @ts-ignore */}
+                {order && (order as any).shipment && (order as any).shipment.awb && (
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-600">AWB: <span className="font-medium">{(order as any).shipment.awb}</span></p>
+                    <a href={(order as any).shipment.trackingUrl || (`https://track.delhivery.com/?waybill=${(order as any).shipment.awb}`)} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">
+                      Track on Delhivery
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 

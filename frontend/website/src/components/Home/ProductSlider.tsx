@@ -144,7 +144,7 @@ const ProductSlider = ({
       <div className="w-full px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h2 className="text-6xl sm:text-6xl font-bold mb-6">
+          <h2 className="text-5xl font-bold mb-6">
             <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               {config.title}
             </span>

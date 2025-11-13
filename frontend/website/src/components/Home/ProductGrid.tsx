@@ -11,26 +11,29 @@ const ProductGrid: React.FC = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const filteredProducts = useMemo(() => {
     if (loading || error || !products) return [];
-    
+
     let filtered = products.filter(
       (product: Product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (product.material && product.material.toLowerCase().includes(searchTerm.toLowerCase()))
+        (product.description &&
+          product.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (product.brand &&
+          product.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.material &&
+          product.material.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  
+
     switch (sortBy) {
       case "price-low":
         filtered.sort(
-          (a, b) =>
-            (a.salePrice || a.price) - (b.salePrice || b.price)
+          (a, b) => (a.salePrice || a.price) - (b.salePrice || b.price)
         );
         break;
       case "price-high":
         filtered.sort(
-          (a, b) =>
-            (b.salePrice || b.price) - (a.salePrice || a.price)
+          (a, b) => (b.salePrice || b.price) - (a.salePrice || a.price)
         );
         break;
       case "name":
@@ -38,7 +41,7 @@ const ProductGrid: React.FC = () => {
         filtered.sort((a, b) => a.name.localeCompare(b.name));
         break;
     }
-  
+
     return filtered;
   }, [products, searchTerm, sortBy]);
 
@@ -110,7 +113,7 @@ const ProductGrid: React.FC = () => {
                     {[
                       "All",
                       "T-Shirts",
-                      "Shirts", 
+                      "Shirts",
                       "Jeans",
                       "Sweaters",
                       "Chinos",

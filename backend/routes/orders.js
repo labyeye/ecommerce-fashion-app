@@ -145,4 +145,35 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// @desc    Get order status (including shipment info)
+// @route   GET /api/orders/status/:id
+// @access  Private (owner) or admin
+router.get('/status/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    // require authentication for detailed shipment info
+    if (!req.user) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    if (!(req.user.role === 'admin' || order.customer.toString() === req.user._id.toString())) {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    const statusInfo = {
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      orderStatus: order.status,
+      shipment: order.shipment || {},
+      timeline: order.timeline || [],
+      estimatedDelivery: order.estimatedDelivery
+    };
+
+    res.status(200).json({ success: true, data: statusInfo });
+  } catch (err) {
+    console.error('Order status error:', err);
+    res.status(500).json({ success: false, message: 'Error fetching order status' });
+  }
+});
+
 module.exports = router; 

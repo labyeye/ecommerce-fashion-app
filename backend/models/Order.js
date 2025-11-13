@@ -259,7 +259,18 @@ items: [{
     ref: 'User'
   },
 
-  cancellationReason: String
+  cancellationReason: String,
+
+  // Shipment / carrier integration data (Delhivery)
+  shipment: {
+    awb: { type: String },
+    shipmentId: { type: String },
+    trackingUrl: { type: String },
+    carrier: { type: String },
+    status: { type: String },
+    rawResponse: { type: mongoose.Schema.Types.Mixed },
+    lastSyncedAt: Date
+  }
 }, {
   timestamps: true
 });

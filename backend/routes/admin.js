@@ -647,8 +647,33 @@ router.put(
         });
       }
 
+      // If order already has a carrier AWB (synced), prevent manual status updates
+      if (order.shipment && order.shipment.awb) {
+        return res.status(400).json({
+          success: false,
+          message: 'This order is synced with Delhivery. Status will update automatically.'
+        });
+      }
+
       // Update order status
       await order.updateStatus(status, notes, req.user._id);
+
+      // If status changed to confirmed, attempt to create Delhivery shipment
+      if (status === 'confirmed') {
+        try {
+          const { createShipmentForOrder } = require('../services/delhiveryService');
+          const createRes = await createShipmentForOrder(order);
+          if (!createRes.success) {
+            // revert status and inform admin
+            await order.updateStatus('pending', `Delhivery creation failed: ${JSON.stringify(createRes.error || createRes.raw)}`, req.user._id);
+            return res.status(500).json({ success: false, message: 'Shipment creation failed', error: createRes.error || createRes.raw });
+          }
+        } catch (e) {
+          console.error('Delhivery create error (admin):', e);
+          await order.updateStatus('pending', `Delhivery creation error: ${e.message}`, req.user._id);
+          return res.status(500).json({ success: false, message: 'Shipment creation error' });
+        }
+      }
 
       // Update loyalty points if order is delivered (only if not already awarded on payment)
       if (status === "delivered" && order.customer) {

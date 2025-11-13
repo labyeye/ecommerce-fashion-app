@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Heart,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Ruler,
-  X,
-} from "lucide-react";
+import { Heart, Star, ChevronLeft, ChevronRight, Ruler, X } from "lucide-react";
 import { useCartContext } from "../../context/CartContext";
 import { getProductById, Product } from "../../services/productService";
 import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
@@ -47,7 +40,11 @@ const ProductDetailsPage: React.FC = () => {
   // Delivery check state
   const [pincode, setPincode] = useState("");
   const [checkingDelivery, setCheckingDelivery] = useState(false);
-  const [deliveryInfo, setDeliveryInfo] = useState<null | { deliverable: boolean; estDays?: number; message?: string }>(null);
+  const [deliveryInfo, setDeliveryInfo] = useState<null | {
+    deliverable: boolean;
+    estDays?: number;
+    message?: string;
+  }>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -126,17 +123,25 @@ const ProductDetailsPage: React.FC = () => {
       setCheckingDelivery(true);
       setDeliveryInfo(null);
       // Backend endpoint expectation: GET /api/shipping/check?pincode=XXXXX
-      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
-        pincode
-      )}`);
+      const res = await axios.get(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
+          pincode
+        )}`
+      );
       // Expect response { deliverable: boolean, estDays?: number, message?: string }
       const info = res?.data || null;
       if (info) setDeliveryInfo(info);
       else setDeliveryInfo({ deliverable: false, message: "No delivery info" });
     } catch (err: any) {
-      console.warn("Delivery check failed", err?.response?.data || err.message || err);
+      console.warn(
+        "Delivery check failed",
+        err?.response?.data || err.message || err
+      );
       // Graceful fallback message if endpoint not implemented
-      setDeliveryInfo({ deliverable: false, message: "Delivery info unavailable" });
+      setDeliveryInfo({
+        deliverable: false,
+        message: "Delivery info unavailable",
+      });
     } finally {
       setCheckingDelivery(false);
     }
@@ -288,8 +293,6 @@ const ProductDetailsPage: React.FC = () => {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
-  
-
   const SizeChartModal = () => {
     if (!showSizeChart) return null;
 
@@ -327,18 +330,18 @@ const ProductDetailsPage: React.FC = () => {
                     onError={(e) => {
                       const t = e.target as HTMLImageElement;
                       // fallback to placeholder if not found
-                      if (t.src.indexOf("img-placeholder-800x1000.png") === -1) {
+                      if (
+                        t.src.indexOf("img-placeholder-800x1000.png") === -1
+                      ) {
                         t.src = "/assets/img-placeholder-800x1000.png";
                       }
                     }}
                   />
                 </a>
-
               </div>
             </div>
 
             {/* Measurement Instructions */}
-            
           </div>
         </div>
       </div>
@@ -441,19 +444,17 @@ const ProductDetailsPage: React.FC = () => {
             onClick={() => navigate("/")}
             className="hover:text-fashion-accent-brown"
           >
-            <span className="text-xl">
-              Home
-            </span>
+            <p className="text-xl">Home</p>
           </button>
           <span>/</span>
           <button
             onClick={() => navigate("/products")}
             className="hover:text-fashion-accent-brown"
           >
-            <span className="text-xl">Products</span>
+            <p className="text-xl">Products</p>
           </button>
           <span>/</span>
-          <span className="text-fashion-charcoal text-xl">{product.name}</span>
+          <p className="text-fashion-charcoal text-xl">{product.name}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -555,7 +556,7 @@ const ProductDetailsPage: React.FC = () => {
           <div className="space-y-6">
             {/* Brand & Name */}
             <div>
-              <h1 className="text-2xl md:text-3xl font-light text-fashion-charcoal leading-tight">
+              <h1 className="font-light text-fashion-charcoal leading-tight">
                 {product.name}
               </h1>
             </div>
@@ -589,37 +590,36 @@ const ProductDetailsPage: React.FC = () => {
               </span>
               {hasDiscount && product.comparePrice && (
                 <>
-                  <span className="text-lg text-fashion-charcoal/50 line-through poppins-numeric">
+                  <p className="text-lg text-fashion-charcoal/50 line-through poppins-numeric">
                     ₹{product.comparePrice.toLocaleString()}
-                  </span>
-                  <span className="text-sm text-red-600 font-medium">
+                  </p>
+                  <p className="text-sm text-red-600 font-medium">
                     ({discountPercentage}% OFF)
-                  </span>
+                  </p>
                 </>
               )}
-              
             </div>
             {/* Compact rating summary next to price */}
-              {product.ratings && (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center -space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-6 h-6 ${
-                          i < Math.round(product.ratings?.average || 0)
-                            ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                            : "text-fashion-charcoal/20"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xl text-fashion-charcoal/70">
-                    {product.ratings.average?.toFixed(1) || "0.0"} (
-                    {product.ratings.count || 0})
-                  </span>
+            {product.ratings && (
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center -space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-6 h-6 ${
+                        i < Math.round(product.ratings?.average || 0)
+                          ? "fill-fashion-accent-brown text-fashion-accent-brown"
+                          : "text-fashion-charcoal/20"
+                      }`}
+                    />
+                  ))}
                 </div>
-              )}
+                <p className="text-xl text-fashion-charcoal/70">
+                  {product.ratings.average?.toFixed(1) || "0.0"} (
+                  {product.ratings.count || 0})
+                </p>
+              </div>
+            )}
 
             {/* Short Description */}
             {product.shortDescription && (
@@ -632,9 +632,9 @@ const ProductDetailsPage: React.FC = () => {
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-fashion-charcoal text-xl">
+                  <p className="font-medium text-fashion-charcoal text-xl">
                     Color: <span className="font-normal">{selectedColor}</span>
-                  </span>
+                  </p>
                 </div>
                 <div className="flex space-x-3">
                   {product.colors.map((color) => (
@@ -664,31 +664,31 @@ const ProductDetailsPage: React.FC = () => {
               (product.sizes && product.sizes.length > 0)) && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-fashion-charcoal text-xl">
-                    Size:{" "}
+                  <p className="font-medium text-fashion-charcoal text-xl">
                     {selectedSize && (
-                      <span className="font-normal">{selectedSize}</span>
+                      <p className="font-normal">{selectedSize}</p>
                     )}
                     {!selectedSize && (
-                      <span className="text-fashion-accent-brown text-xl font-normal">
-                        {" "}
-                        - Please select a size
-                      </span>
+                      <p className="text-fashion-accent-brown text-xl font-normal">
+                        Please select a size
+                      </p>
                     )}
-                  </span>
+                  </p>
                   <button
                     onClick={() => setShowSizeChart(true)}
                     className="text-sm text-fashion-accent-brown hover:underline flex items-center space-x-1"
                   >
                     <Ruler className="w-7 h-7" />
-                    <span className="text-xl">Size Guide</span>
+                    <p className="text-xl">Size Guide</p>
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-2">
                   {(currentColor?.sizes || product.sizes).map((size) => (
                     <button
                       key={size.size}
-                      onClick={() => size.stock > 0 && setSelectedSize(size.size)}
+                      onClick={() =>
+                        size.stock > 0 && setSelectedSize(size.size)
+                      }
                       aria-disabled={size.stock === 0}
                       className={`py-3 text-xl font-medium border transition-all duration-300 relative group ${
                         selectedSize === size.size
@@ -699,26 +699,30 @@ const ProductDetailsPage: React.FC = () => {
                       }`}
                     >
                       {/* Size label (fades out on hover when out of stock) */}
-                      <span className={`relative z-10 transition-opacity ${
-                        size.stock === 0 ? 'group-hover:opacity-0' : ''
-                      }`}>{size.size}</span>
+                      <p
+                        className={`relative z-10 transition-opacity ${
+                          size.stock === 0 ? "group-hover:opacity-0" : ""
+                        }`}
+                      >
+                        {size.size}
+                      </p>
 
                       {/* Replace label with 'Out of Stock' on hover for OOS sizes */}
                       {size.stock === 0 && (
-                        <span className="absolute inset-0 flex items-center justify-center text-[#E4A95D] text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <p className="absolute inset-0 flex items-center justify-center text-[#E4A95D] text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                           Out of Stock
-                        </span>
+                        </p>
                       )}
 
                       {size.stock <= 5 && size.stock > 0 && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#C17237] rounded-full"></span>
+                        <p className="absolute -top-1 -right-1 w-2 h-2 bg-[#C17237] rounded-full"></p>
                       )}
                     </button>
                   ))}
                 </div>
                 {!selectedSize && (
                   <p className="text-2xl text-fashion-charcoal/70 rounded-lg">
-                   Please select your size to continue
+                    Please select your size to continue
                   </p>
                 )}
               </div>
@@ -726,9 +730,9 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Quantity */}
             <div className="space-y-3">
-              <span className="font-medium text-fashion-charcoal text-xl">
+              <p className="font-medium text-fashion-charcoal text-xl">
                 Quantity
-              </span>
+              </p>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border border-fashion-charcoal/20">
                   <button
@@ -737,9 +741,9 @@ const ProductDetailsPage: React.FC = () => {
                   >
                     -
                   </button>
-                  <span className="px-4 py-3 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
+                  <p className="px-4 py-3 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
                     {quantity}
-                  </span>
+                  </p>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="px-4 py-3 hover:bg-fashion-cream transition-colors"
@@ -770,11 +774,16 @@ const ProductDetailsPage: React.FC = () => {
                 {deliveryInfo && (
                   <div className="text-xl text-fashion-charcoal/80">
                     {deliveryInfo.deliverable ? (
-                      <span className="text-green-600">
-                        Deliverable{deliveryInfo.estDays ? ` · ${deliveryInfo.estDays} day(s)` : ""}
-                      </span>
+                      <p className="text-green-600">
+                        Deliverable
+                        {deliveryInfo.estDays
+                          ? ` · ${deliveryInfo.estDays} day(s)`
+                          : ""}
+                      </p>
                     ) : (
-                      <span className="text-red-600">{deliveryInfo.message || "Not deliverable"}</span>
+                      <p className="text-red-600">
+                        {deliveryInfo.message || "Not deliverable"}
+                      </p>
                     )}
                   </div>
                 )}
@@ -794,20 +803,20 @@ const ProductDetailsPage: React.FC = () => {
                     }`}
                   >
                     {!selectedSize ? (
-                      <span className="flex items-center justify-center space-x-2 text-xl">
-                        <span>SELECT SIZE TO ADD TO BAG</span>
-                      </span>
+                      <p className="flex items-center justify-center space-x-2 text-xl">
+                        <p>SELECT SIZE TO ADD TO BAG</p>
+                      </p>
                     ) : isOutOfStock ? (
-                      <span className="flex items-center justify-center space-x-2 text-xl">
-                        <span>OUT OF STOCK</span>
-                      </span>
+                      <p className="flex items-center justify-center space-x-2 text-xl">
+                        <p>OUT OF STOCK</p>
+                      </p>
                     ) : (
-                      <span className="flex items-center justify-center space-x-2 text-xl">
-                        <span>ADD TO BAG</span>
-                        <span className="text-xl opacity-80 poppins-numeric">
+                      <p className="flex items-center justify-center space-x-2 text-xl">
+                        <p>ADD TO BAG</p>
+                        <p className="text-xl opacity-80 poppins-numeric">
                           ₹{currentPrice.toLocaleString()}
-                        </span>
-                      </span>
+                        </p>
+                      </p>
                     )}
                   </button>
                 );
@@ -826,9 +835,9 @@ const ProductDetailsPage: React.FC = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="font-medium">
+                  <p className="font-medium">
                     Successfully added to bag!
-                  </span>
+                  </p>
                 </div>
               )}
 
@@ -870,7 +879,7 @@ const ProductDetailsPage: React.FC = () => {
         <div className="mt-16 space-y-10">
           {/* Description */}
           <section>
-            <span className="text-5xl font-semibold mb-4">Description</span>
+            <h4 className="text-5xl font-semibold mb-4">Description</h4>
             <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.description || "No description available."}
@@ -881,7 +890,7 @@ const ProductDetailsPage: React.FC = () => {
           {/* Key Features */}
           {product.keyFeatures && product.keyFeatures.length > 0 && (
             <section>
-              <span className="text-5xl font-semibold mb-4">Key Features</span>
+              <h4 className="text-5xl font-semibold mb-4">Key Features</h4>
               <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
                   <div key={i} className="  rounded shadow-sm">
@@ -894,9 +903,9 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <span className="text-5xl font-semibold mb-4">
+            <h4 className="text-5xl font-semibold mb-4">
               Care Instructions
-            </span>
+            </h4>
             <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
@@ -1042,7 +1051,9 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Related / recommended products */}
         <div className="mt-12">
-          <span className="text-6xl font-semibold mb-6">You might also like</span>
+          <h4 className="text-6xl font-semibold mb-6">
+            You might also like
+          </h4>
           {otherProducts.length === 0 ? (
             <p className="">No recommendations available.</p>
           ) : (

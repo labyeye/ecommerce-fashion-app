@@ -8,32 +8,32 @@ const ContactPage: React.FC = () => {
       <Header cartCount={0} onCartClick={() => {}} />
 
       <main>
-        <section className="pt-32 pb-3" style={{ backgroundColor: "#FFF2E1" }}>
+        <section className="pt-32 pb-72" style={{ backgroundColor: "#FFF2E1" }}>
           <div className="text-center mb-16 max-w-7xl mx-auto">
-            <h2
-              className="text-6xl sm:text-6xl font-bold mb-6"
+            <span
+              className="text-5xl sm:text-6xl font-bold mb-6"
               style={{ color: "#95522C" }}
             >
               Contact Us
-            </h2>
+            </span>
             <p
-              className="text-lg max-w-2xl mx-auto"
+              className="text-xl max-w-2xl mx-auto"
               style={{ color: "#95522C" }}
             >
               Have questions or feedback? We'd love to hear from you!
             </p>
           </div>
         </section>
-        <section className="py-12 bg-[#FFF2E1] backdrop-blur-sm">
+        <section className="bg-[#FFF2E1] backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
               <div className="backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
-                <h2
-                  className="text-4xl font-bold mb-6"
+                <span
+                  className="text-5xl font-bold mb-6 block text-center"
                   style={{ color: "#95522C" }}
                 >
                   Send us a message
-                </h2>
+                </span>
                 <form className="space-y-6">
                   <div>
                     <label
@@ -111,12 +111,12 @@ const ContactPage: React.FC = () => {
               </div>
               <div className="space-y-8">
                 <div className="bg-[#FFF2E1] backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
-                  <h2 className="text-4xl font-bold text-dark mb-6">
+                  <span className="text-5xl font-bold text-dark mb-6">
                     <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
                       Contact Information
                     </span>
-                  </h2>
-                  <div className="space-y-6">
+                  </span>
+                  <div className="space-y-6 mt-10">
                     <div className="flex items-start space-x-4">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -189,55 +189,7 @@ const ContactPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-[#FFF2E1] backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
-                  <h2
-                    className="text-3xl font-bold mb-6"
-                    style={{ color: "#95522C" }}
-                  >
-                    FAQs
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="border-b border-tertiary/30 pb-4">
-                      <h3
-                        className="font-semibold"
-                        style={{ color: "#95522C" }}
-                      >
-                        What are your shipping options?
-                      </h3>
-                      <p style={{ color: "#95522C" }} className="mt-1">
-                        We offer standard (3-5 days) and express (1-2 days)
-                        shipping across India. Free shipping on orders over
-                        ₹1000.
-                      </p>
-                    </div>
-                    <div className="border-b border-tertiary/30 pb-4">
-                      <h3
-                        className="font-semibold"
-                        style={{ color: "#95522C" }}
-                      >
-                        How can I track my order?
-                      </h3>
-                      <p style={{ color: "#95522C" }} className="mt-1">
-                        You'll receive a tracking link via email and SMS once
-                        your order ships. You can also check in your account
-                        dashboard.
-                      </p>
-                    </div>
-                    <div className="border-b border-tertiary/30 pb-4">
-                      <h3
-                        className="font-semibold"
-                        style={{ color: "#95522C" }}
-                      >
-                        What's your return policy?
-                      </h3>
-                      <p style={{ color: "#95522C" }} className="mt-1">
-                        We accept returns within 7 days of delivery for unopened
-                        products. Please contact our support team to initiate a
-                        return.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                
               </div>
             </div>
           </div>

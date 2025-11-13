@@ -264,20 +264,26 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </span>
-          <select
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={order.status}
-            onChange={(e) => handleStatusUpdate(e.target.value)}
-            disabled={updatingStatus}
-          >
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="refunded">Refunded</option>
-          </select>
+          {order && (order as any).shipment && (order as any).shipment.awb ? (
+            <div className="px-4 py-2 bg-yellow-50 rounded-lg text-yellow-800">
+              This order is synced with Delhivery. Status will update automatically.
+            </div>
+          ) : (
+            <select
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={order.status}
+              onChange={(e) => handleStatusUpdate(e.target.value)}
+              disabled={updatingStatus}
+            >
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          )}
           {updatingStatus && (
             <div className="flex items-center space-x-2 text-sm text-blue-600">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -543,20 +549,26 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Update Status</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={order.status}
-                  onChange={(e) => handleStatusUpdate(e.target.value)}
-                  disabled={updatingStatus}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="processing">Processing</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="refunded">Refunded</option>
-                </select>
+                {order && (order as any).shipment && (order as any).shipment.awb ? (
+                  <div className="w-full px-3 py-2 border border-yellow-200 rounded-lg bg-yellow-50 text-yellow-800">
+                    This order is synced with Delhivery. Status will update automatically.
+                  </div>
+                ) : (
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={order.status}
+                    onChange={(e) => handleStatusUpdate(e.target.value)}
+                    disabled={updatingStatus}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
+                )}
                 {updatingStatus && (
                   <div className="flex items-center space-x-2 text-sm text-blue-600">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>

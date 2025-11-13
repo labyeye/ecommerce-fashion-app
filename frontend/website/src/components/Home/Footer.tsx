@@ -36,21 +36,21 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-30 items-start pl-8 sm:pl-10 lg:pl-12">
           <div className="lg:col-span-1">
             <div className="flex items-start space-x-2 mb-4 sm:mb-6">
-              <span className="text-xl sm:text-2xl font-bold text-dark">
-                Flaunt by Nishi
-              </span>
+              <h1>
+                <span className="font-bold text-dark">Flaunt by Nishi</span>
+              </h1>
             </div>
-            <p className="text-lg text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[190px] space-y-3">
+            <p className="text-dark mb-4 sm:mb-6 leading-relaxed max-w-[190px] space-y-3">
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
             </p>
             {/* product reviews moved to product detail pages; general reviews removed to prevent spam */}
             <div className="flex space-x-3 sm:space-x-4 mt-7 mb-6">
-              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300 ml-[-9px]">
-                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
+              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300 ml-[-9px]">
+                <Facebook className="w-7 h-7 sm:w-7 sm:h-7" />
               </button>
-              <button className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:bg-tertiary/20 hover:scale-110 transition-all duration-300">
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
+              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
+                <Instagram className="w-7 h-7 sm:w-7 sm:h-7" />
               </button>
               <a
                 href="https://wa.me/"
@@ -64,7 +64,7 @@ const Footer: React.FC = () => {
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
                   alt="WhatsApp"
-                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  className="w-7 h-7 sm:w-7 sm:h-7 object-contain"
                   loading="lazy"
                 />
               </a>
@@ -73,12 +73,12 @@ const Footer: React.FC = () => {
 
           {/* Categories Column */}
           <div className="lg:col-span-1">
-            <h4 className="text-2xl font-semibold mb-3 text-dark">
+            <h1 className="text-2xl font-semibold mb-3 text-dark">
               <span className="text-transparent bg-clip-text bg-black">
                 Categories
               </span>
-            </h4>
-            <ul className="space-y-3 mb-6">
+            </h1>
+            <ul className="space-y-3 mb-6 mt-7">
               {categories.length === 0 && (
                 <li className="text-sm text-dark/70">No categories</li>
               )}
@@ -97,94 +97,112 @@ const Footer: React.FC = () => {
 
           {/* Company Column */}
           <div className="lg:col-span-1 ">
-            <h4 className="text-2xl font-semibold mb-3 text-dark ">
+            <h1 className="text-2xl font-semibold mb-3 text-dark ">
               <span className="text-transparent bg-clip-text bg-black">
                 Company
               </span>
-            </h4>
-            <ul className="space-y-3 mb-4">
+            </h1>
+            <ul className="space-y-3 mb-6 mt-7">
               <li>
-                <a
-                  href="/about"
-                  className="bg-clip-text text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Our Story
-                </a>
+                <p>
+                  <a
+                    href="/about"
+                    className="bg-clip-text text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Our Story
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="/blogs"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Blog
-                </a>
+                <p>
+                  <a
+                    href="/blogs"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Blog
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Quality Promise
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Quality Promise
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Careers
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Careers
+                  </a>
+                </p>
               </li>
             </ul>
           </div>
 
           {/* Support Column */}
           <div className="lg:col-span-1">
-            <h4 className="text-2xl font-semibold mb-3 text-dark ">
+            <h1 className="text-2xl font-semibold mb-3 text-dark ">
               <span className="text-transparent bg-clip-text bg-black">
                 Support
               </span>
-            </h4>
-            <ul className="space-y-3 mb-6">
+            </h1>
+            <ul className="space-y-3 mb-6 mt-7">
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Help Center
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Help Center
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Shipping Info
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Shipping Info
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Returns & Refunds
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Returns & Refunds
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Size Guide
-                </a>
+                <p>
+                  <a
+                    href="#"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Size Guide
+                  </a>
+                </p>
               </li>
               <li>
-                <a
-                  href="/contact"
-                  className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                >
-                  Contact Us
-                </a>
+                <p>
+                  <a
+                    href="/contact"
+                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                  >
+                    Contact Us
+                  </a>
+                </p>
               </li>
             </ul>
           </div>

@@ -58,13 +58,34 @@
   }
 
   h2 {
-    font-size: 4.25rem !important; /* Tailwind text-4xl */
+    font-size: 4.20rem !important; /* Tailwind text-4xl */
     line-height: 1.15;
+  }
+
+  h3{
+    font-size: 1.55rem !important; /* Tailwind text-3xl */
+    line-height: 1.2;
+  }
+  h4{
+    font-size: 3rem !important; /* Tailwind text-2xl */
+    line-height: 1.25;
+  }
+  h5{
+    font-size: 2.5rem !important; /* Tailwind text-xl */
+    line-height: 1.3;
+  }
+  h6{
+    font-size: 2rem !important; /* Tailwind text-lg */
+    line-height: 1.35;
+  }
+  p{
+    font-size: 1.5rem !important; /* Tailwind text-xl */
+    line-height: 1.6;
   }
 
   .description,
   p.description {
-    font-size: 1.5rem !important; /* Tailwind text-2xl */
+    font-size: 2.5rem !important; /* Tailwind text-2xl */
     line-height: 1.6;
   }
 
