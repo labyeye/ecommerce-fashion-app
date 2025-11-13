@@ -60,13 +60,13 @@ const Footer: React.FC = () => {
                 className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:scale-110 transition-all duration-300"
               >
                 {/* WhatsApp SVG (inline) */}
-                  {/* WhatsApp PNG icon (external) */}
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
-                    alt="WhatsApp"
-                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                    loading="lazy"
-                  />
+                {/* WhatsApp PNG icon (external) */}
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
+                  alt="WhatsApp"
+                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  loading="lazy"
+                />
               </a>
             </div>
           </div>
@@ -196,28 +196,34 @@ const Footer: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-dark/80">
-              <span>
+              <span className="text-lg">
                 &copy; {currentYear} Flaunt by Nishi. All rights reserved.
               </span>
             </div>
             <div className="flex items-center space-x-6">
               <a
-                href="#"
-                className="text-dark/80 hover:text-dark text-sm transition-colors duration-200"
+                href="/privacy"
+                className="text-dark/80 hover:text-dark text-lg transition-colors duration-200"
               >
                 Privacy Policy
               </a>
               <a
-                href="#"
-                className="text-dark/80 hover:text-dark text-sm transition-colors duration-200"
+                href="/terms"
+                className="text-dark/80 hover:text-dark text-lg transition-colors duration-200"
               >
                 Terms of Service
               </a>
               <a
-                href="#"
-                className="text-dark/80 hover:text-dark text-sm transition-colors duration-200"
+                href="/returns"
+                className="text-dark/80 hover:text-dark text-lg transition-colors duration-200"
               >
-                Cookie Policy
+                Return Policy
+              </a>
+              <a
+                href="/faq"
+                className="text-dark/80 hover:text-dark text-lg transition-colors duration-200"
+              >
+                FAQ
               </a>
             </div>
             <div className="flex items-center space-x-2 text-[#2D2D2D]/80">
@@ -225,7 +231,7 @@ const Footer: React.FC = () => {
                 href="https://pixelatenest.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm hover:text-dark transition-colors duration-200"
+                className="text-lg hover:text-dark transition-colors duration-200"
               >
                 Developed by Pixelate Nest
               </a>

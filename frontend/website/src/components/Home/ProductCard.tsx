@@ -153,7 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-background transition-all duration-300 fashion-card rounded-2xl overflow-hidden ${
+      className={`group relative bg-background transition-all duration-300 overflow-hidden ${
         isHovered ? "shadow-2xl -translate-y-1" : ""
       } ${!canAccess ? "opacity-60" : ""} ${
         cardClassName || defaultProductPageClass
@@ -163,7 +163,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     >
       {toast &&
         createPortal(
-          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded shadow-lg z-50">
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2  shadow-lg z-50">
             {toast}
           </div>,
           document.body

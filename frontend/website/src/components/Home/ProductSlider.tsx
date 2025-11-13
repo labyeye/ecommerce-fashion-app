@@ -186,7 +186,7 @@ const ProductSlider = ({
             <button
               key={index}
               onClick={() => setCurrentIndex(index * visibleCount)}
-              className={`transition-all duration-300 rounded-full ${
+              className={`transition-all duration-300 ${
                 Math.floor(currentIndex / visibleCount) === index
                   ? "w-1.5 h-1.5 bg-[#FFF2E1]"
                   : "w-1.5 h-1.5 bg-dark/60 hover:bg-dark"

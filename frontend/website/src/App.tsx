@@ -37,6 +37,10 @@ import Wishlist from "./components/pages/Wishlist";
 import AddressesPage from './components/pages/AddressesPage';
 import OrderCompletePage from './components/pages/OrderCompletePage';
 import ComingSoon from './components/ComingSoon';
+import TermsPage from './components/pages/TermsPage';
+import PrivacyPage from './components/pages/PrivacyPage';
+import FaqPage from './components/pages/FaqPage';
+import ReturnPolicy from './components/pages/ReturnPolicy';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -52,6 +56,8 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/products" element={<ProductPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/faq" element={<FaqPage />} />
                 <Route path="/updates" element={<UpdatesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
@@ -64,6 +70,9 @@ function App() {
                 <Route path="/newsletter" element={<NewsletterPage />} />
                 <Route path="/product/:id" element={<ProductDetailsPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/returns" element={<ReturnPolicy />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
                 <Route path="/order-complete" element={<OrderCompletePage />} />
                 <Route path="/addresses" element={<AddressesPage />} />
                 <Route path="/wishlist" element={<Wishlist />} />
