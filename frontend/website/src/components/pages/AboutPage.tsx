@@ -44,13 +44,13 @@ const AboutPage: React.FC = () => {
           }`}
           data-reveal-id="story"
         >
-          <h4 className="font-bold text-[#95522C]">Our Journey</h4>
-          <p className="text-lg text-[#5a4a42] leading-relaxed">
+          <h4 className="font-bold text-[#95522C] text-center">Our Journey</h4>
+          <p className="text-lg text-[#5a4a42] leading-relaxed text-center">
             Every trip brought the same question: "What do we wear?" Bags full,
             yet nothing felt right. Outfits looked good, but didn’t feel like
             us.
           </p>
-          <p className="text-lg text-[#5a4a42] leading-relaxed">
+          <p className="text-lg text-[#5a4a42] leading-relaxed  text-justify text-center">
             After years of packing chaos, last-minute outfit stress, and endless
             shopping hunts, we decided to create what we could never find —
             effortless resort wear that looks good, feels good, and doesn’t cost
@@ -66,14 +66,12 @@ const AboutPage: React.FC = () => {
           data-reveal-id="panel1"
         >
           <div className="p-8 flex flex-col justify-center bg-background">
-            <h3 className="font-bold text-[#95522C] mb-4">
-              What started as a question
-            </h3>
-            <p className="text-[#5a4a42] leading-relaxed">
-              What started as two people’s love for travel turned into a journey
-              that redefined their purpose. From late-night stitching sessions
-              to customising for friends, Flaunt grew from a small idea into a
-              self-made label built with heart.
+            <p className="text-[#5a4a42] leading-relaxed  text-justify">
+              Every brand has a beginning. Ours started with two boarding passes
+              and a dream. What started as two people’s love for travel turned
+              into a journey that redefined their purpose. From late-night
+              stitching sessions to customising for friends, Flaunt grew from a
+              small idea into a self-made label built with heart.
             </p>
           </div>
           <div className="relative h-60 md:h-80">
@@ -97,7 +95,7 @@ const AboutPage: React.FC = () => {
           }`}
           data-reveal-id="panel2"
         >
-          <div className="relative h-60 md:h-80">
+          <div className="relative h-60 md:h-100">
             <img
               src={p2}
               alt="founder stitching"
@@ -110,14 +108,15 @@ const AboutPage: React.FC = () => {
             />
           </div>
           <div className="p-8 flex flex-col justify-center bg-background">
-            <h3 className="font-bold text-[#95522C] mb-4">
-              Built for explorers
-            </h3>
-            <p className="text-[#5a4a42] leading-relaxed">
-              Flaunt by Nishi is built for the explorers, the dreamers, the
-              women who chase sunsets and confidence in equal measure. We’re not
-              here to follow trends. We’re here to make you feel like you
-              wherever you go.
+            <p className="text-[#5a4a42] leading-relaxed  text-justify">
+              After years of packing chaos, last-minute outfit stress, and
+              endless shopping hunts, we decided to create what we could never
+              find effortless resort wear that looks good, feels good, and
+              doesn’t cost a fortune. Flaunt
+              by Nishi is built for the explorers, the dreamers, the women who
+              chase sunsets and confidence in equal measure. We’re not here to
+              follow trends. We’re here to make you feel like you wherever you
+              go.
             </p>
           </div>
         </div>
@@ -130,10 +129,10 @@ const AboutPage: React.FC = () => {
           data-reveal-id="panel3"
         >
           <div className="p-8 flex flex-col justify-center bg-background">
-            <h3 className="font-bold text-[#95522C] mb-4">
-              Designed with you in mind
-            </h3>
-            <p className="text-[#5a4a42] leading-relaxed">
+            <p className="text-[#5a4a42] leading-relaxed  text-justify">
+              We had no roadmap just a belief that maybe, somehow, we could turn
+              our travel struggles into a solution for every woman who’s ever
+              stood in front of her suitcase thinking, “I have nothing to wear.”
               Flaunt by Nishi is crafted to complement your unique style and
               needs. Every piece is thoughtfully designed to ensure comfort,
               versatility, and elegance, making your travel wardrobe effortless

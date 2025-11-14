@@ -41,6 +41,7 @@ import TermsPage from './components/pages/TermsPage';
 import PrivacyPage from './components/pages/PrivacyPage';
 import FaqPage from './components/pages/FaqPage';
 import ReturnPolicy from './components/pages/ReturnPolicy';
+import ShippingInfoPage from './components/pages/ShippingInfoPage';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -79,6 +80,7 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnPolicy />} />
+                <Route path="/shipping" element={<ShippingInfoPage />} />
                 <Route path="/return-policy" element={<ReturnPolicy />} />
                 <Route path="/order-complete" element={<OrderCompletePage />} />
                 <Route path="/addresses" element={<AddressesPage />} />

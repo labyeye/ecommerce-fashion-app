@@ -8,8 +8,8 @@ const ContactPage: React.FC = () => {
       <Header cartCount={0} onCartClick={() => {}} />
 
       <main>
-        <section className="pt-32 pb-72" style={{ backgroundColor: "#FFF2E1" }}>
-          <div className="text-center mb-16 max-w-7xl mx-auto">
+        <section className="pt-32 pb-20" style={{ backgroundColor: "#FFF2E1" }}>
+          <div className="text-center max-w-7xl mx-auto">
             <span
               className="text-5xl sm:text-6xl font-bold mb-6"
               style={{ color: "#95522C" }}
@@ -25,7 +25,7 @@ const ContactPage: React.FC = () => {
           </div>
         </section>
         <section className="bg-[#FFF2E1] backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
               <div className="backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
                 <span

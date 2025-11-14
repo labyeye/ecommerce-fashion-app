@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
     // subtle SVG sand texture applied via data URL
 
     <footer
-      className="bg-[#f2e0cb] text-dark"
+      className="bg-[#f2e0cb] text-dark w-full"
       style={{
         backgroundImage: `linear-gradient(rgba(242,224,203,0.82), rgba(242,224,203,0.82)), url(${photo})`,
         backgroundSize: "cover",
@@ -32,21 +32,20 @@ const Footer: React.FC = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-8 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-30 items-start pl-8 sm:pl-10 lg:pl-12">
+      <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-10 py-8 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-44 items-start">
           <div className="lg:col-span-1">
             <div className="flex items-start space-x-2 mb-4 sm:mb-6">
-              <h1>
+              <h6>
                 <span className="font-bold text-dark">Flaunt by Nishi</span>
-              </h1>
+              </h6>
             </div>
-            <p className="text-dark mb-4 sm:mb-6 leading-relaxed max-w-[190px] space-y-3">
+            <span className="text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[280px] space-y-3">
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
-            </p>
-            {/* product reviews moved to product detail pages; general reviews removed to prevent spam */}
+            </span>
             <div className="flex space-x-3 sm:space-x-4 mt-7 mb-6">
-              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300 ml-[-9px]">
+              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
                 <Facebook className="w-7 h-7 sm:w-7 sm:h-7" />
               </button>
               <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
@@ -59,8 +58,6 @@ const Footer: React.FC = () => {
                 aria-label="Chat on WhatsApp"
                 className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:scale-110 transition-all duration-300"
               >
-                {/* WhatsApp SVG (inline) */}
-                {/* WhatsApp PNG icon (external) */}
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
                   alt="WhatsApp"
@@ -86,7 +83,7 @@ const Footer: React.FC = () => {
                 <li key={cat._id}>
                   <a
                     href={`/products?category=${encodeURIComponent(cat.slug)}`}
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[180px] block"
                   >
                     {cat.name}
                   </a>
@@ -107,7 +104,7 @@ const Footer: React.FC = () => {
                 <p>
                   <a
                     href="/about"
-                    className="bg-clip-text text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="bg-clip-text text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Our Story
                   </a>
@@ -117,7 +114,7 @@ const Footer: React.FC = () => {
                 <p>
                   <a
                     href="/blogs"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Blog
                   </a>
@@ -127,7 +124,7 @@ const Footer: React.FC = () => {
                 <p>
                   <a
                     href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Quality Promise
                   </a>
@@ -137,7 +134,7 @@ const Footer: React.FC = () => {
                 <p>
                   <a
                     href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Careers
                   </a>
@@ -157,18 +154,8 @@ const Footer: React.FC = () => {
               <li>
                 <p>
                   <a
-                    href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                  >
-                    Help Center
-                  </a>
-                </p>
-              </li>
-              <li>
-                <p>
-                  <a
-                    href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    href="/shipping"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Shipping Info
                   </a>
@@ -177,28 +164,19 @@ const Footer: React.FC = () => {
               <li>
                 <p>
                   <a
-                    href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    href="/returns"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Returns & Refunds
                   </a>
                 </p>
               </li>
-              <li>
-                <p>
-                  <a
-                    href="#"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
-                  >
-                    Size Guide
-                  </a>
-                </p>
-              </li>
+
               <li>
                 <p>
                   <a
                     href="/contact"
-                    className="text-lg text-dark/80 hover:text-dark transition-colors duration-200"
+                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Contact Us
                   </a>
@@ -211,7 +189,7 @@ const Footer: React.FC = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-dark/80">
               <span className="text-lg">
