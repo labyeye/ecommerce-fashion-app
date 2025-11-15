@@ -180,12 +180,12 @@ const HeroComponent: React.FC = () => {
               {currentHero?.title}
             </h1>
 
-            <h6
+            <h5
               className="text-lg sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.subtitle}
-            </h6>
+            </h5>
 
             {currentHero?.description && (
               <p
@@ -200,10 +200,10 @@ const HeroComponent: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center ">
                 <a
                   href={currentHero.ctaButton.link}
-                  className="group inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-beige transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   {currentHero.ctaButton.text}
-                  <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform text-[#914D26]" />
+                  <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform text-[#914D26]" />
                 </a>
               </div>
             )}
