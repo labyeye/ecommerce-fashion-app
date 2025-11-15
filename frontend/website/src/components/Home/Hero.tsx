@@ -174,7 +174,7 @@ const HeroComponent: React.FC = () => {
         <div className="flex flex-col items-center text-center">
           <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
             <h1
-              className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-40"
+              className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-35"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.title}
