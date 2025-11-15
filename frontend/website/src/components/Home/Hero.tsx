@@ -165,6 +165,11 @@ const HeroComponent: React.FC = () => {
           );
         })}
       </div>
+      {/* Overlay to improve text contrast over images */}
+      <div
+        className="absolute inset-0 bg-black/30 pointer-events-none"
+        aria-hidden="true"
+      />
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
@@ -175,12 +180,12 @@ const HeroComponent: React.FC = () => {
               {currentHero?.title}
             </h1>
 
-            <p
+            <h6
               className="text-lg sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.subtitle}
-            </p>
+            </h6>
 
             {currentHero?.description && (
               <p
