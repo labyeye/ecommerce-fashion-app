@@ -173,12 +173,12 @@ const HeroComponent: React.FC = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
-            <h1
-              className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-35"
+            <h2
+              className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-40"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.title}
-            </h1>
+            </h2>
 
             <h5
               className="text-lg sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed"
@@ -197,13 +197,13 @@ const HeroComponent: React.FC = () => {
             )}
 
             {currentHero?.ctaButton.enabled && (
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center ">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <a
                   href={currentHero.ctaButton.link}
-                  className="group inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-beige transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center justify-center text-sm px-3 py-1 sm:px-4 sm:py-2 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-beige transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   {currentHero.ctaButton.text}
-                  <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform text-[#914D26]" />
+                  <ArrowRight className="ml-2 w-2 h-2 sm:w-3 sm:h-3 group-hover:translate-x-1 transition-transform text-[#914D26]" />
                 </a>
               </div>
             )}
