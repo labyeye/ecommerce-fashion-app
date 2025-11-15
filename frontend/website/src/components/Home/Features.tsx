@@ -18,7 +18,6 @@ const Features: React.FC = () => {
     <section className="relative bg-[#FFF2E1] overflow-hidden">
       <div className="w-full mx-auto px-0 relative z-10 mb-10">
         <div className="text-center w-full mx-auto max-w-full">
-          {/* Main Heading */}
           <div className="text-center w-full mx-auto">
             <h1 className="font-bold mb-6">
               <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
@@ -32,7 +31,6 @@ const Features: React.FC = () => {
             quality, sustainable practices, and enduring style.
           </h6>
 
-          {/* Single-row features layout: horizontal scroll on small screens, evenly spaced on large screens */}
           <div className="w-full p-0">
             <div className="flex items-center w-full gap-6 overflow-x-auto py-8 px-0 justify-between max-w-full">
               {features.map((feature, index) => {

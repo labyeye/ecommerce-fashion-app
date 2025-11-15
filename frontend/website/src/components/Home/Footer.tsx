@@ -66,7 +66,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Categories Column */}
           <div className="lg:col-span-1">
             <h4 className="text-2xl font-semibold mb-3 text-dark">Categories</h4>
             <ul className="space-y-3 mb-6 mt-7">
@@ -86,7 +85,6 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Company Column */}
           <div className="lg:col-span-1 ">
             <h4 className="text-2xl font-semibold mb-3 text-dark">Company</h4>
             <ul className="space-y-3 mb-6 mt-7">
@@ -133,7 +131,6 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Support Column */}
           <div className="lg:col-span-1">
             <h4 className="text-2xl font-semibold mb-3 text-dark">Support</h4>
             <ul className="space-y-3 mb-6 mt-7">
@@ -173,7 +170,6 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
@@ -220,7 +216,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* General review UI removed — product reviews live on product detail pages to prevent spam */}
+      
     </footer>
   );
 };

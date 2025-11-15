@@ -18,6 +18,7 @@ const heroRoutes = require('./routes/heroes');
 const blogRoutes = require('./routes/blogs');
 const wishlistRoutes = require('./routes/wishlist');
 const reviewsRoutes = require('./routes/reviews');
+const shippingRoutes = require('./routes/shipping');
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -133,6 +134,7 @@ app.use('/api/heroes', heroRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/shipping', shippingRoutes);
 app.get('/api/health', (req, res) => {
   console.log('Health check request received from:', req.headers.origin);
   res.json({ 

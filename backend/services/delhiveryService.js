@@ -90,7 +90,71 @@ async function fetchTrackingForAwb(awb) {
   }
 }
 
+/**
+ * Check pincode serviceability using Delhivery public endpoints (best-effort).
+ * Returns an object { success: boolean, data: any } where data may include
+ * { deliverable: boolean, estDays?: number, message?: string, raw?: any }
+ */
+async function checkPincodeServiceability(pincode) {
+  try {
+    if (!pincode) return { success: false, error: 'No pincode provided' };
+
+    const candidates = [
+      `https://track.delhivery.com/api/pincode/json/?pincode=${encodeURIComponent(pincode)}`,
+      `https://track.delhivery.com/api/v1/pincode/json/?pincode=${encodeURIComponent(pincode)}`,
+      `https://track.delhivery.com/api/v1/pincode/${encodeURIComponent(pincode)}`,
+    ];
+
+    let lastErr = null;
+    for (const url of candidates) {
+      try {
+        const res = await require('axios').get(url, {
+          headers: { Authorization: `Token ${API_KEY}` },
+          timeout: 10000,
+        });
+        const data = res.data;
+
+        // Heuristic mapping
+        // If Delhivery uses `serviceable` or similar fields
+        if (data) {
+          // Common shapes: { serviceable: true } or { pincode: { serviceability: true } } or { status: 'OK', data: [...] }
+          let deliverable = false;
+          let estDays = undefined;
+          let message = '';
+
+          if (typeof data.serviceable === 'boolean') {
+            deliverable = data.serviceable;
+            message = data.message || '';
+          } else if (data.pincode && typeof data.pincode.serviceability !== 'undefined') {
+            deliverable = Boolean(data.pincode.serviceability);
+          } else if (data.status && data.status.toLowerCase && data.status.toLowerCase() === 'ok') {
+            // If data.data present and non-empty, assume deliverable
+            if (Array.isArray(data.data) && data.data.length > 0) deliverable = true;
+          } else if (Array.isArray(data) && data.length > 0) {
+            deliverable = true;
+          }
+
+          // If response contains transit days or service days field
+          if (data.estDays) estDays = data.estDays;
+          if (data.transit_days) estDays = data.transit_days;
+
+          return { success: true, data: { deliverable, estDays, message, raw: data } };
+        }
+      } catch (err) {
+        lastErr = err;
+        continue; // try next candidate
+      }
+    }
+
+    return { success: false, error: lastErr ? lastErr.message || String(lastErr) : 'No response from Delhivery' };
+  } catch (err) {
+    console.error('checkPincodeServiceability error', err && err.message ? err.message : err);
+    return { success: false, error: err && err.message ? err.message : 'Unknown error' };
+  }
+}
+
 module.exports = {
   createShipmentForOrder,
   fetchTrackingForAwb
-};
+  , checkPincodeServiceability
+ };

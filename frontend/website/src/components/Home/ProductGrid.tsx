@@ -51,7 +51,6 @@ const ProductGrid: React.FC = () => {
       className="py-12 sm:py-20 bg-gradient-to-br from-white via-[#F4F1E9]/30 to-white"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="text-center mb-8 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 mt-6 sm:mt-10">
             <span className="bg-gradient-to-r from-[#2B463C] to-[#688F4E] bg-clip-text text-transparent">
@@ -67,7 +66,7 @@ const ProductGrid: React.FC = () => {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-8 sm:mb-12 shadow-lg border border-white/20">
           <div className="flex flex-col gap-4">
-            {/* Search */}
+          
             <div className="relative w-full">
               <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -79,7 +78,7 @@ const ProductGrid: React.FC = () => {
               />
             </div>
 
-            {/* Sort and Filter */}
+            
             <div className="flex items-center gap-2 sm:gap-4">
               <select
                 value={sortBy}
@@ -101,7 +100,7 @@ const ProductGrid: React.FC = () => {
             </div>
           </div>
 
-          {/* Filter Panel */}
+          
           {filterOpen && (
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -247,7 +246,6 @@ const ProductGrid: React.FC = () => {
           )}
         </div>
 
-        {/* Products Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product, index) => (
             <div
@@ -266,7 +264,7 @@ const ProductGrid: React.FC = () => {
           ))}
         </div>
 
-        {/* Empty State */}
+        
         {filteredProducts.length === 0 && (
           <div className="text-center py-16">
             <div className="w-24 h-24 bg-gradient-to-r from-[#B1D182] to-[#688F4E] rounded-full flex items-center justify-center mx-auto mb-6">

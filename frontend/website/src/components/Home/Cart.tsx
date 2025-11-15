@@ -108,15 +108,13 @@ const Cart: React.FC<CartProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      {/* Cart Panel */}
       <div className="fixed top-0 right-0 h-full w-full sm:w-[95%] md:w-[90%] max-w-md bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out">
-        {/* Header */}
+        
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <ShoppingBag className="w-6 h-6 text-[#914D26]" />
@@ -167,14 +165,13 @@ const Cart: React.FC<CartProps> = ({
                 className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex items-center space-x-4">
-                  {/* Product Image */}
                   <img
                     src={item.image}
                     alt={item.name}
                     className="w-16 h-16 object-contain rounded-xl"
                   />
 
-                  {/* Product Info */}
+                  
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[#914D26] truncate">
                       {item.name}
@@ -185,7 +182,7 @@ const Cart: React.FC<CartProps> = ({
                     </p>
                   </div>
 
-                  {/* Quantity Controls */}
+                  
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() =>
@@ -221,7 +218,7 @@ const Cart: React.FC<CartProps> = ({
                     </button>
                   </div>
 
-                  {/* Remove Button */}
+                  
                   <button
                     onClick={() =>
                       onRemoveItem(`${item.id}-${item.size}-${item.color}`)
@@ -236,12 +233,12 @@ const Cart: React.FC<CartProps> = ({
           )}
         </div>
 
-        {/* Cart Summary */}
+        
         {items.length > 0 && (
           <div className="border-t border-gray-200 p-6 space-y-4">
-            {/* Discount Options Section */}
+            
             <div className="space-y-3">
-              {/* Promo Code Section */}
+              
               {!promoCode &&
                 !evolvPointsRedemption &&
                 !showPromoInput &&
@@ -252,9 +249,9 @@ const Cart: React.FC<CartProps> = ({
                       className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                     >
                       <Tag className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        Have a promo code?
-                      </span>
+                        <p className="text-sm font-medium">
+                          Have a promo code?
+                        </p>
                     </button>
 
                     {userEvolvPoints > 0 && (
@@ -263,9 +260,9 @@ const Cart: React.FC<CartProps> = ({
                         className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                       >
                         <Zap className="w-4 h-4" />
-                        <span className="text-sm font-medium">
+                        <p className="text-sm font-medium">
                           Redeem Flaunt By Nishi Points ({userEvolvPoints} available)
-                        </span>
+                        </p>
                       </button>
                     )}
                   </div>

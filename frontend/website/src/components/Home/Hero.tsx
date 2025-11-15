@@ -165,7 +165,6 @@ const HeroComponent: React.FC = () => {
           );
         })}
       </div>
-      {/* Overlay to improve text contrast over images */}
       <div
         className="absolute inset-0 bg-black/30 pointer-events-none"
         aria-hidden="true"
@@ -211,7 +210,6 @@ const HeroComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Slide Indicators */}
       {heroes.length > 1 && (
         <div
           className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2"

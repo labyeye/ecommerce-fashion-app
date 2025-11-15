@@ -114,34 +114,31 @@ const ProductDetailsPage: React.FC = () => {
   };
 
   const checkDelivery = async () => {
-    if (!pincode || pincode.trim().length < 3) {
-      setDeliveryInfo({ deliverable: false, message: "Enter a valid pincode" });
+    // Validate Indian 6-digit pincode
+    const code = (pincode || '').trim();
+    if (!/^[0-9]{6}$/.test(code)) {
+      setDeliveryInfo({ deliverable: false, message: "Enter a valid 6-digit pincode" });
       return;
     }
 
     try {
       setCheckingDelivery(true);
       setDeliveryInfo(null);
-      // Backend endpoint expectation: GET /api/shipping/check?pincode=XXXXX
-      const res = await axios.get(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
-          pincode
-        )}`
-      );
-      // Expect response { deliverable: boolean, estDays?: number, message?: string }
-      const info = res?.data || null;
-      if (info) setDeliveryInfo(info);
-      else setDeliveryInfo({ deliverable: false, message: "No delivery info" });
+      // Use relative path so this works in dev and production (proxy or same origin)
+      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(code)}`);
+      const data = res?.data || {};
+
+      // Normalize backend response to the deliveryInfo shape used by the UI
+      if (typeof data.deliverable !== 'undefined') {
+        setDeliveryInfo({ deliverable: Boolean(data.deliverable), estDays: data.estDays, message: data.message });
+      } else if (data.success === false) {
+        setDeliveryInfo({ deliverable: false, message: data.message || 'Not deliverable' });
+      } else {
+        setDeliveryInfo({ deliverable: false, message: 'Delivery info unavailable' });
+      }
     } catch (err: any) {
-      console.warn(
-        "Delivery check failed",
-        err?.response?.data || err.message || err
-      );
-      // Graceful fallback message if endpoint not implemented
-      setDeliveryInfo({
-        deliverable: false,
-        message: "Delivery info unavailable",
-      });
+      console.warn('Delivery check failed', err?.response?.data || err.message || err);
+      setDeliveryInfo({ deliverable: false, message: 'Delivery info unavailable' });
     } finally {
       setCheckingDelivery(false);
     }
@@ -398,12 +395,6 @@ const ProductDetailsPage: React.FC = () => {
         .product-detail-page {
           background-color: #FFF2E1 !important;
         }
-        .product-detail-page, .product-detail-page * {
-          color: #95522C !important;
-          border-color: #95522C !important;
-          box-shadow: none !important;
-        }
-
         /* Keep images visually correct */
         .product-detail-page img {
           background-color: transparent !important;
@@ -690,7 +681,7 @@ const ProductDetailsPage: React.FC = () => {
                         size.stock > 0 && setSelectedSize(size.size)
                       }
                       aria-disabled={size.stock === 0}
-                      className={`py-3 text-xl font-medium border transition-all duration-300 relative group ${
+                      className={`py-1 text-xl font-medium border transition-all duration-300 relative group ${
                         selectedSize === size.size
                           ? "border-fashion-accent-brown bg-[#E4A95D] text-white shadow-md scale-105"
                           : size.stock > 0
@@ -714,8 +705,14 @@ const ProductDetailsPage: React.FC = () => {
                         </p>
                       )}
 
-                      {size.stock <= 5 && size.stock > 0 && (
-                        <p className="absolute -top-1 -right-1 w-2 h-2 bg-[#C17237] rounded-full"></p>
+                      {size.stock > 0 && (
+                        size.stock < 3 ? (
+                          <p className="absolute -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full font-semibold">
+                            {size.stock} left
+                          </p>
+                        ) : size.stock <= 5 ? (
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-tertiary rounded-full" />
+                        ) : null
                       )}
                     </button>
                   ))}
@@ -730,23 +727,21 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Quantity */}
             <div className="space-y-3">
-              <h6 className="font-medium text-fashion-charcoal">
-                Quantity
-              </h6>
+              <h6 className="font-medium text-fashion-charcoal">Quantity</h6>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border border-fashion-charcoal/20">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-4 py-3 hover:bg-fashion-cream transition-colors"
+                    className="text-3xl px-4 py-1 hover:bg-fashion-cream transition-colors"
                   >
                     -
                   </button>
-                  <p className="px-4 py-3 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
+                  <p className="px-4 py-1 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
                     {quantity}
                   </p>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-4 py-3 hover:bg-fashion-cream transition-colors"
+                    className="text-3xl px-4 py-1 hover:bg-fashion-cream transition-colors"
                   >
                     +
                   </button>
@@ -761,7 +756,8 @@ const ProductDetailsPage: React.FC = () => {
                 <input
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  placeholder="Enter pincode"
+                  onKeyDown={(e) => e.key === 'Enter' && checkDelivery()}
+                  placeholder="Enter 6-digit pincode"
                   className="border px-3 py-2 rounded w-40 text-xl"
                 />
                 <button
@@ -794,7 +790,7 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || isOutOfStock}
-                    className={`w-full py-4 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
+                    className={`w-full py-1 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
                       !selectedSize
                         ? "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed bg-transparent"
                         : isOutOfStock
@@ -841,7 +837,7 @@ const ProductDetailsPage: React.FC = () => {
 
               <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`w-full py-4 border-2 font-medium tracking-wide transition-all duration-300 text-xl ${
+                className={`w-full py-1 border-2 font-medium tracking-wide transition-all duration-300 text-xl ${
                   isWishlisted
                     ? "border-red-500 bg-red-50 text-red-600"
                     : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white"

@@ -250,9 +250,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      {/* Product Info */}
       <div className="p-4 space-y-3">
-        {/* Product Name */}
         <div>
           <h5
             className="text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
@@ -262,7 +260,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </h5>
         </div>
 
-        {/* Rating Stars */}
+        
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-1">
             {Array.from({ length: 5 }).map((_, i) => {
@@ -283,16 +281,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
 
-        {/* Price */}
         <div className="flex items-center space-x-2">
           <h5 className="text-[#95522C] font-['Sans-Serif'] poppins-numeric">
             ₹{currentPrice.toLocaleString()}
           </h5>
-          {/* {hasDiscount && product.comparePrice && (
-            <span className="text-base text-[#95522C] line-through poppins-numeric">
-              ₹{product.comparePrice.toLocaleString()}
-            </span>
-          )} */}
         </div>
       </div>
     </div>

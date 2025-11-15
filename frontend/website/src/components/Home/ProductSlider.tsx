@@ -142,7 +142,6 @@ const ProductSlider = ({
   return (
     <section className="w-screen py-10 bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-6">
-        {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
           <h1 className="font-bold mb-6">
             <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
@@ -154,7 +153,6 @@ const ProductSlider = ({
           </h6>
         </div>
 
-        {/* Products Slider - Full Screen Width */}
         <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-8">
           <div className="max-w-none">
             <div
@@ -180,7 +178,6 @@ const ProductSlider = ({
           </div>
         </div>
 
-        {/* Dots Indicator */}
         <div className="flex justify-center mt-12 space-x-3">
           {products.map((_, index) => (
             <button

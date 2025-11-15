@@ -30,7 +30,6 @@ const CategoryCard: React.FC<{
           </div>
         )}
 
-        {/* Overlay: visible on hover/focus for sm+ */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 sm:flex">
           <h3 className="text-white text-5xl sm:text-6xl font-semibold px-4 text-center">
             {category.name}
@@ -119,13 +118,11 @@ const CategorySlider: React.FC = () => {
             </span>
           </h1>
           <h6 className="text-[#B56932] max-w-2xl mx-auto">
-            Discover our curated collection for your next
-            adventure.
+            Discover our curated collection for your next adventure.
           </h6>
         </div>
 
         <div>
-          {/* Grid layout: 1 column on mobile, 2 on small/medium, 3 on large */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 px-4">
             {categories.map((cat) => (
               <CategoryCard
