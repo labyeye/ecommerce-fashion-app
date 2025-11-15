@@ -113,15 +113,15 @@ const CategorySlider: React.FC = () => {
     <div className="relative py-8 w-screen bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-4 lg:px-6">
         <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h2 className="text-6xl sm:text-6xl font-bold mb-6">
+          <h1 className="font-bold mb-6">
             <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               Suitcase Staples Sorted
             </span>
-          </h2>
-          <p className="text-2xl text-[#B56932] max-w-2xl mx-auto">
+          </h1>
+          <h6 className="text-[#B56932] max-w-2xl mx-auto">
             Discover our curated collection for your next
             adventure.
-          </p>
+          </h6>
         </div>
 
         <div>

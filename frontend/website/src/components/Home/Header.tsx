@@ -553,7 +553,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-xl shadow-xl p-8 max-w-xs w-full flex flex-col items-center">
         <User className="w-10 h-10 text-fashion-accent-brown mb-2" />
-        <span className="text-4xl font-semibold mb-2">Login Required</span>
+        <h3 className="text-4xl font-semibold mb-2">Login Required</h3>
         <p className="text-gray-600 mb-4 text-center">
           Please login to view this page or use wishlist features.
         </p>
@@ -611,16 +611,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 .map((link) =>
                   link.hasDropdown ? (
                     <div key={link._id} className="relative group">
-                      <p>
+                      <h6>
                         <a
                           href={link.url}
-                          className={`font-small font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
+                          className={`text-lg font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group flex items-center ${getTextColorClass()} text-fashion-dark-gray`}
                         >
                           {link.name}
                           <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180 text-fashion-dark-gray" />
-                          <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
+                          <p className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full m-0"></p>
                         </a>
-                      </p>
+                      </h6>
 
                       {link.dropdownItems && link.dropdownItems.length > 0 && (
                         <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-fashion-charcoal/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
@@ -629,7 +629,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                               .filter((item) => item.isActive)
                               .sort((a, b) => a.sortOrder - b.sortOrder)
                               .map((item, index) => (
-                                <p>
+                                <h6>
                                   <a
                                     key={index}
                                     href={item.url}
@@ -637,23 +637,23 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                   >
                                     {item.name}
                                   </a>
-                                </p>
+                                </h6>
                               ))}
                           </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <p>
+                    <h6>
                       <a
                         key={link._id}
                         href={link.url}
-                        className={`font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
+                        className={`flex items-center text-lg font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
                       >
                         {link.name}
-                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full"></span>
+                        <p className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fashion-accent-brown transition-all duration-300 group-hover:w-full rounded-full m-0"></p>
                       </a>
-                    </p>
+                    </h6>
                   )
                 )}
             </nav>
@@ -724,11 +724,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       {/* Results container */}
                       <div className="flex-1 overflow-y-auto p-4 bg-white">
                         {searchLoading && (
-                          <div className="flex items-center justify-center py-4">
+                            <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                            <span className="ml-2 text-gray-500">
-                              Searching...
-                            </span>
+                            <p className="ml-2 text-gray-500 m-0">Searching...</p>
                           </div>
                         )}
 
@@ -760,9 +758,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           href={link.url}
                                           className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                         >
-                                          <span className="font-medium text-blue-700">
+                                          <p className="font-medium text-blue-700 m-0">
                                             {link.name}
-                                          </span>
+                                          </p>
                                         </a>
                                       ))}
                                     </div>
@@ -801,12 +799,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                             )}
                                           </div>
                                           <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 truncate text-sm">
+                                            <p className="font-medium text-gray-900 truncate text-sm m-0">
                                               {product.name}
                                             </p>
-                                            <span className="text-fashion-accent-brown font-semibold text-sm">
+                                            <p className="text-fashion-accent-brown font-semibold text-sm m-0">
                                               ₹{product.price}
-                                            </span>
+                                            </p>
                                           </div>
                                         </a>
                                       ))}
@@ -842,9 +840,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   {user ? (
                     <>
                       <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 ">
-                        <span className="font-medium">
-                          Welcome, {user.firstName}!
-                        </span>
+                        <p className="font-medium m-0">Welcome, {user.firstName}!</p>
                       </div>
                       <Link
                         to="/profile"
@@ -883,7 +879,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   ) : (
                     <>
                       <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 text-center bg-white">
-                        <span className="font-medium">Welcome</span>
+                        <p className="font-medium m-0">Welcome</p>
                         <div className="mt-2">
                           <Link
                             to="/login"
@@ -936,9 +932,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               >
                 <HandbagIcon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 text-fashion-dark-gray" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium">
+                  <p className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
                     {cartCount}
-                  </span>
+                  </p>
                 )}
               </button>
             </div>
@@ -967,9 +963,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             >
               <HandbagIcon className="w-7 h-7 text-fashion-dark-gray" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium">
+                <p className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs circle-element w-4 h-4 flex items-center justify-center animate-soft-pulse font-medium m-0">
                   {cartCount}
-                </span>
+                </p>
               )}
             </button>
             {/* Loyalty badge hidden for now; show only User button on mobile */}
@@ -987,18 +983,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               className="relative circle-element w-6 h-6 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
             >
               <div className="relative w-6 h-6">
-                <span
-                  className={`absolute top-1/4 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                <p
+                  className={`absolute top-1/2 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
                     isMenuOpen ? "rotate-45 translate-y-0" : "-translate-y-1"
                   }`}
                 />
-                <span
-                  className={`absolute top-2 left-0 w-8 h-0.5 bg-current transition-opacity duration-300 ${
+                <p
+                  className={`absolute top-1/2 left-0 w-8 h-0.5 bg-current transition-opacity duration-300 ${
                     isMenuOpen ? "opacity-0" : "opacity-100"
                   }`}
                 />
-                <span
-                  className={`absolute top-3 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
+                <p
+                  className={`absolute top-1/2 left-0 w-8 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${
                     isMenuOpen ? "-rotate-45 translate-y-0" : "translate-y-1"
                   }`}
                 />
@@ -1030,16 +1026,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     }`}
                     style={{ transitionDelay: `${150 + index * 50}ms` }}
                   >
-                    <a
-                      href={link.url}
-                      className="block text-fashion-charcoal hover:text-fashion-accent-brown transition-colors duration-300 font-medium text-2xl sm:text-xl tracking-wide flex items-center justify-between"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {link.name}
-                      {link.hasDropdown && (
-                        <ChevronDown className="w-6 h-6 text-fashion-dark-gray" />
-                      )}
-                    </a>
+                    <h6>
+                      <a
+                        href={link.url}
+                        className="block text-tertiary text-2xl hover:text-fashion-accent-brown transition-colors duration-300 font-medium tracking-wide flex items-center justify-between"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {link.name}
+                        {link.hasDropdown && (
+                          <ChevronDown className="w-6 h-6 text-fashion-dark-gray" />
+                        )}
+                      </a>
+                    </h6>
 
                     {link.hasDropdown &&
                       link.dropdownItems &&
@@ -1049,23 +1047,25 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                             .filter((item) => item.isActive)
                             .sort((a, b) => a.sortOrder - b.sortOrder)
                             .map((item, dropdownIndex) => (
-                              <a
-                                key={dropdownIndex}
-                                href={item.url}
-                                className="block text-fashion-charcoal/80 hover:text-fashion-accent-brown transition-all duration-300 text-base text-xl sm:text-lg transform"
-                                style={{
-                                  opacity: isMenuOpen ? 1 : 0,
-                                  transform: `translateX(${
-                                    isMenuOpen ? "0" : "-10px"
-                                  })`,
-                                  transitionDelay: `${
-                                    index * 50 + dropdownIndex * 30
-                                  }ms`,
-                                }}
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                {item.name}
-                              </a>
+                              <h6>
+                                <a
+                                  key={dropdownIndex}
+                                  href={item.url}
+                                  className="block text-xl text-tertiary hover:text-fashion-accent-brown transition-all duration-300 transform"
+                                  style={{
+                                    opacity: isMenuOpen ? 1 : 0,
+                                    transform: `translateX(${
+                                      isMenuOpen ? "0" : "-10px"
+                                    })`,
+                                    transitionDelay: `${
+                                      index * 50 + dropdownIndex * 30
+                                    }ms`,
+                                  }}
+                                  onClick={() => setIsMenuOpen(false)}
+                                >
+                                  {item.name}
+                                </a>
+                              </h6>
                             ))}
                         </div>
                       )}
@@ -1122,9 +1122,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 {/* Results container (same behavior as desktop) */}
                 <div className="flex-1 overflow-y-auto p-4 bg-white">
                   {searchLoading && (
-                    <div className="flex items-center justify-center py-4">
+                      <div className="flex items-center justify-center py-4">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                      <span className="ml-2 text-gray-500">Searching...</span>
+                      <p className="ml-2 text-gray-500 m-0">Searching...</p>
                     </div>
                   )}
 
@@ -1156,9 +1156,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                     href={link.url}
                                     className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                   >
-                                    <span className="font-medium text-blue-700">
+                                    <p className="font-medium text-blue-700 m-0">
                                       {link.name}
-                                    </span>
+                                    </p>
                                   </a>
                                 ))}
                               </div>
@@ -1197,12 +1197,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                       )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-gray-900 truncate text-sm">
+                                      <p className="font-medium text-gray-900 truncate text-sm m-0">
                                         {product.name}
                                       </p>
-                                      <span className="text-fashion-accent-brown font-semibold text-sm">
+                                      <p className="text-fashion-accent-brown font-semibold text-sm m-0">
                                         ₹{product.price}
-                                      </span>
+                                      </p>
                                     </div>
                                   </a>
                                 ))}

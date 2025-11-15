@@ -130,9 +130,9 @@ const ProductSlider = ({
     return (
       <section className="w-screen py-16 bg-[#FFF2E1] ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent text-6xl sm:text-6xl font-display mb-4">
+          <h1 className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent font-display mb-4">
             {config.title}
-          </h2>
+          </h1>
           <p className="text-dark font-body text-lg">{config.emptyMessage}</p>
         </div>
       </section>
@@ -144,14 +144,14 @@ const ProductSlider = ({
       <div className="w-full px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h2 className="text-5xl font-bold mb-6">
+          <h1 className="font-bold mb-6">
             <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               {config.title}
             </span>
-          </h2>
-          <p className="text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
+          </h1>
+          <h6 className="text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
             {config.description}
-          </p>
+          </h6>
         </div>
 
         {/* Products Slider - Full Screen Width */}

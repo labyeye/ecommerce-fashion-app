@@ -36,14 +36,12 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-44 items-start">
           <div className="lg:col-span-1">
             <div className="flex items-start space-x-2 mb-4 sm:mb-6">
-              <h6>
-                <span className="font-bold text-dark">Flaunt by Nishi</span>
-              </h6>
+              <h4 className="font-bold text-dark">Flaunt by Nishi</h4>
             </div>
-            <span className="text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[280px] space-y-3">
+            <p className="text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[280px]">
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
-            </span>
+            </p>
             <div className="flex space-x-3 sm:space-x-4 mt-7 mb-6">
               <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
                 <Facebook className="w-7 h-7 sm:w-7 sm:h-7" />
@@ -70,11 +68,7 @@ const Footer: React.FC = () => {
 
           {/* Categories Column */}
           <div className="lg:col-span-1">
-            <h1 className="text-2xl font-semibold mb-3 text-dark">
-              <span className="text-transparent bg-clip-text bg-black">
-                Categories
-              </span>
-            </h1>
+            <h4 className="text-2xl font-semibold mb-3 text-dark">Categories</h4>
             <ul className="space-y-3 mb-6 mt-7">
               {categories.length === 0 && (
                 <li className="text-sm text-dark/70">No categories</li>
@@ -94,11 +88,7 @@ const Footer: React.FC = () => {
 
           {/* Company Column */}
           <div className="lg:col-span-1 ">
-            <h1 className="text-2xl font-semibold mb-3 text-dark ">
-              <span className="text-transparent bg-clip-text bg-black">
-                Company
-              </span>
-            </h1>
+            <h4 className="text-2xl font-semibold mb-3 text-dark">Company</h4>
             <ul className="space-y-3 mb-6 mt-7">
               <li>
                 <p>
@@ -145,11 +135,7 @@ const Footer: React.FC = () => {
 
           {/* Support Column */}
           <div className="lg:col-span-1">
-            <h1 className="text-2xl font-semibold mb-3 text-dark ">
-              <span className="text-transparent bg-clip-text bg-black">
-                Support
-              </span>
-            </h1>
+            <h4 className="text-2xl font-semibold mb-3 text-dark">Support</h4>
             <ul className="space-y-3 mb-6 mt-7">
               <li>
                 <p>
@@ -192,9 +178,7 @@ const Footer: React.FC = () => {
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-dark/80">
-              <span className="text-lg">
-                &copy; {currentYear} Flaunt by Nishi. All rights reserved.
-              </span>
+              <p className="text-lg m-0">&copy; {currentYear} Flaunt by Nishi. All rights reserved.</p>
             </div>
             <div className="flex items-center space-x-6">
               <a

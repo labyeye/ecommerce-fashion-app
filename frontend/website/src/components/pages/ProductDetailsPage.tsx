@@ -556,9 +556,9 @@ const ProductDetailsPage: React.FC = () => {
           <div className="space-y-6">
             {/* Brand & Name */}
             <div>
-              <h1 className="font-light text-fashion-charcoal leading-tight">
+              <h2 className="font-light text-fashion-charcoal leading-tight">
                 {product.name}
-              </h1>
+              </h2>
             </div>
 
             {/* Rating */}
@@ -623,18 +623,18 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Short Description */}
             {product.shortDescription && (
-              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
+              <h6 className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.shortDescription}
-              </p>
+              </h6>
             )}
 
             {/* Colors */}
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-fashion-charcoal text-xl">
+                  <h6 className="font-medium text-fashion-charcoal">
                     Color: <span className="font-normal">{selectedColor}</span>
-                  </p>
+                  </h6>
                 </div>
                 <div className="flex space-x-3">
                   {product.colors.map((color) => (
@@ -669,9 +669,9 @@ const ProductDetailsPage: React.FC = () => {
                       <p className="font-normal">{selectedSize}</p>
                     )}
                     {!selectedSize && (
-                      <p className="text-fashion-accent-brown text-xl font-normal">
+                      <h6 className="text-fashion-accent-brown text-xl font-normal">
                         Please select a size
-                      </p>
+                      </h6>
                     )}
                   </p>
                   <button
@@ -721,18 +721,18 @@ const ProductDetailsPage: React.FC = () => {
                   ))}
                 </div>
                 {!selectedSize && (
-                  <p className="text-2xl text-fashion-charcoal/70 rounded-lg">
+                  <h6 className=" text-fashion-charcoal/70 rounded-lg">
                     Please select your size to continue
-                  </p>
+                  </h6>
                 )}
               </div>
             )}
 
             {/* Quantity */}
             <div className="space-y-3">
-              <p className="font-medium text-fashion-charcoal text-xl">
+              <h6 className="font-medium text-fashion-charcoal">
                 Quantity
-              </p>
+              </h6>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border border-fashion-charcoal/20">
                   <button
@@ -835,9 +835,7 @@ const ProductDetailsPage: React.FC = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <p className="font-medium">
-                    Successfully added to bag!
-                  </p>
+                  <p className="font-medium">Successfully added to bag!</p>
                 </div>
               )}
 
@@ -879,18 +877,16 @@ const ProductDetailsPage: React.FC = () => {
         <div className="mt-16 space-y-10">
           {/* Description */}
           <section>
-            <h4 className="text-5xl font-semibold mb-4">Description</h4>
+            <h2 className="text-5xl font-semibold mb-4">Description</h2>
             <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.description || "No description available."}
               </p>
             </div>
           </section>
-
-          {/* Key Features */}
           {product.keyFeatures && product.keyFeatures.length > 0 && (
             <section>
-              <h4 className="text-5xl font-semibold mb-4">Key Features</h4>
+              <h2 className="text-5xl font-semibold mb-4">Key Features</h2>
               <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
                   <div key={i} className="  rounded shadow-sm">
@@ -903,9 +899,7 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <h4 className="text-5xl font-semibold mb-4">
-              Care Instructions
-            </h4>
+            <h2 className="text-5xl font-semibold mb-4">Care Instructions</h2>
             <div className="prose prose-fashion max-w-none mt-10">
               <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
@@ -915,7 +909,7 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Reviews */}
           <section>
-            <span className="text-5xl font-semibold mb-4">Reviews</span>
+            <h2 className="font-semibold mb-4">Reviews</h2>
             <div className="py-6">
               {productReviews.length === 0 ? (
                 <p className="text-fashion-charcoal/60 text-center text-2xl">
@@ -1051,9 +1045,7 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Related / recommended products */}
         <div className="mt-12">
-          <h4 className="text-6xl font-semibold mb-6">
-            You might also like
-          </h4>
+          <h4 className="text-6xl font-semibold mb-6">You might also like</h4>
           {otherProducts.length === 0 ? (
             <p className="">No recommendations available.</p>
           ) : (

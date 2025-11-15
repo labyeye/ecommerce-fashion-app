@@ -187,7 +187,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
       <button
-        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 bg-[#934E27] backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
+        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 bg-[#934E27] backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
         onClick={handleWishlist}
         disabled={!user}
         title={
@@ -201,7 +201,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <Heart
-          className={`w-4 h-4 transition-colors duration-300
+          className={`w-6 h-6 transition-colors duration-300
             ${
               localWishlisted || isHovered
                 ? "fill-[#FFF2E1] text-red-500"
@@ -218,7 +218,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           !isProductPage &&
           (product.isNewArrival || (product as any).category?.isNewArrival) && (
             <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
-              New
+              <p>New</p>
             </div>
           )}
         <img
@@ -242,7 +242,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 e.stopPropagation();
                 handleViewDetails();
               }}
-              className="w-full bg-background/95 backdrop-blur-sm text-primary py-3 text-sm font-display uppercase tracking-widest transition-all duration-300 hover:bg-background hover:text-secondary"
+              className="w-full bg-background/95 backdrop-blur-sm text-tertiary font-bold py-3 font-display uppercase tracking-widest transition-all duration-300 hover:bg-background hover:text-secondary"
             >
               View Details
             </button>
@@ -254,12 +254,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 space-y-3">
         {/* Product Name */}
         <div>
-          <h3
-            className="text-xl  text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
+          <h5
+            className="text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
             onClick={handleViewDetails}
           >
             {product.name}
-          </h3>
+          </h5>
         </div>
 
         {/* Rating Stars */}
@@ -285,9 +285,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <p className="text-[#95522C] font-['Sans-Serif'] poppins-numeric">
+          <h5 className="text-[#95522C] font-['Sans-Serif'] poppins-numeric">
             ₹{currentPrice.toLocaleString()}
-          </p>
+          </h5>
           {/* {hasDiscount && product.comparePrice && (
             <span className="text-base text-[#95522C] line-through poppins-numeric">
               ₹{product.comparePrice.toLocaleString()}
