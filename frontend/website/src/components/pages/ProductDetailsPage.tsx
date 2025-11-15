@@ -409,13 +409,13 @@ const ProductDetailsPage: React.FC = () => {
 
         /* Buttons: background -> primary, text -> bg color for contrast, but keep only two colors */
         .product-detail-page button, .product-detail-page .btn-primary {
-          color: #95522C !important;
+          color: #95522C;
           border-color: #95522C !important;
         }
 
         /* Links */
         .product-detail-page a {
-          color: #95522C !important;
+          color: #95522C;
         }
 
         /* Make inputs readable */
@@ -763,7 +763,7 @@ const ProductDetailsPage: React.FC = () => {
                 <button
                   onClick={checkDelivery}
                   disabled={checkingDelivery}
-                  className="px-4 py-1.5 bg-[#E4A95D] text-white rounded text-xl"
+                  className="px-4 py-1 bg-background border border-tertiary  text-white rounded text-lg"
                 >
                   {checkingDelivery ? "Checking..." : "Check Delivery"}
                 </button>
@@ -837,7 +837,7 @@ const ProductDetailsPage: React.FC = () => {
 
               <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`w-full py-1 border-2 font-medium tracking-wide transition-all duration-300 text-xl ${
+                className={`w-full py-1 border-2 font-medium tracking-wide transition-all duration-300 text-lg ${
                   isWishlisted
                     ? "border-red-500 bg-red-50 text-red-600"
                     : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white"
