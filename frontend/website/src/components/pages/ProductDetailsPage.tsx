@@ -362,7 +362,7 @@ const ProductDetailsPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-fashion-cream/50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fashion-accent-brown mx-auto mb-4"></div>
-          <p className="text-fashion-charcoal">Loading product...</p>
+          <p className="text-tertiary">Loading product...</p>
         </div>
       </div>
     );
@@ -375,7 +375,7 @@ const ProductDetailsPage: React.FC = () => {
           <p className="text-red-600 mb-4">{error || "Product not found"}</p>
           <button
             onClick={() => navigate("/")}
-            className="bg-fashion-accent-brown text-white px-6 py-2 hover:bg-fashion-charcoal transition-colors"
+            className="bg-fashion-accent-brown text-white px-6 py-2 hover:bg-tertiary transition-colors"
           >
             Back to Home
           </button>
@@ -430,7 +430,7 @@ const ProductDetailsPage: React.FC = () => {
 
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center space-x-2 text-sm text-fashion-charcoal/70 mb-6">
+        <div className="flex items-center space-x-2 text-sm text-tertiary/70 mb-6">
           <button
             onClick={() => navigate("/")}
             className="hover:text-fashion-accent-brown"
@@ -445,7 +445,7 @@ const ProductDetailsPage: React.FC = () => {
             <p className="text-xl">Products</p>
           </button>
           <span>/</span>
-          <p className="text-fashion-charcoal text-xl">{product.name}</p>
+          <p className="text-tertiary text-xl">{product.name}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -470,13 +470,13 @@ const ProductDetailsPage: React.FC = () => {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm text-fashion-charcoal hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm text-tertiary hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm text-fashion-charcoal hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm text-tertiary hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -486,7 +486,7 @@ const ProductDetailsPage: React.FC = () => {
               {/* Wishlist Button */}
               <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
-                className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm text-fashion-charcoal hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg"
+                className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm text-tertiary hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg"
               >
                 <Heart
                   className={`w-6 h-6 ${
@@ -521,7 +521,7 @@ const ProductDetailsPage: React.FC = () => {
                     className={`flex-shrink-0 w-20 h-24 border-2 transition-all duration-300 rounded-lg overflow-hidden ${
                       selectedImageIndex === index
                         ? "border-fashion-accent-brown shadow-lg scale-105"
-                        : "border-transparent hover:border-fashion-charcoal/20"
+                        : "border-transparent hover:border-tertiary/20"
                     }`}
                   >
                     <img
@@ -547,7 +547,7 @@ const ProductDetailsPage: React.FC = () => {
           <div className="space-y-6">
             {/* Brand & Name */}
             <div>
-              <h2 className="font-light text-fashion-charcoal leading-tight">
+              <h2 className="font-light text-tertiary leading-tight">
                 {product.name}
               </h2>
             </div>
@@ -562,12 +562,12 @@ const ProductDetailsPage: React.FC = () => {
                       className={`w-4 h-4 ${
                         i < Math.floor(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                          : "text-fashion-charcoal/20"
+                          : "text-tertiary/20"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-fashion-charcoal/70">
+                <span className="text-sm text-tertiary/70">
                   {product.ratings.average.toFixed(1)} ({product.ratings.count}{" "}
                   reviews)
                 </span>
@@ -576,12 +576,12 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Price */}
             <div className="flex items-center space-x-3">
-              <span className="text-2xl font-medium text-fashion-charcoal poppins-numeric">
+              <span className="text-2xl font-medium text-tertiary poppins-numeric">
                 ₹{currentPrice.toLocaleString()}
               </span>
               {hasDiscount && product.comparePrice && (
                 <>
-                  <p className="text-lg text-fashion-charcoal/50 line-through poppins-numeric">
+                  <p className="text-lg text-tertiary/50 line-through poppins-numeric">
                     ₹{product.comparePrice.toLocaleString()}
                   </p>
                   <p className="text-sm text-red-600 font-medium">
@@ -600,12 +600,12 @@ const ProductDetailsPage: React.FC = () => {
                       className={`w-6 h-6 ${
                         i < Math.round(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                          : "text-fashion-charcoal/20"
+                          : "text-tertiary/20"
                       }`}
                     />
                   ))}
                 </div>
-                <p className="text-xl text-fashion-charcoal/70">
+                <p className="text-xl text-tertiary/70">
                   {product.ratings.average?.toFixed(1) || "0.0"} (
                   {product.ratings.count || 0})
                 </p>
@@ -614,7 +614,7 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Short Description */}
             {product.shortDescription && (
-              <h6 className="text-fashion-charcoal/80 leading-relaxed text-2xl">
+              <h6 className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.shortDescription}
               </h6>
             )}
@@ -623,7 +623,7 @@ const ProductDetailsPage: React.FC = () => {
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h6 className="font-medium text-fashion-charcoal">
+                  <h6 className="font-medium text-tertiary">
                     Color: <span className="font-normal">{selectedColor}</span>
                   </h6>
                 </div>
@@ -638,7 +638,7 @@ const ProductDetailsPage: React.FC = () => {
                       className={`w-8 h-8 border-2 transition-all duration-300 ${
                         selectedColor === color.name
                           ? "border-fashion-accent-brown scale-110"
-                          : "border-fashion-charcoal/20 hover:border-fashion-charcoal/40"
+                          : "border-tertiary/20 hover:border-tertiary/40"
                       }`}
                       style={{ backgroundColor: color.hexCode }}
                       title={color.name}
@@ -655,7 +655,7 @@ const ProductDetailsPage: React.FC = () => {
               (product.sizes && product.sizes.length > 0)) && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-fashion-charcoal text-xl">
+                  <p className="font-medium text-tertiary text-xl">
                     {selectedSize && (
                       <p className="font-normal">{selectedSize}</p>
                     )}
@@ -685,8 +685,8 @@ const ProductDetailsPage: React.FC = () => {
                         selectedSize === size.size
                           ? "border-fashion-accent-brown bg-[#E4A95D] text-white shadow-md scale-105"
                           : size.stock > 0
-                          ? "border-fashion-charcoal/20 hover:border-fashion-accent-brown hover:shadow-sm text-[#E4A95D]"
-                          : "border-fashion-charcoal/10 text-[#E4A95D] cursor-not-allowed"
+                          ? "border-tertiary/20 hover:border-fashion-accent-brown hover:shadow-sm text-[#E4A95D]"
+                          : "border-tertiary/10 text-[#E4A95D] cursor-not-allowed"
                       }`}
                     >
                       {/* Size label (fades out on hover when out of stock) */}
@@ -718,7 +718,7 @@ const ProductDetailsPage: React.FC = () => {
                   ))}
                 </div>
                 {!selectedSize && (
-                  <h6 className=" text-fashion-charcoal/70 rounded-lg">
+                  <h6 className=" text-tertiary/70 rounded-lg">
                     Please select your size to continue
                   </h6>
                 )}
@@ -727,21 +727,21 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Quantity */}
             <div className="space-y-3">
-              <h6 className="font-medium text-fashion-charcoal">Quantity</h6>
+              <h6 className="font-medium text-tertiary">Quantity</h6>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center border border-fashion-charcoal/20">
+                <div className="flex items-center border border-tertiary/20">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="text-3xl px-4 py-1 hover:bg-fashion-cream transition-colors"
+                    className="text-3xl px-4  hover:bg-fashion-cream transition-colors"
                   >
                     -
                   </button>
-                  <p className="px-4 py-1 border-x border-fashion-charcoal/20 min-w-[60px] text-center poppins-numeric">
+                  <p className="px-4  border-x border-tertiary/20 min-w-[60px] text-center poppins-numeric">
                     {quantity}
                   </p>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="text-3xl px-4 py-1 hover:bg-fashion-cream transition-colors"
+                    className="text-3xl px-4  hover:bg-fashion-cream transition-colors"
                   >
                     +
                   </button>
@@ -758,17 +758,17 @@ const ProductDetailsPage: React.FC = () => {
                   onChange={(e) => setPincode(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && checkDelivery()}
                   placeholder="Enter 6-digit pincode"
-                  className="border px-3 py-2 rounded w-40 text-xl"
+                  className="border px-3 py-1 rounded w-40 text-xl"
                 />
                 <button
                   onClick={checkDelivery}
                   disabled={checkingDelivery}
-                  className="px-4 py-2 bg-[#E4A95D] text-white rounded text-xl"
+                  className="px-4 py-1.5 bg-[#E4A95D] text-white rounded text-xl"
                 >
                   {checkingDelivery ? "Checking..." : "Check Delivery"}
                 </button>
                 {deliveryInfo && (
-                  <div className="text-xl text-fashion-charcoal/80">
+                  <div className="text-xl text-tertiary/80">
                     {deliveryInfo.deliverable ? (
                       <p className="text-green-600">
                         Deliverable
@@ -792,7 +792,7 @@ const ProductDetailsPage: React.FC = () => {
                     disabled={!selectedSize || isOutOfStock}
                     className={`w-full py-1 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
                       !selectedSize
-                        ? "border-fashion-charcoal/10 text-fashion-charcoal/30 cursor-not-allowed bg-transparent"
+                        ? "border-tertiary/10 text-tertiary/30 cursor-not-allowed bg-transparent"
                         : isOutOfStock
                         ? "border-red-600 text-red-600 cursor-not-allowed bg-transparent"
                         : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white transform hover:scale-[1.02]"
@@ -848,20 +848,20 @@ const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Features */}
-            {/* <div className="grid grid-cols-3 gap-4 py-6 border-t border-fashion-charcoal/10">
+            {/* <div className="grid grid-cols-3 gap-4 py-6 border-t border-tertiary/10">
               <div className="text-center">
                 <Truck className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xl text-fashion-charcoal/70">
+                <p className="text-xl text-tertiary/70">
                   Free Shipping
                 </p>
               </div>
               <div className="text-center">
                 <RefreshCw className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xl text-fashion-charcoal/70">Easy Returns</p>
+                <p className="text-xl text-tertiary/70">Easy Returns</p>
               </div>
               <div className="text-center">
                 <ShieldCheck className="w-10 h-10 text-fashion-accent-brown mx-auto mb-2" />
-                <p className="text-xl text-fashion-charcoal/70">
+                <p className="text-xl text-tertiary/70">
                   Secure Payment
                 </p>
               </div>
@@ -875,7 +875,7 @@ const ProductDetailsPage: React.FC = () => {
           <section>
             <h2 className="text-5xl font-semibold mb-4">Description</h2>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
+              <p className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.description || "No description available."}
               </p>
             </div>
@@ -886,7 +886,7 @@ const ProductDetailsPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
                   <div key={i} className="  rounded shadow-sm">
-                    <p className="text-2xl text-fashion-charcoal">• {kf}</p>
+                    <p className="text-2xl text-tertiary">• {kf}</p>
                   </div>
                 ))}
               </div>
@@ -897,7 +897,7 @@ const ProductDetailsPage: React.FC = () => {
           <section>
             <h2 className="text-5xl font-semibold mb-4">Care Instructions</h2>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-fashion-charcoal/80 leading-relaxed text-2xl">
+              <p className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
               </p>
             </div>
@@ -908,7 +908,7 @@ const ProductDetailsPage: React.FC = () => {
             <h2 className="font-semibold mb-4">Reviews</h2>
             <div className="py-6">
               {productReviews.length === 0 ? (
-                <p className="text-fashion-charcoal/60 text-center text-2xl">
+                <p className="text-tertiary/60 text-center text-2xl">
                   No reviews yet. Be the first to review this product!
                 </p>
               ) : (
@@ -934,7 +934,7 @@ const ProductDetailsPage: React.FC = () => {
                               className={`w-4 h-4 ${
                                 i < r.rating
                                   ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                                  : "text-fashion-charcoal/20"
+                                  : "text-tertiary/20"
                               }`}
                             />
                           ))}
