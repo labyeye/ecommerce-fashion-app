@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Heart, Star, ChevronLeft, ChevronRight, Ruler, X } from "lucide-react";
+import { Heart, Star, ChevronLeft, ChevronRight, Ruler, X, ZoomIn } from "lucide-react";
 import { useCartContext } from "../../context/CartContext";
 import { getProductById, Product } from "../../services/productService";
 import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
@@ -22,6 +22,7 @@ const ProductDetailsPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const hasAccess = product ? canAccessProduct(product, userTier) : true;
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -247,6 +248,30 @@ const ProductDetailsPage: React.FC = () => {
       ? mergedImages
       : [{ url: PLACEHOLDER_IMAGE, alt: product?.name || "Product Image" }];
 
+  useEffect(() => {
+    if (!modalOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setModalOpen(false);
+      } else if (e.key === "ArrowLeft") {
+        setSelectedImageIndex((s) => (s === 0 ? displayImages.length - 1 : s - 1));
+      } else if (e.key === "ArrowRight") {
+        setSelectedImageIndex((s) => (s === displayImages.length - 1 ? 0 : s + 1));
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [modalOpen, displayImages.length]);
+
   const handleAddToCart = () => {
     if (!product || !selectedSize || !hasAccess) {
       if (!hasAccess) {
@@ -453,17 +478,24 @@ const ProductDetailsPage: React.FC = () => {
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative aspect-[4/5] bg-white shadow-soft overflow-hidden group">
-              <img
-                src={displayImages[selectedImageIndex]?.url || ""}
-                alt={displayImages[selectedImageIndex]?.alt || product.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                onError={(e) => {
-                  const t = e.target as HTMLImageElement;
-                  if (t.src !== "/assets/img-placeholder-800x1000.png") {
-                    t.src = "/assets/img-placeholder-800x1000.png";
-                  }
-                }}
-              />
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="w-full h-full block"
+                aria-label="Open gallery"
+              >
+                <img
+                  src={displayImages[selectedImageIndex]?.url || ""}
+                  alt={displayImages[selectedImageIndex]?.alt || product.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    const t = e.target as HTMLImageElement;
+                    if (t.src !== "/assets/img-placeholder-800x1000.png") {
+                      t.src = "/assets/img-placeholder-800x1000.png";
+                    }
+                  }}
+                />
+              </button>
 
               {/* Navigation Arrows */}
               {displayImages.length > 1 && (
@@ -517,7 +549,11 @@ const ProductDetailsPage: React.FC = () => {
                 {displayImages.map((image, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedImageIndex(index)}
+                    onClick={() => {
+                      setSelectedImageIndex(index);
+                      setModalOpen(true);
+                    }}
+                    aria-label={`Open image ${index + 1} in gallery`}
                     className={`flex-shrink-0 w-20 h-24 border-2 transition-all duration-300 rounded-lg overflow-hidden ${
                       selectedImageIndex === index
                         ? "border-fashion-accent-brown shadow-lg scale-105"
@@ -539,6 +575,78 @@ const ProductDetailsPage: React.FC = () => {
                     />
                   </button>
                 ))}
+              </div>
+            )}
+            {/* Gallery Modal */}
+            {modalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
+                <div className="relative w-full max-w-[1100px] max-h-[90vh]">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="absolute top-3 right-3 z-50 bg-white/90 rounded-full p-2 shadow"
+                    aria-label="Close gallery"
+                  >
+                    <X className="w-5 h-5 text-tertiary" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImageIndex((s) => (s === 0 ? displayImages.length - 1 : s - 1))}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 z-40 bg-white/90 p-2 rounded-full shadow"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+
+                  <div className="mx-auto flex flex-col items-center">
+                    <div className="group relative bg-white rounded">
+                      <img
+                        src={displayImages[selectedImageIndex]?.url || ""}
+                        alt={displayImages[selectedImageIndex]?.alt || product.name}
+                        className="max-h-[75vh] w-auto object-contain block"
+                        onError={(e) => {
+                          const t = e.target as HTMLImageElement;
+                          if (t.src !== "/assets/img-placeholder-800x1000.png") {
+                            t.src = "/assets/img-placeholder-800x1000.png";
+                          }
+                        }}
+                      />
+
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <div className="pointer-events-auto">
+                          <button type="button" className="bg-white/90 p-2 rounded-full shadow" aria-hidden>
+                            <ZoomIn className="w-6 h-6 text-tertiary" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 mt-4 overflow-x-auto">
+                      {displayImages.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImageIndex(i)}
+                          className={`w-16 h-20 border-2 rounded overflow-hidden ${
+                            selectedImageIndex === i ? "border-fashion-accent-brown scale-105" : "border-transparent"
+                          }`}
+                          aria-label={`View image ${i + 1}`}
+                        >
+                          <img src={img.url || "/assets/img-placeholder-120x160.png"} alt={`thumb-${i}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImageIndex((s) => (s === displayImages.length - 1 ? 0 : s + 1))}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 z-40 bg-white/90 p-2 rounded-full shadow"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -593,11 +701,11 @@ const ProductDetailsPage: React.FC = () => {
             {/* Compact rating summary next to price */}
             {product.ratings && (
               <div className="flex items-center space-x-2">
-                <div className="flex items-center -space-x-1">
+                <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-6 h-6 ${
+                      className={`w-4 h-4 ${
                         i < Math.round(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
                           : "text-tertiary/20"
@@ -729,21 +837,27 @@ const ProductDetailsPage: React.FC = () => {
             <div className="space-y-3">
               <h6 className="font-medium text-tertiary">Quantity</h6>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center border border-tertiary/20">
+                <div className="flex items-center border border-tertiary">
                   <button
+                    type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="text-3xl px-4  hover:bg-fashion-cream transition-colors"
+                    aria-label="Decrease quantity"
+                    className="flex items-center justify-center w-12 h-12 text-2xl hover:bg-fashion-cream transition-colors"
                   >
-                    -
+                    <span aria-hidden="true">−</span>
                   </button>
-                  <p className="px-4  border-x border-tertiary/20 min-w-[60px] text-center poppins-numeric">
+
+                  <p className="px-4 border-x border-tertiary/20 min-w-[60px] text-center poppins-numeric">
                     {quantity}
                   </p>
+
                   <button
+                    type="button"
                     onClick={() => setQuantity(quantity + 1)}
-                    className="text-3xl px-4  hover:bg-fashion-cream transition-colors"
+                    aria-label="Increase quantity"
+                    className="flex items-center justify-center w-12 h-12 text-2xl hover:bg-fashion-cream transition-colors"
                   >
-                    +
+                    <span aria-hidden="true">+</span>
                   </button>
                 </div>
               </div>
