@@ -18,7 +18,7 @@ import razorpayService, {
 const CheckoutPage: React.FC = () => {
   const { cartItems, clearCart, isLoading, promoCode, evolvPointsRedemption } =
     useCartContext();
-  const { token, user } = useAuth();
+  const { token } = useAuth();
 
   const [shipping, setShipping] = useState({
     firstName: "",
@@ -46,8 +46,9 @@ const CheckoutPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [processingOrder, setProcessingOrder] = useState(false);
   const [useSameAddress, setUseSameAddress] = useState(true);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep] = useState(1);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
@@ -258,6 +259,8 @@ const CheckoutPage: React.FC = () => {
         order_id: razorpayOrder.id,
         handler: async (response: RazorpayResponse) => {
           try {
+            // Show full-page processing overlay while verification occurs
+            setProcessingOrder(true);
             const verificationData = {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -289,6 +292,7 @@ const CheckoutPage: React.FC = () => {
             );
           } finally {
             setLoading(false);
+            setProcessingOrder(false);
           }
         },
         prefill: {
@@ -418,6 +422,17 @@ const CheckoutPage: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Full page processing overlay shown during post-payment verification
+  if (processingOrder) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#95522C] mb-6" />
+        <h2 className="text-2xl font-bold text-[#95522C] mb-2">Order Processing</h2>
+        <p className="text-[#95522C] text-center max-w-lg">Do not refresh or go back — we are finalizing your payment and confirming your order.</p>
       </div>
     );
   }

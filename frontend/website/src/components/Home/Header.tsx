@@ -533,7 +533,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 border-fashion-charcoal/10 transition-all duration-300 ${getBackgroundClass()}`}
+      className={`fixed top-0 left-0 right-0 z-50 border-tertiary/10 transition-all duration-300 ${getBackgroundClass()}`}
     >
       {showLoginModal && <LoginModal />}
       <div className="px-7">
@@ -573,7 +573,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       </h6>
 
                       {link.dropdownItems && link.dropdownItems.length > 0 && (
-                        <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-fashion-charcoal/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-tertiary/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                           <div className="py-2">
                             {link.dropdownItems
                               .filter((item) => item.isActive)
@@ -624,7 +624,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     }, 100);
                   }
                 }}
-                className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                className="w-10 h-10 bg-none text-tertiary hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
                 aria-label="Search"
               >
                 <Search className="w-6 h-6 text-fashion-dark-gray" />
@@ -648,7 +648,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     aria-modal="true"
                   >
                     <div className="bg-white h-full flex flex-col">
-                      <div className="border-b border-fashion-charcoal/10 p-4">
+                      <div className="border-b border-tertiary/10 p-4">
                         <div className="flex items-center">
                           <Search className="w-6 h-6 mr-3 text-fashion-dark-gray" />
                           <input
@@ -774,25 +774,25 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               {/* Loyalty badge hidden for now; kept code removed so User button remains */}
               <div className="flex items-center">
                 <button
-                  className="w-10 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                  className="w-10 h-10 bg-none text-tertiary hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
                   id="profile-icon"
                 >
                   <User className="w-6 h-6 text-fashion-dark-gray" />
                 </button>
               </div>
               <div
-                className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-fashion-charcoal/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 shadow-xl border border-tertiary/10 bg-white md:bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
                 style={{ top: "100%" }}
               >
                 <div className="py-4">
                   {user ? (
                     <>
-                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 ">
+                      <div className="px-4 py-3 text-sm text-tertiary border-b border-tertiary/10 ">
                         <p className="font-medium m-0">Welcome, {user.firstName}!</p>
                       </div>
                       <Link
                         to="/profile"
-                        className="block px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Profile
                       </Link>
@@ -800,19 +800,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         onClick={() =>
                           handleProtectedNav("/profile?tab=orders")
                         }
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Orders
                       </button>
                       <button
                         onClick={() => handleProtectedNav("/wishlist")}
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Wishlist
                       </button>
                       <button
                         onClick={() => handleProtectedNav("/addresses")}
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Addresses
                       </button>
@@ -826,7 +826,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     </>
                   ) : (
                     <>
-                      <div className="px-4 py-3 text-sm text-fashion-charcoal border-b border-fashion-charcoal/10 text-center bg-white">
+                      <div className="px-4 py-3 text-sm text-tertiary border-b border-tertiary/10 text-center bg-white">
                         <p className="font-medium m-0">Welcome</p>
                         <div className="mt-2">
                           <Link
@@ -841,19 +841,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         onClick={() =>
                           handleProtectedNav("/profile?tab=orders")
                         }
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Orders
                       </button>
                       <button
                         onClick={() => handleProtectedNav("/wishlist")}
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Wishlist
                       </button>
                       <button
                         onClick={() => handleProtectedNav("/addresses")}
-                        className="block w-full text-left px-4 py-3 text-sm text-fashion-charcoal hover:bg-fashion-cream transition-colors duration-300"
+                        className="block w-full text-left px-4 py-3 text-sm text-tertiary hover:bg-fashion-cream transition-colors duration-300"
                       >
                         My Addresses
                       </button>
@@ -865,7 +865,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             <div className="flex flex-col items-center relative">
               <button
                 onClick={handleWishlistNav}
-                className="w-50 h-10 bg-none text-fashion-charcoal hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                className="w-50 h-10 bg-none text-tertiary hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
                 aria-label="Wishlist"
               >
                 <Heart className="w-6 h-6 text-fashion-dark-gray" />
@@ -953,7 +953,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden fixed inset-x-0 top-16 bg-background backdrop-blur-lg border-b border-fashion-charcoal/10 transition-all duration-500 ease-in-out transform ${
+          className={`md:hidden fixed inset-x-0 top-16 bg-background backdrop-blur-lg border-b border-tertiary/10 transition-all duration-500 ease-in-out transform ${
             isMenuOpen
               ? "translate-y-0 opacity-100"
               : "-translate-y-full opacity-0 pointer-events-none"
@@ -1020,7 +1020,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   </div>
                 ))}
 
-              <div className="pt-6 border-t border-fashion-charcoal/10" />
+              <div className="pt-6 border-t border-tertiary/10" />
             </nav>
           </div>
         </div>
@@ -1044,7 +1044,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               aria-modal="true"
             >
               <div className="bg-white h-full flex flex-col">
-                <div className="border-b border-fashion-charcoal/10 p-4">
+                <div className="border-b border-tertiary/10 p-4">
                   <div className="flex items-center">
                     <Search className="w-6 h-6 mr-3 text-fashion-dark-gray" />
                     <input

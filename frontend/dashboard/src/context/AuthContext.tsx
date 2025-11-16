@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const data = await response.json();
         const userData = {
           ...data.user,
-          loyalty: data.loyalty
+          // loyalty: data.loyalty
         };
         setUser(userData);
         localStorage.setItem('dashboard_user', JSON.stringify(userData));

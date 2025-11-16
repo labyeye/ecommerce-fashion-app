@@ -14,14 +14,14 @@ export const useProductAccess = (products: Product[] | null) => {
   return useMemo(() => {
     if (!products) return [];
     
-    // Filter products based on user's loyalty tier
+    // // Filter products based on user's loyalty tier
     return products.filter(product => {
       // If no minimum tier is set, everyone can access
-      if (!product.minLoyaltyTier) return true;
+      // if (!product.minLoyaltyTier) return true;
 
       // Compare user's tier level with product's required tier
       const userTierLevel = tierHierarchy[userTier];
-      const requiredTierLevel = tierHierarchy[product.minLoyaltyTier];
+      // const requiredTierLevel = tierHierarchy[product.minLoyaltyTier];
 
       return userTierLevel >= requiredTierLevel;
     });

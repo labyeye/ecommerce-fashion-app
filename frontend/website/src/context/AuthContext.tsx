@@ -23,10 +23,10 @@ interface User {
   };
   isActive: boolean;
   isEmailVerified: boolean;
-  loyaltyPoints?: number;
-  evolvPoints?: number;
-  loyaltyTier?: string;
-  loyaltyHistory?: any[];
+  // loyaltyPoints?: number;
+  // evolvPoints?: number;
+  // loyaltyTier?: string;
+  // loyaltyHistory?: any[];
   avatar?: string;
   profileImage?: string;
 }
@@ -108,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
 
-        // Then get customer profile with loyalty data
+        // // Then get customer profile with loyalty data
         if (data.user.role === "customer") {
           try {
             const profileResponse = await fetch(
@@ -223,7 +223,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // Navigation is handled in ProfilePage
+    // Ensure we redirect to login immediately to avoid leaving the user
+    // on a protected page (some components may assume user exists and
+    // cause render errors). Use a hard navigation so this works
+    // even outside React Router lifecycle.
+    try {
+      window.location.href = '/login';
+    } catch (e) {
+      // ignore
+    }
   };
 
   const clearError = () => {

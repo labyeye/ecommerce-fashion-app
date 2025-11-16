@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -10,27 +10,30 @@ import {
   Home,
   XCircle,
   CreditCard,
-  Gift,
-  Star,
-  Award,
-  Crown,
+  // Gift,
+  // Star,
+  // Award,
+  // Crown,
   Loader2,
   MapPin,
   AlertCircle,
   Download,
   Printer,
   MessageCircle,
-  Zap,
+  // Zap,
 } from "lucide-react";
+import Invoice from '../Invoice';
+import { downloadRefAsPDF, printRef } from '../../utils/invoice';
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { user, token } = useAuth();
+  const {  token } = useAuth();
   const navigate = useNavigate();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [canceling, setCanceling] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -123,50 +126,50 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  const getStatusStep = (status: string) => {
-    const steps = [
-      { key: "pending", label: "Order Placed", completed: true },
-      {
-        key: "confirmed",
-        label: "Payment Confirmed",
-        completed: [
-          "confirmed",
-          "processing",
-          "shipped",
-          "out_for_delivery",
-          "delivered",
-        ].includes(status),
-      },
-      {
-        key: "processing",
-        label: "Processing",
-        completed: [
-          "processing",
-          "shipped",
-          "out_for_delivery",
-          "delivered",
-        ].includes(status),
-      },
-      {
-        key: "shipped",
-        label: "Shipped",
-        completed: ["shipped", "out_for_delivery", "delivered"].includes(
-          status
-        ),
-      },
-      {
-        key: "out_for_delivery",
-        label: "Out for Delivery",
-        completed: ["out_for_delivery", "delivered"].includes(status),
-      },
-      {
-        key: "delivered",
-        label: "Delivered",
-        completed: status === "delivered",
-      },
-    ];
-    return steps;
-  };
+  // const getStatusStep = (status: string) => {
+  //   const steps = [
+  //     { key: "pending", label: "Order Placed", completed: true },
+  //     {
+  //       key: "confirmed",
+  //       label: "Payment Confirmed",
+  //       completed: [
+  //         "confirmed",
+  //         "processing",
+  //         "shipped",
+  //         "out_for_delivery",
+  //         "delivered",
+  //       ].includes(status),
+  //     },
+  //     {
+  //       key: "processing",
+  //       label: "Processing",
+  //       completed: [
+  //         "processing",
+  //         "shipped",
+  //         "out_for_delivery",
+  //         "delivered",
+  //       ].includes(status),
+  //     },
+  //     {
+  //       key: "shipped",
+  //       label: "Shipped",
+  //       completed: ["shipped", "out_for_delivery", "delivered"].includes(
+  //         status
+  //       ),
+  //     },
+  //     {
+  //       key: "out_for_delivery",
+  //       label: "Out for Delivery",
+  //       completed: ["out_for_delivery", "delivered"].includes(status),
+  //     },
+  //     {
+  //       key: "delivered",
+  //       label: "Delivered",
+  //       completed: status === "delivered",
+  //     },
+  //   ];
+  //   return steps;
+  // };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -232,6 +235,10 @@ const OrderDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white 10 pt-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hidden off-screen invoice used for PDF/print generation */}
+        <div style={{ position: 'absolute', left: -9999, top: 0, width: 800 }} aria-hidden>
+          <Invoice order={order} ref={invoiceRef} />
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
@@ -243,11 +250,36 @@ const OrderDetailPage: React.FC = () => {
           </button>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors">
+            <button
+              onClick={async () => {
+                try {
+                  if (!invoiceRef.current) return;
+                  await downloadRefAsPDF(
+                    invoiceRef.current,
+                    `invoice-${order?.order?.orderNumber || order?.order?._id || 'order'}.pdf`
+                  );
+                } catch (err) {
+                  console.error('Invoice download error', err);
+                  alert('Failed to download invoice');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors"
+            >
               <Download className="w-4 h-4" />
               <span>Download Invoice</span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors">
+            <button
+              onClick={() => {
+                try {
+                  if (!invoiceRef.current) return;
+                  printRef(invoiceRef.current);
+                } catch (err) {
+                  console.error('Invoice print error', err);
+                  alert('Failed to print invoice');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors"
+            >
               <Printer className="w-4 h-4" />
               <span>Print</span>
             </button>

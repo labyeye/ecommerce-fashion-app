@@ -526,10 +526,10 @@ router.get("/newsletters", async (req, res) => {
 router.get("/orders/:id/details", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate(
-        "customer",
-        "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
-      )
+      // .populate(
+      //   "customer",
+      //   "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
+      // )
       .populate("items.product", "name price images description");
 
     if (!order) {
@@ -541,7 +541,7 @@ router.get("/orders/:id/details", async (req, res) => {
 
     // Calculate loyalty points earned from this order using per-₹50 rules
     // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
-    const customerTier = order.customer.loyaltyTier || "bronze";
+    // const customerTier = order.customer.loyaltyTier || "bronze";
     const pointsPer50 =
       customerTier === "gold" ? 5 : customerTier === "silver" ? 3 : 1;
     const pointsEarned = Math.floor(order.total / 50) * pointsPer50;
@@ -550,19 +550,19 @@ router.get("/orders/:id/details", async (req, res) => {
     const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
 
     // Get loyalty information
-    const loyaltyInfo = {
-      pointsEarned,
-      deliveryBonusPoints,
-      totalPointsFromOrder,
-      customerTier: order.customer.loyaltyTier || "bronze",
-      customerPoints: order.customer.loyaltyPoints || 0,
-    };
+    // const loyaltyInfo = {
+    //   pointsEarned,
+    //   deliveryBonusPoints,
+    //   totalPointsFromOrder,
+    //   customerTier: order.customer.loyaltyTier || "bronze",
+    //   customerPoints: order.customer.loyaltyPoints || 0,
+    // };
 
     res.status(200).json({
       success: true,
       data: {
         order,
-        loyaltyInfo,
+        // loyaltyInfo,
       },
     });
   } catch (error) {
@@ -674,39 +674,39 @@ router.put(
       // Update loyalty points if order is delivered (only if not already awarded on payment)
       if (status === "delivered" && order.customer) {
         try {
-          // Only award on delivery if loyalty wasn't already awarded during payment
-          if (!order.payment || !order.payment.loyaltyAwarded) {
+          // // Only award on delivery if loyalty wasn't already awarded during payment
+          // if (!order.payment || !order.payment.loyaltyAwarded) {
             const customer = await User.findById(order.customer._id);
-            const tier =
-              customer && customer.loyaltyTier
-                ? customer.loyaltyTier
-                : "bronze";
+            // const tier =
+            //   customer && customer.loyaltyTier
+            //     ? customer.loyaltyTier
+            //     : "bronze";
             const per50 = tier === "gold" ? 5 : tier === "silver" ? 3 : 1;
             const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
             const deliveryBonusPoints = Math.floor(order.total * 0.1);
             const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
 
-            // Update customer's loyalty points (increment)
-            await User.findByIdAndUpdate(order.customer._id, {
-              $inc: {
-                loyaltyPoints: totalPoints,
-                evolvPoints: pointsEarnedOnDelivery,
-              },
-            });
+            // // Update customer's loyalty points (increment)
+            // await User.findByIdAndUpdate(order.customer._id, {
+            //   $inc: {
+            //     loyaltyPoints: totalPoints,
+            //     evolvPoints: pointsEarnedOnDelivery,
+            //   },
+            // });
 
-            // Add to loyalty history
-            await User.findByIdAndUpdate(order.customer._id, {
-              $push: {
-                loyaltyHistory: {
-                  date: new Date(),
-                  action: "order_completion",
-                  points: totalPoints,
-                  order: order._id,
-                  orderNumber: order.orderNumber,
-                  description: `Order ${order.orderNumber} completed - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`,
-                },
-              },
-            });
+            // // Add to loyalty history
+            // await User.findByIdAndUpdate(order.customer._id, {
+            //   $push: {
+            //     loyaltyHistory: {
+            //       date: new Date(),
+            //       action: "order_completion",
+            //       points: totalPoints,
+            //       order: order._id,
+            //       orderNumber: order.orderNumber,
+            //       description: `Order ${order.orderNumber} completed - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`,
+            //     },
+            //   },
+            // });
 
             // Recalculate tier on the customer document
             if (customer) {
@@ -714,13 +714,13 @@ router.put(
               await customer.save();
             }
 
-            // Mark order as loyaltyAwarded to prevent duplication
-            order.payment = order.payment || {};
-            order.payment.loyaltyAwarded = true;
-            await order.save();
-          }
+            // // Mark order as loyaltyAwarded to prevent duplication
+            // order.payment = order.payment || {};
+            // order.payment.loyaltyAwarded = true;
+            // await order.save();
+          // }
         } catch (e) {
-          console.error("Error awarding loyalty on delivery:", e);
+          // console.error("Error awarding loyalty on delivery:", e);
         }
       }
 
@@ -735,10 +735,10 @@ router.put(
 
       // Get updated order with populated data
       const updatedOrder = await Order.findById(req.params.id)
-        .populate(
-          "customer",
-          "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
-        )
+        // .populate(
+        //   "customer",
+        //   "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
+        // )
         .populate("items.product", "name price images description");
 
       res.status(200).json({

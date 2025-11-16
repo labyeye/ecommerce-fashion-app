@@ -30,37 +30,37 @@ const AdminLoyalty: React.FC = () => {
   const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api';
 
   useEffect(() => {
-    fetchLoyaltyAccounts();
+    // fetchLoyaltyAccounts();
   }, [pagination.page]);
 
-  const fetchLoyaltyAccounts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch(
-        `${API_BASE_URL}/admin/loyalty?page=${pagination.page}&limit=${pagination.limit}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setAccounts(data.data.accounts);
-        setPagination(data.data.pagination);
-      } else {
-        setError('Failed to fetch loyalty accounts');
-      }
-    } catch {
-      setError('Network error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchLoyaltyAccounts = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     
+  //     const response = await fetch(
+  //       `${API_BASE_URL}/admin/loyalty?page=${pagination.page}&limit=${pagination.limit}`,
+  //       {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       }
+  //     );
+  // 
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setAccounts(data.data.accounts);
+  //       setPagination(data.data.pagination);
+  //     } else {
+  //       // setError('Failed to fetch loyalty accounts');
+  //     }
+  //   } catch {
+  //     // setError('Network error');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
@@ -84,8 +84,8 @@ const AdminLoyalty: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Loyalty Program Management</h1>
-              <p className="text-gray-600 mt-1">View and manage customer loyalty accounts</p>
+              {/* <h1 className="text-2xl font-bold text-gray-900">Loyalty Program Management</h1>
+              <p className="text-gray-600 mt-1">View and manage customer loyalty accounts</p> */}
             </div>
             <div className="flex space-x-3">
               <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -145,8 +145,8 @@ const AdminLoyalty: React.FC = () => {
                   </tr>
                 ) : accounts.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                      No loyalty accounts found
+                      <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                      {/* No loyalty accounts found */}
                     </td>
                   </tr>
                 ) : (

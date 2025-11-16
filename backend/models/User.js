@@ -72,22 +72,22 @@ const userSchema = new mongoose.Schema(
         default: "India",
       },
     },
-    loyaltyPoints: { type: Number, default: 0 },
-    evolvPoints: { type: Number, default: 0 },
-    loyaltyTier: {
-      type: String,
-      enum: ["bronze", "silver", "gold"],
-      default: "bronze",
-    },
-    loyaltyHistory: [
-      {
-        date: Date,
-        action: String,
-        points: Number,
-        order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
-        description: String,
-      },
-    ],
+    // loyaltyPoints: { type: Number, default: 0 },
+    // evolvPoints: { type: Number, default: 0 },
+    // loyaltyTier: {
+    //   type: String,
+    //   enum: ["bronze", "silver", "gold"],
+    //   default: "bronze",
+    // },
+    // loyaltyHistory: [
+    //   {
+    //     date: Date,
+    //     action: String,
+    //     points: Number,
+    //     order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+    //     description: String,
+    //   },
+    // ],
     profileImage: {
       type: String,
       default: null,
@@ -157,80 +157,80 @@ userSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email.toLowerCase() });
 };
 userSchema.methods.recalculateTier = function () {
-  // Recalculate tier based on current points
-  // New thresholds: silver at 1000, gold at 2500
-  if (this.loyaltyPoints >= 2500) {
-    this.loyaltyTier = "gold";
-  } else if (this.loyaltyPoints >= 1000) {
-    this.loyaltyTier = "silver";
-  } else {
-    this.loyaltyTier = "bronze";
-  }
+  // // Recalculate tier based on current points
+  // // New thresholds: silver at 1000, gold at 2500
+  // if (this.loyaltyPoints >= 2500) {
+  //   this.loyaltyTier = "gold";
+  // } else if (this.loyaltyPoints >= 1000) {
+  //   this.loyaltyTier = "silver";
+  // } else {
+  //   this.loyaltyTier = "bronze";
+  // }
 
-  return this.loyaltyTier;
+  // return this.loyaltyTier;
 };
 userSchema.methods.getNextLoyaltyTier = function () {
-  // Use new thresholds: silver @1000, gold @2500
-  if (this.loyaltyTier === "bronze") {
-    return {
-      currentTier: "bronze",
-      nextTier: "silver",
-      pointsNeeded: Math.max(0, 1000 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 1000) * 100)),
-    };
-  } else if (this.loyaltyTier === "silver") {
-    return {
-      currentTier: "silver",
-      nextTier: "gold",
-      pointsNeeded: Math.max(0, 2500 - this.loyaltyPoints),
-      progress: Math.min(100, Math.floor((this.loyaltyPoints / 2500) * 100)),
-    };
-  } else {
-    // Gold is the highest tier
-    return {
-      currentTier: "gold",
-      nextTier: null,
-      pointsNeeded: 0,
-      progress: 100,
-    };
-  }
+  // // Use new thresholds: silver @1000, gold @2500
+  // if (this.loyaltyTier === "bronze") {
+  //   return {
+  //     currentTier: "bronze",
+  //     nextTier: "silver",
+  //     pointsNeeded: Math.max(0, 1000 - this.loyaltyPoints),
+  //     progress: Math.min(100, Math.floor((this.loyaltyPoints / 1000) * 100)),
+  //   };
+  // } else if (this.loyaltyTier === "silver") {
+  //   return {
+  //     currentTier: "silver",
+  //     nextTier: "gold",
+  //     pointsNeeded: Math.max(0, 2500 - this.loyaltyPoints),
+  //     progress: Math.min(100, Math.floor((this.loyaltyPoints / 2500) * 100)),
+  //   };
+  // } else {
+  //   // Gold is the highest tier
+  //   return {
+  //     currentTier: "gold",
+  //     nextTier: null,
+  //     pointsNeeded: 0,
+  //     progress: 100,
+  //   };
+  // }
 };
 userSchema.methods.addLoyaltyPoints = async function (
   orderTotal,
   order,
   skipEvolvPoints = false
 ) {
-  // Calculate loyalty points per ₹50 based on current tier
-  // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
-  const pointsPer50 =
-    this.loyaltyTier === "gold" ? 5 : this.loyaltyTier === "silver" ? 3 : 1;
+  // // Calculate loyalty points per ₹50 based on current tier
+  // // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
+  // const pointsPer50 =
+  //   this.loyaltyTier === "gold" ? 5 : this.loyaltyTier === "silver" ? 3 : 1;
 
-  const tierPoints = Math.floor(orderTotal / 50) * pointsPer50;
+  // const tierPoints = Math.floor(orderTotal / 50) * pointsPer50;
 
-  // Evolv points retained as a separate earned metric (keep previous multipliers)
-  let multiplier = 0.1; // bronze
-  if (this.loyaltyTier === "silver") multiplier = 0.15;
-  if (this.loyaltyTier === "gold") multiplier = 0.2;
-  const evolvPoints = skipEvolvPoints ? 0 : Math.floor(orderTotal * multiplier);
+  // // Evolv points retained as a separate earned metric (keep previous multipliers)
+  // let multiplier = 0.1; // bronze
+  // if (this.loyaltyTier === "silver") multiplier = 0.15;
+  // if (this.loyaltyTier === "gold") multiplier = 0.2;
+  // const evolvPoints = skipEvolvPoints ? 0 : Math.floor(orderTotal * multiplier);
 
-  // Update points
-  this.evolvPoints += evolvPoints;
-  this.loyaltyPoints += tierPoints;
+  // // Update points
+  // this.evolvPoints += evolvPoints;
+  // this.loyaltyPoints += tierPoints;
 
-  // Check for tier upgrade using new thresholds
-  if (this.loyaltyTier === "bronze" && this.loyaltyPoints >= 1000) {
-    this.loyaltyTier = "silver";
-  } else if (this.loyaltyTier === "silver" && this.loyaltyPoints >= 2500) {
-    this.loyaltyTier = "gold";
-  }
+  // // Check for tier upgrade using new thresholds
+  // if (this.loyaltyTier === "bronze" && this.loyaltyPoints >= 1000) {
+  //   this.loyaltyTier = "silver";
+  // } else if (this.loyaltyTier === "silver" && this.loyaltyPoints >= 2500) {
+  //   this.loyaltyTier = "gold";
+  // }
 
-  return {
-    tierPoints,
-    evolvPoints,
-    newTier: this.loyaltyTier,
-    totalPoints: this.loyaltyPoints,
-    totalEvolvPoints: this.evolvPoints,
-  };
+  // return {
+  //   tierPoints,
+  //   evolvPoints,
+  //   newTier: this.loyaltyTier,
+  //   totalPoints: this.loyaltyPoints,
+  //   totalEvolvPoints: this.evolvPoints,
+  // };
 };
 
 // Method to redeem Evolv points
@@ -251,13 +251,13 @@ userSchema.methods.redeemEvolvPoints = function (pointsToRedeem, orderTotal) {
 
   this.evolvPoints -= actualPointsUsed;
 
-  // Add to loyalty history
-  this.loyaltyHistory.push({
-    date: new Date(),
-    action: "evolv_redemption",
-    points: -actualPointsUsed,
-    description: `Redeemed ${actualPointsUsed} Evolv points for ₹${discountAmount} discount`,
-  });
+  // // Add to loyalty history
+  // this.loyaltyHistory.push({
+  //   date: new Date(),
+  //   action: "evolv_redemption",
+  //   points: -actualPointsUsed,
+  //   description: `Redeemed ${actualPointsUsed} Evolv points for ₹${discountAmount} discount`,
+  // });
 
   return {
     pointsUsed: actualPointsUsed,

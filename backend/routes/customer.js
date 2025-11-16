@@ -10,59 +10,59 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const PromoCode = require('../models/PromoCode');
-const { sendOrderCancellationEmail } = require('../utils/emailService');
+const { sendOrderCancellationEmail, sendVerificationEmail } = require('../utils/emailService');
 
 const router = express.Router();
 
-// Helper function to get loyalty details
-const getLoyaltyDetails = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    if (!user) return null;
-
-    const nextTierInfo = user.getNextLoyaltyTier();
-    
-    return {
-      points: user.loyaltyPoints,
-      evolvPoints: user.evolvPoints,
-      tier: user.loyaltyTier,
-      nextTier: nextTierInfo.nextTier,
-      nextTierPoints: nextTierInfo.pointsNeeded,
-      progressToNextTier: nextTierInfo.progress,
-      history: user.loyaltyHistory || []
-    };
-  } catch (error) {
-    console.error('Error getting loyalty details:', error);
-    return null;
-  }
-};
+// // Helper function to get loyalty details
+// const getLoyaltyDetails = async (userId) => {
+//   try {
+//     const user = await User.findById(userId);
+//     if (!user) return null;
+//
+//     const nextTierInfo = user.getNextLoyaltyTier();
+//     
+//     return {
+//       points: user.loyaltyPoints,
+//       evolvPoints: user.evolvPoints,
+//       tier: user.loyaltyTier,
+//       nextTier: nextTierInfo.nextTier,
+//       nextTierPoints: nextTierInfo.pointsNeeded,
+//       progressToNextTier: nextTierInfo.progress,
+//       history: user.loyaltyHistory || []
+//     };
+//   } catch (error) {
+//     console.error('Error getting loyalty details:', error);
+//     return null;
+//   }
+// };
 
 // Apply customer protection to all routes
 router.use(protect, isCustomer);
 
-router.get('/loyalty', async (req, res) => {
-  try {
-    const loyaltyDetails = await getLoyaltyDetails(req.user._id);
-
-    if (!loyaltyDetails) {
-      return res.status(404).json({
-        success: false,
-        message: 'Loyalty account not found'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: loyaltyDetails
-    });
-  } catch (error) {
-    console.error('Get loyalty details error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching loyalty details'
-    });
-  }
-});
+// router.get('/loyalty', async (req, res) => {
+//   try {
+//     const loyaltyDetails = await getLoyaltyDetails(req.user._id);
+//
+//     if (!loyaltyDetails) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Loyalty account not found'
+//       });
+//     }
+//
+//     res.status(200).json({
+//       success: true,
+//       data: loyaltyDetails
+//     });
+//   } catch (error) {
+//     console.error('Get loyalty details error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Error fetching loyalty details'
+//     });
+//   }
+// });
 router.get('/dashboard', async (req, res) => {
   try {
     // Get order statistics
@@ -99,8 +99,8 @@ router.get('/dashboard', async (req, res) => {
       await user.save();
     }
 
-    // Get loyalty details
-    const loyaltyDetails = await getLoyaltyDetails(req.user._id);
+    // // Get loyalty details
+    // const loyaltyDetails = await getLoyaltyDetails(req.user._id);
 
     res.status(200).json({
       success: true,
@@ -112,7 +112,7 @@ router.get('/dashboard', async (req, res) => {
           delivered: 0, 
           cancelled: 0 
         },
-        loyalty: loyaltyDetails
+        // loyalty: loyaltyDetails
       }
     });
   } catch (error) {
@@ -134,13 +134,13 @@ router.get('/profile', async (req, res) => {
     user.recalculateTier();
     await user.save();
     
-    // Get loyalty details
-    const loyaltyDetails = await getLoyaltyDetails(req.user._id);
+    // // Get loyalty details
+    // const loyaltyDetails = await getLoyaltyDetails(req.user._id);
     
-    // Combine user data with loyalty details
+    // // Combine user data with loyalty details
     const profileData = {
       ...user.toObject(),
-      loyalty: loyaltyDetails
+      // loyalty: loyaltyDetails
     };
 
     res.status(200).json({
@@ -214,6 +214,121 @@ router.put('/profile', [
       success: false,
       message: 'Error updating profile'
     });
+  }
+});
+
+// @desc    Change password
+// @route   POST /api/customer/change-password
+// @access  Customer only
+router.post('/change-password', [
+  body('currentPassword').exists().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, message: 'Error changing password' });
+  }
+});
+
+// @desc    Change email
+// @route   POST /api/customer/change-email
+// @access  Customer only
+router.post('/change-email', [
+  body('newEmail').isEmail().withMessage('Please provide a valid email'),
+  body('password').exists().withMessage('Password is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { newEmail, password } = req.body;
+    const normalizedEmail = newEmail.toLowerCase();
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ success: false, message: 'Password is incorrect' });
+
+    // Check if email is already used by another account
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing && existing._id.toString() !== user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+
+    if (user.email === normalizedEmail) {
+      return res.status(400).json({ success: false, message: 'New email must be different' });
+    }
+
+    user.email = normalizedEmail;
+    user.isEmailVerified = false;
+    const token = user.generateEmailVerificationToken();
+    await user.save();
+
+    // Send verification email (best-effort)
+    (async () => {
+      try {
+        await sendVerificationEmail(user.email, user.firstName || '', token);
+      } catch (e) {
+        console.error('Failed to send verification email after email change:', e);
+      }
+    })();
+
+    res.status(200).json({ success: true, message: 'Email changed. Verification sent to new email.' });
+  } catch (error) {
+    console.error('Change email error:', error);
+    res.status(500).json({ success: false, message: 'Error changing email' });
+  }
+});
+
+// @desc    Change phone
+// @route   POST /api/customer/change-phone
+// @access  Customer only
+router.post('/change-phone', [
+  body('phone').matches(/^[\+]?[1-9][\d]{0,15}$/).withMessage('Please provide a valid phone number'),
+  body('password').exists().withMessage('Password is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { phone, password } = req.body;
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ success: false, message: 'Password is incorrect' });
+
+    user.phone = phone;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Phone updated successfully', data: user.getPublicProfile() });
+  } catch (error) {
+    console.error('Change phone error:', error);
+    res.status(500).json({ success: false, message: 'Error changing phone' });
   }
 });
 
@@ -449,59 +564,59 @@ router.put('/orders/:id/status', [
 
       await order.save();
 
-      // Add bonus loyalty points for delivery confirmation
-      const loyalty = await User.findOne({ user: req.user._id });
-      if (loyalty && order.payment.status === 'paid') {
-        const bonusPoints = Math.floor(order.total / 50); // 2 points per ₹100 for delivery bonus
-        loyalty.points += bonusPoints;
-        loyalty.lifetimePoints += bonusPoints;
-
-        loyalty.history.push({
-          type: 'earned',
-          points: bonusPoints,
-          order: order._id,
-          description: `Earned ${bonusPoints} bonus points for delivery confirmation of order #${order.orderNumber}`
-        });
-
-        // Check for tier upgrade
-        const { newTier, nextTierPoints } = loyalty.checkTierUpgrade();
-        if (newTier !== loyalty.tier) {
-          loyalty.history.push({
-            type: 'tier_upgrade',
-            points: 0,
-            description: `Upgraded from ${loyalty.tier} to ${newTier} tier`
-          });
-          loyalty.tier = newTier;
-          loyalty.nextTierPoints = nextTierPoints;
-        }
-
-        await loyalty.save();
-
-        // Update user document
-        await User.findByIdAndUpdate(req.user._id, {
-          loyaltyPoints: loyalty.points,
-          loyaltyTier: loyalty.tier,
-          $push: {
-            loyaltyHistory: {
-              date: new Date(),
-              action: 'delivery_bonus',
-              points: bonusPoints,
-              order: order._id
-            }
-          }
-        });
-
-        return res.status(200).json({
-          success: true,
-          message: 'Order status updated successfully',
-          data: {
-            order,
-            bonusPointsEarned: bonusPoints,
-            newLoyaltyPoints: loyalty.points,
-            newTier: loyalty.tier
-          }
-        });
-      }
+      // // Add bonus loyalty points for delivery confirmation
+      // const loyalty = await User.findOne({ user: req.user._id });
+      // if (loyalty && order.payment.status === 'paid') {
+      //   const bonusPoints = Math.floor(order.total / 50); // 2 points per ₹100 for delivery bonus
+      //   loyalty.points += bonusPoints;
+      //   loyalty.lifetimePoints += bonusPoints;
+//
+      //   loyalty.history.push({
+      //     type: 'earned',
+      //     points: bonusPoints,
+      //     order: order._id,
+      //     description: `Earned ${bonusPoints} bonus points for delivery confirmation of order #${order.orderNumber}`
+      //   });
+//
+      //   // Check for tier upgrade
+      //   const { newTier, nextTierPoints } = loyalty.checkTierUpgrade();
+      //   if (newTier !== loyalty.tier) {
+      //     loyalty.history.push({
+      //       type: 'tier_upgrade',
+      //       points: 0,
+      //       description: `Upgraded from ${loyalty.tier} to ${newTier} tier`
+      //     });
+      //     loyalty.tier = newTier;
+      //     loyalty.nextTierPoints = nextTierPoints;
+      //   }
+//
+      //   await loyalty.save();
+//
+      //   // Update user document
+      //   await User.findByIdAndUpdate(req.user._id, {
+      //     loyaltyPoints: loyalty.points,
+      //     loyaltyTier: loyalty.tier,
+      //     $push: {
+      //       loyaltyHistory: {
+      //         date: new Date(),
+      //         action: 'delivery_bonus',
+      //         points: bonusPoints,
+      //         order: order._id
+      //       }
+      //     }
+      //   });
+//
+      //   return res.status(200).json({
+      //     success: true,
+      //     message: 'Order status updated successfully',
+      //     data: {
+      //       order,
+      //       bonusPointsEarned: bonusPoints,
+      //       newLoyaltyPoints: loyalty.points,
+      //       newTier: loyalty.tier
+      //     }
+      //   });
+      // }
 
       return res.status(200).json({
         success: true,
@@ -540,7 +655,7 @@ router.get('/orders/:id/details', async (req, res) => {
       });
     }
 
-    // Get user loyalty information
+    // // Get user loyalty information
     const user = await User.findById(req.user._id);
     if (user) {
       // Recalculate tier based on current points
@@ -548,14 +663,14 @@ router.get('/orders/:id/details', async (req, res) => {
       await user.save();
     }
 
-    const loyaltyInfo = user ? {
-      currentPoints: user.loyaltyPoints || 0,
-      currentTier: user.loyaltyTier || 'bronze',
-      nextTierPoints: user.loyaltyTier === 'bronze' ? 5000 : user.loyaltyTier === 'silver' ? 10000 : 0,
-      progressToNextTier: user.loyaltyTier === 'gold' ? 100 : 
-        user.loyaltyTier === 'bronze' ? Math.min(100, Math.floor((user.loyaltyPoints || 0) / 5000 * 100)) :
-        Math.min(100, Math.floor((user.loyaltyPoints || 0) / 10000 * 100))
-    } : null;
+    // const loyaltyInfo = user ? {
+    //   currentPoints: user.loyaltyPoints || 0,
+    //   currentTier: user.loyaltyTier || 'bronze',
+    //   nextTierPoints: user.loyaltyTier === 'bronze' ? 5000 : user.loyaltyTier === 'silver' ? 10000 : 0,
+    //   progressToNextTier: user.loyaltyTier === 'gold' ? 100 : 
+    //     user.loyaltyTier === 'bronze' ? Math.min(100, Math.floor((user.loyaltyPoints || 0) / 5000 * 100)) :
+    //     Math.min(100, Math.floor((user.loyaltyPoints || 0) / 10000 * 100))
+    // } : null;
 
     // Calculate points earned from this order
     const pointsEarned = Math.floor(order.total);
@@ -565,7 +680,7 @@ router.get('/orders/:id/details', async (req, res) => {
       success: true,
       data: {
         order,
-        loyaltyInfo,
+        // loyaltyInfo,
         pointsEarned,
         deliveryBonusPoints,
         totalPointsFromOrder: pointsEarned + deliveryBonusPoints
@@ -722,15 +837,15 @@ router.post('/validate-promo', [
       }
     }
 
-    // Check loyalty tier requirement
-    if (promoCode.userRestrictions.loyaltyTierRequired) {
-      if (!user.loyaltyTier || user.loyaltyTier !== promoCode.userRestrictions.loyaltyTierRequired) {
-        return res.status(400).json({
-          success: false,
-          message: `This promo code requires ${promoCode.userRestrictions.loyaltyTierRequired} loyalty tier`
-        });
-      }
-    }
+    // // Check loyalty tier requirement
+    // if (promoCode.userRestrictions.loyaltyTierRequired) {
+    //   if (!user.loyaltyTier || user.loyaltyTier !== promoCode.userRestrictions.loyaltyTierRequired) {
+    //     return res.status(400).json({
+    //       success: false,
+    //       message: `This promo code requires ${promoCode.userRestrictions.loyaltyTierRequired} loyalty tier`
+    //     });
+    //   }
+    // }
 
     // Validate promo code
     const validation = promoCode.isValid(req.user._id, orderValue);
@@ -1112,41 +1227,41 @@ router.post('/orders', [
       await order.save();
     }
 
-    // Process loyalty points
-const user = await User.findById(req.user._id);
-let loyaltyResponse = null;
-
-if (user) {
-  // Don't award Evolv points if user used promo code or redeemed Evolv points
-  const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
-  
-  const loyaltyResult = await user.addLoyaltyPoints(total, order, skipEvolvPoints); // Pass skipEvolvPoints flag
-  
-  await user.save();
-  
-  // Add to loyalty history
-  const historyDescription = skipEvolvPoints 
-    ? `Earned ${loyaltyResult.tierPoints} tier points from order (no Evolv points due to discount applied)`
-    : `Earned ${loyaltyResult.tierPoints} tier points and ${loyaltyResult.evolvPoints} evolv points from order`;
-    
-  user.loyaltyHistory.push({
-    date: new Date(),
-    action: 'order_points',
-    points: loyaltyResult.tierPoints,
-    order: order._id,
-    description: historyDescription
-  });
-
-  await user.save();
-
-  loyaltyResponse = {
-    pointsEarned: loyaltyResult.tierPoints,
-    evolvPointsEarned: loyaltyResult.evolvPoints,
-    newBalance: user.loyaltyPoints,
-    newTier: user.loyaltyTier,
-    nextTierInfo: user.getNextLoyaltyTier()
-  };
-}
+    // // Process loyalty points
+// const user = await User.findById(req.user._id);
+// let loyaltyResponse = null;
+//
+// if (user) {
+//   // Don't award Evolv points if user used promo code or redeemed Evolv points
+//   const skipEvolvPoints = (appliedPromoCode && discountAmount > 0) || (evolvPointsUsed > 0);
+//   
+//   const loyaltyResult = await user.addLoyaltyPoints(total, order, skipEvolvPoints); // Pass skipEvolvPoints flag
+//   
+//   await user.save();
+//   
+//   // Add to loyalty history
+//   const historyDescription = skipEvolvPoints 
+//     ? `Earned ${loyaltyResult.tierPoints} tier points from order (no Evolv points due to discount applied)`
+//     : `Earned ${loyaltyResult.tierPoints} tier points and ${loyaltyResult.evolvPoints} evolv points from order`;
+//     
+//   user.loyaltyHistory.push({
+//     date: new Date(),
+//     action: 'order_points',
+//     points: loyaltyResult.tierPoints,
+//     order: order._id,
+//     description: historyDescription
+//   });
+//
+//   await user.save();
+//
+//   loyaltyResponse = {
+//     pointsEarned: loyaltyResult.tierPoints,
+//     evolvPointsEarned: loyaltyResult.evolvPoints,
+//     newBalance: user.loyaltyPoints,
+//     newTier: user.loyaltyTier,
+//     nextTierInfo: user.getNextLoyaltyTier()
+//   };
+// }
 
     // Prepare response
     const response = {
@@ -1160,7 +1275,7 @@ if (user) {
           total: order.total,
           createdAt: order.createdAt
         },
-        loyalty: loyaltyResponse
+        // loyalty: loyaltyResponse
       }
     };
 

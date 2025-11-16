@@ -16,9 +16,9 @@ interface Customer {
   isActive: boolean;
   createdAt: string;
   lastLogin?: string;
-  loyaltyTier?: string;
-  loyaltyPoints?: number;
-  evolvPoints?: number;
+  // loyaltyTier?: string;
+  // loyaltyPoints?: number;
+  // evolvPoints?: number;
   address?: {
     street?: string;
     city?: string;
@@ -160,9 +160,9 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSegmentColor(customer.loyaltyTier || 'bronze')}`}>
+          {/* <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSegmentColor(customer.loyaltyTier || 'bronze')}`}>
             {customer.loyaltyTier?.toUpperCase() || 'BRONZE'} Tier
-          </span>
+          </span> */}
           <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             <Mail className="w-4 h-4" />
             <span>Send Email</span>
@@ -209,93 +209,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
             </div>
           </div>
 
-          {/* Loyalty Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Gift className="w-6 h-6 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Loyalty Information</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Current Tier */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
-                <div className="flex items-center gap-3 mb-3">
-                  {customer.loyaltyTier === 'bronze' && <Star className="w-6 h-6 text-[#CD7F32]" />}
-                  {customer.loyaltyTier === 'silver' && <Award className="w-6 h-6 text-[#C0C0C0]" />}
-                  {customer.loyaltyTier === 'gold' && <Crown className="w-6 h-6 text-[#FFD700]" />}
-                  <h4 className="font-semibold capitalize">{customer.loyaltyTier || 'bronze'} Tier</h4>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Current tier with {customer.loyaltyPoints || 0} points
-                </p>
-              </div>
-
-              {/* Points Summary */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
-                <div className="flex items-center gap-3 mb-3">
-                  <Gift className="w-6 h-6 text-green-600" />
-                  <h4 className="font-semibold">Points Summary</h4>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Loyalty Points:</span>
-                    <span className="font-medium">{customer.loyaltyPoints || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Evolv Points:</span>
-                    <span className="font-medium">{customer.evolvPoints || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Points:</span>
-                    <span className="font-medium">{(customer.loyaltyPoints || 0) + (customer.evolvPoints || 0)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress to Next Tier */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
-                <h4 className="font-semibold mb-3">Progress to Next Tier</h4>
-                <div className="space-y-2 text-sm">
-                  {customer.loyaltyTier === 'bronze' && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Current:</span>
-                        <span className="font-medium">{customer.loyaltyPoints || 0} / 1000</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-green-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 1000) * 100)}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500">Next: Silver Tier</p>
-                    </>
-                  )}
-                  {customer.loyaltyTier === 'silver' && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Current:</span>
-                        <span className="font-medium">{customer.loyaltyPoints || 0} / 2500</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-green-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, ((customer.loyaltyPoints || 0) / 2500) * 100)}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500">Next: Gold Tier</p>
-                    </>
-                  )}
-                  {customer.loyaltyTier === 'gold' && (
-                    <div className="text-center">
-                      <Crown className="w-8 h-8 text-[#FFD700] mx-auto mb-2" />
-                      <p className="text-sm font-medium">Maximum Tier Achieved!</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Loyalty Information (temporarily disabled) */}
 
           {/* Contact Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

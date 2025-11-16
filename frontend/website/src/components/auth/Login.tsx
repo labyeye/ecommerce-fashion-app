@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
+import logo from '../../assets/images/logoblack.png';
 // Google Sign-In Script Loader
 const loadGoogleScript = () => {
   return new Promise<void>((resolve, reject) => {
@@ -23,7 +23,7 @@ const loadGoogleScript = () => {
 };
 
 const Login: React.FC = () => {
-  const [loginMode, setLoginMode] = useState<"email" | "otp">("email");
+  const [loginMode] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -153,6 +153,7 @@ const Login: React.FC = () => {
 
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
+          <img src={logo} alt="Flaunt by Nishi Logo" className="mx-auto w-48 h-48" />
           <Link
             to="/"
             className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-2xl sm:text-xl"

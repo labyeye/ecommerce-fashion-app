@@ -14,15 +14,15 @@ export const useFilteredProducts = () => {
         setLoading(true);
         const allProducts = await getProducts();
         
-        // Filter products based on user's loyalty tier
+        // // Filter products based on user's loyalty tier
         const filteredProducts = allProducts.filter(product => {
           // If no minimum tier is set, everyone can access
-          if (!product.minLoyaltyTier) return true;
+          // if (!product.minLoyaltyTier) return true;
 
           // Define tier levels
           const tiers = { bronze: 0, silver: 1, gold: 2 };
           const userTierLevel = tiers[userTier as keyof typeof tiers];
-          const requiredTierLevel = tiers[product.minLoyaltyTier as keyof typeof tiers];
+          // const requiredTierLevel = tiers[product.minLoyaltyTier as keyof typeof tiers];
 
           // User can access if their tier level is >= required level
           return userTierLevel >= requiredTierLevel;

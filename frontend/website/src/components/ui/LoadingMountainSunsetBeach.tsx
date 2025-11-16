@@ -48,7 +48,7 @@ export default function LoadingMountainSunsetBeach({
 
   React.useEffect(() => {
     let mounted = true;
-    const visibleDuration = 400;
+    const visibleDuration = 200;
     const fadeDuration = 300;
     const total = visibleDuration + fadeDuration;
 

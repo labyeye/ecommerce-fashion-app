@@ -1,5 +1,6 @@
 import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Invoice from "../Invoice";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ProfilePictureUpload from "../ui/ProfilePictureUpload";
@@ -9,18 +10,23 @@ import {
   Heart,
   Settings,
   LogOut,
-  Crown,
-  Star,
-  Award,
+  // Crown,
+  // Star,
+  // Award,
   MapPin,
   Phone,
   Mail,
   CreditCard,
   Shield,
-  TrendingUp,
+  // TrendingUp,
   Eye,
   X,
   Save,
+  ChevronRight,
+  // FileArchive,
+  ScrollText,
+  Undo2,
+  Handshake,
 } from "lucide-react";
 
 const ProfilePage: React.FC = () => {
@@ -28,6 +34,9 @@ const ProfilePage: React.FC = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
+  const invoiceRef = useRef<HTMLDivElement | null>(null);
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] =
+    useState<any>(null);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
@@ -47,8 +56,7 @@ const ProfilePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [orderStats, setOrderStats] = useState<any>(null);
   const [profilePictureUploading, setProfilePictureUploading] = useState(false);
-
-  // Handle profile picture upload
+  const [isMobile, setMobile] = useState<boolean>(false);
   const handleProfilePictureUpload = async (file: File) => {
     if (!token) return;
 
@@ -91,11 +99,11 @@ const ProfilePage: React.FC = () => {
       navigate("/login");
     } else {
       console.log("ProfilePage - User data:", user);
-      console.log("ProfilePage - User loyalty data:", {
-        loyaltyPoints: user.loyaltyPoints,
-        evolvPoints: user.evolvPoints,
-        loyaltyTier: user.loyaltyTier,
-      });
+      // console.log("ProfilePage - User loyalty data:", {
+      //   loyaltyPoints: user.loyaltyPoints,
+      //   evolvPoints: user.evolvPoints,
+      //   loyaltyTier: user.loyaltyTier,
+      // });
     }
   }, [user, navigate]);
 
@@ -177,85 +185,85 @@ const ProfilePage: React.FC = () => {
     profileImage: user.profileImage || null,
     totalOrders: orderStats?.total || 0,
     totalSpent: orderStats?.totalSpent || 0,
-    loyaltyPoints: user.loyaltyPoints || 0,
-    evolvPoints: user.evolvPoints || 0,
-    currentTier: user.loyaltyTier || "bronze",
-    nextTier:
-      user.loyaltyTier === "bronze"
-        ? "silver"
-        : user.loyaltyTier === "silver"
-        ? "gold"
-        : "gold",
-    progressToNextTier:
-      user.loyaltyTier === "gold"
-        ? 100
-        : user.loyaltyTier === "bronze"
-        ? Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 1000) * 100))
-        : Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 2500) * 100)),
-    nextTierPoints:
-      user.loyaltyTier === "bronze"
-        ? 1000
-        : user.loyaltyTier === "silver"
-        ? 2500
-        : 0,
+    // loyaltyPoints: user.loyaltyPoints || 0,
+    // evolvPoints: user.evolvPoints || 0,
+    // currentTier: user.loyaltyTier || "bronze",
+    // nextTier:
+    //   user.loyaltyTier === "bronze"
+    //     ? "silver"
+    //     : user.loyaltyTier === "silver"
+    //     ? "gold"
+    //     : "gold",
+    // progressToNextTier:
+    //   user.loyaltyTier === "gold"
+    //     ? 100
+    //     : user.loyaltyTier === "bronze"
+    //     ? Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 1000) * 100))
+    //     : Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 2500) * 100)),
+    // nextTierPoints:
+    //   user.loyaltyTier === "bronze"
+    //     ? 1000
+    //     : user.loyaltyTier === "silver"
+    //     ? 2500
+    //     : 0,
   };
-  const tiers = [
-    {
-      name: "Bronze",
-      minPoints: 0,
-      maxPoints: 999,
-      color: "#8B7355",
-      bgColor: "#8B7355",
-      borderColor: "border-fashion-light-brown",
-      textColor: "text-fashion-accent-brown",
-      iconColor: "text-fashion-accent-brown",
-      icon: Star,
-      benefits: [
-        "1 Point on every purchase",
-        "Welcome bonus: 100 points",
-        "Standard shipping rates",
-        "Basic customer support",
-      ],
-    },
-    {
-      name: "Silver",
-      minPoints: 999,
-      maxPoints: 2499,
-      color: "#9b9b9bff",
-      bgColor: "#9b9b9bff",
-      borderColor: "border-fashion-warm-gray",
-      textColor: "text-fashion-dark-gray",
-      iconColor: "text-fashion-dark-gray",
-      icon: Award,
-      benefits: [
-        "3 Points on every purchase",
-        "Priority customer support",
-        "Free shipping on orders ₹500+",
-        "Early access to new products",
-        "Birthday bonus: 500 points",
-      ],
-    },
-    {
-      name: "Gold",
-      minPoints: 2499,
-      maxPoints: 999999,
-      color: "#fabd25ff",
-      bgColor: "#fabd25ff",
-      borderColor: "border-fashion-nude",
-      textColor: "text-fashion-accent-brown",
-      iconColor: "text-fashion-accent-brown",
-      icon: Crown,
-      benefits: [
-        "5 Points on every purchase",
-        "VIP customer support",
-        "Free shipping on all orders",
-        "Exclusive product launches",
-        "Birthday bonus: 1000 points",
-        "Monthly surprise gifts",
-        "Personal nutrition consultant",
-      ],
-    },
-  ];
+  // const tiers = [
+  //   {
+  //     name: "Bronze",
+  //     minPoints: 0,
+  //     maxPoints: 999,
+  //     color: "#8B7355",
+  //     bgColor: "#8B7355",
+  //     borderColor: "border-fashion-light-brown",
+  //     textColor: "text-fashion-accent-brown",
+  //     iconColor: "text-fashion-accent-brown",
+  //     icon: Star,
+  //     benefits: [
+  //       "1 Point on every purchase",
+  //       "Welcome bonus: 100 points",
+  //       "Standard shipping rates",
+  //       "Basic customer support",
+  //     ],
+  //   },
+  //   {
+  //     name: "Silver",
+  //     minPoints: 999,
+  //     maxPoints: 2499,
+  //     color: "#9b9b9bff",
+  //     bgColor: "#9b9b9bff",
+  //     borderColor: "border-fashion-warm-gray",
+  //     textColor: "text-fashion-dark-gray",
+  //     iconColor: "text-fashion-dark-gray",
+  //     icon: Award,
+  //     benefits: [
+  //       "3 Points on every purchase",
+  //       "Priority customer support",
+  //       "Free shipping on orders ₹500+",
+  //       "Early access to new products",
+  //       "Birthday bonus: 500 points",
+  //     ],
+  //   },
+  //   {
+  //     name: "Gold",
+  //     minPoints: 2499,
+  //     maxPoints: 999999,
+  //     color: "#fabd25ff",
+  //     bgColor: "#fabd25ff",
+  //     borderColor: "border-fashion-nude",
+  //     textColor: "text-fashion-accent-brown",
+  //     iconColor: "text-fashion-accent-brown",
+  //     icon: Crown,
+  //     benefits: [
+  //       "5 Points on every purchase",
+  //       "VIP customer support",
+  //       "Free shipping on all orders",
+  //       "Exclusive product launches",
+  //       "Birthday bonus: 1000 points",
+  //       "Monthly surprise gifts",
+  //       "Personal nutrition consultant",
+  //     ],
+  //   },
+  // ];
   useEffect(() => {
     if (activeTab === "orders" && user && token) {
       const fetchOrders = async () => {
@@ -285,6 +293,39 @@ const ProfilePage: React.FC = () => {
       fetchOrders();
     }
   }, [activeTab, user, token]);
+
+  // invoice helpers
+  const handleDownloadInvoice = async (ord: any) => {
+    setSelectedOrderForInvoice(ord);
+    // give React a moment to render the hidden invoice
+    setTimeout(async () => {
+      try {
+        if (!invoiceRef.current) return;
+        const { downloadRefAsPDF } = await import("../../utils/invoice");
+        await downloadRefAsPDF(
+          invoiceRef.current,
+          `invoice-${ord.orderNumber || ord._id}.pdf`
+        );
+      } catch (err) {
+        console.error("Failed to download invoice", err);
+        alert("Failed to download invoice");
+      }
+    }, 300);
+  };
+
+  const handlePrintInvoice = (ord: any) => {
+    setSelectedOrderForInvoice(ord);
+    setTimeout(async () => {
+      try {
+        if (!invoiceRef.current) return;
+        const { printRef } = await import("../../utils/invoice");
+        printRef(invoiceRef.current);
+      } catch (err) {
+        console.error("Failed to print invoice", err);
+        alert("Failed to print invoice");
+      }
+    }, 300);
+  };
   useEffect(() => {
     if (user && token) {
       const fetchDashboardData = async () => {
@@ -310,54 +351,231 @@ const ProfilePage: React.FC = () => {
     }
   }, [user, token]);
 
+  // detect mobile viewport and set state so mobile-only UI can render
+  useEffect(() => {
+    const onResize = () => setMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   return (
     <div className="min-h-screen pt-24" style={{ backgroundColor: "#FFF2E1" }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative">
-              <ProfilePictureUpload
-                currentImage={userData.profileImage}
-                onUpload={handleProfilePictureUpload}
-                loading={profilePictureUploading}
-              />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h4 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
-                {userData.name}
-              </h4>
-              <p className="text-[#95522C] mb-2 text-xl">{userData.email}</p>
-              <p className="text-[#95522C] mb-4 text-lg">
-                Member since {userData.joinDate}
-              </p>
-              <div className="flex items-center justify-center md:justify-start gap-4">
-                <div className="flex items-center gap-2 text-[#95522C]">
-                  <Package className="w-5 h-5" />
-                  <span className="font-medium">
-                    {userData.totalOrders} Orders
-                  </span>
+        {isMobile && (
+          <div className="bg-beige rounded-lg shadow-sm p-4 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-xl font-semibold text-tertiary overflow-hidden">
+                {userData.profileImage ? (
+                  // show profile image when available
+                  // ensure the image covers the container
+                  <img
+                    src={userData.profileImage}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    {user?.firstName?.[0]?.toUpperCase() || "U"}
+                    {user?.lastName?.[0]?.toUpperCase() || ""}
+                  </>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="text-3xl font-semibold text-tertiary">
+                  {userData.name}
                 </div>
-                <div className="flex items-center gap-2 text-[#95522C]">
-                  <TrendingUp className="w-5 h-5" />
-                  <span className="font-medium">
-                    ₹{userData.totalSpent.toLocaleString("en-IN")}
-                  </span>
+                <div className="text-xl text-tertiary opacity-90">
+                  {userData.email}
+                </div>
+                <div className="text-lg text-tertiary">
+                  Member since {userData.joinDate}
                 </div>
               </div>
               <button
                 onClick={handleEditProfile}
-                className="mt-4 bg-[#95522C] text-white px-4 py-2 rounded-lg hover:bg-[#7a3f20] transition-colors flex items-center gap-2 mx-auto md:mx-0"
-                style={{ boxShadow: "0 2px 6px rgba(149,82,44,0.08)" }}
+                className="text-xl font-semibold text-tertiary px-6 py-2 border border-tertiary rounded-md"
               >
-                <Settings className="w-4 h-4" />
-                Edit Profile
+                Edit
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              <button
+                onClick={() => navigate("/profile?tab=orders")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Package className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Orders</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              {/* <button
+              onClick={() => alert("Ajio Wallet")}
+              className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+            >
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-6 h-6 text-white" />
+                <div className="text-xl text-white">Ajio Wallet</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button> */}
+              {/* <button
+              onClick={() => alert("Invite Friends")}
+              className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+            >
+              <div className="flex items-center gap-3">
+                <Heart className="w-6 h-6 text-white" />
+                <div className="text-xl text-white">Invite Friends</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button> */}
+              <button
+                onClick={() => navigate("/settings")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <CreditCard className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Payments</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/addresses")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Address Book</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/wishlist")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Wishlist</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/invite-friends")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Handshake className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Invite Friends</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/terms")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <ScrollText className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Terms and Conditions</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/return-policy")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Undo2 className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Return Policy</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              <button
+                onClick={() => navigate("/settings")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Settings className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Settings</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>{" "}
+              <button
+                onClick={() => navigate("/contact")}
+                className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
+              >
+                <div className="flex items-center gap-3">
+                  <Shield className="w-6 h-6 text-white" />
+                  <div className="text-xl text-white">Customer Care</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <button
+                onClick={() => logout()}
+                className="w-full py-3 text-xl rounded-md border border-tertiary text-center font-semibold"
+              >
+                Logout
               </button>
             </div>
           </div>
+        )}
+        {/* Hidden invoice renderer for profile orders */}
+        <div
+          style={{ position: "absolute", left: -9999, top: 0, width: 800 }}
+          aria-hidden
+        >
+          {/* selectedOrderForInvoice may be null until user clicks Download/Print */}
+          {selectedOrderForInvoice && (
+            <Invoice order={selectedOrderForInvoice} ref={invoiceRef} />
+          )}
         </div>
+        {!isMobile && (
+          <div className="bg-white  border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="relative">
+                <ProfilePictureUpload
+                  currentImage={userData.profileImage}
+                  onUpload={handleProfilePictureUpload}
+                  loading={profilePictureUploading}
+                />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h4 className="font-light text-tertiary tracking-wide mb-3 text-2xl md:text-3xl">
+                  {userData.name}
+                </h4>
+                <p className="text-tertiary mb-2 text-2xl md:text-xl">
+                  {userData.email}
+                </p>
+                <p className="text-tertiary mb-4 text-xl md:text-lg">
+                  Member since {userData.joinDate}
+                </p>
+                <div className="flex items-center justify-center md:justify-start gap-4">
+                  <div className="flex items-center gap-2 text-tertiary">
+                    <Package className="w-5 h-5" />
+                    <span className="font-medium poppins-numeric">
+                      {userData.totalOrders} Orders
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleEditProfile}
+                  className="mt-4 bg-tertiary text-white px-5 py-3 rounded-lg hover:bg-[#7a3f20] transition-colors flex items-center gap-3 mx-auto md:mx-0 text-lg md:text-base"
+                  style={{ boxShadow: "0 2px 6px rgba(149,82,44,0.08)" }}
+                >
+                  <Settings className="w-5 h-5" />
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        {/* <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Crown className="w-8 h-8 text-[#FFD700]" />
             <h4 className="text-2xl font-bold" style={{ color: "#95522C" }}>
@@ -411,15 +629,9 @@ const ProfilePage: React.FC = () => {
               ></div>
             </div>
           </div>
-
-          {/* Tier Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {tiers.map((tier) => {
               const Icon = tier.icon;
-              const isCurrentTier =
-                tier.name.toLowerCase() === userData.currentTier;
-              const isUnlocked = userData.loyaltyPoints >= tier.minPoints;
-
               return (
                 <div
                   key={tier.name}
@@ -448,7 +660,7 @@ const ProfilePage: React.FC = () => {
                     >
                       {tier.name}
                     </h4>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-tertiary">
                       {tier.minPoints === 0
                         ? "0"
                         : tier.minPoints.toLocaleString()}
@@ -466,7 +678,7 @@ const ProfilePage: React.FC = () => {
                   <div className="space-y-2">
                     <h5
                       className={`font-semibold text-sm ${
-                        isCurrentTier ? tier.textColor : "text-gray-700"
+                        isCurrentTier ? tier.textColor : "text-tertiary"
                       }`}
                     >
                       Benefits:
@@ -486,7 +698,7 @@ const ProfilePage: React.FC = () => {
                           ></div>
                           <span
                             className={`${
-                              isCurrentTier ? "text-gray-700" : "text-gray-500"
+                              isCurrentTier ? "text-tertiary" : "text-tertiary"
                             }`}
                           >
                             {benefit}
@@ -499,168 +711,173 @@ const ProfilePage: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </div> */}
 
         {}
-        <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
-          <div className="flex flex-wrap border-b border-fashion-charcoal/10">
-            {[
-              { id: "overview", label: "Overview", icon: User },
-              { id: "orders", label: "Orders", icon: Package },
-              { id: "wishlist", label: "Wishlist", icon: Heart },
-              { id: "settings", label: "Settings", icon: Settings },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
-                      : "text-[#95522C]/70 hover:text-fashion-accent-brown"
-                  }`}
-                >
-                  <Icon
-                    className={`w-5 h-5 transition-colors duration-300 ${
+        {!isMobile && (
+          <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
+            <div className="flex flex-wrap border-b border-fashion-charcoal/10">
+              {[
+                { id: "overview", label: "Overview", icon: User },
+                { id: "orders", label: "Orders", icon: Package },
+                { id: "wishlist", label: "Wishlist", icon: Heart },
+                { id: "settings", label: "Settings", icon: Settings },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-300 text-xl ${
                       activeTab === tab.id
-                        ? "text-fashion-accent-brown"
-                        : "text-[#95522C]/70"
+                        ? "text-fashion-accent-brown border-b-2 border-fashion-accent-brown"
+                        : "text-tertiary/70 hover:text-fashion-accent-brown"
                     }`}
-                  />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+                  >
+                    <Icon
+                      className={`w-5 h-5 transition-colors duration-300 ${
+                        activeTab === tab.id
+                          ? "text-fashion-accent-brown"
+                          : "text-tertiary/70"
+                      }`}
+                    />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
 
-          {}
-          <div className="p-6">
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                {}
-                <div>
-                  <h3 className="text-2xl font-light text-[#95522C] mb-6 tracking-wide">
-                    Personal Information
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <Mail className="w-5 h-5 text-fashion-accent-brown" />
-                      <div>
-                        <p className="text-sm text-[#95522C]/60">
-                          Email
-                        </p>
-                        <p className="text-[#95522C] font-medium mt-1">
-                          {userData.email}
-                        </p>
+            {}
+            <div className="p-6">
+              {activeTab === "overview" && (
+                <div className="space-y-6">
+                  {}
+                  <div>
+                    <h4 className="font-light text-tertiary mb-6 tracking-wide">
+                      Personal Information
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                        <Mail className="w-5 h-5 text-fashion-accent-brown" />
+                        <div>
+                          <p className="text-xl text-tertiary/60">Email</p>
+                          <p className="text-tertiary font-medium mt-1">
+                            {userData.email}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                      <Phone className="w-5 h-5 text-fashion-accent-brown" />
-                      <div>
-                        <p className="text-sm text-[#95522C]/60">
-                          Phone
-                        </p>
-                        <p className="text-[#95522C] font-medium mt-1">
-                          {userData.phone}
-                        </p>
+                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                        <Phone className="w-5 h-5 text-fashion-accent-brown" />
+                        <div>
+                          <p className="text-xl text-tertiary/60">Phone</p>
+                          <p className="text-tertiary poppins-numeric mt-1">
+                            {userData.phone}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
-                      <MapPin className="w-5 h-5 text-fashion-accent-brown" />
-                      <div>
-                        <p className="text-sm text-[#95522C]/60">
-                          Address
-                        </p>
-                        <p className="text-[#95522C] font-medium mt-1">
-                          {userData.address}
-                        </p>
+                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
+                        <MapPin className="w-5 h-5 text-fashion-accent-brown" />
+                        <div>
+                          <p className="text-xl text-tertiary/60">Address</p>
+                          <p className="text-tertiary font-medium mt-1">
+                            {userData.address}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === "orders" && (
-              <div>
-                <h3
-                  className="text-xl font-bold mb-4"
-                  style={{ color: "#95522C" }}
-                >
-                  Recent Orders
-                </h3>
-                {!token && (
-                  <div className="text-center py-8 text-red-600">
-                    You are not logged in. Please log in to view your orders.
-                  </div>
-                )}
-                {ordersLoading ? (
-                  <LoadingMountainSunsetBeach text="Loading orders..." />
-                ) : ordersError ? (
-                  <div className="text-center py-8 text-red-600">
-                    {ordersError}
-                  </div>
-                ) : orders.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No orders found.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.map((order) => (
-                      <div
-                        key={order._id}
-                        className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4
-                            className="font-semibold"
-                            style={{ color: "#95522C" }}
-                          >
-                            {order.orderNumber}
-                          </h4>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              order.status === "delivered"
-                                ? "bg-green-100 text-green-800"
-                                : order.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
-
-                        <p className="text-gray-600 text-sm mb-2">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </p>
-                        <p className="text-gray-600 text-sm mb-2">
-                          {order.items
-                            .map((item: any) => item.product?.name)
-                            .join(", ")}
-                        </p>
-                        <p className="font-semibold text-[#2B463C]">
-                          ₹{order.total}
-                        </p>
-
-                        {/* Delhivery / shipment identifier (if available) */}
-                        {(order.shipment) && (
-                          <div className="text-sm text-gray-600 mt-2">
-                            { (order.shipment.shipmentId || order.shipment.awb) && (
-                              <p>Delhivery ID: <span className="font-medium">{order.shipment.shipmentId || order.shipment.awb}</span></p>
-                            )}
-                            {order.shipment.trackingUrl && (
-                              <a href={order.shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">Track</a>
-                            )}
-                            {order.shipment.name && <p className="text-xs text-gray-500 mt-1">Consignee: {order.shipment.name}</p>}
-                            {order.shipment.pincode && <p className="text-xs text-gray-500">Pincode: {order.shipment.pincode}</p>}
+              {activeTab === "orders" && (
+                <div>
+                  <h4
+                    className="text-xl font-bold mb-4"
+                    style={{ color: "#95522C" }}
+                  >
+                    Recent Orders
+                  </h4>
+                  {!token && (
+                    <div className="text-center py-8 text-red-600">
+                      You are not logged in. Please log in to view your orders.
+                    </div>
+                  )}
+                  {ordersLoading ? (
+                    <LoadingMountainSunsetBeach text="Loading orders..." />
+                  ) : ordersError ? (
+                    <div className="text-center py-8 text-red-600">
+                      {ordersError}
+                    </div>
+                  ) : orders.length === 0 ? (
+                    <div className="text-center py-8 text-tertiary">
+                      No orders found.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.map((order) => (
+                        <div
+                          key={order._id}
+                          className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h6
+                              className="font-semibold poppins-numeric"
+                              style={{ color: "#95522C" }}
+                            >
+                              {order.orderNumber}
+                            </h6>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                order.status === "delivered"
+                                  ? "bg-green-100 text-green-800"
+                                  : order.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              {order.status}
+                            </span>
                           </div>
-                        )}
 
-                        <div className="mt-2 p-3 bg-[#688F4E]/10 rounded-lg">
+                          <p className="text-tertiary poppins-numeric text-sm mb-2">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </p>
+                          <p className="text-tertiary text-sm mb-2">
+                            {order.items
+                              .map((item: any) => item.product?.name)
+                              .join(", ")}
+                          </p>
+                          <p className="text-tertiary poppins-numeric text-tertiary">
+                            ₹{order.total}
+                          </p>
+                          {order.shipment && (
+                            <div className="text-sm text-gray-600 mt-2">
+                              {(order.shipment.shipmentId ||
+                                order.shipment.awb) && (
+                                <p className="text-tertiary font-semibold">
+                                  Delhivery ID:{" "}
+                                  <span className="font-medium text-tertiary poppins-numeric">
+                                    {order.shipment.shipmentId ||
+                                      order.shipment.awb}
+                                  </span>
+                                </p>
+                              )}
+                              {order.shipment.name && (
+                                <p className="text-xs text-tertiary mt-1">
+                                  Consignee: {order.shipment.name}
+                                </p>
+                              )}
+                              {order.shipment.pincode && (
+                                <p className="text-xs text-tertiary">
+                                  Pincode: {order.shipment.pincode}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* <div className="mt-2 p-3 bg-[#688F4E]/10 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-[#2B463C] font-medium">
+                            <span className="text-tertiary font-medium">
                               Loyalty Points Earned:
                             </span>
                             <span
@@ -679,112 +896,131 @@ const ProfilePage: React.FC = () => {
                               points (Evolv)
                             </span>
                           </div>
-                        </div>
+                        </div> */}
 
-                        <div className="flex items-center justify-between mt-3">
-                          <button
-                            onClick={() => navigate(`/order/${order._id}`)}
-                            className="px-4 py-2 bg-[#95522C] text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
-                          >
-                            View Details
-                          </button>
-
-                          {}
-                          {order.status === "pending" &&
-                            order.payment?.method === "razorpay" &&
-                            order.payment?.status !== "paid" && (
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center gap-2">
                               <button
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                                onClick={() =>
-                                  alert(
-                                    "Redirect to payment gateway for order " +
-                                      order.orderNumber
-                                  )
-                                }
+                                onClick={() => navigate(`/order/${order._id}`)}
+                                className="px-4 py-2 bg-tertiary text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
                               >
-                                Pay Now
+                                View Details
                               </button>
-                            )}
+
+                              <button
+                                onClick={() => handleDownloadInvoice(order)}
+                                className="px-4 py-2 bg-tertiary text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
+                              >
+                                Download Invoice
+                              </button>
+
+                              <button
+                                onClick={() => handlePrintInvoice(order)}
+                                className="px-4 py-2 bg-tertiary text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
+                              >
+                                Print
+                              </button>
+                            </div>
+
+                            {order.status === "pending" &&
+                              order.payment?.method === "razorpay" &&
+                              order.payment?.status !== "paid" && (
+                                <button
+                                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                                  onClick={() =>
+                                    alert(
+                                      "Redirect to payment gateway for order " +
+                                        order.orderNumber
+                                    )
+                                  }
+                                >
+                                  Pay Now
+                                </button>
+                              )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "wishlist" && (
-              <div>
-                <h3 className="text-xl font-bold text-[#2B463C] mb-4">
-                  My Wishlist
-                </h3>
-                <div className="text-center py-8">
-                  <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600">Your wishlist is empty</p>
-                  <button className="mt-4 px-6 py-2 bg-[#95522C] text-white rounded-lg hover:bg-[#7a3f20] transition-colors">
-                    Start Shopping
-                  </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === "settings" && (
-              <div className="space-y-6">
+              {activeTab === "wishlist" && (
                 <div>
-                  <h3 className="text-xl font-bold text-[#2B463C] mb-4">
-                    Account Settings
+                  <h3 className="text-xl font-bold text-tertiary mb-4">
+                    My Wishlist
                   </h3>
-                  <div className="space-y-4">
-                    <button
-                      onClick={handleEditProfile}
-                      className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <User className="w-5 h-5" style={{ color: "#95522C" }} />
-                      <span className="text-left">Edit Profile</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Shield
-                        className="w-5 h-5"
-                        style={{ color: "#95522C" }}
-                      />
-                      <span className="text-left">Privacy Settings</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <CreditCard
-                        className="w-5 h-5"
-                        style={{ color: "#95522C" }}
-                      />
-                      <span className="text-left">Payment Methods</span>
-                    </button>
-                    <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Eye className="w-5 h-5" style={{ color: "#95522C" }} />
-                      <span className="text-left">
-                        Notification Preferences
-                      </span>
+                  <div className="text-center py-8">
+                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600">Your wishlist is empty</p>
+                    <button className="mt-4 px-6 py-2 bg-tertiary text-white rounded-lg hover:bg-[#7a3f20] transition-colors">
+                      Start Shopping
                     </button>
                   </div>
                 </div>
+              )}
 
-                <div className="border-t pt-6">
-                  <button
-                    onClick={logout}
-                    className="flex items-center gap-3 w-full p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-red-600"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span className="text-left">Sign Out</span>
-                  </button>
-                  {/* <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="mt-3 flex items-center gap-3 w-full p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors text-red-700"
-                  >
-                    <X className="w-5 h-5" />
-                    <span className="text-left">Delete My Account</span>
-                  </button> */}
+              {activeTab === "settings" && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-tertiary mb-4">
+                      Account Settings
+                    </h3>
+                    <div className="space-y-4">
+                      <button
+                        onClick={handleEditProfile}
+                        className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <User
+                          className="w-5 h-5"
+                          style={{ color: "#95522C" }}
+                        />
+                        <span className="text-left">Edit Profile</span>
+                      </button>
+                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <Shield
+                          className="w-5 h-5"
+                          style={{ color: "#95522C" }}
+                        />
+                        <span className="text-left">Privacy Settings</span>
+                      </button>
+                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <CreditCard
+                          className="w-5 h-5"
+                          style={{ color: "#95522C" }}
+                        />
+                        <span className="text-left">Payment Methods</span>
+                      </button>
+                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <Eye className="w-5 h-5" style={{ color: "#95522C" }} />
+                        <span className="text-left">
+                          Notification Preferences
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-6">
+                    <button
+                      onClick={logout}
+                      className="flex items-center gap-3 w-full p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-red-600"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="text-left">Sign Out</span>
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="mt-3 flex items-center gap-3 w-full p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors text-red-700"
+                    >
+                      <X className="w-5 h-5" />
+                      <span className="text-left">Delete My Account</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {}
@@ -793,7 +1029,7 @@ const ProfilePage: React.FC = () => {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[#2B463C]">
+                <h2 className="text-2xl font-bold text-tertiary">
                   Edit Profile
                 </h2>
                 <button
@@ -808,12 +1044,12 @@ const ProfilePage: React.FC = () => {
             <div className="p-6 space-y-6">
               {}
               <div>
-                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">
+                <h3 className="text-lg font-semibold text-tertiary mb-4">
                   Personal Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       First Name
                     </label>
                     <input
@@ -822,12 +1058,12 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, firstName: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent"
                       style={{ boxShadow: "0 0 0 3px rgba(149,82,44,0.08)" }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       Last Name
                     </label>
                     <input
@@ -836,11 +1072,11 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, lastName: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       Phone
                     </label>
                     <input
@@ -849,7 +1085,7 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, phone: e.target.value })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg poppins-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -857,12 +1093,12 @@ const ProfilePage: React.FC = () => {
 
               {}
               <div>
-                <h3 className="text-lg font-semibold text-[#2B463C] mb-4">
+                <h3 className="text-lg font-semibold text-tertiary mb-4">
                   Address Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       Street Address
                     </label>
                     <input
@@ -877,11 +1113,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       City
                     </label>
                     <input
@@ -896,11 +1132,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       State
                     </label>
                     <input
@@ -915,11 +1151,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       ZIP Code
                     </label>
                     <input
@@ -934,11 +1170,11 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg poppins-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-tertiary mb-2">
                       Country
                     </label>
                     <input
@@ -953,7 +1189,7 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -963,14 +1199,14 @@ const ProfilePage: React.FC = () => {
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-4">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 text-lg border border-tertiary rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveProfile}
                 disabled={saving}
-                className="px-6 py-3 bg-[#688F4E] text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
+                className="px-6 py-3 bg-tertiary text-lg text-white rounded-lg hover:bg-[#5a7a42] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
               >
                 {saving ? (
                   <>
@@ -978,7 +1214,7 @@ const ProfilePage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <Save className="w-6 h-6" />
                     <span>Save Changes</span>
                   </>
                 )}
@@ -990,27 +1226,47 @@ const ProfilePage: React.FC = () => {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold text-[#95522C] mb-4">Delete Account</h3>
-            <p className="text-sm text-gray-700 mb-6">This action will permanently delete your account and all related data (orders, wishlist, reviews). This cannot be undone. Are you sure you want to proceed?</p>
+            <h3 className="text-xl font-semibold text-tertiary mb-4">
+              Delete Account
+            </h3>
+            <p className="text-sm text-tertiary mb-6">
+              This action will permanently delete your account and all related
+              data (orders, wishlist, reviews). This cannot be undone. Are you
+              sure you want to proceed?
+            </p>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 rounded-lg border"
+              >
+                Cancel
+              </button>
               <button
                 onClick={async () => {
                   try {
-                    const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/account', {
-                      method: 'DELETE',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                    const response = await fetch(
+                      "https://ecommerce-fashion-app-som7.vercel.app/api/customer/account",
+                      {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
                       }
-                    });
+                    );
                     const data = await response.json();
-                    if (!response.ok) throw new Error(data.message || 'Failed to delete account');
+                    if (!response.ok)
+                      throw new Error(
+                        data.message || "Failed to delete account"
+                      );
                     // On success, logout and redirect to home
                     logout();
-                    window.location.href = '/';
+                    window.location.href = "/";
                   } catch (err: any) {
-                    alert('Error deleting account: ' + (err.message || 'Unknown error'));
+                    alert(
+                      "Error deleting account: " +
+                        (err.message || "Unknown error")
+                    );
                   }
                 }}
                 className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
