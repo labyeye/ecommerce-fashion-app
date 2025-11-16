@@ -2,7 +2,6 @@ const nodemailer = require("nodemailer");
 
 // Create transporter
 const createTransporter = () => {
-
   if (process.env.NODE_ENV === "production") {
     return nodemailer.createTransport({
       service: process.env.EMAIL_SERVICE || "gmail",
@@ -54,14 +53,14 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
           <style>
             body {
               font-family: 'Inter', 'Arial', sans-serif;
-              background: #FFF2E1;
-              color: #2B463C;
+              background: #FFF8FA;
+              color: #111827;
               max-width: 600px;
               margin: 0 auto;
               padding: 0;
             }
             .header {
-              background: linear-gradient(135deg, #B5A084, #688F4E);
+              background: linear-gradient(135deg, #DB2777, #F973A0);
               color: #fff;
               text-align: center;
               padding: 32px 24px 24px 24px;
@@ -86,23 +85,23 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
             }
             .button {
               display: inline-block;
-              background: linear-gradient(90deg, #B5A084, #688F4E);
+              background: linear-gradient(90deg, #914D26, #FFF2E1);
               color: #fff;
-              padding: 14px 32px;
+              padding: 12px 28px;
               text-decoration: none;
-              border-radius: 25px;
-              font-weight: 600;
-              font-size: 16px;
-              margin: 24px 0;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-              letter-spacing: 0.5px;
+              border-radius: 24px;
+              font-weight: 700;
+              font-size: 15px;
+              margin: 20px 0;
+              box-shadow: 0 4px 14px rgba(219,39,119,0.12);
+              letter-spacing: 0.3px;
             }
             .footer {
               text-align: center;
-              margin-top: 32px;
-              padding-top: 18px;
-              border-top: 1px solid #eee;
-              color: #B5A084;
+              margin-top: 28px;
+              padding-top: 16px;
+              border-top: 1px solid #f1e6ea;
+              color: #9CA3AF;
               font-size: 13px;
             }
           </style>
@@ -112,19 +111,19 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
             <div class="logo">
               <img src="https://flauntbynishi.com/logo.png" alt="Flaunt by Nishi" style="width:44px;height:44px;object-fit:contain;" />
             </div>
-            <h1 style="font-size:2rem; font-weight:700; margin-bottom:8px;">Welcome to Flaunt by Nishi!</h1>
-            <p style="font-size:1rem; font-weight:400;">Thanks for joining our fashion community</p>
+            <h1 style="font-size:2rem; font-weight:700; margin-bottom:8px;">Welcome to Flaunt by Nishi</h1>
+            <p style="font-size:1rem; font-weight:400;">Thanks for joining our style community</p>
           </div>
           <div class="content">
-            <h2 style="font-size:1.25rem; font-weight:600; color:#688F4E;">Hi ${firstName}!</h2>
-            <p style="margin:16px 0 8px 0;">We're excited to have you as part of our style-forward family.</p>
-            <p style="margin-bottom:16px;">To complete your registration and start your journey with us, please verify your email address by clicking the button below:</p>
+            <h2 style="font-size:1.25rem; font-weight:600; color:#111827;">Hi ${firstName}!</h2>
+            <p style="margin:16px 0 8px 0;">We're excited to welcome you to Flaunt by Nishi — where style meets confidence.</p>
+            <p style="margin-bottom:16px;">To activate your account and unlock member benefits, please verify your email by clicking the button below:</p>
             <div style="text-align: center;">
               <a href="${verificationUrl}" class="button">Verify Email Address</a>
             </div>
-            <p style="margin:24px 0 8px 0; color:#B5A084;">This verification link will expire in 24 hours for security reasons.</p>
+            <p style="margin:24px 0 8px 0; color:#9CA3AF;">This verification link will expire in 24 hours for security reasons.</p>
             <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #688F4E;">${verificationUrl}</p>
+            <p style="word-break: break-all; color: #914D26;">${verificationUrl}</p>
             <p>If you didn't create an account with Flaunt by Nishi, you can safely ignore this email.</p>
             <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
           </div>
@@ -196,43 +195,11 @@ const sendWelcomeEmail = async (email, firstName) => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Welcome to Flaunt By Nishi</title>
           <style>
-            body {
-              font-family: Arial, sans-serif;
-              line-height: 1.6;
-              color: #333;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            .header {
-              background: linear-gradient(135deg, #2B463C, #688F4E);
-              color: white;
-              text-align: center;
-              padding: 30px;
-              border-radius: 10px 10px 0 0;
-            }
-            .content {
-              background: #f9f9f9;
-              padding: 30px;
-              border-radius: 0 0 10px 10px;
-            }
-            .button {
-              display: inline-block;
-              background: linear-gradient(135deg, #688F4E, #2B463C);
-              color: white;
-              padding: 15px 30px;
-              text-decoration: none;
-              border-radius: 25px;
-              font-weight: bold;
-              margin: 20px 0;
-            }
-            .feature {
-              background: white;
-              padding: 20px;
-              margin: 15px 0;
-              border-radius: 8px;
-              border-left: 4px solid #688F4E;
-            }
+            body { font-family: Arial, sans-serif; line-height:1.6; color:#111827; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA }
+            .header { background: linear-gradient(135deg,#DB2777,#F973A0); color:#fff; text-align:center; padding:28px; border-radius:10px 10px 0 0 }
+            .content { background:#fff; padding:24px; border-radius:0 0 10px 10px }
+            .button { display:inline-block; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; padding:12px 26px; text-decoration:none; border-radius:22px; font-weight:700 }
+            .feature { background:#fff; padding:16px; margin:12px 0; border-radius:8px; border-left:4px solid #FCA5D1 }
           </style>
         </head>
         <body>
@@ -247,27 +214,27 @@ const sendWelcomeEmail = async (email, firstName) => {
             <p>Congratulations! Your email has been verified and your Flaunt By Nishi account is now active.</p>
             
             <div class="feature">
-              <h3>🏋️ Premium Protein Products</h3>
-              <p>Explore our range of high-quality protein shakes and supplements.</p>
+              <h3>✨ New Arrivals & Editor Picks</h3>
+              <p>Discover curated pieces and seasonal favorites handpicked for you.</p>
             </div>
-            
+
             <div class="feature">
               <h3>⚡ Evolv Points Rewards</h3>
-              <p>Earn points with every purchase and redeem them for discounts on future orders.</p>
+              <p>Earn points with every purchase and redeem them for exclusive discounts.</p>
             </div>
-            
+
             <div class="feature">
-              <h3>🎯 Tier-Based Benefits</h3>
-              <p>Unlock Bronze, Silver, and Gold tiers for exclusive benefits and higher reward rates.</p>
+              <h3>🔁 Easy Returns & Exchanges</h3>
+              <p>Hassle-free returns within 15 days — because we want you to love every order.</p>
             </div>
-            
+
             <div style="text-align: center;">
               <a href="${
                 process.env.FRONTEND_URL || "https://flauntbynishi.com"
               }" class="button">Start Shopping</a>
             </div>
-            
-            <p>Ready to power up your fitness journey? Browse our products and make your first order!</p>
+
+            <p>Explore the latest collections and enjoy member benefits on your first order.</p>
             
             <p>Best regards,<br>The Flaunt By Nishi Team</p>
           </div>
@@ -313,8 +280,8 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Password Reset</title>
           <style>
-            body { font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; }
-            .button { display:inline-block; padding:12px 20px; background:#2B463C; color:#fff; border-radius:6px; text-decoration:none; }
+            body { font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827 }
+            .button { display:inline-block; padding:12px 20px; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; border-radius:8px; text-decoration:none }
           </style>
         </head>
         <body>
@@ -372,7 +339,7 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
       subject: `Your order ${order.orderNumber || ""} has been cancelled`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
-          <div style="background:linear-gradient(135deg,#B5A084,#688F4E); color:#fff; padding:20px; border-radius:8px; text-align:center;">
+          <div style="background:linear-gradient(135deg,#DB2777,#F973A0); color:#fff; padding:18px; border-radius:8px; text-align:center;">
             <h2 style="margin:0">Order Cancelled</h2>
           </div>
           <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
@@ -430,12 +397,14 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
 };
 
 // Send OTP Email
-const sendOTPEmail = async (email, otp, firstName = '') => {
+const sendOTPEmail = async (email, otp, firstName = "") => {
   try {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: `"Flaunt by Nishi" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
+      from: `"Flaunt by Nishi" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
       subject: "Your Verification Code - Flaunt by Nishi",
       html: `
@@ -446,47 +415,11 @@ const sendOTPEmail = async (email, otp, firstName = '') => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>OTP Verification</title>
           <style>
-            body {
-              font-family: 'Inter', 'Arial', sans-serif;
-              background: #FFF2E1;
-              color: #2B463C;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 0;
-            }
-            .header {
-              background: linear-gradient(135deg, #B5A084, #688F4E);
-              color: #fff;
-              text-align: center;
-              padding: 32px 24px 24px 24px;
-              border-radius: 18px 18px 0 0;
-            }
-            .content {
-              background: #fff;
-              padding: 32px 24px;
-              border-radius: 0 0 18px 18px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            }
-            .otp-code {
-              display: inline-block;
-              background: linear-gradient(135deg, #B5A084, #688F4E);
-              color: #fff;
-              padding: 20px 40px;
-              font-size: 32px;
-              font-weight: bold;
-              letter-spacing: 8px;
-              border-radius: 12px;
-              margin: 20px 0;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-            .footer {
-              text-align: center;
-              margin-top: 32px;
-              padding-top: 18px;
-              border-top: 1px solid #eee;
-              color: #B5A084;
-              font-size: 13px;
-            }
+            body { font-family: 'Inter', 'Arial', sans-serif; background:#FFF8FA; color:#111827; max-width:600px; margin:0 auto; padding:0 }
+            .header { background: linear-gradient(135deg,#DB2777,#F973A0); color:#fff; text-align:center; padding:32px 24px; border-radius:18px 18px 0 0 }
+            .content { background:#fff; padding:28px 24px; border-radius:0 0 18px 18px; box-shadow:0 2px 8px rgba(0,0,0,0.04) }
+            .otp-code { display:inline-block; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; padding:18px 36px; font-size:28px; font-weight:700; letter-spacing:6px; border-radius:10px; margin:18px 0; box-shadow:0 6px 18px rgba(219,39,119,0.12) }
+            .footer { text-align:center; margin-top:28px; padding-top:16px; border-top:1px solid #f1e6ea; color:#9CA3AF; font-size:13px }
           </style>
         </head>
         <body>
@@ -495,12 +428,16 @@ const sendOTPEmail = async (email, otp, firstName = '') => {
             <p style="font-size:1rem; font-weight:400;">Your One-Time Password</p>
           </div>
           <div class="content">
-            ${firstName ? `<h2 style="font-size:1.25rem; font-weight:600; color:#688F4E;">Hi ${firstName}!</h2>` : ''}
+            ${
+              firstName
+                ? `<h2 style="font-size:1.25rem; font-weight:600; color:#111827;">Hi ${firstName}!</h2>`
+                : ""
+            }
             <p style="margin:16px 0 8px 0;">Please use the following verification code to complete your action:</p>
             <div style="text-align: center;">
               <div class="otp-code">${otp}</div>
             </div>
-            <p style="margin:24px 0 8px 0; color:#B5A084; font-weight:600;">This code will expire in 5 minutes.</p>
+            <p style="margin:24px 0 8px 0; color:#9CA3AF; font-weight:600;">This code will expire in 5 minutes.</p>
             <p style="margin-top:16px;">For your security, do not share this code with anyone.</p>
             <p style="margin-top:24px;">If you didn't request this code, please ignore this email or contact our support team.</p>
             <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
@@ -513,7 +450,9 @@ const sendOTPEmail = async (email, otp, firstName = '') => {
         </html>
       `,
       text: `
-        ${firstName ? `Hi ${firstName}!\n\n` : ''}Your verification code is: ${otp}
+        ${
+          firstName ? `Hi ${firstName}!\n\n` : ""
+        }Your verification code is: ${otp}
         
         This code will expire in 5 minutes.
         

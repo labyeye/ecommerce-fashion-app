@@ -1,160 +1,496 @@
-const axios = require('axios');
-const Order = require('../models/Order');
+const axios = require("axios");
+const Order = require("../models/Order");
 
-const API_KEY = process.env.DELHIVERY_API_KEY || '8976acf224d7787aed465acb1a436ff778c96b23';
-const CMU_URL = 'https://track.delhivery.com/api/cmu/create.json';
-const TRACK_URL = 'https://track.delhivery.com/api/v1/packages/json/';
+const API_KEY =
+  process.env.DELHIVERY_API_KEY || "8976acf224d7787aed465acb1a436ff778c96b23";
+const CMU_URL = "https://track.delhivery.com/api/cmu/create.json?format=json";
+const TRACK_URL = "https://track.delhivery.com/api/v1/packages/json/";
 
 async function createShipmentForOrder(order) {
+  // Helper: sanitize phone to 10-digit Indian mobile if possible
+  function sanitizePhone(phoneRaw) {
+    if (!phoneRaw) return "";
+    const digits = ("" + phoneRaw).replace(/\D+/g, "");
+    if (digits.length === 10) return digits;
+    // strip leading country code 91 if present
+    if (digits.length > 10 && digits.endsWith(digits.slice(-10)))
+      return digits.slice(-10);
+    if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
+    if (digits.length === 11 && digits.startsWith("0")) return digits.slice(1);
+    if (digits.length >= 10) return digits.slice(-10);
+    return digits;
+  }
+
   try {
-    // Build minimal payload accepted by Delhivery CMU API
-    const payload = {
-      shipments: [
-        {
-          order: order.orderNumber,
-          pickup_location: 'Seller Address',
-          payment_mode: order.payment && order.payment.method === 'cod' ? 'COD' : 'Prepaid',
-          order_amount: order.total,
-          consignments: [
-            {
-              consignee: {
-                name: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
-                phone: order.shippingAddress.phone,
-                address: order.shippingAddress.street,
-                city: order.shippingAddress.city,
-                state: order.shippingAddress.state,
-                pincode: order.shippingAddress.zipCode
-              },
-              items: order.items.map(it => ({
-                name: it.product && it.product.name ? it.product.name : 'Item',
-                quantity: it.quantity
-              }))
-            }
-          ]
-        }
-      ]
+    // Re-fetch the order with populated product details so we can build clean product names
+    const fullOrder = await Order.findById(order._id).populate("items.product");
+    const useOrder = fullOrder || order;
+
+    // Build consignee from order shippingAddress
+    const sAddr = useOrder.shippingAddress || {};
+    const consignee = {
+      name: `${sAddr.firstName || ""} ${sAddr.lastName || ""}`.trim(),
+      phone: sanitizePhone(sAddr.phone || ""),
+      email: sAddr.email || "",
+      address: sAddr.street || "",
+      city: sAddr.city || "",
+      state: sAddr.state || "",
+      pincode: sAddr.zipCode || sAddr.pincode || "",
     };
 
-    const res = await axios.post(CMU_URL, payload, {
-      headers: {
-        Authorization: `Token ${API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      timeout: 15000
-    });
-
-    // Persist response summary to order
-    const data = res.data || {};
-    const shipmentInfo = {};
-
-    // Delhivery returns created shipments information in response.shipments or response.data
-    if (data && data.shipments && Array.isArray(data.shipments) && data.shipments.length) {
-      const s = data.shipments[0];
-      shipmentInfo.awb = s.awb || s.waybill || s.waybill_number || '';
-      shipmentInfo.shipmentId = s.shipment_id || s.id || '';
-      shipmentInfo.trackingUrl = `https://track.delhivery.com/?waybill=${shipmentInfo.awb}`;
-      shipmentInfo.status = 'created';
-    } else if (data && data.success && data.data && data.data[0]) {
-      const s = data.data[0];
-      shipmentInfo.awb = s.awb || s.waybill || '';
-      shipmentInfo.trackingUrl = `https://track.delhivery.com/?waybill=${shipmentInfo.awb}`;
-      shipmentInfo.status = 'created';
+    const destPin = consignee.pincode;
+    // Pre-validate destination pincode
+    const pinCheck = await checkPincodeServiceability(destPin).catch((e) => ({
+      success: false,
+      error: e,
+    }));
+    if (
+      !pinCheck ||
+      !pinCheck.success ||
+      !pinCheck.data ||
+      !pinCheck.data.deliverable
+    ) {
+      return {
+        success: false,
+        error: {
+          message: `Destination pincode ${destPin} is not serviceable by Delhivery`,
+          code: "PINCODE_NOT_SERVICEABLE",
+          raw: pinCheck,
+        },
+        order: useOrder || null,
+      };
     }
 
-    order.shipment = order.shipment || {};
-    order.shipment.rawResponse = data;
-    if (shipmentInfo.awb) order.shipment.awb = shipmentInfo.awb;
-    if (shipmentInfo.shipmentId) order.shipment.shipmentId = shipmentInfo.shipmentId;
-    if (shipmentInfo.trackingUrl) order.shipment.trackingUrl = shipmentInfo.trackingUrl;
-    order.shipment.status = shipmentInfo.status || 'created';
-    order.shipment.carrier = 'Delhivery';
-    order.shipment.lastSyncedAt = new Date();
+    if (!consignee.phone || consignee.phone.length < 10) {
+      return {
+        success: false,
+        error: {
+          message: `Missing or invalid phone for consignee on order ${order.orderNumber}`,
+          code: "MISSING_PHONE",
+        },
+        order: useOrder || null,
+      };
+    }
 
-    await order.save();
+    // Build products description (only product names) and total quantity/value
+    const itemsSource = useOrder.items || [];
+    const itemsList = [];
+    let totalQty = 0;
+    let totalValue = 0;
+    for (const it of itemsSource) {
+      // prefer populated product title, then fallback to name fields
+      const rawName =
+        (it.product && (it.product.title || it.product.name)) ||
+        it.productName ||
+        it.name ||
+        "";
+      // sanitize names that may have quantity appended like "Item x2" or " x2"
+      const cleanedName =
+        ("" + rawName).replace(/\s*(?:Item)?\s*x?\s*\d+\s*$/i, "").trim() ||
+        "Product";
+      const qty = Number(it.quantity || 0) || 1;
+      const price = Number(it.price || 0) || 0;
+      const total = Number(it.total != null ? it.total : price * qty) || 0;
+      itemsList.push({ name: cleanedName, qty, price, total });
+      totalQty += qty;
+      totalValue += total;
+    }
 
-    return { success: true, data: shipmentInfo, raw: data };
+    const products_desc = itemsList.map((i) => i.name).join(" | ");
+
+    // Build pickup_location using environment seller info; force name to match account if provided
+    const pickup_location = {
+      name: process.env.SELLER_NAME || "NS designs",
+      add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || "",
+      city: process.env.SELLER_CITY || "",
+      state: process.env.SELLER_STATE || "",
+      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || "",
+      phone: process.env.SELLER_PHONE || "",
+    };
+    // Ensure exact name if user required
+    if (
+      process.env.FORCE_PICKUP_NAME === "NS designs" ||
+      !process.env.SELLER_NAME
+    ) {
+      pickup_location.name = "NS designs";
+    }
+
+    const defaultWeight = Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5);
+    const package_type = process.env.DELHIVERY_PACKAGE_TYPE || "Packet";
+
+    // Build CMU-compliant flattened shipment object (only allowed keys)
+    const paymentMode =
+      order.payment && order.payment.method === "cod" ? "COD" : "Prepaid";
+    const sellerName = process.env.SELLER_NAME || "NS designs";
+    const sellerAdd =
+      process.env.SELLER_ADD || process.env.SELLER_ADDRESS || "";
+    const sellerInv = order.orderNumber;
+    const sellerInvDate = (order.createdAt || new Date())
+      .toISOString()
+      .slice(0, 10);
+
+    const shipment = {
+      // CMU approved keys only
+      client_order_id: order.orderNumber,
+      name: consignee.name,
+      add: consignee.address,
+      city: consignee.city,
+      state: consignee.state,
+      pin: consignee.pincode,
+      country: "India",
+      phone: consignee.phone,
+      payment_mode: paymentMode,
+      total_amount: Number(order.total || totalValue || 0),
+      cod_amount:
+        paymentMode === "COD" ? Number(order.total || totalValue || 0) : 0,
+      seller_name: sellerName,
+      seller_add: sellerAdd,
+      seller_inv: sellerInv,
+      seller_inv_date: sellerInvDate,
+      products_desc,
+      weight: defaultWeight,
+      shipment_height: undefined,
+      shipment_width: undefined,
+      shipment_length: undefined,
+    };
+
+    const payload = { pickup_location, shipments: [shipment] };
+    // CMU expects urlencoded format=json&data=<json>
+    const formData = new URLSearchParams();
+    formData.append("format", "json");
+    formData.append("data", JSON.stringify(payload));
+
+    console.debug(
+      "Delhivery CMU payload (data):",
+      JSON.stringify(payload, null, 2)
+    );
+
+    const res = await axios.post(CMU_URL, formData.toString(), {
+      headers: {
+        Authorization: `Token ${API_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      timeout: 15000,
+    });
+
+    const data = res && res.data ? res.data : {};
+
+    // Log payload & raw response for debugging
+    console.debug("Delhivery CMU sent payload:", JSON.stringify(payload));
+    console.debug("Delhivery CMU raw response:", JSON.stringify(data));
+
+    // Structured error helper
+    function buildErrorObj(msg, p, raw) {
+      return {
+        message: msg,
+        remarks:
+          p && (p.remarks || p.remark) ? p.remarks || p.remark : undefined,
+        packageStatus: p && p.status ? p.status : undefined,
+        rawResponse: raw,
+      };
+    }
+
+    // Per requirements: consider shipment successful ONLY when
+    // data.success === true AND packages[0].status === 'Success' AND packages[0].waybill exists
+    let awb = "";
+    const pkgs = data && Array.isArray(data.packages) ? data.packages : [];
+    const primaryPkg = pkgs.length ? pkgs[0] : null;
+
+    if (data && data.success === true && primaryPkg) {
+      const pkgStatus = (primaryPkg.status || "").toString();
+      const waybill =
+        primaryPkg.waybill ||
+        primaryPkg.waybill_number ||
+        primaryPkg.awb ||
+        primaryPkg.waybill_no ||
+        "";
+      if (pkgStatus.toLowerCase() === "success" && waybill) {
+        awb = waybill;
+      } else {
+        // Detect known carrier remarks such as insufficient prepaid balance
+        const rawRemarks = (primaryPkg && (primaryPkg.remarks || primaryPkg.remark)) || (data && (data.remarks || data.remark)) || "";
+        const insufficientBalance = /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(rawRemarks);
+        const friendlyMessage = insufficientBalance
+          ? "Delhivery prepaid balance is insufficient, please recharge wallet"
+          : "Delhivery reported package not successful or missing waybill";
+
+        const err = buildErrorObj(
+          friendlyMessage,
+          primaryPkg,
+          data
+        );
+        if (insufficientBalance) err.code = "DELHIVERY_INSUFFICIENT_BALANCE";
+        // persist failure info
+        const shipmentDoc = {
+          rawResponse: data,
+          sentPayload: payload,
+          carrier: "Delhivery",
+          lastSyncedAt: new Date(),
+          status: "failed",
+        };
+        const savedFail = await Order.findByIdAndUpdate(
+          order._id,
+          { $set: { shipment: shipmentDoc } },
+          { new: true }
+        ).catch((e) => {
+          console.error("Failed to save failed shipmentDoc:", e);
+          return null;
+        });
+        console.error(
+          "Delhivery package indicated failure for order",
+          order._id,
+          err
+        );
+        return {
+          success: false,
+          error: err,
+          order: savedFail || useOrder || null,
+        };
+      }
+    } else {
+      // No packages or data.success false: return structured error
+      // Detect common remark for insufficient balance in the overall response
+      const overallRemarks = (data && (data.remarks || data.remark || (data.message || ''))) || '';
+      const insufficientBalanceOverall = /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(overallRemarks);
+      const friendlyOverallMessage = insufficientBalanceOverall
+        ? "Delhivery prepaid balance is insufficient, please recharge wallet"
+        : "Delhivery did not return success === true or packages[] missing";
+
+      const err = buildErrorObj(
+        friendlyOverallMessage,
+        primaryPkg,
+        data
+      );
+      if (insufficientBalanceOverall) err.code = "DELHIVERY_INSUFFICIENT_BALANCE";
+      const shipmentDoc = {
+        rawResponse: data,
+        sentPayload: payload,
+        carrier: "Delhivery",
+        lastSyncedAt: new Date(),
+        status: "failed",
+      };
+      const savedFail = await Order.findByIdAndUpdate(
+        order._id,
+        { $set: { shipment: shipmentDoc } },
+        { new: true }
+      ).catch((e) => {
+        console.error("Failed to save failed shipmentDoc:", e);
+        return null;
+      });
+      console.error(
+        "Delhivery create returned non-success for order",
+        order._id,
+        err
+      );
+      return {
+        success: false,
+        error: err,
+        order: savedFail || useOrder || null,
+      };
+    }
+
+    // Success: persist AWB to order (shipment and top-level fields)
+    const shipmentDoc = {
+      rawResponse: data,
+      sentPayload: payload,
+      carrier: "Delhivery",
+      lastSyncedAt: new Date(),
+      awb,
+      waybill: awb,
+      shipment_status: "created",
+      trackingUrl: `https://track.delhivery.com/?waybill=${awb}`,
+      status: "created",
+    };
+    const updatePayload = {
+      $set: {
+        shipment: shipmentDoc,
+        status: "confirmed",
+        awb: awb,
+        trackingNumber: awb,
+      },
+    };
+    const updated = await Order.findByIdAndUpdate(order._id, updatePayload, {
+      new: true,
+    }).catch((e) => {
+      console.error("Failed to persist shipment to order:", e);
+      return null;
+    });
+    console.debug(
+      "Order shipment saved result:",
+      updated && updated.shipment ? "ok" : "failed to update"
+    );
+    return {
+      success: true,
+      data: { awb },
+      raw: data,
+      order: updated || useOrder || null,
+    };
   } catch (err) {
-    console.error('Delhivery createShipment error:', err && err.response ? err.response.data || err.response.statusText : err.message);
-    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+    console.error(
+      "Delhivery createShipment error:",
+      err && err.response
+        ? err.response.data || err.response.statusText
+        : err.message
+    );
+    const errorObj =
+      err && err.response
+        ? err.response.data || err.response.statusText
+        : err.message;
+    return {
+      success: false,
+      error: {
+        message:
+          typeof errorObj === "string" ? errorObj : JSON.stringify(errorObj),
+      },
+      order: null,
+    };
   }
 }
 
 async function fetchTrackingForAwb(awb) {
   try {
     const url = `${TRACK_URL}?waybill=${encodeURIComponent(awb)}`;
-    const res = await axios.get(url, { headers: { Authorization: `Token ${API_KEY}` }, timeout: 15000 });
+    const res = await axios.get(url, {
+      headers: { Authorization: `Token ${API_KEY}` },
+      timeout: 15000,
+    });
     return { success: true, data: res.data };
   } catch (err) {
-    console.error('Delhivery fetchTracking error:', err && err.response ? err.response.data || err.response.statusText : err.message);
-    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+    console.error(
+      "Delhivery fetchTracking error:",
+      err && err.response
+        ? err.response.data || err.response.statusText
+        : err.message
+    );
+    return {
+      success: false,
+      error:
+        err && err.response
+          ? err.response.data || err.response.statusText
+          : err.message,
+    };
   }
 }
-
-/**
- * Check pincode serviceability using Delhivery public endpoints (best-effort).
- * Returns an object { success: boolean, data: any } where data may include
- * { deliverable: boolean, estDays?: number, message?: string, raw?: any }
- */
 async function checkPincodeServiceability(pincode) {
   try {
-    if (!pincode) return { success: false, error: 'No pincode provided' };
-
+    if (!pincode) return { success: false, error: "No pincode provided" };
     const candidates = [
-      `https://track.delhivery.com/api/pincode/json/?pincode=${encodeURIComponent(pincode)}`,
-      `https://track.delhivery.com/api/v1/pincode/json/?pincode=${encodeURIComponent(pincode)}`,
-      `https://track.delhivery.com/api/v1/pincode/${encodeURIComponent(pincode)}`,
+      `https://staging-express.delhivery.com/c/api/pin-codes/json/?filter_codes=${encodeURIComponent(
+        pincode
+      )}`,
+      `https://track.delhivery.com/c/api/pin-codes/json/?filter_codes=${encodeURIComponent(
+        pincode
+      )}`,
     ];
 
     let lastErr = null;
     for (const url of candidates) {
       try {
-        const res = await require('axios').get(url, {
+        const res = await require("axios").get(url, {
           headers: { Authorization: `Token ${API_KEY}` },
           timeout: 10000,
         });
         const data = res.data;
-
-        // Heuristic mapping
-        // If Delhivery uses `serviceable` or similar fields
-        if (data) {
-          // Common shapes: { serviceable: true } or { pincode: { serviceability: true } } or { status: 'OK', data: [...] }
-          let deliverable = false;
-          let estDays = undefined;
-          let message = '';
-
-          if (typeof data.serviceable === 'boolean') {
-            deliverable = data.serviceable;
-            message = data.message || '';
-          } else if (data.pincode && typeof data.pincode.serviceability !== 'undefined') {
-            deliverable = Boolean(data.pincode.serviceability);
-          } else if (data.status && data.status.toLowerCase && data.status.toLowerCase() === 'ok') {
-            // If data.data present and non-empty, assume deliverable
-            if (Array.isArray(data.data) && data.data.length > 0) deliverable = true;
-          } else if (Array.isArray(data) && data.length > 0) {
-            deliverable = true;
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            return {
+              success: true,
+              data: {
+                deliverable: false,
+                message: "Not serviceable (empty response)",
+                raw: data,
+              },
+            };
           }
 
-          // If response contains transit days or service days field
-          if (data.estDays) estDays = data.estDays;
-          if (data.transit_days) estDays = data.transit_days;
+          const rec = data[0] || {};
+          const remark = (rec.remark || "").toString().trim();
+          const deliverable = remark === "";
+          const message = remark ? remark : "Serviceable";
 
-          return { success: true, data: { deliverable, estDays, message, raw: data } };
+          return {
+            success: true,
+            data: {
+              deliverable,
+              estDays: rec.transit_days || rec.estDays,
+              message,
+              raw: data,
+            },
+          };
+        }
+        if (data && Array.isArray(data.delivery_codes)) {
+          if (data.delivery_codes.length === 0) {
+            return {
+              success: true,
+              data: {
+                deliverable: false,
+                message: "Not serviceable (delivery_codes empty)",
+                raw: data,
+              },
+            };
+          }
+
+          const entry = data.delivery_codes[0] || {};
+          const postal = entry.postal_code || entry.postal || entry;
+          const remark =
+            postal && (postal.remarks || postal.remark)
+              ? (postal.remarks || postal.remark).toString().trim()
+              : "";
+          const hasPin =
+            postal && (postal.pin || postal.postal_code || postal.pin_code);
+          const deliverable = remark === "" && Boolean(hasPin);
+          const message = remark
+            ? remark
+            : deliverable
+            ? "Serviceable"
+            : "Not serviceable";
+
+          return {
+            success: true,
+            data: {
+              deliverable,
+              estDays: postal && (postal.transit_days || postal.estDays),
+              message,
+              raw: data,
+            },
+          };
+        }
+        if (data) {
+          return {
+            success: true,
+            data: {
+              deliverable: false,
+              message: "Unknown response shape",
+              raw: data,
+            },
+          };
         }
       } catch (err) {
-        lastErr = err;
-        continue; // try next candidate
+        lastErr = {
+          message: err && err.message ? err.message : String(err),
+          status: err && err.response ? err.response.status : undefined,
+          data: err && err.response ? err.response.data : undefined,
+          url,
+        };
+        continue;
       }
     }
 
-    return { success: false, error: lastErr ? lastErr.message || String(lastErr) : 'No response from Delhivery' };
+    return { success: false, error: lastErr || "No response from Delhivery" };
   } catch (err) {
-    console.error('checkPincodeServiceability error', err && err.message ? err.message : err);
-    return { success: false, error: err && err.message ? err.message : 'Unknown error' };
+    console.error(
+      "checkPincodeServiceability error",
+      err && err.message ? err.message : err
+    );
+    return {
+      success: false,
+      error: err && err.message ? err.message : "Unknown error",
+    };
   }
 }
 
 module.exports = {
   createShipmentForOrder,
-  fetchTrackingForAwb
-  , checkPincodeServiceability
- };
+  fetchTrackingForAwb,
+  checkPincodeServiceability,
+};

@@ -133,12 +133,8 @@ export const getProducts = async (): Promise<Product[]> => {
               : [],
           }))
         : [],
-      images: Array.isArray(product.images)
-        ? product.images.map((img: any) => ({
-            ...img,
-            url: toAbsoluteUrl(img.url),
-          }))
-        : [],
+      // Top-level images intentionally left empty — images come from colors[].images
+      images: [],
       material: product.material || '',
       careInstructions: product.careInstructions || '',
       fit: product.fit || 'regular',
@@ -220,12 +216,8 @@ export const getProductById = async (id: string): Promise<Product> => {
               : [],
           }))
         : [],
-      images: Array.isArray(productData.images)
-        ? productData.images.map((img: any) => ({
-            ...img,
-            url: toAbsoluteUrl(img.url || ''),
-          }))
-        : [],
+      // Top-level images intentionally left empty — use color-specific images instead
+      images: [],
       keyFeatures: Array.isArray(productData.keyFeatures) ? productData.keyFeatures : [],
       material: productData.material || '',
       careInstructions: productData.careInstructions || '',

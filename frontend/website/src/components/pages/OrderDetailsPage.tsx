@@ -318,11 +318,13 @@ const OrderDetailsPage: React.FC = () => {
               <div className="space-y-4">
                 {order.items.map((item, index) => (
                   <div key={index} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                    <img
-                      src={item.product.images?.[0]?.url || '/assets/img-placeholder-80.png'}
-                      alt={item.product.name}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
+                    {(() => {
+                      const p: any = item.product;
+                      const img = (p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0)
+                        ? p.colors[0].images[0].url
+                        : null;
+                      return <img src={img || '/assets/img-placeholder-80.png'} alt={item.product.name} className="w-20 h-20 object-cover rounded-lg" />;
+                    })()}
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
                       <p className="text-sm text-gray-600">Quantity: <span className="poppins-numeric">{item.quantity}</span></p>
@@ -488,12 +490,33 @@ const OrderDetailsPage: React.FC = () => {
                 </div>
                 {/* AWB / Tracking */}
                 {/** @ts-ignore */}
-                {order && (order as any).shipment && (order as any).shipment.awb && (
+                {order && (order as any).shipment && (
                   <div className="mt-3">
-                    <p className="text-sm text-gray-600">AWB: <span className="font-medium">{(order as any).shipment.awb}</span></p>
-                    <a href={(order as any).shipment.trackingUrl || (`https://track.delhivery.com/?waybill=${(order as any).shipment.awb}`)} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">
-                      Track on Delhivery
-                    </a>
+                    {(order as any).shipment.awb && (
+                      <p className="text-sm text-gray-600">AWB: <span className="font-medium">{(order as any).shipment.awb}</span></p>
+                    )}
+                    {(order as any).shipment.shipmentId && (
+                      <p className="text-sm text-gray-600">Shipment ID: <span className="font-medium">{(order as any).shipment.shipmentId}</span></p>
+                    )}
+                    {(order as any).shipment.trackingUrl && (
+                      <a href={(order as any).shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">
+                        Track on Delhivery
+                      </a>
+                    )}
+
+                    {/* Show additional Delhivery fields when present */}
+                    {(order as any).shipment.name && (
+                      <p className="text-sm text-gray-600 mt-2">Consignee: <span className="font-medium">{(order as any).shipment.name}</span></p>
+                    )}
+                    {(order as any).shipment.address && (
+                      <p className="text-sm text-gray-600">Address: { (order as any).shipment.address }</p>
+                    )}
+                    {(order as any).shipment.pincode && (
+                      <p className="text-sm text-gray-600">Pincode: <span className="font-medium">{(order as any).shipment.pincode}</span></p>
+                    )}
+                    {(order as any).shipment.phone && (order as any).shipment.phone.length > 0 && (
+                      <p className="text-sm text-gray-600">Phone: <span className="font-medium">{(order as any).shipment.phone.join(', ')}</span></p>
+                    )}
                   </div>
                 )}
               </div>

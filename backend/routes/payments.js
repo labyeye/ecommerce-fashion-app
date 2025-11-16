@@ -17,10 +17,37 @@ router.post('/create-order', async (req, res) => {
 
   try {
     const orderData = req.body;
-    const { items, shippingAddress, billingAddress, subtotal, shippingCost, tax, total, promoCode, evolvPointsToRedeem } = orderData;
+    const { items, shippingAddress, billingAddress, promoCode, evolvPointsToRedeem } = orderData;
 
-    // Validate required fields
-    if (!total || total <= 0) {
+    // Server-side tax and total calculation (override client values)
+    // Tax Calculation per requirement:
+    // product selling price / 1.05 = Base amt (a)
+    // Tax = base amt * 0.05 (b)
+    // Shipping (c) = 150 INR (flat)
+    // Total = a + b + c
+    const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT || 150);
+
+    let subtotalCalculated = 0; // a
+    let taxCalculated = 0; // b
+    // items expected to have { price, quantity }
+    for (const item of items || []) {
+      const qty = Number(item.quantity || 1);
+      const price = Number(item.price || 0);
+      // base amount per unit
+      const basePerUnit = price / 1.05;
+      const taxPerUnit = basePerUnit * 0.05;
+      subtotalCalculated += basePerUnit * qty;
+      taxCalculated += taxPerUnit * qty;
+    }
+
+    // Round to 2 decimals
+    subtotalCalculated = Math.round((subtotalCalculated + Number.EPSILON) * 100) / 100;
+    taxCalculated = Math.round((taxCalculated + Number.EPSILON) * 100) / 100;
+    const shippingCostCalculated = SHIPPING_FLAT;
+    const totalCalculated = Math.round((subtotalCalculated + taxCalculated + shippingCostCalculated + Number.EPSILON) * 100) / 100;
+
+    // Validate required fields (use server-calculated total)
+    if (!totalCalculated || totalCalculated <= 0) {
       return res.status(400).json({
         success: false,
         message: 'Invalid order total'
@@ -40,13 +67,14 @@ router.post('/create-order', async (req, res) => {
       })),
       shippingAddress,
       billingAddress,
-      subtotal,
-      shippingCost,
-      tax,
-      total,
+      // Use server-calculated amounts
+      subtotal: subtotalCalculated,
+      shippingCost: shippingCostCalculated,
+      tax: taxCalculated,
+      total: totalCalculated,
       payment: {
         method: 'razorpay',
-        amount: total,
+        amount: totalCalculated,
         status: 'pending',
         gateway: 'razorpay',
         currency: 'INR',
@@ -61,9 +89,9 @@ router.post('/create-order', async (req, res) => {
     savedOrder = await newOrder.save();
 
     try {
-      // Create Razorpay order
+      // Create Razorpay order using server-calculated total
       const razorpayOrderResponse = await createRazorpayOrder(
-        total,
+        totalCalculated,
         'INR',
         `order_${savedOrder.orderNumber}`
       );
@@ -176,38 +204,50 @@ router.post('/verify', async (req, res) => {
       });
     }
 
-    // Update order with payment details
-    order.payment.status = 'paid';
-    order.payment.transactionId = razorpay_payment_id;
-    order.payment.razorpay.paymentId = razorpay_payment_id;
-    order.payment.razorpay.signature = razorpay_signature;
-    order.payment.paidAt = new Date();
-    order.status = 'confirmed'; // Change order status to confirmed
-    
-    await order.save();
+    // Atomically update order with payment details and mark as confirmed (payment success)
+    const paymentUpdate = {
+      $set: {
+        'payment.status': 'paid',
+        'payment.transactionId': razorpay_payment_id,
+        'payment.razorpay.paymentId': razorpay_payment_id,
+        'payment.razorpay.signature': razorpay_signature,
+        'payment.paidAt': new Date(),
+        status: 'confirmed'
+      }
+    };
 
-    // After confirming order, attempt to create Delhivery shipment
+    const updatedOrderAfterPayment = await Order.findByIdAndUpdate(order._id, paymentUpdate, { new: true });
+
+    // After confirming payment, attempt to create Delhivery shipment but do NOT throw on failure
     try {
       const { createShipmentForOrder } = require('../services/delhiveryService');
-      const createRes = await createShipmentForOrder(order);
+      const createRes = await createShipmentForOrder(updatedOrderAfterPayment);
+
       if (!createRes.success) {
-        // Fail-safe: revert order status to pending and log reason
+        // Shipment creation failed - log and persist a timeline entry, but DO NOT fail payment
         console.error('Delhivery shipment creation failed for order', order._id, createRes.error || createRes.raw);
-        order.status = 'pending';
-        order.addTimelineEntry('shipment_creation_failed', `Delhivery error: ${JSON.stringify(createRes.error || createRes.raw || 'unknown')}`);
-        await order.save();
-        return res.status(500).json({ success: false, message: 'Payment verified but shipment creation failed', error: createRes.error || createRes.raw });
+
+        // Ensure shipment.status is set to 'failed' on the order (createShipmentForOrder may have already set it)
+        await Order.findByIdAndUpdate(order._id, { $set: { 'shipment.status': 'failed' } }).catch((e) => console.error('Failed to set shipment.status to failed:', e));
+
+        // Push timeline entry describing the failure
+        await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_creation_failed', message: `Delhivery error: ${JSON.stringify(createRes.error || createRes.raw || 'unknown')}`, updatedBy: req.user._id, timestamp: new Date() } } }).catch((e) => console.error('Failed to push timeline entry:', e));
+
+        // Return structured JSON indicating payment success but shipment failure
+        return res.status(200).json({ success: true, paymentStatus: 'success', shipmentStatus: 'failed', shipmentError: createRes.error || createRes.raw });
       }
-      // If created successfully, push timeline
-      order.addTimelineEntry('shipment_created', `Shipment created with AWB ${order.shipment && order.shipment.awb}`);
-      await order.save();
+
+      // Shipment created successfully
+      const updatedOrder = createRes.order || (await Order.findById(order._id));
+      await updatedOrder.addTimelineEntry('shipment_created', `Shipment created with AWB ${updatedOrder.shipment && (updatedOrder.shipment.waybill || updatedOrder.shipment.awb)}`);
+
+      // Return success with AWB
+      return res.status(200).json({ success: true, paymentStatus: 'success', shipmentStatus: 'created', awb: createRes.data && createRes.data.awb, order: updatedOrder });
     } catch (delErr) {
-      console.error('Error while creating Delhivery shipment:', delErr);
-      // revert to pending as a precaution
-      order.status = 'pending';
-      order.addTimelineEntry('shipment_creation_failed', `Delhivery error: ${delErr.message}`);
-      await order.save();
-      return res.status(500).json({ success: false, message: 'Payment verified but shipment creation encountered an error' });
+      console.error('Unexpected error while creating Delhivery shipment:', delErr);
+      // Push timeline entry but still do not fail payment
+      await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_creation_failed', message: `Delhivery error: ${delErr && delErr.message ? delErr.message : JSON.stringify(delErr)}`, updatedBy: req.user._id, timestamp: new Date() } } }).catch((e) => console.error('Failed to push timeline entry after exception:', e));
+      return res.status(200).json({ success: true, paymentStatus: 'success', shipmentStatus: 'failed', shipmentError: delErr && delErr.message ? delErr.message : delErr });
     }
 
     // Award loyalty points on payment success (idempotent)
@@ -277,27 +317,18 @@ router.post('/failure', async (req, res) => {
     const { orderId, error } = req.body;
 
     if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Order ID is required'
-      });
+      return res.status(200).json({ success: false });
     }
 
     // Find the order
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
+      return res.status(200).json({ success: false });
     }
 
     // Check if order belongs to the current user
     if (order.customer.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied'
-      });
+      return res.status(200).json({ success: false });
     }
 
     // Update order payment status to failed

@@ -81,17 +81,7 @@ const productSchema = new mongoose.Schema({
       }
     }]
   }],
-  images: [{
-    url: {
-      type: String,
-      required: true
-    },
-    alt: String,
-    isPrimary: {
-      type: Boolean,
-      default: false
-    }
-  }],
+  // Note: images are now stored per-color in `colors[].images`. Top-level images removed.
   // Clothing specific material and care
   material: {
     type: String,

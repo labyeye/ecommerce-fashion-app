@@ -114,11 +114,10 @@ const Cart: React.FC<CartProps> = ({
       ></div>
 
       <div className="fixed top-0 right-0 h-full w-full sm:w-[95%] md:w-[90%] max-w-md bg-white/95 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out">
-        
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <ShoppingBag className="w-6 h-6 text-[#914D26]" />
-            <h2 className="text-xl text-[#914D26]">Your Cart</h2>
+            <h5 className="text-xl text-[#914D26]">Your Bag</h5>
             <span
               className="text-[#914D26] text-lg px-0 py-0 rounded-full poppins-numeric"
               style={{
@@ -146,7 +145,7 @@ const Cart: React.FC<CartProps> = ({
                 <ShoppingBag className="w-12 h-12 text-white" />
               </div>
               <h3 className="text-xl font-bold text-[#914D26] mb-2">
-                Your cart is empty
+                Your Bag is empty
               </h3>
               <p className="text-[#914D26] mb-6">
                 Add some stylish fashion items to get started!
@@ -171,7 +170,6 @@ const Cart: React.FC<CartProps> = ({
                     className="w-16 h-16 object-contain rounded-xl"
                   />
 
-                  
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[#914D26] truncate">
                       {item.name}
@@ -182,7 +180,6 @@ const Cart: React.FC<CartProps> = ({
                     </p>
                   </div>
 
-                  
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() =>
@@ -218,7 +215,6 @@ const Cart: React.FC<CartProps> = ({
                     </button>
                   </div>
 
-                  
                   <button
                     onClick={() =>
                       onRemoveItem(`${item.id}-${item.size}-${item.color}`)
@@ -233,12 +229,9 @@ const Cart: React.FC<CartProps> = ({
           )}
         </div>
 
-        
         {items.length > 0 && (
           <div className="border-t border-gray-200 p-6 space-y-4">
-            
             <div className="space-y-3">
-              
               {!promoCode &&
                 !evolvPointsRedemption &&
                 !showPromoInput &&
@@ -249,9 +242,7 @@ const Cart: React.FC<CartProps> = ({
                       className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                     >
                       <Tag className="w-4 h-4" />
-                        <p className="text-sm font-medium">
-                          Have a promo code?
-                        </p>
+                      <p className="text-sm font-medium">Have a promo code?</p>
                     </button>
 
                     {userEvolvPoints > 0 && (
@@ -261,7 +252,8 @@ const Cart: React.FC<CartProps> = ({
                       >
                         <Zap className="w-4 h-4" />
                         <p className="text-sm font-medium">
-                          Redeem Flaunt By Nishi Points ({userEvolvPoints} available)
+                          Redeem Flaunt By Nishi Points ({userEvolvPoints}{" "}
+                          available)
                         </p>
                       </button>
                     )}
@@ -403,7 +395,7 @@ const Cart: React.FC<CartProps> = ({
               )}
             </div>
 
-                  <div className="space-y-2">
+            <div className="space-y-2">
               <div className="flex justify-between text-[914D26">
                 <span>Subtotal</span>
                 <span className="poppins-numeric">₹{subtotal.toFixed(0)}</span>
@@ -412,31 +404,41 @@ const Cart: React.FC<CartProps> = ({
               {promoCode && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount ({promoCode.code})</span>
-                  <span className="poppins-numeric">-₹{promoDiscount.toFixed(0)}</span>
+                  <span className="poppins-numeric">
+                    -₹{promoDiscount.toFixed(0)}
+                  </span>
                 </div>
               )}
 
               {evolvPointsRedemption && (
                 <div className="flex justify-between text-blue-600">
                   <span>Flaunt By Nishi Points Discount</span>
-                  <span className="poppins-numeric">-₹{evolvDiscount.toFixed(0)}</span>
+                  <span className="poppins-numeric">
+                    -₹{evolvDiscount.toFixed(0)}
+                  </span>
                 </div>
               )}
 
-                <div className="flex justify-between text-[914D26">
+              <div className="flex justify-between text-[914D26">
                 <span>Shipping</span>
-                <span className="poppins-numeric">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+                <span className="poppins-numeric">
+                  {shipping === 0 ? "Free" : `₹${shipping}`}
+                </span>
               </div>
 
               {subtotal < 1000 && (
                 <p className="text-sm text-[#914D26]">
-                  Add <span className="poppins-numeric">₹{1000 - subtotal}</span> more for free shipping!
+                  Add{" "}
+                  <span className="poppins-numeric">₹{1000 - subtotal}</span>{" "}
+                  more for free shipping!
                 </p>
               )}
 
-                <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-gray-200">
+              <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span className="poppins-numeric">₹{Math.max(0, total).toFixed(0)}</span>
+                <span className="poppins-numeric">
+                  ₹{Math.max(0, total).toFixed(0)}
+                </span>
               </div>
             </div>
 

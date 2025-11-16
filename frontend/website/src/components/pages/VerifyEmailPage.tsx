@@ -89,28 +89,28 @@ const VerifyEmailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#B1D182] to-[#688F4E] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-b from-beige to-white flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
         {verificationState === 'loading' && (
           <>
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            <div className="w-16 h-16 bg-beige rounded-full flex items-center justify-center mx-auto mb-6">
+              <Loader2 className="w-8 h-8 text-beige animate-spin" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Verifying Email</h1>
-            <p className="text-gray-600 mb-6">Please wait while we verify your email address...</p>
+            <h1 className="text-2xl font-bold text-beige mb-4">Verifying Email</h1>
+            <p className="text-beige mb-6">Please wait while we verify your email address...</p>
           </>
         )}
 
         {verificationState === 'success' && (
           <>
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="w-16 h-16 bg-beige rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-8 h-8 text-beige" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Email Verified!</h1>
-            <p className="text-gray-600 mb-6">{message}</p>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <p className="text-green-800 text-sm">
-                🎉 Welcome to Vitals! You'll be redirected to the homepage in a few seconds.
+            <h1 className="text-2xl font-bold text-beige mb-4">Email Verified!</h1>
+            <p className="text-beige mb-6">{message}</p>
+            <div className="bg-beigeborder border-beige rounded-lg p-4 mb-6">
+              <p className="text-beige text-sm">
+                Welcome to Flaunt By Nishi! You'll be redirected to the homepage in a few seconds.
               </p>
             </div>
             <button
@@ -127,14 +127,14 @@ const VerifyEmailPage: React.FC = () => {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <XCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Verification Failed</h1>
-            <p className="text-gray-600 mb-6">{message}</p>
+            <h1 className="text-2xl font-bold text-beige mb-4">Verification Failed</h1>
+            <p className="text-beige mb-6">{message}</p>
             
             <div className="space-y-4">
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-tertiary text-white py-3 rounded-lg font-semibold hover:bg-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
               >
                 {resendLoading ? (
                   <>
@@ -152,7 +152,7 @@ const VerifyEmailPage: React.FC = () => {
               {resendMessage && (
                 <div className={`p-3 rounded-lg text-sm ${
                   resendMessage.includes('successfully') 
-                    ? 'bg-green-50 border border-green-200 text-green-800'
+                    ? 'bg-beigeborder border-beige text-beige'
                     : 'bg-red-50 border border-red-200 text-red-800'
                 }`}>
                   {resendMessage}
@@ -161,7 +161,7 @@ const VerifyEmailPage: React.FC = () => {
 
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors duration-200"
+                className="w-full bg-tertiary text-white py-3 rounded-lg font-semibold hover:bg-tertiary transition-colors duration-200"
               >
                 Back to Login
               </button>

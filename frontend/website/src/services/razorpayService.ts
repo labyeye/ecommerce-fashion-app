@@ -133,7 +133,13 @@ export class RazorpayService {
         throw new Error(data.message || 'Payment verification failed');
       }
 
-      return data.data;
+      // Return the full parsed response so callers can inspect `success`,
+      // `paymentStatus`, `shipmentStatus`, `shipmentError`, and `data`.
+      // Backend sometimes returns the useful payload at top-level (for
+      // shipment-created/failed flows) or nested under `data` for other
+      // cases — returning the entire response object keeps the handling
+      // consistent on the frontend and avoids `undefined` errors.
+      return data;
     } catch (error) {
       console.error('Error verifying payment:', error);
       throw error;

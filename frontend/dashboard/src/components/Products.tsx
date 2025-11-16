@@ -405,17 +405,15 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                   const stockStatus = getStockStatus(product);
                   const totalStock = getTotalStock(product);
                   
+                  const imageUrl = (product.colors && product.colors.length > 0 && product.colors[0].images && product.colors[0].images.length > 0)
+                    ? (product.colors[0].images.find((img:any) => img.url)?.url || product.colors[0].images[0].url)
+                    : '/assets/img-placeholder-40.png';
+
                   return (
                     <tr key={product._id} className="hover:bg-ds-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {product.images && product.images.length > 0 && (
-                            <img
-                              className="h-10 w-10 rounded object-cover mr-3"
-                              src={product.images.find(img => img.isPrimary)?.url || product.images[0]?.url}
-                              alt={product.name}
-                            />
-                          )}
+                          <img className="h-10 w-10 rounded object-cover mr-3" src={imageUrl} alt={product.name} />
                           <div>
                             <div className="text-sm font-medium text-ds-900">{product.name}</div>
                               <div className="text-sm text-ds-700">
@@ -581,13 +579,13 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                 </p>
                 <div className="mt-4 p-3 bg-gray-50 rounded-md">
                   <div className="flex items-center space-x-3">
-                    {deleteModal.product.images && deleteModal.product.images.length > 0 && (
-                      <img
-                        className="h-10 w-10 rounded object-cover"
-                        src={deleteModal.product.images.find(img => img.isPrimary)?.url || deleteModal.product.images[0]?.url}
-                        alt={deleteModal.product.name}
-                      />
-                    )}
+                    {(() => {
+                      const p = deleteModal.product as any;
+                      const img = (p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0)
+                        ? (p.colors[0].images.find((i:any) => i.url)?.url || p.colors[0].images[0].url)
+                        : null;
+                      return img ? <img className="h-10 w-10 rounded object-cover" src={img} alt={deleteModal.product.name} /> : null;
+                    })()}
                     <div className="text-left">
                       <p className="text-sm font-medium text-gray-900">{deleteModal.product.name}</p>
                       <p className="text-sm text-gray-500">SKU: {deleteModal.product.sku}</p>

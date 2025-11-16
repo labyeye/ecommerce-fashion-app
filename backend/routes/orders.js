@@ -45,7 +45,7 @@ router.get('/track/:orderNumber', async (req, res) => {
 
     const order = await Order.findOne({ orderNumber })
       .populate('customer', 'firstName lastName email')
-      .populate('items.product', 'name price images');
+      .populate('items.product');
 
     if (!order) {
       return res.status(404).json({
@@ -68,7 +68,9 @@ router.get('/track/:orderNumber', async (req, res) => {
       items: order.items.map(item => ({
         product: {
           name: item.product.name,
-          images: item.product.images
+          images: (item.product.images && item.product.images.length > 0)
+            ? item.product.images
+            : (item.product.colors && item.product.colors.length > 0 ? (item.product.colors[0].images || []) : [])
         },
         quantity: item.quantity,
         price: item.price,
@@ -96,7 +98,7 @@ router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('customer', 'firstName lastName email')
-      .populate('items.product', 'name price images description');
+      .populate('items.product');
 
     if (!order) {
       return res.status(404).json({
@@ -124,7 +126,9 @@ router.get('/:id', async (req, res) => {
       items: order.items.map(item => ({
         product: {
           name: item.product.name,
-          images: item.product.images
+          images: (item.product.images && item.product.images.length > 0)
+            ? item.product.images
+            : (item.product.colors && item.product.colors.length > 0 ? (item.product.colors[0].images || []) : [])
         },
         quantity: item.quantity,
         price: item.price,

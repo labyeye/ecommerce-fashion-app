@@ -323,9 +323,9 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
+              <h4 className="text-3xl font-light text-[#95522C] tracking-wide mb-3">
                 {userData.name}
-              </h1>
+              </h4>
               <p className="text-[#95522C] mb-2 text-xl">{userData.email}</p>
               <p className="text-[#95522C] mb-4 text-lg">
                 Member since {userData.joinDate}
@@ -360,9 +360,9 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Crown className="w-8 h-8 text-[#FFD700]" />
-            <h2 className="text-2xl font-bold" style={{ color: "#95522C" }}>
+            <h4 className="text-2xl font-bold" style={{ color: "#95522C" }}>
               Loyalty Program
-            </h2>
+            </h4>
           </div>
           <div
             className="rounded-xl p-6 mb-6"
@@ -373,14 +373,14 @@ const ProfilePage: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3
+                <h4 
                   className="text-xl font-bold mb-2"
                   style={{ color: "#95522C" }}
                 >
                   Current Tier:{" "}
                   {userData.currentTier.charAt(0).toUpperCase() +
                     userData.currentTier.slice(1)}
-                </h3>
+                </h4>
                 <p style={{ color: "#5a4a42" }}>
                   Tier Points: {userData.loyaltyPoints} | Evolv Points:{" "}
                   {userData.evolvPoints}
@@ -643,6 +643,20 @@ const ProfilePage: React.FC = () => {
                         <p className="font-semibold text-[#2B463C]">
                           ₹{order.total}
                         </p>
+
+                        {/* Delhivery / shipment identifier (if available) */}
+                        {(order.shipment) && (
+                          <div className="text-sm text-gray-600 mt-2">
+                            { (order.shipment.shipmentId || order.shipment.awb) && (
+                              <p>Delhivery ID: <span className="font-medium">{order.shipment.shipmentId || order.shipment.awb}</span></p>
+                            )}
+                            {order.shipment.trackingUrl && (
+                              <a href={order.shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">Track</a>
+                            )}
+                            {order.shipment.name && <p className="text-xs text-gray-500 mt-1">Consignee: {order.shipment.name}</p>}
+                            {order.shipment.pincode && <p className="text-xs text-gray-500">Pincode: {order.shipment.pincode}</p>}
+                          </div>
+                        )}
 
                         <div className="mt-2 p-3 bg-[#688F4E]/10 rounded-lg">
                           <div className="flex items-center justify-between text-sm">

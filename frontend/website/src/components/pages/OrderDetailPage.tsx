@@ -17,11 +17,9 @@ import {
   Loader2,
   MapPin,
   AlertCircle,
-  Eye,
   Download,
   Printer,
   MessageCircle,
-  Shield,
   Zap,
 } from "lucide-react";
 
@@ -263,9 +261,9 @@ const OrderDetailPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-3xl font-bold text-[##95522C]">
+                  <h4 className="text-3xl poppins-numeric text-[#95522C]">
                     Order #{order.order.orderNumber}
-                  </h1>
+                  </h4>
                   <p className="text-[#95522C] mt-1">
                     Placed on {formatDate(order.order.createdAt)}
                   </p>
@@ -324,24 +322,21 @@ const OrderDetailPage: React.FC = () => {
               </div> */}
               {order.order.timeline && order.order.timeline.length > 0 && (
                 <div>
-                  <h3 className="text-md font-semibold text-[#95522C] mb-3">
+                  <h4 className="text-md font-semibold text-[#95522C] mb-3">
                     Order Updates
-                  </h3>
+                  </h4>
                   <div className="space-y-3">
                     {order.order.timeline.map((entry: any, index: number) => (
                       <div
                         key={index}
-                        className="flex items-start gap-3 p-3 bg-[#95522C] rounded-lg"
+                        className="flex items-start gap-3 p-3 bg-beige rounded-lg"
                       >
                         <div className="flex-shrink-0">
                           {getStatusIcon(entry.status)}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-[#95522C]">
-                            {entry.status.charAt(0).toUpperCase() +
-                              entry.status.slice(1).replace(/_/g, " ")}
-                          </p>
-                          <p className="text-[#95522C] text-sm">
+                          
+                          <p className="text-[#95522C] poppins-numeric text-sm">
                             {entry.message}
                           </p>
                           <p className="text-gray-500 text-xs mt-1">
@@ -359,45 +354,89 @@ const OrderDetailPage: React.FC = () => {
 
             {/* Order Items */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-3xl font-bold text-[##95522C] mb-4">
+              <h4 className="text-3xl font-bold text-[##95522C] mb-4">
                 Order Items
-              </h2>
+              </h4>
               <div className="space-y-4">
                 {order.order.items.map((item: any, index: number) => (
                   <div
                     key={index}
                     className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg"
                   >
-                    <img
-                      src={
-                        item.product?.images?.[0] ||
-                        "/assets/img-placeholder-80.png"
-                      }
-                      alt={item.product?.name}
-                      className="w-20 h-20 object-cover rounded-lg"
-                      onError={(e) => {
-                        const t = e.target as HTMLImageElement;
-                        if (!t.dataset.errored) {
-                          t.dataset.errored = "1";
-                          t.src = "/assets/img-placeholder-80.png";
+                    {(() => {
+                      const p: any = item.product || {};
+                      let img = null;
+
+                      // Prefer color-specific images when available
+                      try {
+                        if (p.colors && p.colors.length > 0) {
+                          const c = p.colors[0];
+                          if (c && c.images && c.images.length > 0) {
+                            const first = c.images[0];
+                            img = typeof first === 'string' ? first : first?.url || null;
+                          }
                         }
-                      }}
-                    />
+                      } catch (err) {
+                        img = null;
+                      }
+
+                      // Fallback to top-level `images` (some records use this shape)
+                      if (!img && p.images && Array.isArray(p.images) && p.images.length > 0) {
+                        const first = p.images[0];
+                        img = typeof first === 'string' ? first : first?.url || null;
+                      }
+
+                      // Fallback to single `image` field
+                      if (!img && (p.image || p.img)) {
+                        img = p.image || p.img;
+                      }
+
+                      // Resolve relative URLs to absolute so browser can fetch images correctly
+                      const resolveImage = (u: string | null) => {
+                        if (!u) return null;
+                        try {
+                          // If it's already an absolute URL, return as-is
+                          const lc = u.toLowerCase();
+                          if (lc.startsWith('http://') || lc.startsWith('https://') || lc.startsWith('//')) return u;
+                          // If it starts with a leading slash, prefix with origin
+                          if (u.startsWith('/')) return `${window.location.origin}${u}`;
+                          // Otherwise also prefix with origin
+                          return `${window.location.origin}/${u}`;
+                        } catch (e) {
+                          return u;
+                        }
+                      };
+
+                      const finalImg = resolveImage(img) || '/assets/img-placeholder-80.png';
+                      return (
+                        <img
+                          src={finalImg}
+                          alt={item.product?.name}
+                          className="w-20 h-20 object-cover rounded-lg"
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement;
+                            if (!t.dataset.errored) {
+                              t.dataset.errored = '1';
+                              t.src = '/assets/img-placeholder-80.png';
+                            }
+                          }}
+                        />
+                      );
+                    })()}
                     <div className="flex-1">
-                      <h3 className="font-semibold text-[##95522C]">
+                      <h5 className="font-semibold text-[##95522C]">
                         {item.product?.name}
-                      </h3>
-                      <p className="text-[#95522C] text-sm mb-2">
-                        {item.product?.description}
-                      </p>
+                      </h5>
                       <div className="flex items-center justify-between">
-                        <div className="text-sm text-[#95522C]">
+                        <div className="text-xl text-[#95522C]">
+                          <span>Size: {item.size || "-"}</span>
+                          <span className="mx-2">•</span>
                           <span>Quantity: {item.quantity}</span>
                           <span className="mx-2">•</span>
-                          <span>₹{item.price?.toFixed(2)} each</span>
+                          <span className="text-lg poppins-numeric">₹{item.price?.toFixed(2)}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-[#95522C]">
+                          <p className="font-semibold text-[#95522C] poppins-numeric">
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
@@ -408,8 +447,7 @@ const OrderDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Loyalty Points Section */}
-            {order.loyaltyInfo && (
+            {/* {order.loyaltyInfo && (
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Gift className="w-6 h-6 text-[#95522C]" />
@@ -419,7 +457,6 @@ const OrderDetailPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Current Tier */}
                   <div className="bg-gradient-to-r from-[#95522C]/10 10 p-4 rounded-lg">
                     <div className="flex items-center gap-3 mb-3">
                       {order.loyaltyInfo.currentTier === "bronze" && (
@@ -440,7 +477,6 @@ const OrderDetailPage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Points from this order */}
                   <div className="bg-gradient-to-r from-[#95522C]/10 10 p-4 rounded-lg">
                     <div className="flex items-center gap-3 mb-3">
                       <Zap className="w-6 h-6 text-[#95522C]" />
@@ -455,7 +491,9 @@ const OrderDetailPage: React.FC = () => {
                       </div>
                       {order.order.status === "delivered" && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-[#95522C]">Delivery Bonus:</span>
+                          <span className="text-[#95522C]">
+                            Delivery Bonus:
+                          </span>
                           <span className="font-medium text-[#95522C]">
                             +{order.deliveryBonusPoints}
                           </span>
@@ -468,7 +506,6 @@ const OrderDetailPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Progress to next tier */}
                   <div className="bg-gradient-to-r from-[#95522C]/10 p-4 rounded-lg">
                     <h3 className="font-semibold mb-3">
                       Progress to Next Tier
@@ -489,39 +526,73 @@ const OrderDetailPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Order Summary */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-3xl font-semibold text-[##95522C] mb-4">
+              <h4 className="text-3xl font-semibold text-[##95522C] mb-4">
                 Order Summary
-              </h3>
+              </h4>
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-[#95522C]">Subtotal:</span>
-                  <span className="font-medium">
-                    ₹{order.order.subtotal?.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-[#95522C]">Shipping:</span>
-                  <span className="font-medium">
-                    ₹{order.order.shipping?.cost?.toFixed(2) || "0.00"}
-                  </span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-[#95522C]">Tax:</span>
-                  <span className="font-medium">
-                    ₹{order.order.tax?.toFixed(2) || "0.00"}
-                  </span>
-                </div>
-                <div className="flex justify-between py-3 font-bold text-lg text-[##95522C]">
-                  <span>Total:</span>
-                  <span>₹{order.order.total?.toFixed(2)}</span>
-                </div>
+                {(() => {
+                  // Some code paths store shipping cost as top-level `shippingCost` (older code)
+                  // while schema uses `shipping.cost`. Provide fallbacks so the UI always shows values.
+                  const subtotal =
+                    typeof order.order.subtotal === 'number'
+                      ? order.order.subtotal
+                      : order.order.subTotal || 0;
+
+                  let shippingCost =
+                    (order.order.shipping && typeof order.order.shipping.cost === 'number')
+                      ? order.order.shipping.cost
+                      : typeof order.order.shippingCost === 'number'
+                      ? order.order.shippingCost
+                      : typeof order.order.shippingCostCalculated === 'number'
+                      ? order.order.shippingCostCalculated
+                      : typeof order.order.shipping_cost === 'number'
+                      ? order.order.shipping_cost
+                      : 0;
+
+                  // Fallback to the common flat shipping used by the server if nothing is present.
+                  // This avoids showing 0 when the value is missing in older records.
+                  if (!shippingCost) shippingCost = 150;
+
+                  const tax =
+                    typeof order.order.tax === 'number'
+                      ? order.order.tax
+                      : order.order.taxAmount || 0;
+
+                  const total =
+                    typeof order.order.total === 'number'
+                      ? order.order.total
+                      : Math.round((subtotal + tax + shippingCost + Number.EPSILON) * 100) / 100;
+
+                  const fmt = (n: number) => `₹${(n || 0).toFixed(2)}`;
+
+                  return (
+                    <>
+                      <div className="flex justify-between py-2 border-b border-gray-200">
+                        <span className="text-[#95522C]">Subtotal:</span>
+                        <span className="poppins-numeric font-medium">{fmt(subtotal)}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-200">
+                        <span className="text-[#95522C]">Shipping:</span>
+                        <span className="poppins-numeric font-medium">{fmt(shippingCost)}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-200">
+                        <span className="text-[#95522C]">Tax:</span>
+                        <span className="poppins-numeric font-medium">{fmt(tax)}</span>
+                      </div>
+                      <div className="flex justify-between py-3 text-lg text-[#95522C]">
+                        <span>Total:</span>
+                        <span className="poppins-numeric">{fmt(total)}</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
@@ -529,9 +600,9 @@ const OrderDetailPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-5 h-5 text-[#95522C]" />
-                <h3 className="text-3xl font-semibold text-[##95522C]">
+                <h4 className="text-3xl font-semibold text-[##95522C]">
                   Shipping Address
-                </h3>
+                </h4>
               </div>
               <div className="space-y-2 text-[#95522C]">
                 <p>{order.order.shippingAddress?.street}</p>
@@ -548,20 +619,20 @@ const OrderDetailPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <CreditCard className="w-5 h-5 text-[#95522C]" />
-                <h3 className="text-3xl font-semibold text-[##95522C]">
+                <h4 className="text-3xl font-semibold text-[##95522C]">
                   Payment Information
-                </h3>
+                </h4>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#95522C]">Method:</span>
-                  <span className="capitalize font-medium">
+                  <p className="text-[#95522C]">Method:</p>
+                  <p className="capitalize font-medium">
                     {order.order.payment?.method?.replace(/_/g, " ")}
-                  </span>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[#95522C]">Status:</span>
-                  <span
+                  <p className="text-[#95522C]">Status:</p>
+                  <p
                     className={`capitalize px-2 py-1 rounded text-xs font-medium ${
                       order.order.payment?.status === "paid"
                         ? "bg-green-100 text-green-800"
@@ -569,13 +640,13 @@ const OrderDetailPage: React.FC = () => {
                     }`}
                   >
                     {order.order.payment?.status}
-                  </span>
+                  </p>
                 </div>
                 {order.order.payment?.transactionId && (
                   <div className="text-sm text-[#95522C]">
-                    <span>
+                    <p>
                       Transaction ID: {order.order.payment.transactionId}
-                    </span>
+                    </p>
                   </div>
                 )}
               </div>
@@ -583,9 +654,9 @@ const OrderDetailPage: React.FC = () => {
 
             {/* Order Actions */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-3xl font-semibold text-[##95522C] mb-4">
+              <h4 className="text-3xl font-semibold text-[##95522C] mb-4">
                 Order Actions
-              </h3>
+              </h4>
               <div className="space-y-3">
                 {order.order.status === "pending" && (
                   <>

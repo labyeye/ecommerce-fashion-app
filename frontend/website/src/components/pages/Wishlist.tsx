@@ -23,7 +23,6 @@ const Wishlist: React.FC = () => {
   // Helper function to get auth configuration
   const getAuthConfig = () => {
     const token = localStorage.getItem('token');
-    console.log('🔑 Token from localStorage:', token ? 'Token exists' : 'No token found');
     
     return token
       ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
@@ -39,18 +38,15 @@ const Wishlist: React.FC = () => {
     const fetchWishlist = async () => {
       try {
         const config = getAuthConfig();
-        console.log('📡 Fetching wishlist with config:', config);
         
         const res = await axios.get('https://ecommerce-fashion-app-som7.vercel.app/api/wishlist', config);
         setWishlist(res.data.wishlist || []);
-        console.log('✅ Wishlist fetched successfully:', res.data.wishlist?.length || 0, 'items');
       } catch (err: any) {
         console.error('❌ Error fetching wishlist:', err.response?.status, err.response?.data);
         setWishlist([]);
         
         if (err.response?.status === 401) {
           console.warn('🚫 Authentication failed - user may need to log in again');
-          // Optionally, you could trigger a logout here if the token is invalid
         }
       } finally {
         setLoading(false);
@@ -65,7 +61,6 @@ const Wishlist: React.FC = () => {
     
     try {
       const config = getAuthConfig();
-      console.log('➖ Removing from wishlist with config:', config);
       
       await axios.post(
         'https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/remove', 
@@ -75,7 +70,6 @@ const Wishlist: React.FC = () => {
       
       // Update local state immediately for better UX
       setWishlist(wishlist.filter(p => p._id !== productId));
-      console.log('✅ Removed from wishlist successfully');
       
     } catch (err: any) {
       console.error('❌ Error removing from wishlist:', err.response?.status, err.response?.data);
@@ -105,7 +99,10 @@ const Wishlist: React.FC = () => {
               description: product.description || '',
               sizes: product.sizes || [],
               colors: product.colors || [],
-              images: product.images || (product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : []),
+              // prefer color images; fall back to imageUrl if present
+              images: (product.colors && product.colors.length > 0 && product.colors[0].images && product.colors[0].images.length > 0)
+                ? product.colors[0].images
+                : (product.images || (product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : [])),
             };
             return (
               <div key={product._id} className="flex flex-col items-center">

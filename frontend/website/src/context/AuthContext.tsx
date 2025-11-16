@@ -5,7 +5,6 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-// import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -108,7 +107,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("AuthContext - Basic user data:", data.user);
 
         // Then get customer profile with loyalty data
         if (data.user.role === "customer") {
@@ -125,18 +123,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
-              console.log("AuthContext - Profile data:", profileData.data);
               // Merge the data
               const mergedUser = {
                 ...data.user,
                 ...profileData.data,
               };
-              console.log("AuthContext - Merged user data:", mergedUser);
               setUser(mergedUser);
             } else {
-              console.log(
-                "AuthContext - Profile fetch failed, using basic user data"
-              );
               setUser(data.user);
             }
           } catch (profileError) {

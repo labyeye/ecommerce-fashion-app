@@ -111,10 +111,6 @@ const getTierInfo = (tier: string) => {
       };
   }
 };
-// TODO: loyalty UI temporarily hidden in mobile menu — helper retained for future reuse
-// (Reference kept intentionally)
-// getTierInfo; // keep linter happy when we re-enable
-
 const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -145,16 +141,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   }, [isSearchOpen]);
 
   const { user } = useAuth();
-  // Keep getTierInfo referenced during development to avoid unused lint warnings
   useEffect(() => {
-    // noop reference to keep helper available and avoid lint errors
     void getTierInfo("bronze");
   }, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-
-  // Initialize with fallback navigation INCLUDING SHIRT
   useEffect(() => {
     const fallbackNavigation: NavigationLink[] = [
       {
@@ -215,20 +207,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     ];
     setNavigationLinks(fallbackNavigation);
 
-    // Try to fetch from API
     const fetchNavigation = async () => {
       try {
-        console.log("🌐 Fetching navigation from API...");
         const response = await fetch(
           "https://ecommerce-fashion-app-som7.vercel.app/api/navigation/public"
         );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            console.log("✅ API navigation received:", data.data);
             let navLinks: NavigationLink[] = data.data;
 
-            // Also fetch categories navigation and merge into Products dropdown
             try {
               const catResp = await fetch(
                 "https://ecommerce-fashion-app-som7.vercel.app/api/categories/navigation"
@@ -237,18 +225,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 const catData = await catResp.json();
                 const categories = catData.data || [];
 
-                // Build dropdown items from categories (root categories + their subcategories)
                 const categoryItems: Array<any> = [];
                 categories.forEach((cat: any) => {
-                  // root category
                   categoryItems.push({
                     name: cat.name,
                     url: `/products?category=${cat.slug}`,
                     isActive: cat.isActive,
                     sortOrder: cat.sortOrder,
                   });
-
-                  // add subcategories if present
                   if (Array.isArray(cat.subcategories)) {
                     cat.subcategories.forEach((sub: any) => {
                       categoryItems.push({
@@ -260,14 +244,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     });
                   }
                 });
-
-                // Find a Products nav item and merge
                 const productsIndex = navLinks.findIndex(
                   (n) => n.type === "category" || n.slug === "products"
                 );
                 if (productsIndex !== -1) {
                   const updated = { ...navLinks[productsIndex] };
-                  // merge unique items (avoid duplicates by url)
                   const existingUrls = new Set(
                     (updated.dropdownItems || []).map((d: any) => d.url)
                   );
@@ -280,7 +261,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   );
                   navLinks[productsIndex] = updated as NavigationLink;
                 } else {
-                  // if no products item, add a Categories nav link
                   navLinks.push({
                     _id: "categories-nav",
                     name: "Categories",
@@ -319,7 +299,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       setShowLoginModal(true);
     }
   };
-  // Search function with detailed logging
   const performSearch = async (term: string) => {
     if (!term || term.length < 2) {
       setSearchResults([]);
@@ -330,30 +309,23 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     setSearchLoading(true);
 
     try {
-      // Search in navigation first (guaranteed to work)
       const searchLower = term.toLowerCase();
       const matchingPages: NavigationLink[] = [];
 
       navigationLinks.forEach((link) => {
         if (!link.isActive) return;
-
-        // Check main navigation item
         if (
           link.name.toLowerCase().includes(searchLower) ||
           link.slug.toLowerCase().includes(searchLower)
         ) {
-          console.log("✅ Found matching page:", link.name);
           matchingPages.push(link);
         }
-
-        // Check dropdown items
         if (link.hasDropdown && link.dropdownItems) {
           link.dropdownItems.forEach((item) => {
             if (
               item.isActive &&
               item.name.toLowerCase().includes(searchLower)
             ) {
-              console.log("✅ Found matching category:", item.name);
               const virtualLink: NavigationLink = {
                 _id: `${link._id}-${item.name}`,
                 name: item.name,
@@ -371,14 +343,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         }
       });
 
-      console.log("🔍 Total matching pages found:", matchingPages.length);
       setPageResults(matchingPages);
-
-      // Try to search products from API
       let products: Product[] = [];
 
       try {
-        console.log("🌐 Searching products via API...");
         const productResponse = await fetch(
           `/api/products?search=${encodeURIComponent(term)}&limit=10`
         );
@@ -392,7 +360,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             try {
               const data = await productResponse.json();
               products = data.products || data.data || [];
-              console.log("✅ Products found from main API:", products.length);
             } catch (parseErr) {
               console.warn(
                 "⚠️ Failed to parse main API JSON, will try alternative:",
@@ -413,8 +380,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             "trying alternative..."
           );
         }
-
-        // If products still empty, try the local/alternative API as a fallback
         if (!products || products.length === 0) {
           try {
             const altResponse = await fetch(
@@ -431,10 +396,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 try {
                   const altData = await altResponse.json();
                   products = altData.products || altData.data || [];
-                  console.log(
-                    "✅ Products found from alt API:",
-                    products.length
-                  );
+                  
                 } catch (altParseErr) {
                   console.warn("⚠️ Failed to parse alt API JSON:", altParseErr);
                 }
@@ -457,12 +419,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       }
 
       setSearchResults(products);
-      console.log(
-        "🔍 Final search results - Pages:",
-        matchingPages.length,
-        "Products:",
-        products.length
-      );
+      
     } catch (error) {
       console.error("❌ Search error:", error);
       setSearchResults([]);
@@ -476,18 +433,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   // Debounced search effect
   useEffect(() => {
     if (!isSearchOpen) {
-      console.log("🔍 Search modal closed, skipping search");
       return;
     }
-
-    console.log("🔍 Search term changed:", searchTerm);
-
     const timeout = setTimeout(() => {
       performSearch(searchTerm);
     }, 300);
 
     return () => {
-      console.log("🔍 Clearing search timeout");
       clearTimeout(timeout);
     };
   }, [searchTerm, isSearchOpen, navigationLinks]);
@@ -529,12 +481,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   };
 
   const handleSearchOpen = () => {
-    console.log("🔍 Opening search modal");
     setIsSearchOpen(true);
     setTimeout(() => {
       if (searchInputRef.current) {
         searchInputRef.current.focus();
-        console.log("🔍 Search input focused");
       }
     }, 100);
   };
@@ -782,21 +732,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                         >
                                           <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                            {product.images?.[0]?.url ||
-                                            product.imageUrl ? (
-                                              <img
-                                                src={
-                                                  product.images?.[0]?.url ||
-                                                  product.imageUrl
-                                                }
-                                                alt={product.name}
-                                                className="w-full h-full object-cover"
-                                              />
-                                            ) : (
-                                              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                <ShoppingCart className="w-4 h-4" />
-                                              </div>
-                                            )}
+                                            {(() => {
+                                              const p: any = product;
+                                              const imgSrc = p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0
+                                                ? p.colors[0].images[0].url
+                                                : p.imageUrl || null;
+                                              return imgSrc ? (
+                                                <img src={imgSrc} alt={p.name} className="w-full h-full object-cover" />
+                                              ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                  <ShoppingCart className="w-4 h-4" />
+                                                </div>
+                                              );
+                                            })()}
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <p className="font-medium text-gray-900 truncate text-sm m-0">
@@ -932,7 +880,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               >
                 <HandbagIcon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 text-fashion-dark-gray" />
                 {cartCount > 0 && (
-                  <p className="absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
+                  <p className="absolute -top-1 -right-1 rounded-full poppins-numeric bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
                     {cartCount}
                   </p>
                 )}
@@ -1180,21 +1128,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                     className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                   >
                                     <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                      {product.images?.[0]?.url ||
-                                      product.imageUrl ? (
-                                        <img
-                                          src={
-                                            product.images?.[0]?.url ||
-                                            product.imageUrl
-                                          }
-                                          alt={product.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                          <ShoppingCart className="w-4 h-4" />
-                                        </div>
-                                      )}
+                                      {(() => {
+                                        const p: any = product;
+                                        const imgSrc = p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0
+                                          ? p.colors[0].images[0].url
+                                          : p.imageUrl || null;
+                                        return imgSrc ? (
+                                          <img src={imgSrc} alt={p.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                            <ShoppingCart className="w-4 h-4" />
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="font-medium text-gray-900 truncate text-sm m-0">

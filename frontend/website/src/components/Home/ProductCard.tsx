@@ -100,9 +100,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const currentPrice = product.salePrice || product.price;
   const getProductImages = () => {
     const images = [];
-    if (product.images && product.images.length > 0) {
-      images.push(...product.images);
-    }
     if (product.colors && product.colors.length > 0) {
       product.colors.forEach((color) => {
         if (color.images && color.images.length > 0) {

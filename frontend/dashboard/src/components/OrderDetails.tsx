@@ -264,26 +264,35 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </span>
-          {order && (order as any).shipment && (order as any).shipment.awb ? (
-            <div className="px-4 py-2 bg-yellow-50 rounded-lg text-yellow-800">
-              This order is synced with Delhivery. Status will update automatically.
-            </div>
-          ) : (
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={order.status}
-              onChange={(e) => handleStatusUpdate(e.target.value)}
-              disabled={updatingStatus}
-            >
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="refunded">Refunded</option>
-            </select>
-          )}
+          {(() => {
+            const awbVal = (order as any).awb || (order as any).trackingNumber || (order as any).shipment?.awb;
+            if (awbVal) {
+              return (
+                <div className="px-4 py-2 bg-yellow-50 rounded-lg text-yellow-800 flex items-center space-x-3">
+                  <div>
+                    <div className="font-medium">Synced with Delhivery</div>
+                    <div className="text-sm">AWB: <a className="font-semibold text-yellow-800 hover:underline" href={`https://track.delhivery.com/?waybill=${awbVal}`} target="_blank" rel="noopener noreferrer">{awbVal}</a></div>
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <select
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={order.status}
+                onChange={(e) => handleStatusUpdate(e.target.value)}
+                disabled={updatingStatus}
+              >
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            );
+          })()}
           {updatingStatus && (
             <div className="flex items-center space-x-2 text-sm text-blue-600">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -340,11 +349,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <div className="space-y-4">
               {order.items.map((item) => (
                 <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <img
-                    src={item.product.images?.[0]?.url || '/assets/img-placeholder-80.png'}
-                    alt={item.product.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
+                  {(() => {
+                    const p: any = item.product;
+                    const img = (p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0)
+                      ? (p.colors[0].images[0].url)
+                      : null;
+                    return <img src={img || '/assets/img-placeholder-80.png'} alt={item.product.name} className="w-16 h-16 object-cover rounded-lg" />;
+                  })()}
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{item.product.name}</h4>
                     <p className="text-sm text-gray-500">{item.product.description}</p>
@@ -576,9 +587,34 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   </div>
                 )}
               </div>
-              <button className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
-                Add Tracking Info
-              </button>
+              {/* Create / Retry shipment action for admin */}
+              {order && !(order as any).shipment?.awb ? (
+                <button
+                  onClick={async () => {
+                    if (!token) return alert('Not authenticated');
+                    try {
+                      const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/create-shipment`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                      });
+                      const json = await resp.json();
+                      if (!resp.ok) throw new Error(json.message || 'Failed to create shipment');
+                      alert('Shipment created successfully');
+                      // refresh order details
+                      const details = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/details`, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+                      const djson = await details.json();
+                      if (details.ok) setOrder(djson.data.order);
+                    } catch (e: any) {
+                      alert('Create shipment failed: ' + (e.message || e));
+                    }
+                  }}
+                  className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
+                >
+                  Create Shipment (Delhivery)
+                </button>
+              ) : (
+                <div className="w-full px-4 py-2 bg-yellow-50 text-yellow-800 rounded-lg">Shipment exists: <span className="font-medium">{(order as any).shipment?.shipmentId || (order as any).shipment?.awb}</span></div>
+              )}
               <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
                 Send Update Email
               </button>

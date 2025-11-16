@@ -21,12 +21,6 @@ interface Color {
   sizes?: Size[];
 }
 
-interface ImageItem {
-  url: string;
-  alt: string;
-  isPrimary?: boolean;
-}
-
 interface ProductFormData {
   name: string;
   sku: string;
@@ -101,12 +95,12 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
       sizes: [
         { size: "S", stock: 0, price: 0 },
         { size: "M", stock: 0, price: 0 },
-        { size: "L", stock: 0, price: 0 }
-      ]
+        { size: "L", stock: 0, price: 0 },
+      ],
     },
   ]);
 
-  const [images, setImages] = useState<ImageItem[]>([{ url: "", alt: "", isPrimary: true }]);
+  // Top-level images removed: use per-color images instead
   const [currentTag, setCurrentTag] = useState("");
   const [currentKeyword, setCurrentKeyword] = useState("");
   const [currentFeature, setCurrentFeature] = useState("");
@@ -217,7 +211,6 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 : priceValue,
           })),
         })),
-        images: images.filter((img) => img.url),
         seo: {
           title: formData.seoTitle,
           description: formData.seoDescription,
@@ -320,13 +313,15 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     }));
   };
 
-              
   // Per-color size management
   const addColorSize = (colorIndex: number) => {
     setColors((prev) =>
       prev.map((c, i) =>
         i === colorIndex
-          ? { ...c, sizes: [...(c.sizes || []), { size: "", stock: 0, price: 0 }] }
+          ? {
+              ...c,
+              sizes: [...(c.sizes || []), { size: "", stock: 0, price: 0 }],
+            }
           : c
       )
     );
@@ -345,7 +340,13 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
               ...c,
               sizes: (c.sizes || []).map((s, si) =>
                 si === sizeIndex
-                  ? { ...s, [field]: field === "stock" || field === "price" ? Number(value) : value }
+                  ? {
+                      ...s,
+                      [field]:
+                        field === "stock" || field === "price"
+                          ? Number(value)
+                          : value,
+                    }
                   : s
               ),
             }
@@ -384,9 +385,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
   const addColor = () => {
     // Prefill a new color with default size options so admin can enter qty per size
     const defaultSizes: Size[] = [
-      { size: 'S', stock: 0, price: 0 },
-      { size: 'M', stock: 0, price: 0 },
-      { size: 'L', stock: 0, price: 0 },
+      { size: "S", stock: 0, price: 0 },
+      { size: "M", stock: 0, price: 0 },
+      { size: "L", stock: 0, price: 0 },
     ];
     setColors((prev) => [
       ...prev,
@@ -400,31 +401,57 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
     ]);
   };
 
+  // Per-color image management (max 5 images per color)
+  const addColorImage = (colorIndex: number) => {
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex && (c.images || []).length < 5
+          ? { ...c, images: [...(c.images || []), { url: "", alt: "" }] }
+          : c
+      )
+    );
+  };
+
+  const updateColorImage = (
+    colorIndex: number,
+    imgIndex: number,
+    field: keyof Color["images"][0],
+    value: string
+  ) => {
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex
+          ? {
+              ...c,
+              images: (c.images || []).map((img, ii) =>
+                ii === imgIndex ? { ...img, [field]: value } : img
+              ),
+            }
+          : c
+      )
+    );
+  };
+
+  const removeColorImage = (colorIndex: number, imgIndex: number) => {
+    setColors((prev) =>
+      prev.map((c, i) =>
+        i === colorIndex
+          ? {
+              ...c,
+              images: (c.images || []).filter((_, ii) => ii !== imgIndex),
+            }
+          : c
+      )
+    );
+  };
+
   const removeColor = (index: number) => {
     if (colors.length > 1) {
       setColors((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
-  const addImage = () => {
-    setImages((prev) => [...prev, { url: "", alt: "", isPrimary: false }]);
-  };
-
-  const updateImage = (
-    index: number,
-    field: keyof ImageItem,
-    value: string | boolean
-  ) => {
-    setImages((prev) =>
-      prev.map((img, i) => (i === index ? { ...img, [field]: value } : img))
-    );
-  };
-
-  const removeImage = (index: number) => {
-    if (images.length > 1) {
-      setImages((prev) => prev.filter((_, i) => i !== index));
-    }
-  };
+  // images are managed per-color now (see color.images)
 
   return (
     <div className="space-y-6">
@@ -669,7 +696,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
 
           {/* Key Features */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Key Features
+            </h3>
             <div className="flex items-center space-x-2">
               <input
                 type="text"
@@ -682,7 +711,10 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 type="button"
                 onClick={() => {
                   if (currentFeature.trim()) {
-                    setFormData(prev => ({ ...prev, keyFeatures: [...prev.keyFeatures, currentFeature.trim()] }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      keyFeatures: [...prev.keyFeatures, currentFeature.trim()],
+                    }));
                     setCurrentFeature("");
                   }
                 }}
@@ -693,9 +725,25 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
             </div>
             <div className="mt-3 space-y-2">
               {formData.keyFeatures.map((f, i) => (
-                <div key={i} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded">
+                <div
+                  key={i}
+                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded"
+                >
                   <div className="text-sm">{f}</div>
-                  <button type="button" onClick={() => setFormData(prev => ({ ...prev, keyFeatures: prev.keyFeatures.filter((_, idx) => idx !== i) }))} className="text-red-500 text-sm">Remove</button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        keyFeatures: prev.keyFeatures.filter(
+                          (_, idx) => idx !== i
+                        ),
+                      }))
+                    }
+                    className="text-red-500 text-sm"
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
@@ -789,100 +837,149 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                   {/* Sizes for this color */}
                   <div className="mt-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium">Sizes for {color.name || `Color ${index + 1}`}</h4>
-                      <button type="button" onClick={() => addColorSize(index)} className="px-2 py-1 bg-black text-white rounded text-sm">Add Size</button>
+                      <h4 className="text-sm font-medium">
+                        Sizes for {color.name || `Color ${index + 1}`}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => addColorSize(index)}
+                        className="px-2 py-1 bg-black text-white rounded text-sm"
+                      >
+                        Add Size
+                      </button>
                     </div>
                     <div className="space-y-2">
                       {(color.sizes || []).map((s, si) => (
-                        <div key={si} className="grid grid-cols-4 gap-3 items-center">
-                          <input type="text" value={s.size} onChange={(e) => updateColorSize(index, si, 'size', e.target.value)} placeholder="Size (e.g., S)" className="px-3 py-2 border rounded" />
-                          <input type="number" value={s.stock} min={0} onChange={(e) => updateColorSize(index, si, 'stock', Number(e.target.value))} className="px-3 py-2 border rounded" />
-                          <input type="number" step="0.01" value={s.price} min={0} onChange={(e) => updateColorSize(index, si, 'price', Number(e.target.value))} className="px-3 py-2 border rounded" />
+                        <div
+                          key={si}
+                          className="grid grid-cols-4 gap-3 items-center"
+                        >
+                          <input
+                            type="text"
+                            value={s.size}
+                            onChange={(e) =>
+                              updateColorSize(index, si, "size", e.target.value)
+                            }
+                            placeholder="Size (e.g., S)"
+                            className="px-3 py-2 border rounded"
+                          />
+                          <input
+                            type="number"
+                            value={s.stock}
+                            min={0}
+                            onChange={(e) =>
+                              updateColorSize(
+                                index,
+                                si,
+                                "stock",
+                                Number(e.target.value)
+                              )
+                            }
+                            className="px-3 py-2 border rounded"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={s.price}
+                            min={0}
+                            onChange={(e) =>
+                              updateColorSize(
+                                index,
+                                si,
+                                "price",
+                                Number(e.target.value)
+                              )
+                            }
+                            className="px-3 py-2 border rounded"
+                          />
                           <div className="flex items-center space-x-2">
-                            <div className="text-sm text-gray-500">{s.price > 0 ? `₹${s.price}` : 'Default price'}</div>
-                            <button type="button" onClick={() => removeColorSize(index, si)} className="text-red-500 text-sm">Remove</button>
+                            <div className="text-sm text-gray-500">
+                              {s.price > 0 ? `₹${s.price}` : "Default price"}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeColorSize(index, si)}
+                              className="text-red-500 text-sm"
+                            >
+                              Remove
+                            </button>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Images */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Product Images
-              </h3>
-              <button
-                type="button"
-                onClick={addImage}
-                className="flex items-center space-x-1 px-3 py-1 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Image</span>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {images.map((image, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-lg p-4"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Image URL *
-                      </label>
-                      <input
-                        type="url"
-                        value={image.url}
-                        onChange={(e) =>
-                          updateImage(index, "url", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                        placeholder="https://example.com/image.jpg"
-                        required
-                      />
+                  {/* Images for this color */}
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium">
+                        Images for {color.name || `Color ${index + 1}`}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => addColorImage(index)}
+                        className="px-2 py-1 bg-black text-white rounded text-sm"
+                        disabled={(color.images || []).length >= 5}
+                      >
+                        Add Image
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Alt Text
-                      </label>
-                      <input
-                        type="text"
-                        value={image.alt}
-                        onChange={(e) =>
-                          updateImage(index, "alt", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                        placeholder="Image description"
-                      />
-                    </div>
-                    <div className="flex items-end space-x-2">
-                      <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={image.isPrimary}
-                          onChange={(e) =>
-                            updateImage(index, "isPrimary", e.target.checked)
-                          }
-                          className="rounded"
-                        />
-                        <span className="text-sm text-gray-700">Primary</span>
-                      </label>
-                      {images.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="px-3 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                    <div className="space-y-2">
+                      {(color.images || []).map((img, imi) => (
+                        <div
+                          key={imi}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border p-3 rounded"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Image URL
+                            </label>
+                            <input
+                              type="url"
+                              value={img.url}
+                              onChange={(e) =>
+                                updateColorImage(
+                                  index,
+                                  imi,
+                                  "url",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="https://example.com/image.jpg"
+                              className="w-full px-3 py-2 border rounded"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Alt Text
+                            </label>
+                            <input
+                              type="text"
+                              value={img.alt}
+                              onChange={(e) =>
+                                updateColorImage(
+                                  index,
+                                  imi,
+                                  "alt",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Alt text"
+                              className="w-full px-3 py-2 border rounded"
+                            />
+                          </div>
+                          <div className="flex items-end">
+                            {(color.images || []).length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeColorImage(index, imi)}
+                                className="px-3 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

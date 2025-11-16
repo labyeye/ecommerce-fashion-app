@@ -42,24 +42,34 @@ const Footer: React.FC = () => {
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
             </p>
-            <div className="flex space-x-3 sm:space-x-4 mt-7 mb-6">
-              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
-                <Facebook className="w-7 h-7 sm:w-7 sm:h-7" />
-              </button>
-              <button className="w-10 h-10 sm:w-10 sm:h-10  flex items-center justify-center transition-all duration-300">
-                <Instagram className="w-7 h-7 sm:w-7 sm:h-7" />
-              </button>
+            <div className="flex space-x-3 sm:space-x-4 mt-12 items-center" role="navigation" aria-label="Social links">
+              <a
+                href="#"
+                aria-label="Facebook"
+                className="w-10 h-10 flex-row items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+
+              <a
+                href="#"
+                aria-label="Instagram"
+                className="w-10 h-10 flex-row items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+
               <a
                 href="https://wa.me/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat on WhatsApp"
-                className="w-8 h-8 sm:w-10 sm:h-10  flex items-center justify-center hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 flex-row items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
               >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384023.png"
                   alt="WhatsApp"
-                  className="w-7 h-7 sm:w-7 sm:h-7 object-contain"
+                  className="w-6 h-6 object-contain"
                   loading="lazy"
                 />
               </a>

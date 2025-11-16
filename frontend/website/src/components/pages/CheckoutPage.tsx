@@ -129,36 +129,32 @@ const CheckoutPage: React.FC = () => {
     setShipping(payload);
     if (useSameAddress) setBilling(payload);
   };
-
-  // Debug: Log cart items when they change
   useEffect(() => {
-    console.log("Cart items in checkout:", cartItems);
-    console.log("Cart loading state:", isLoading);
-    console.log("Cart items length:", cartItems.length);
-    console.log("Cart items details:", JSON.stringify(cartItems, null, 2));
   }, [cartItems, isLoading]);
-
-  // Auto-fill billing address when useSameAddress is true
   useEffect(() => {
     if (useSameAddress) {
       setBilling(shipping);
     }
   }, [shipping, useSameAddress]);
-
-  // Ensure the calculation uses the correct price from cart items
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const shippingCost = subtotal > 1000 ? 0 : 50;
-  const tax = subtotal * 0.08;
+  const SHIPPING_FLAT: number = 150;
+  let baseAmount = 0; // a
+  let taxAmount = 0; // b
+  for (const item of cartItems) {
+    const qty = Number(item.quantity || 1);
+    const price = Number(item.price || 0);
+    const basePerUnit = price / 1.05;
+    const taxPerUnit = basePerUnit * 0.05;
+    baseAmount += basePerUnit * qty;
+    taxAmount += taxPerUnit * qty;
+  }
+  // Round to 2 decimals for display
+  baseAmount = Math.round((baseAmount + Number.EPSILON) * 100) / 100;
+  taxAmount = Math.round((taxAmount + Number.EPSILON) * 100) / 100;
+  const shippingCost = SHIPPING_FLAT;
   const promoDiscountAmount = promoCode?.discountAmount || 0;
   const evolvDiscountAmount = evolvPointsRedemption?.discountAmount || 0;
   const totalDiscountAmount = promoDiscountAmount + evolvDiscountAmount;
-  const total = Math.max(
-    0,
-    subtotal + shippingCost + tax - totalDiscountAmount
-  );
+  const total = Math.max(0, baseAmount + taxAmount + shippingCost - totalDiscountAmount);
 
   const handleInput = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -220,9 +216,18 @@ const CheckoutPage: React.FC = () => {
 
   const processRazorpayPayment = async () => {
     try {
-      console.log("Starting Razorpay payment process...");
+      const normalizeAddress = (addr: any) => {
+        const z = addr?.zipCode || addr?.pincode || userProfile?.address?.zipCode || "";
+        return {
+          ...addr,
+          zipCode: String(z || ""),
+          pincode: String(z || ""),
+        };
+      };
 
-      // Create order data for Razorpay
+      const normalizedShipping = normalizeAddress(shipping);
+      const normalizedBilling = useSameAddress ? normalizedShipping : normalizeAddress(billing);
+
       const orderData = {
         items: cartItems.map((item) => ({
           product: item.id,
@@ -232,21 +237,16 @@ const CheckoutPage: React.FC = () => {
           color: item.color,
           itemTotal: item.price * item.quantity,
         })),
-        shippingAddress: shipping,
-        billingAddress: useSameAddress ? shipping : billing,
-        subtotal: subtotal,
-        shippingCost: shippingCost,
-        tax: tax,
-        total: total,
+        shippingAddress: normalizedShipping,
+        billingAddress: normalizedBilling,
+        // totals are computed server-side (server enforces base/tax/shipping formula)
         ...(promoCode?.code && { promoCode: promoCode.code }),
         evolvPointsToRedeem: evolvPointsRedemption?.pointsToRedeem || 0,
       };
 
-      console.log("Creating Razorpay order with data:", orderData);
 
       // Create Razorpay order
       const razorpayOrder = await razorpayService.createOrder(orderData);
-      console.log("Razorpay order created:", razorpayOrder);
 
       // Configure Razorpay options
       const options = {
@@ -258,9 +258,6 @@ const CheckoutPage: React.FC = () => {
         order_id: razorpayOrder.id,
         handler: async (response: RazorpayResponse) => {
           try {
-            console.log("Payment successful, verifying...", response);
-
-            // Verify payment with backend
             const verificationData = {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -271,9 +268,6 @@ const CheckoutPage: React.FC = () => {
             const verificationResult = await razorpayService.verifyPayment(
               verificationData
             );
-            console.log("Payment verification result:", verificationResult);
-
-            // Check if verification was successful
             if (
               verificationResult.success ||
               verificationResult.paymentStatus === "paid"
@@ -340,15 +334,11 @@ const CheckoutPage: React.FC = () => {
         },
         modal: {
           ondismiss: () => {
-            console.log("Payment modal dismissed by user");
             setLoading(false);
             setError("Payment cancelled by user");
           },
         },
       };
-
-      console.log("Opening Razorpay checkout with options:", options);
-
       // Open Razorpay checkout
       await razorpayService.openCheckout(options);
     } catch (error: any) {
@@ -527,8 +517,6 @@ const CheckoutPage: React.FC = () => {
                         </span>
                       </h3>
                     </div>
-
-                    
                   </div>
 
                   {loadingProfile && (
@@ -666,28 +654,27 @@ const CheckoutPage: React.FC = () => {
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   {savedAddresses && savedAddresses.length > 0 && (
-                      <div className="w-full">
-                        <div className="text-3xl font-bold text-[#95522C] mb-2">
-                          Pick From Saved Addresses:
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {savedAddresses.map((a: any) => (
-                            <button
-                              type="button"
-                              key={a.id}
-                              onClick={() => handleSelectSavedAddress(a)}
-                              className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
-                            >
-                              {a.label ||
-                                `${a.firstName || ""} ${a.lastName || ""}`}{" "}
-                              - {a.city}
-                            </button>
-                          ))}
-                        </div>
+                    <div className="w-full">
+                      <div className="text-3xl font-bold text-[#95522C] mb-2">
+                        Pick From Saved Addresses:
                       </div>
-                    )}
+                      <div className="flex flex-wrap gap-2">
+                        {savedAddresses.map((a: any) => (
+                          <button
+                            type="button"
+                            key={a.id}
+                            onClick={() => handleSelectSavedAddress(a)}
+                            className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+                          >
+                            {a.label ||
+                              `${a.firstName || ""} ${a.lastName || ""}`}{" "}
+                            - {a.city}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
 
                 {/* Billing Address */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -964,9 +951,12 @@ const CheckoutPage: React.FC = () => {
                     <div className="flex-1">
                       <h4>{item.name}</h4>
                       <p>
-                        Size: {item.size} || Qty: <span className="poppins-numeric">{item.quantity}</span>
+                        Size: {item.size} || Qty:{" "}
+                        <span className="poppins-numeric">{item.quantity}</span>
                       </p>
-                      <p className="poppins-numeric">₹{(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="poppins-numeric">
+                        ₹{(item.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -976,22 +966,29 @@ const CheckoutPage: React.FC = () => {
               <div className="border-t border-gray-200 pt-4 space-y-2">
                 <div className="flex justify-between text-[#95522C]">
                   <span>Subtotal</span>
-                  <span className="poppins-numeric">₹{subtotal.toFixed(0)}</span>
+                  <span className="poppins-numeric">
+                    ₹{baseAmount.toFixed(0)}
+                  </span>
                 </div>
 
                 {promoCode && promoDiscountAmount > 0 && (
                   <div className="flex justify-between TEXT-[#95522C]">
                     <span>Discount ({promoCode.code})</span>
-                    <span className="poppins-numeric">-₹{promoDiscountAmount.toFixed(0)}</span>
+                    <span className="poppins-numeric">
+                      -₹{promoDiscountAmount.toFixed(0)}
+                    </span>
                   </div>
                 )}
 
                 {evolvPointsRedemption && evolvDiscountAmount > 0 && (
                   <div className="flex justify-between text-blue-600">
                     <span>
-                      Flaunt By Nishi Points ({evolvPointsRedemption.pointsToRedeem} pts)
+                      Flaunt By Nishi Points (
+                      {evolvPointsRedemption.pointsToRedeem} pts)
                     </span>
-                    <span className="poppins-numeric">-₹{evolvDiscountAmount.toFixed(0)}</span>
+                    <span className="poppins-numeric">
+                      -₹{evolvDiscountAmount.toFixed(0)}
+                    </span>
                   </div>
                 )}
 
@@ -1003,7 +1000,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-[#95522C]">
                   <span>Tax</span>
-                  <span className="poppins-numeric">₹{tax.toFixed(0)}</span>
+                  <span className="poppins-numeric">₹{taxAmount.toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                   <span>Total</span>

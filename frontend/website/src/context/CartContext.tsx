@@ -64,14 +64,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     try {
       const stored = localStorage.getItem('cartItems');
-      console.log('Loading cart from localStorage:', stored);
       if (stored) {
         const parsedItems = JSON.parse(stored);
         setCartItems(Array.isArray(parsedItems) ? parsedItems : []);
-        console.log('Loaded cart items:', parsedItems);
       }
     } catch (error) {
-      console.error('Error loading cart from localStorage:', error);
       setCartItems([]);
     } finally {
       setIsLoading(false);
@@ -82,10 +79,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!isLoading) { // Only save after initial load
       try {
-        console.log('Saving cart to localStorage:', cartItems);
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
       } catch (error) {
-        console.error('Error saving cart to localStorage:', error);
       }
     }
   }, [cartItems, isLoading]);
@@ -109,7 +104,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateQuantity = (cartItemId: string, newQuantity: number) => {
-    console.log('Updating quantity for item:', cartItemId, 'to:', newQuantity);
     if (newQuantity === 0) {
       removeItem(cartItemId);
     } else {
@@ -124,14 +118,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeItem = (cartItemId: string) => {
-    console.log('Removing item:', cartItemId);
     setCartItems((items) =>
       items.filter((item) => `${item.id}-${item.size}-${item.color}` !== cartItemId)
     );
   };
 
   const clearCart = () => {
-    console.log('Clearing cart');
     setCartItems([]);
     setPromoCode(null);
     setEvolvPointsRedemption(null);
@@ -210,7 +202,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setUserEvolvPoints(data.data.evolvPoints || 0);
       }
     } catch (error) {
-      console.error('Error fetching user Evolv points:', error);
     }
   };
 

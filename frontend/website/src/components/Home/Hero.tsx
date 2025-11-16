@@ -104,7 +104,7 @@ const HeroComponent: React.FC = () => {
 
   const handleSlideChange = (index: number) => {
     setCurrentSlide(index);
-    setAutoPlay(false); // Pause autoplay when manually changing slides
+    setAutoPlay(false);
   };
 
   const getHeroImage = (hero: Hero) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Heart, Star, ChevronLeft, ChevronRight, Ruler, X, ZoomIn } from "lucide-react";
+import { Heart, Star, ChevronLeft, ChevronRight, Ruler, X } from "lucide-react";
 import { useCartContext } from "../../context/CartContext";
 import { getProductById, Product } from "../../services/productService";
 import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
@@ -116,9 +116,12 @@ const ProductDetailsPage: React.FC = () => {
 
   const checkDelivery = async () => {
     // Validate Indian 6-digit pincode
-    const code = (pincode || '').trim();
+    const code = (pincode || "").trim();
     if (!/^[0-9]{6}$/.test(code)) {
-      setDeliveryInfo({ deliverable: false, message: "Enter a valid 6-digit pincode" });
+      setDeliveryInfo({
+        deliverable: false,
+        message: "Enter a valid 6-digit pincode",
+      });
       return;
     }
 
@@ -126,20 +129,40 @@ const ProductDetailsPage: React.FC = () => {
       setCheckingDelivery(true);
       setDeliveryInfo(null);
       // Use relative path so this works in dev and production (proxy or same origin)
-      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(code)}`);
+      const res = await axios.get(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
+          code
+        )}`
+      );
       const data = res?.data || {};
 
       // Normalize backend response to the deliveryInfo shape used by the UI
-      if (typeof data.deliverable !== 'undefined') {
-        setDeliveryInfo({ deliverable: Boolean(data.deliverable), estDays: data.estDays, message: data.message });
+      if (typeof data.deliverable !== "undefined") {
+        setDeliveryInfo({
+          deliverable: Boolean(data.deliverable),
+          estDays: data.estDays,
+          message: data.message,
+        });
       } else if (data.success === false) {
-        setDeliveryInfo({ deliverable: false, message: data.message || 'Not deliverable' });
+        setDeliveryInfo({
+          deliverable: false,
+          message: data.message || "Not deliverable",
+        });
       } else {
-        setDeliveryInfo({ deliverable: false, message: 'Delivery info unavailable' });
+        setDeliveryInfo({
+          deliverable: false,
+          message: "Delivery info unavailable",
+        });
       }
     } catch (err: any) {
-      console.warn('Delivery check failed', err?.response?.data || err.message || err);
-      setDeliveryInfo({ deliverable: false, message: 'Delivery info unavailable' });
+      console.warn(
+        "Delivery check failed",
+        err?.response?.data || err.message || err
+      );
+      setDeliveryInfo({
+        deliverable: false,
+        message: "Delivery info unavailable",
+      });
     } finally {
       setCheckingDelivery(false);
     }
@@ -191,9 +214,6 @@ const ProductDetailsPage: React.FC = () => {
         (img) => img.url && img.url.trim() !== ""
       );
     }
-    if (product?.images?.length) {
-      return product.images.filter((img) => img.url && img.url.trim() !== "");
-    }
     return [];
   }, [currentColor, product]);
 
@@ -213,7 +233,6 @@ const ProductDetailsPage: React.FC = () => {
   console.log("Selected Color:", selectedColor);
   console.log("Current Color Object:", currentColor);
   console.log("Current Images:", currentImages);
-  console.log("Product Images:", product?.images);
   console.log("Color Images:", currentColor?.images);
 
   // Build a merged image list (color-specific first, then product-level images)
@@ -221,11 +240,8 @@ const ProductDetailsPage: React.FC = () => {
   const PLACEHOLDER_IMAGE = "/assets/img-placeholder-800x1000.png";
 
   const mergedImages = React.useMemo(() => {
-    const productImages = (product?.images || []).filter(
-      (img) => img && img.url && img.url.trim() !== ""
-    );
-
-    const combined = [...currentImages, ...productImages];
+    // Only use color-specific images for display
+    const combined = [...currentImages];
 
     // Remove duplicates by url
     const seen = new Set<string>();
@@ -241,7 +257,7 @@ const ProductDetailsPage: React.FC = () => {
       url: img.url || PLACEHOLDER_IMAGE,
       alt: img.alt || product?.name || "Product Image",
     }));
-  }, [currentImages, product]);
+  }, [currentImages]);
 
   const displayImages =
     mergedImages.length > 0
@@ -258,9 +274,13 @@ const ProductDetailsPage: React.FC = () => {
       if (e.key === "Escape") {
         setModalOpen(false);
       } else if (e.key === "ArrowLeft") {
-        setSelectedImageIndex((s) => (s === 0 ? displayImages.length - 1 : s - 1));
+        setSelectedImageIndex((s) =>
+          s === 0 ? displayImages.length - 1 : s - 1
+        );
       } else if (e.key === "ArrowRight") {
-        setSelectedImageIndex((s) => (s === displayImages.length - 1 ? 0 : s + 1));
+        setSelectedImageIndex((s) =>
+          s === displayImages.length - 1 ? 0 : s + 1
+        );
       }
     };
 
@@ -304,8 +324,7 @@ const ProductDetailsPage: React.FC = () => {
       color: selectedColor,
       quantity: quantity,
       price: selectedSizeData?.price || currentPrice,
-      image:
-        selectedColorData?.images?.[0]?.url || product.images?.[0]?.url || "",
+      image: selectedColorData?.images?.[0]?.url || "",
     };
 
     addToCart(cartItem);
@@ -579,7 +598,11 @@ const ProductDetailsPage: React.FC = () => {
             )}
             {/* Gallery Modal */}
             {modalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFF2E1] p-4"
+                role="dialog"
+                aria-modal="true"
+              >
                 <div className="relative w-full max-w-[1100px] max-h-[90vh]">
                   <button
                     type="button"
@@ -592,7 +615,11 @@ const ProductDetailsPage: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => setSelectedImageIndex((s) => (s === 0 ? displayImages.length - 1 : s - 1))}
+                    onClick={() =>
+                      setSelectedImageIndex((s) =>
+                        s === 0 ? displayImages.length - 1 : s - 1
+                      )
+                    }
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 z-40 bg-white/90 p-2 rounded-full shadow"
                     aria-label="Previous image"
                   >
@@ -603,23 +630,19 @@ const ProductDetailsPage: React.FC = () => {
                     <div className="group relative bg-white rounded">
                       <img
                         src={displayImages[selectedImageIndex]?.url || ""}
-                        alt={displayImages[selectedImageIndex]?.alt || product.name}
+                        alt={
+                          displayImages[selectedImageIndex]?.alt || product.name
+                        }
                         className="max-h-[75vh] w-auto object-contain block"
                         onError={(e) => {
                           const t = e.target as HTMLImageElement;
-                          if (t.src !== "/assets/img-placeholder-800x1000.png") {
+                          if (
+                            t.src !== "/assets/img-placeholder-800x1000.png"
+                          ) {
                             t.src = "/assets/img-placeholder-800x1000.png";
                           }
                         }}
                       />
-
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        <div className="pointer-events-auto">
-                          <button type="button" className="bg-white/90 p-2 rounded-full shadow" aria-hidden>
-                            <ZoomIn className="w-6 h-6 text-tertiary" />
-                          </button>
-                        </div>
-                      </div>
                     </div>
 
                     <div className="flex items-center space-x-2 mt-4 overflow-x-auto">
@@ -628,11 +651,19 @@ const ProductDetailsPage: React.FC = () => {
                           key={i}
                           onClick={() => setSelectedImageIndex(i)}
                           className={`w-16 h-20 border-2 rounded overflow-hidden ${
-                            selectedImageIndex === i ? "border-fashion-accent-brown scale-105" : "border-transparent"
+                            selectedImageIndex === i
+                              ? "border-fashion-accent-brown scale-105"
+                              : "border-transparent"
                           }`}
                           aria-label={`View image ${i + 1}`}
                         >
-                          <img src={img.url || "/assets/img-placeholder-120x160.png"} alt={`thumb-${i}`} className="w-full h-full object-cover" />
+                          <img
+                            src={
+                              img.url || "/assets/img-placeholder-120x160.png"
+                            }
+                            alt={`thumb-${i}`}
+                            className="w-full h-full object-cover"
+                          />
                         </button>
                       ))}
                     </div>
@@ -640,7 +671,11 @@ const ProductDetailsPage: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => setSelectedImageIndex((s) => (s === displayImages.length - 1 ? 0 : s + 1))}
+                    onClick={() =>
+                      setSelectedImageIndex((s) =>
+                        s === displayImages.length - 1 ? 0 : s + 1
+                      )
+                    }
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-40 bg-white/90 p-2 rounded-full shadow"
                     aria-label="Next image"
                   >
@@ -813,15 +848,14 @@ const ProductDetailsPage: React.FC = () => {
                         </p>
                       )}
 
-                      {size.stock > 0 && (
-                        size.stock < 3 ? (
+                      {size.stock > 0 &&
+                        (size.stock < 3 ? (
                           <p className="absolute -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full font-semibold">
                             {size.stock} left
                           </p>
                         ) : size.stock <= 5 ? (
                           <div className="absolute -top-1 -right-1 w-2 h-2 bg-tertiary rounded-full" />
-                        ) : null
-                      )}
+                        ) : null)}
                     </button>
                   ))}
                 </div>
@@ -870,9 +904,9 @@ const ProductDetailsPage: React.FC = () => {
                 <input
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && checkDelivery()}
+                  onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
                   placeholder="Enter 6-digit pincode"
-                  className="border px-3 py-1 rounded w-40 text-xl"
+                  className="border px-3 py-1 rounded w-40 text-xl font-medium text-tertiary poppins-numeric"
                 />
                 <button
                   onClick={checkDelivery}

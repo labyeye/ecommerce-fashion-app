@@ -41,6 +41,9 @@ items: [{
     required: true,
     min: [0, 'Total cannot be negative']
   },
+  // Top-level AWB / tracking helper fields (duplicate of shipment.awb for easy querying)
+  awb: { type: String },
+  trackingNumber: { type: String },
   variant: {
     name: String,
     value: String
@@ -178,9 +181,10 @@ items: [{
     },
     country: {
       type: String,
+
       required: true,
       trim: true,
-      default: 'USA'
+      default: 'India'
     }
   },
   billingAddress: {
@@ -228,7 +232,7 @@ items: [{
       type: String,
       required: true,
       trim: true,
-      default: 'USA'
+      default: 'India'
     }
   },
   notes: {
@@ -260,14 +264,51 @@ items: [{
   },
 
   cancellationReason: String,
-
-  // Shipment / carrier integration data (Delhivery)
   shipment: {
     awb: { type: String },
     shipmentId: { type: String },
     trackingUrl: { type: String },
     carrier: { type: String },
     status: { type: String },
+    name: String,
+    address: String,
+    pincode: String,
+    address_type: String,
+    city: String,
+    state: String,
+    country: String,
+    phone: [String],
+    email: String,
+    seller_name: String,
+    seller_add: String,
+    pickup_location: String,
+    client_order_id: String,
+    invoice_number: String,
+    invoice_value: Number,
+    weight: Number,
+    shipment_height: Number,
+    shipment_width: Number,
+    shipment_length: Number,
+    fragile_shipment: Boolean,
+    dangerous_good: Boolean,
+    products_desc: String,
+    quantity: Number,
+    total_amount: Number,
+    products: [
+      {
+        name: String,
+        qty: Number,
+        price: Number,
+        total: Number,
+      }
+    ],
+    return_name: String,
+    return_address: String,
+    return_city: String,
+    return_state: String,
+    return_country: String,
+    return_pin: String,
+    return_phone: [String],
     rawResponse: { type: mongoose.Schema.Types.Mixed },
     lastSyncedAt: Date
   }
@@ -288,63 +329,53 @@ orderSchema.pre('validate', async function(next) {
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    
-    // Get count of orders for today
     const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const orderCount = await this.constructor.countDocuments({
       createdAt: { $gte: today }
     });
-    
-    const sequence = (orderCount + 1).toString().padStart(4, '0');
-    this.orderNumber = `ORD${year}${month}${day}${sequence}`;
+    const sequence = (orderCount + 1).toString().padStart(6, '0');
+    this.orderNumber = `NSD${year}${month}${day}${sequence}`;
   }
   next();
 });
-// Virtual for full shipping address
 orderSchema.virtual('fullShippingAddress').get(function() {
   return `${this.shippingAddress.street}, ${this.shippingAddress.city}, ${this.shippingAddress.state} ${this.shippingAddress.zipCode}, ${this.shippingAddress.country}`;
 });
-
-// Virtual for full billing address
 orderSchema.virtual('fullBillingAddress').get(function() {
   return `${this.billingAddress.street}, ${this.billingAddress.city}, ${this.billingAddress.state} ${this.billingAddress.zipCode}, ${this.billingAddress.country}`;
 });
-
-// Method to add timeline entry
 orderSchema.methods.addTimelineEntry = function(status, message, updatedBy) {
-  this.timeline.push({
+  const entry = {
     status,
     message,
-    updatedBy
-  });
-  return this.save();
+    updatedBy,
+    timestamp: new Date()
+  };
+  return this.constructor.findByIdAndUpdate(this._id, { $push: { timeline: entry } }, { new: true });
 };
+orderSchema.methods.updateStatus = async function(newStatus, message, updatedBy) {
+  const update = { status: newStatus };
+  const timelineEntry = { status: newStatus, message, updatedBy, timestamp: new Date() };
 
-// Method to update status
-orderSchema.methods.updateStatus = function(newStatus, message, updatedBy) {
-  this.status = newStatus;
-  this.addTimelineEntry(newStatus, message, updatedBy);
-  
-  // Set specific timestamps based on status
   if (newStatus === 'delivered') {
-    this.deliveredAt = new Date();
+    update.deliveredAt = new Date();
   } else if (newStatus === 'cancelled') {
-    this.cancelledAt = new Date();
-    this.cancelledBy = updatedBy;
+    update.cancelledAt = new Date();
+    update.cancelledBy = updatedBy;
   }
-  
-  return this.save();
-};
 
-// Static method to find orders by customer
+  const updated = await this.constructor.findByIdAndUpdate(
+    this._id,
+    { $set: update, $push: { timeline: timelineEntry } },
+    { new: true }
+  );
+
+  return updated;
+};
 orderSchema.statics.findByCustomer = function(customerId) {
   return this.find({ customer: customerId }).populate('items.product');
 };
-
-// Static method to find orders by status
 orderSchema.statics.findByStatus = function(status) {
   return this.find({ status }).populate('customer', 'firstName lastName email');
 };
-
-
 module.exports = mongoose.model('Order', orderSchema); 

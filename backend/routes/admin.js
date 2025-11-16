@@ -8,10 +8,6 @@ const PromoCode = require("../models/PromoCode");
 const Category = require("../models/Category");
 const Newsletter = require("../models/Newsletter");
 const { createTransporter } = require("../utils/emailService");
-const { sendWelcomeEmail } = require("../utils/emailService");
-const { sendVerificationEmail } = require("../utils/emailService");
-const { sendPasswordResetEmail } = require("../utils/emailService");
-const { sendOrderCancellationEmail } = require("../utils/emailService");
 const mongoose = require("mongoose");
 
 const router = express.Router();
@@ -759,6 +755,39 @@ router.put(
     }
   }
 );
+
+  // @desc    Create Delhivery shipment for an order (admin)
+  // @route   POST /api/admin/orders/:id/create-shipment
+  // @access  Admin only
+  router.post('/orders/:id/create-shipment', async (req, res) => {
+    try {
+      const order = await Order.findById(req.params.id).populate('customer');
+      if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+      // Prevent double-creation
+      if (order.shipment && order.shipment.awb) {
+        return res.status(400).json({ success: false, message: 'Shipment already exists for this order', data: order.shipment });
+      }
+
+      const { createShipmentForOrder } = require('../services/delhiveryService');
+      const result = await createShipmentForOrder(order);
+
+      // If service returned error object, include it and add timeline entry
+      if (!result.success) {
+        await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_creation_failed', message: `Delhivery error: ${JSON.stringify(result.error || result.raw || {})}`, updatedBy: req.user._id } } });
+        return res.status(500).json({ success: false, message: 'Shipment creation failed', error: result.error || result.raw });
+      }
+
+      // Add successful timeline entry
+      await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_created', message: `Shipment created ${result.data && (result.data.awb || result.data.shipmentId)}`, updatedBy: req.user._id } } });
+
+      const updated = await Order.findById(order._id);
+      return res.status(200).json({ success: true, message: 'Shipment created', data: { shipment: updated.shipment, raw: result.raw } });
+    } catch (err) {
+      console.error('Admin create-shipment error:', err);
+      res.status(500).json({ success: false, message: 'Error creating shipment' });
+    }
+  });
 
 // @desc    Get all products
 // @route   GET /api/admin/products

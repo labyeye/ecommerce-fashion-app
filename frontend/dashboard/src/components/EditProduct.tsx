@@ -29,8 +29,7 @@ interface EditProductFormData {
   isComingSoon: boolean;
   keyFeatures: string[];
   sizes: Array<{ size: string; stock: number; price?: number }>;
-  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }>; sizes?: Array<{ size: string; stock: number; price?: number }> }>;
-  images: Array<{ url: string; alt: string; isPrimary: boolean }>;
+  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> ; sizes?: Array<{ size: string; stock: number; price?: number }> }>;
 }
 
 interface EditProductProps {
@@ -69,8 +68,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     isComingSoon: false,
       keyFeatures: [] as string[],
     sizes: [] as Array<{ size: string; stock: number; price?: number }>,
-    colors: [] as Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>,
-    images: [] as Array<{ url: string; alt: string; isPrimary: boolean }>
+      colors: [] as Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>
   });
 
   const [newTag, setNewTag] = useState('');
@@ -114,7 +112,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         ? // ensure each color has sizes; if missing, prefill defaultSizes
           productData.colors.map((c: any) => ({ ...c, sizes: Array.isArray(c.sizes) && c.sizes.length > 0 ? c.sizes : defaultSizes }))
         : [{ name: 'Default', hexCode: '#000000', stock: 0, images: [], sizes: Array.isArray(productData.sizes) && productData.sizes.length > 0 ? productData.sizes : defaultSizes }],
-      images: productData.images || []
+      // top-level images removed; images live under colors[].images
     };
   };
 
@@ -210,7 +208,6 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
   }, [productId]);
 
   type ColorItem = EditProductFormData['colors'][number];
-  type ImageItem = EditProductFormData['images'][number];
 
   const handleInputChange = (
     field: keyof EditProductFormData,
@@ -274,6 +271,28 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     }));
   };
 
+  // Per-color image management for edit form (max 5 images per color)
+  const addColorImage = (colorIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, images: [...(c.images || []), { url: '', alt: '' }] } : c)
+    }));
+  };
+
+  const updateColorImage = (colorIndex: number, imgIndex: number, field: 'url' | 'alt', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, images: (c.images || []).map((img, ii) => ii === imgIndex ? { ...img, [field]: value } : img) } : c)
+    }));
+  };
+
+  const removeColorImage = (colorIndex: number, imgIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.map((c, i) => i === colorIndex ? { ...c, images: (c.images || []).filter((_, ii) => ii !== imgIndex) } : c)
+    }));
+  };
+
   const updateColor = (
     index: number,
     field: keyof ColorItem,
@@ -291,41 +310,6 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     setFormData(prev => ({
       ...prev,
       colors: prev.colors.filter((_, i) => i !== index)
-    }));
-  };
-
-  const addImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, { url: '', alt: '', isPrimary: prev.images.length === 0 }]
-    }));
-  };
-
-  const updateImage = (
-    index: number,
-    field: keyof ImageItem,
-    value: string | boolean
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.map((image, i) => (i === index ? { ...image, [field]: value } : image)),
-    }));
-  };
-
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-  };
-
-  const setPrimaryImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.map((image, i) => ({
-        ...image,
-        isPrimary: i === index
-      }))
     }));
   };
 
@@ -752,6 +736,27 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                         ))}
                       </div>
                     </div>
+                    {/* Images for this color */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium">Images for {color.name || `Color ${index + 1}`}</h4>
+                        <button type="button" onClick={() => addColorImage(index)} className="px-2 py-1 bg-black text-white rounded text-sm">Add Image</button>
+                      </div>
+                      <div className="space-y-2">
+                        {(color.images || []).map((img, imi) => (
+                          <div key={imi} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div className="flex-1 space-y-2">
+                              <input type="url" value={img.url} onChange={(e) => updateColorImage(index, imi, 'url', e.target.value)} placeholder="Image URL" className="w-full px-3 py-2 border rounded" />
+                              <input type="text" value={img.alt} onChange={(e) => updateColorImage(index, imi, 'alt', e.target.value)} placeholder="Alt text" className="w-full px-3 py-2 border rounded" />
+                            </div>
+                            {img.url && (<img src={img.url} alt={img.alt} className="w-16 h-16 object-cover rounded-lg" />)}
+                            <div className="flex flex-col space-y-2">
+                              <button onClick={() => removeColorImage(index, imi)} className="p-1 text-red-600 hover:text-red-800"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     </React.Fragment>
                   ))}
                 </div>
@@ -759,68 +764,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
             </div>
           )}
 
-          {activeTab === 'images' && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Product Images</h3>
-                <button
-                  onClick={addImage}
-                  className="flex items-center space-x-2 px-3 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Image</span>
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1 space-y-2">
-                      <input
-                        type="url"
-                        value={image.url}
-                        onChange={(e) => updateImage(index, 'url', e.target.value)}
-                        placeholder="Image URL"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                      <input
-                        type="text"
-                        value={image.alt}
-                        onChange={(e) => updateImage(index, 'alt', e.target.value)}
-                        placeholder="Alt text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                    </div>
-                    {image.url && (
-                      <img
-                        src={image.url}
-                        alt={image.alt}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                    )}
-                    <div className="flex flex-col space-y-2">
-                      <button
-                        onClick={() => setPrimaryImage(index)}
-                        className={`px-3 py-1 text-xs rounded ${
-                          image.isPrimary
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {image.isPrimary ? 'Primary' : 'Set Primary'}
-                      </button>
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="p-1 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Images tab removed — images are managed per-color in the Inventory tab */}
 
           {activeTab === 'seo' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
@@ -949,13 +893,13 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
             </div>
           </div>
 
-          {/* Preview */}
-          {formData.images.length > 0 && (
+          {/* Preview (shows first color's primary/first image) */}
+          {(formData.colors && formData.colors.length > 0 && formData.colors[0].images && formData.colors[0].images.length > 0) && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
               <div className="space-y-3">
                 <img
-                  src={formData.images.find(img => img.isPrimary)?.url || formData.images[0]?.url}
+                  src={formData.colors[0].images.find((img: any) => img.url)?.url || formData.colors[0].images[0]?.url}
                   alt={formData.name}
                   className="w-full h-48 object-cover rounded-lg"
                 />
