@@ -381,6 +381,9 @@ const BlogManagement: React.FC = () => {
                           <div className="text-sm text-gray-500">{blog.author.name}</div>
                         </div>
                       </div>
+                      <div className="sm:hidden text-xs text-gray-500 mt-2">
+                        <span className="mr-2">{blog.category}</span> • {blog.views} views
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -400,7 +403,7 @@ const BlogManagement: React.FC = () => {
                         ))}
                       </select>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {blog.views}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -217,11 +217,11 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
               <tr>
                   <th className="px-4 py-2 text-left font-semibold">Order #</th>
                   <th className="px-4 py-2 text-left font-semibold">Customer</th>
-                  <th className="px-4 py-2 text-left font-semibold">Date</th>
-                  <th className="px-4 py-2 text-left font-semibold">Items</th>
+                  <th className="hidden sm:table-cell px-4 py-2 text-left font-semibold">Date</th>
+                  <th className="hidden sm:table-cell px-4 py-2 text-left font-semibold">Items</th>
                   <th className="px-4 py-2 text-left font-semibold">Total</th>
-                  <th className="px-4 py-2 text-left font-semibold">Payment</th>
-                  <th className="px-4 py-2 text-left font-semibold">Delhivery ID</th>
+                  <th className="hidden sm:table-cell px-4 py-2 text-left font-semibold">Payment</th>
+                  <th className="hidden sm:table-cell px-4 py-2 text-left font-semibold">Delhivery ID</th>
                   <th className="px-4 py-2 text-left font-semibold">Status</th>
                   <th className="px-4 py-2 text-left font-semibold">Actions</th>
               </tr>
@@ -231,12 +231,17 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                 const StatusIcon = getStatusIcon(order.status);
                 return (
                     <tr key={order._id} className="hover:bg-ds-200">
-                      <td className="px-4 py-2 font-medium">{order.orderNumber}</td>
-                      <td className="px-4 py-2">{order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : '-'}</td>
-                      <td className="px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
-                      <td className="px-4 py-2">{order.items.map((item: any) => item.product?.name).join(', ')}</td>
+                      <td className="px-4 py-2 font-medium">
+                        <div className="font-medium">{order.orderNumber}</div>
+                        <div className="sm:hidden text-sm text-ds-700 mt-1">
+                          {order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : '-'} • ₹{order.total.toFixed(0)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 hidden sm:table-cell">{order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : '-'}</td>
+                      <td className="hidden sm:table-cell px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td className="hidden sm:table-cell px-4 py-2">{order.items.map((item: any) => item.product?.name).join(', ')}</td>
                       <td className="px-4 py-2 font-medium">₹{order.total.toFixed(2)}</td>
-                      <td className="px-4 py-2">
+                      <td className="hidden sm:table-cell px-4 py-2">
                         <div className="text-xs">
                           <div className="font-medium">{order.payment?.method === 'razorpay' ? 'Razorpay' : order.payment?.method?.replace('_', ' ').toUpperCase()}</div>
                           {order.payment?.method === 'razorpay' && order.payment?.razorpay?.paymentId && (
@@ -246,7 +251,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                       </td>
 
                       {/* Delhivery column */}
-                      <td className="px-4 py-2 text-sm text-ds-700">
+                      <td className="hidden sm:table-cell px-4 py-2 text-sm text-ds-700">
                         {(() => {
                           const awbVal = order.awb || order.trackingNumber || order.shipment?.awb || order.shipment?.shipmentId;
                           const trackUrl = order.shipment?.trackingUrl || (awbVal ? `https://track.delhivery.com/?waybill=${awbVal}` : null);

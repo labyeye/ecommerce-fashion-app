@@ -357,7 +357,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   SKU
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -366,10 +366,10 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Sizes
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Colors
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -405,19 +405,27 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                   const stockStatus = getStockStatus(product);
                   const totalStock = getTotalStock(product);
                   
-                  const imageUrl = (product.colors && product.colors.length > 0 && product.colors[0].images && product.colors[0].images.length > 0)
-                    ? (product.colors[0].images.find((img:any) => img.url)?.url || product.colors[0].images[0].url)
-                    : '/assets/img-placeholder-40.png';
-
                   return (
                     <tr key={product._id} className="hover:bg-ds-200">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <img className="h-10 w-10 rounded object-cover mr-3" src={imageUrl} alt={product.name} />
+                          {product.images && product.images.length > 0 && (
+                            <img
+                              className="h-10 w-10 rounded object-cover mr-3"
+                              src={product.images.find(img => img.isPrimary)?.url || product.images[0]?.url}
+                              alt={product.name}
+                            />
+                          )}
                           <div>
                             <div className="text-sm font-medium text-ds-900">{product.name}</div>
                               <div className="text-sm text-ds-700">
                               {typeof product.category === 'string' ? product.category : product.category?.name || 'No Category'}
+                            </div>
+                            {/* Mobile compact info */}
+                            <div className="sm:hidden text-sm text-ds-700 mt-1">
+                              <div>SKU: {product.sku}</div>
+                              <div>Price: ₹{product.price.toFixed(0)}</div>
+                              <div>{totalStock} units • {stockStatus.status}</div>
                             </div>
                             <div className="flex space-x-1 mt-1">
                               {product.isFeatured && (
@@ -579,13 +587,13 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
                 </p>
                 <div className="mt-4 p-3 bg-gray-50 rounded-md">
                   <div className="flex items-center space-x-3">
-                    {(() => {
-                      const p = deleteModal.product as any;
-                      const img = (p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0)
-                        ? (p.colors[0].images.find((i:any) => i.url)?.url || p.colors[0].images[0].url)
-                        : null;
-                      return img ? <img className="h-10 w-10 rounded object-cover" src={img} alt={deleteModal.product.name} /> : null;
-                    })()}
+                    {deleteModal.product.images && deleteModal.product.images.length > 0 && (
+                      <img
+                        className="h-10 w-10 rounded object-cover"
+                        src={deleteModal.product.images.find(img => img.isPrimary)?.url || deleteModal.product.images[0]?.url}
+                        alt={deleteModal.product.name}
+                      />
+                    )}
                     <div className="text-left">
                       <p className="text-sm font-medium text-gray-900">{deleteModal.product.name}</p>
                       <p className="text-sm text-gray-500">SKU: {deleteModal.product.sku}</p>

@@ -291,8 +291,11 @@ const PromoCodes: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">{promoCode.code}</div>
                       <div className="text-sm text-gray-500">{promoCode.description}</div>
                     </div>
+                    <div className="sm:hidden text-xs text-gray-500 mt-1">
+                      Usage: {promoCode.usageCount}{promoCode.usageLimit ? `/${promoCode.usageLimit}` : ''} • Valid: {new Date(promoCode.validFrom).toLocaleDateString()}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {promoCode.discountType === 'percentage' ? (
                         <Percent className="text-green-500 mr-1" size={16} />
@@ -318,7 +321,7 @@ const PromoCodes: React.FC = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
                       {new Date(promoCode.validFrom).toLocaleDateString()} - {new Date(promoCode.validUntil).toLocaleDateString()}
                     </div>

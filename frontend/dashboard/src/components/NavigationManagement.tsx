@@ -574,8 +574,11 @@ const NavigationManagement: React.FC = () => {
                           <ChevronDown className="w-4 h-4 ml-2 text-gray-400" />
                         )}
                       </div>
+                      <div className="sm:hidden text-xs text-gray-500 mt-1 truncate">
+                        {link.url}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {link.url}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -583,7 +586,7 @@ const NavigationManagement: React.FC = () => {
                         {link.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {link.sortOrder}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

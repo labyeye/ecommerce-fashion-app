@@ -1,5 +1,4 @@
 import React from 'react';
-import { mockData } from '../data/mockData';
 import { Plus, TrendingUp, Mail, Instagram, Percent } from 'lucide-react';
 
 interface MarketingProps {
@@ -73,36 +72,7 @@ const Marketing: React.FC<MarketingProps> = ({ onViewDetails }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Campaigns</h3>
         <div className="space-y-4">
-          {mockData.campaigns.slice(0, 3).map((campaign) => {
-            const Icon = getCampaignIcon(campaign.type);
-            return (
-              <div key={campaign.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <Icon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">{campaign.name}</h4>
-                    <p className="text-sm text-gray-500">{campaign.type}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-6 text-sm">
-                  <div className="text-center">
-                    <div className="font-semibold text-gray-900">{campaign.usage}</div>
-                    <div className="text-gray-500">Uses</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-gray-900">${campaign.revenue.toLocaleString()}</div>
-                    <div className="text-gray-500">Revenue</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-green-600">{campaign.conversionRate}%</div>
-                    <div className="text-gray-500">Conv. Rate</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          
         </div>
       </div>
 
@@ -139,46 +109,7 @@ const Marketing: React.FC<MarketingProps> = ({ onViewDetails }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {mockData.campaigns.map((campaign) => {
-                const Icon = getCampaignIcon(campaign.type);
-                return (
-                  <tr key={campaign.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-3">
-                        <Icon className="w-5 h-5 text-gray-400" />
-                        <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {campaign.type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {campaign.usage.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ${campaign.revenue.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
-                      {campaign.conversionRate}%
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
-                        {campaign.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                      <button 
-                        onClick={() => onViewDetails(campaign.id)}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        View
-                      </button>
-                      <button className="text-gray-600 hover:text-gray-900">View</button>
-                    </td>
-                  </tr>
-                );
-              })}
+              
             </tbody>
           </table>
         </div>

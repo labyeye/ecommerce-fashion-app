@@ -542,12 +542,12 @@ router.get("/orders/:id/details", async (req, res) => {
     // Calculate loyalty points earned from this order using per-₹50 rules
     // Bronze: 1 point per ₹50, Silver: 3 points per ₹50, Gold: 5 points per ₹50
     // const customerTier = order.customer.loyaltyTier || "bronze";
-    const pointsPer50 =
-      customerTier === "gold" ? 5 : customerTier === "silver" ? 3 : 1;
-    const pointsEarned = Math.floor(order.total / 50) * pointsPer50;
-    const deliveryBonusPoints =
-      order.status === "delivered" ? Math.floor(order.total * 0.1) : 0;
-    const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
+    // const pointsPer50 =
+    //   customerTier === "gold" ? 5 : customerTier === "silver" ? 3 : 1;
+    // const pointsEarned = Math.floor(order.total / 50) * pointsPer50;
+    // const deliveryBonusPoints =
+    //   order.status === "delivered" ? Math.floor(order.total * 0.1) : 0;
+    // const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
 
     // Get loyalty information
     // const loyaltyInfo = {

@@ -206,20 +206,20 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                     Customer
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Loyalty Tier
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Joined
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
-                    Last Login
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    Contact
                   </th>
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    Location
+                  </th>
+                                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                                      Last Login
+                                    </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Status
                   </th>
@@ -244,6 +244,13 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                             {customer.firstName} {customer.lastName}
                           </div>
                           <div className="text-sm text-ds-700">{customer.email}</div>
+                          {/* Mobile compact info */}
+                          <div className="sm:hidden text-sm text-ds-700 mt-1">
+                            <div>{customer.phone || 'No phone'}</div>
+                            <div className="truncate">
+                              {customer.address?.city ? `${customer.address.city}${customer.address?.state ? ', ' + customer.address.state : ''}` : 'No address'}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -251,7 +258,7 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                           {customer.phone || 'No phone'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-ds-900">
                           {customer.address?.city && customer.address?.state
                             ? `${customer.address.city}, ${customer.address.state}`
@@ -275,7 +282,7 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-ds-700">
                         {new Date(customer.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-ds-700">
+                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-ds-700">
                         {customer.lastLogin
                           ? new Date(customer.lastLogin).toLocaleDateString()
                           : 'Never'

@@ -58,10 +58,66 @@ const Sidebar: React.FC<SidebarProps> = ({
     window.location.href = "/login";
   };
 
-  // If mobileOpen is true, render as a fixed overlay; otherwise hide on small screens and show on md+
-  const containerClasses = mobileOpen
-    ? "fixed inset-y-0 left-0 z-50 w-64 bg-ds-800 text-ds-100 flex flex-col shadow-2xl md:relative md:translate-x-0"
-    : "hidden md:flex bg-ds-800 text-ds-100 w-64 min-h-screen flex-col shadow-lg";
+  // Animated slide-in sidebar: fixed overlay on small screens (so it doesn't
+  // take layout space), and a normal relative sidebar on md+ screens.
+  const baseClasses =
+    "fixed inset-y-0 left-0 z-50 md:relative md:z-auto bg-ds-800 text-ds-100 w-64 flex flex-col shadow-2xl transform transition-transform duration-300";
+  const translateClass = mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0";
+  const containerClasses = `${baseClasses} ${translateClass} md:flex`;
+
+  // Accessibility: close on Escape, trap focus while mobile sidebar is open,
+  // and restore focus when closed.
+  React.useEffect(() => {
+    if (!mobileOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const sidebarEl = document.querySelector(
+      'div[role="dialog"]'
+    ) as HTMLElement | null;
+
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const focusable = sidebarEl
+      ? Array.from(sidebarEl.querySelectorAll<HTMLElement>(focusableSelector))
+      : [];
+
+    // focus first focusable element (close button) if available
+    if (focusable.length) {
+      focusable[0].focus();
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose && onClose();
+        return;
+      }
+
+      if (e.key === "Tab" && focusable.length) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus();
+    };
+  }, [mobileOpen, onClose]);
 
   return (
     <>
@@ -73,7 +129,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      <div className={containerClasses}>
+      <div
+        className={containerClasses}
+        {...(mobileOpen ? { role: "dialog", "aria-modal": "true" } : {})}
+      >
         {/* Mobile close button */}
         {mobileOpen && (
           <div className="p-4 md:hidden border-b border-ds-700 flex items-center justify-between">

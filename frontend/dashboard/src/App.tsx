@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
 import Overview from "./components/Overview";
@@ -21,7 +21,6 @@ import HeroManagement from "./components/HeroManagement";
 import BlogManagement from "./components/BlogManagement";
 import Newsletter from "./components/Newsletter";
 
-import { mockData } from "./data/mockData";
 import { Menu } from "lucide-react";
 
 interface ViewState {
@@ -38,6 +37,12 @@ function DashboardApp() {
     view: "list",
   });
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (mobileOpen) document.body.classList.add("overflow-hidden");
+    else document.body.classList.remove("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [mobileOpen]);
 
   // If not authenticated, show login
   if (!user) {
@@ -101,79 +106,22 @@ function DashboardApp() {
     // Handle Detail Views
     if (currentView.view === "details") {
       switch (currentView.section) {
-        case "products": {
-          const product = mockData.products.find(
-            (p) => p.id === currentView.itemId
+        case "orders":
+          return (
+            <OrderDetails
+              orderId={currentView.itemId || ""}
+              onBack={() => setCurrentView({ section: "orders", view: "list" })}
+            />
           );
-          if (product) {
-            return (
-              <ProductDetails
-                product={product}
-                onBack={() =>
-                  setCurrentView({ section: "products", view: "list" })
-                }
-                onEdit={() =>
-                  setCurrentView({
-                    section: "products",
-                    view: "edit",
-                    itemId: currentView.itemId,
-                  })
-                }
-                onDelete={() => console.log("Delete product")}
-              />
-            );
-          }
-          break;
-        }
-        case "customers": {
-          const customer = mockData.customers.find(
-            (c) => c.id === currentView.itemId
+        case "customers":
+          return (
+            <CustomerDetails
+              customerId={currentView.itemId || ""}
+              onBack={() => setCurrentView({ section: "customers", view: "list" })}
+            />
           );
-          if (customer) {
-            return (
-              <CustomerDetails
-                customerId={currentView.itemId || ""}
-                onBack={() =>
-                  setCurrentView({ section: "customers", view: "list" })
-                }
-              />
-            );
-          }
+        default:
           break;
-        }
-        case "orders": {
-          const order = mockData.orders.find(
-            (o) => o.id === currentView.itemId
-          );
-          if (order) {
-            return (
-              <OrderDetails
-                orderId={currentView.itemId || ""}
-                onBack={() =>
-                  setCurrentView({ section: "orders", view: "list" })
-                }
-              />
-            );
-          }
-          break;
-        }
-
-        case "marketing": {
-          const campaign = mockData.campaigns.find(
-            (c) => c.id === currentView.itemId
-          );
-          if (campaign) {
-            return (
-              <CampaignDetails
-                campaign={campaign}
-                onBack={() =>
-                  setCurrentView({ section: "marketing", view: "list" })
-                }
-              />
-            );
-          }
-          break;
-        }
       }
     }
 
@@ -288,7 +236,7 @@ function DashboardApp() {
       />
 
       {/* Topbar for mobile */}
-      <header className="md:hidden flex items-center justify-between p-4 border-b border-ds-300 bg-ds-100">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-2 border-b border-ds-300 bg-ds-100">
         <button
           onClick={() => setMobileOpen(true)}
           className="p-2 rounded hover:bg-ds-200"
@@ -296,13 +244,56 @@ function DashboardApp() {
         >
           <Menu className="w-6 h-6 text-ds-900" />
         </button>
-        <div className="text-lg font-semibold">Commerce Hub</div>
-        <div />
+        <div className="text-sm font-semibold text-ds-900 truncate max-w-xs text-center">{getSectionTitle(activeSection)}</div>
+        <div className="flex items-center space-x-2">
+          <button className="p-2 rounded-full bg-ds-200">
+            <svg className="w-4 h-4 text-ds-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5"/></svg>
+          </button>
+          <div className="w-7 h-7 rounded-full bg-ds-700 text-ds-100 flex items-center justify-center text-xs">{user?.firstName?.[0] ?? 'A'}</div>
+        </div>
       </header>
 
-      <main className="flex-1 p-4 md:p-8">{renderContent()}</main>
+      <main className="flex-1 p-4 md:p-8 pt-16 md:pt-0 md:ml-64 overflow-x-hidden">
+        <div className="hidden md:flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-ds-900">{getSectionTitle(activeSection)}</h1>
+            <p className="text-sm text-ds-700 mt-1">Admin panel — manage {getSectionTitle(activeSection).toLowerCase()}</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <input type="search" placeholder="Search..." className="pl-3 pr-8 py-2 rounded-lg border border-ds-200 bg-white text-sm" />
+              <svg className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-ds-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            </div>
+            <button className="px-4 py-2 bg-ds-700 text-ds-100 rounded-lg">New</button>
+            <div className="w-8 h-8 rounded-full bg-ds-700 text-ds-100 flex items-center justify-center text-sm">{user?.firstName?.[0] ?? 'A'}</div>
+          </div>
+        </div>
+
+        {renderContent()}
+      </main>
     </div>
   );
+}
+
+function getSectionTitle(section: string) {
+  const map: { [k: string]: string } = {
+    overview: 'Overview',
+    analytics: 'Analytics',
+    customers: 'Customers',
+    orders: 'Orders',
+    products: 'Products',
+    categories: 'Categories',
+    newsletter: 'Newsletter',
+    heroes: 'Hero Slider',
+    blogs: 'Blogs',
+    'promo-codes': 'Promo Codes',
+    navigation: 'Navigation',
+    alerts: 'Alerts',
+    security: 'Security',
+    settings: 'Settings',
+    marketing: 'Marketing'
+  };
+  return map[section] || section.charAt(0).toUpperCase() + section.slice(1);
 }
 
 function App() {
