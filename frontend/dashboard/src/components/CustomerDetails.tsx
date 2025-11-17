@@ -267,7 +267,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Customer Status */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h4 className="font-semibold text-gray-900 mb-4">Customer Status</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -291,7 +291,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
