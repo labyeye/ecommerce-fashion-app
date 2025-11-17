@@ -172,27 +172,27 @@ const HeroComponent: React.FC = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
-            <h2
-              className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-36"
+            <span
+              className="block text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-36"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.title}
-            </h2>
+            </span>
 
-            <h5
-              className="text-lg sm:text-base md:text-lg lg:text-xl opacity-90 leading-relaxed"
+            <span
+              className="block text-xl sm:text-lg md:text-xl lg:text-2xl opacity-90 leading-relaxed mt-2"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.subtitle}
-            </h5>
+            </span>
 
             {currentHero?.description && (
-              <p
-                className="text-xs sm:text-sm md:text-base opacity-80 leading-relaxed"
+              <span
+                className="block text-xs sm:text-sm md:text-base opacity-80 leading-relaxed mt-2"
                 style={{ color: currentHero?.textColor || "#ffffff" }}
               >
                 {currentHero.description}
-              </p>
+              </span>
             )}
 
             {currentHero?.ctaButton.enabled && (

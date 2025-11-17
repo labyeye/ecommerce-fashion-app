@@ -66,12 +66,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
       </div>
 
       <div className="p-6">
-        <h3
-          className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 transition-colors"
+        <span
+          className="block text-xl sm:text-2xl font-bold text-gray-900 mb-3 line-clamp-2 transition-colors"
           style={{ color: "#2B463C" }}
         >
           {blog.title}
-        </h3>
+        </span>
 
         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
           {blog.excerpt}

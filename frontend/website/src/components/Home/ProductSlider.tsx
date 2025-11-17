@@ -19,13 +19,15 @@ const sliderConfigs: Record<ProductSliderProps["type"], SliderConfig> = {
   "new-arrivals": {
     title: "New Arrivals",
     description: "Fresh off the runway, straight to your wardrobe",
-    apiEndpoint: "https://ecommerce-fashion-app-som7.vercel.app/api/products?isNewArrival=true",
+    apiEndpoint:
+      "https://ecommerce-fashion-app-som7.vercel.app/api/products?isNewArrival=true",
     emptyMessage: "New arrivals coming soon",
   },
   "best-sellers": {
     title: "Timeless Styles",
     description: "Designed for Dreamers and Loved by Travelers",
-    apiEndpoint: "https://ecommerce-fashion-app-som7.vercel.app/api/products?isBestSeller=true",
+    apiEndpoint:
+      "https://ecommerce-fashion-app-som7.vercel.app/api/products?isBestSeller=true",
     emptyMessage: "Stay tuned for our best sellers",
   },
 };
@@ -130,10 +132,12 @@ const ProductSlider = ({
     return (
       <section className="w-screen py-16 bg-[#FFF2E1] ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h1 className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent font-display mb-4">
+          <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display mb-4 bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
             {config.title}
-          </h1>
-          <p className="text-dark font-body text-lg">{config.emptyMessage}</p>
+          </span>
+          <span className="block text-base sm:text-lg md:text-xl text-dark font-body">
+            {config.emptyMessage}
+          </span>
         </div>
       </section>
     );
@@ -143,14 +147,12 @@ const ProductSlider = ({
     <section className="w-screen py-10 bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-6">
         <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h1 className="font-bold mb-6">
-            <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
-              {config.title}
-            </span>
-          </h1>
-          <h6 className="text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
+          <span className="block text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+            {config.title}
+          </span>
+          <span className="block text-2xl sm:text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
             {config.description}
-          </h6>
+          </span>
         </div>
 
         <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-8">
@@ -178,15 +180,15 @@ const ProductSlider = ({
           </div>
         </div>
 
-        <div className="flex justify-center mt-12 space-x-3">
+        <div className="flex justify-center mt-12 space-x-3 ">
           {products.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index * visibleCount)}
-              className={`transition-all duration-300 ${
+              className={`transition-all duration-300  ${
                 Math.floor(currentIndex / visibleCount) === index
-                  ? "w-1.5 h-1.5 bg-[#FFF2E1]"
-                  : "w-1.5 h-1.5 bg-dark/60 hover:bg-dark"
+                  ? "w-2 h-2 bg-tertiary rounded-full"
+                  : "w-2 h-2 bg-tertiary hover:bg-dark rounded-full"
               }`}
             />
           ))}

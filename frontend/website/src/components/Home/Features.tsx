@@ -19,17 +19,15 @@ const Features: React.FC = () => {
       <div className="w-full mx-auto px-0 relative z-10 mb-10">
         <div className="text-center w-full mx-auto max-w-full">
           <div className="text-center w-full mx-auto">
-            <h1 className="font-bold mb-6">
-              <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
-                Timeless elegance, crafted with precision
-              </span>
-            </h1>
+            <span className="block text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+              Timeless elegance, crafted with precision
+            </span>
           </div>
 
-          <h6 className="text-base text-[#B56932] font-dark leading-relaxed mb-8 sm:mb-12 max-w-2xl mx-auto h6x-4 mt-10">
+          <span className="block text-2xl sm:text-lg md:text-xl text-[#B56932] font-dark leading-relaxed mb-8 sm:mb-12 max-w-lg mx-auto mt-10">
             Every piece in our collection represents a commitment to exceptional
             quality, sustainable practices, and enduring style.
-          </h6>
+          </span>
 
           <div className="w-full p-0">
             <div className="flex items-center w-full gap-6 overflow-x-auto py-8 px-0 justify-between max-w-full">
@@ -43,9 +41,9 @@ const Features: React.FC = () => {
                     <div className="circle-element w-16 h-16 sm:w-20 sm:h-20 bg-secondary/10 border-2 border-secondary/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
                       <Icon className="w-8 h-8 sm:w-9 sm:h-9 text-[#2D2D2D]" />
                     </div>
-                    <h4 className="text-lg sm:text-xl font-medium text-[#2D2D2D] mb-2 sm:mb-3 tracking-wide">
+                    <span className="block text-base sm:text-lg md:text-xl font-medium text-[#2D2D2D] mb-2 sm:mb-3 tracking-wide">
                       {feature.name}
-                    </h4>
+                    </span>
                   </div>
                 );
               })}

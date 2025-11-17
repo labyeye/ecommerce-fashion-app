@@ -247,19 +247,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      <div className="p-4 space-y-3">
-        <div>
-          <h5
-            className="text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
-            onClick={handleViewDetails}
-          >
-            {product.name}
-          </h5>
-        </div>
+      <div className="mt-6 space-y-2 flex flex-row justify-between">
+        <div className="flex flex-col">
+          <div>
+            <span
+              className="block text-2xl sm:text-lg md:text-xl text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
+              onClick={handleViewDetails}
+            >
+              {product.name}
+            </span>
+          </div>
 
-        
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2 mt-2">
+            <span className="text-[#95522C] font-['Sans-Serif'] poppins-numeric text-2xl sm:text-lg md:text-xl">
+              ₹{currentPrice.toLocaleString()}
+            </span>
+          </div>
+        </div>
+        <div className="flex space-x-2">
+          <div className="flex space-x-1 mt-[2px]">
             {Array.from({ length: 5 }).map((_, i) => {
               const avg = product.ratings?.average || 0;
               const filled = Math.round(avg) >= i + 1;
@@ -273,15 +279,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               );
             })}
           </div>
-          <div className="text-sm text-[#7A5A3E]">
+          <div className="text-md poppins-numeric text-tertiary">
             ({product.ratings?.count || 0})
           </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <h5 className="text-[#95522C] font-['Sans-Serif'] poppins-numeric">
-            ₹{currentPrice.toLocaleString()}
-          </h5>
         </div>
       </div>
     </div>

@@ -31,9 +31,9 @@ const CategoryCard: React.FC<{
         )}
 
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 sm:flex">
-          <h3 className="text-white text-5xl sm:text-6xl font-semibold px-4 text-center">
+          <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold px-4 text-center text-white">
             {category.name}
-          </h3>
+          </span>
         </div>
       </div>
     </div>
@@ -112,14 +112,12 @@ const CategorySlider: React.FC = () => {
     <div className="relative py-8 w-screen bg-[#FFF2E1]">
       <div className="w-full px-4 sm:px-4 lg:px-6">
         <div className="text-center mb-16 max-w-7xl mx-auto">
-          <h1 className="font-bold mb-6">
-            <span className="bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
-              Suitcase Staples Sorted
-            </span>
-          </h1>
-          <h6 className="text-[#B56932] max-w-2xl mx-auto">
+          <span className="block text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+            Suitcase Staples Sorted
+          </span>
+          <span className="block text-2xl sm:text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent max-w-2xl mx-auto">
             Discover our curated collection for your next adventure.
-          </h6>
+          </span>
         </div>
 
         <div>

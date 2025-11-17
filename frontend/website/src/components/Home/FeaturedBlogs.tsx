@@ -45,9 +45,9 @@ const FeaturedBlogs: React.FC = () => {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <BookOpen className="w-8 h-8 mr-3" style={{ color: "#95522C" }} />
-            <h2 className="text-3xl font-bold" style={{ color: "#95522C" }}>
+            <span className="text-3xl sm:text-3xl md:text-4xl font-bold" style={{ color: "#95522C" }}>
               Featured Articles
-            </h2>
+            </span>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover insights, tips, and stories from our expert team
