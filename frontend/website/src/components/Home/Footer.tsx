@@ -38,10 +38,10 @@ const Footer: React.FC = () => {
             <div className="flex items-start space-x-2 mb-4 sm:mb-6">
               <h4 className="font-bold text-dark">Flaunt by Nishi</h4>
             </div>
-            <p className="text-lg text-dark mb-4 sm:mb-6 leading-relaxed max-w-[280px]">
+            <span className="text-xl text-dark mb-4 sm:mb-6 leading-relaxed max-w-[280px]">
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
-            </p>
+            </span>
             <div className="flex space-x-3 sm:space-x-4 mt-12 items-center" role="navigation" aria-label="Social links">
               <a
                 href="#"
