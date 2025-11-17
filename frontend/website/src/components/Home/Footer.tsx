@@ -10,7 +10,9 @@ const Footer: React.FC = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/categories");
+        const res = await axios.get(
+          "https://ecommerce-fashion-app-som7.vercel.app/api/categories"
+        );
         const data = res.data && res.data.data ? res.data.data : [];
         setCategories(data.slice(0, 10));
       } catch (err) {
@@ -42,7 +44,11 @@ const Footer: React.FC = () => {
               Fashion that speaks your language. Curated collections for the
               modern wardrobe. Style without compromise.
             </span>
-            <div className="flex space-x-3 sm:space-x-4 mt-12 items-center" role="navigation" aria-label="Social links">
+            <div
+              className="flex space-x-3 sm:space-x-4 mt-12 items-center"
+              role="navigation"
+              aria-label="Social links"
+            >
               <a
                 href="#"
                 aria-label="Facebook"
@@ -77,7 +83,9 @@ const Footer: React.FC = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <h4 className="text-2xl font-semibold mb-3 text-dark">Categories</h4>
+            <h4 className="text-2xl font-semibold mb-3 text-dark">
+              Categories
+            </h4>
             <ul className="space-y-3 mb-6 mt-7">
               {categories.length === 0 && (
                 <li className="text-sm text-dark/70">No categories</li>
@@ -184,7 +192,9 @@ const Footer: React.FC = () => {
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-dark/80">
-              <p className="text-lg m-0">&copy; {currentYear} Flaunt by Nishi. All rights reserved.</p>
+              <p className="text-lg m-0">
+                &copy; {currentYear} Flaunt by Nishi. All rights reserved.
+              </p>
             </div>
             <div className="flex items-center space-x-6">
               <a
@@ -225,8 +235,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
-
-      
     </footer>
   );
 };
