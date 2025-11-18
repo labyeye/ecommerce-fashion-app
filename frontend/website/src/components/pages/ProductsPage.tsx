@@ -47,12 +47,12 @@ const ProductPage: React.FC = () => {
 
       let url = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
       const params = new URLSearchParams();
+      let resolvedCategory = '';
 
       if (categoryParam) {
         // Normalize category parameter: API expects either an ObjectId or a slug.
         // Some parts of the app may pass a category name (e.g. "Brunch Ready")
-        // so convert common name-style values into a slug (brunch-ready) before
-        // sending to the backend. If the value is already an ObjectId, leave it.
+        // so convert name-style values into a slug (brunch-ready) before sending.
         const isObjectId = /^[0-9a-fA-F]{24}$/.test(categoryParam);
         const slugify = (s: string) =>
           s
@@ -63,7 +63,9 @@ const ProductPage: React.FC = () => {
             .replace(/[^a-z0-9\-]/g, '')
             .replace(/-+/g, '-');
 
-        const resolvedCategory = isObjectId ? categoryParam : slugify(decodeURIComponent(categoryParam));
+        const decoded = decodeURIComponent(categoryParam);
+        resolvedCategory = isObjectId ? categoryParam : slugify(decoded);
+        console.log('ProductsPage: categoryParam=', categoryParam, 'decoded=', decoded, 'resolvedCategory=', resolvedCategory);
         params.append('category', resolvedCategory);
       }
       if (searchQuery) params.append('search', searchQuery);
@@ -84,20 +86,71 @@ const ProductPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
+        const body = await response.text();
+        console.error('Products API returned non-OK status', response.status, body);
         throw new Error(`Server responded with status ${response.status}`);
       }
 
-      const result = await response.json();
-      console.log('Server response:', result);
+      const resultText = await response.text();
+      let result: any;
+      try {
+        result = JSON.parse(resultText);
+      } catch (err) {
+        console.warn('Products API returned non-JSON response:', resultText);
+        result = { success: false, data: [] };
+      }
+      console.log('Products API response (parsed):', result);
 
       // Check the actual structure of the response
       if (result.success) {
         if (result.data?.products) {
-          // Case 1: When products are nested under data
+          // Case 1: When products are nested under data (e.g. category/:id/products)
           setData(result.data);
         } else if (Array.isArray(result.data)) {
-          // Case 2: When data is the products array directly
+          // Case 2: When data is the products array directly (e.g. /api/products)
+          // If empty and a categoryParam was provided, attempt a fallback lookup
+          if (result.data.length === 0 && categoryParam) {
+            try {
+              const API_BASE = 'https://ecommerce-fashion-app-som7.vercel.app/api';
+              const decoded = decodeURIComponent(categoryParam);
+              // Try to find a matching category by slug or name
+              const catResp = await fetch(`${API_BASE}/categories`);
+              if (catResp.ok) {
+                const catJson = await catResp.json();
+                const categories: any[] = catJson.data || [];
+                const match = categories.find((c: any) => {
+                  if (!c) return false;
+                  const slugMatch = c.slug === resolvedCategory;
+                  const nameMatch = c.name && c.name.toLowerCase() === decoded.toLowerCase();
+                  return slugMatch || nameMatch;
+                });
+
+                if (match) {
+                  // Fetch products by category id
+                  const catProductsResp = await fetch(`${API_BASE}/categories/${match._id}/products`);
+                  if (catProductsResp.ok) {
+                    const catProductsJson = await catProductsResp.json();
+                    if (catProductsJson.success && catProductsJson.data) {
+                      setData({
+                        category: catProductsJson.data.category,
+                        products: catProductsJson.data.products || [],
+                        pagination: {
+                          page: 1,
+                          limit: 12,
+                          total: (catProductsJson.data.products || []).length,
+                          pages: Math.ceil(((catProductsJson.data.products || []).length || 0) / 12)
+                        }
+                      });
+                      return;
+                    }
+                  }
+                }
+              }
+            } catch (fbErr) {
+              console.warn('Fallback category lookup failed', fbErr);
+            }
+          }
+
           setData({
             products: result.data,
             pagination: {
