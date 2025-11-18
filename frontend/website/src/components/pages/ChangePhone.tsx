@@ -17,7 +17,7 @@ const ChangePhone: React.FC = () => {
     if (!phone || !password) return setMessage('Fill all fields');
     setLoading(true);
     try {
-      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-phone', {
+      const res = await fetch('http://localhost:3500/api/customer/change-phone', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -19,7 +19,7 @@ const ChangePassword: React.FC = () => {
     if (newPassword !== confirmPassword) return setMessage('Passwords do not match');
     setLoading(true);
     try {
-      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-password', {
+      const res = await fetch('http://localhost:3500/api/customer/change-password', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

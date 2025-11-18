@@ -80,7 +80,7 @@ const AddressesPage: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile', {
+      const res = await fetch('http://localhost:3500/api/customer/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

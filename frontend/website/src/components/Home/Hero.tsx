@@ -173,14 +173,14 @@ const HeroComponent: React.FC = () => {
         <div className="flex flex-col items-center text-center">
           <div className="max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
             <span
-              className="block text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-36"
+              className="block text-4xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-36"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.title}
             </span>
 
             <span
-              className="block text-xl sm:text-lg md:text-xl lg:text-2xl opacity-90 leading-relaxed mt-2"
+              className="block text-2xl sm:text-lg md:text-xl lg:text-2xl opacity-90 leading-relaxed mt-2"
               style={{ color: currentHero?.textColor || "#ffffff" }}
             >
               {currentHero?.subtitle}

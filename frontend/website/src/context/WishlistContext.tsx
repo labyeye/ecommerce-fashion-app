@@ -29,14 +29,9 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const config = getAuthConfig();
 
-      const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/wishlist", config);
+      const res = await axios.get("http://localhost:3500/api/wishlist", config);
       setWishlist(res.data.wishlist.map((p: any) => p._id));
     } catch (err: any) {
-      console.error(
-        "❌ Error fetching wishlist:",
-        err.response?.status,
-        err.response?.data
-      );
       setWishlist([]);
     }
   };
@@ -46,7 +41,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       const response = await axios.post(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/add",
+        "http://localhost:3500/api/wishlist/add",
         { productId },
         config
       );
@@ -66,7 +61,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       await axios.post(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/remove",
+        "http://localhost:3500/api/wishlist/remove",
         { productId },
         config
       );

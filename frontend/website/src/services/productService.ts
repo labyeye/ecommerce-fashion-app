@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
+const API_URL = 'http://localhost:3500/api/products';
 // Derive backend base URL from the API_URL so we can build absolute image URLs
 const BACKEND_BASE = API_URL.replace('/api/products', '');
 

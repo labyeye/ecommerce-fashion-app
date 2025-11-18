@@ -15,7 +15,7 @@ const Reviews: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/reviews?limit=12");
+      const res = await axios.get("http://localhost:3500/api/reviews?limit=12");
       const data = res.data && res.data.data ? res.data.data : [];
       // Transform server reviews into local shape
       const formatted = data.map((r: any, idx: number) => ({

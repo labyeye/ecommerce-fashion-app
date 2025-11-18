@@ -45,7 +45,7 @@ const ProductPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
+      let url = 'http://localhost:3500/api/products';
       const params = new URLSearchParams();
 
       if (categoryParam) {
@@ -59,7 +59,6 @@ const ProductPage: React.FC = () => {
       params.append('status', 'active');
 
       const finalUrl = `${url}?${params.toString()}`;
-      console.log('Fetching products from:', finalUrl);
 
       const response = await fetch(finalUrl, {
         method: 'GET',
@@ -71,7 +70,6 @@ const ProductPage: React.FC = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Server error response:', errorText);
         throw new Error(`Server responded with status ${response.status}`);
       }
 
@@ -174,7 +172,7 @@ const ProductPage: React.FC = () => {
               <p className="text-[#95522C] mb-2">{error}</p>
               <p className="text-sm text-[#95522C]">
                 If the issue persists, please make sure:
-                <br />1. The backend server is running at https://ecommerce-fashion-app-som7.vercel.app
+                <br />1. The backend server is running at http://localhost:3500
                 <br />2. You have an active internet connection
                 <br />3. You have the required permissions
               </p>

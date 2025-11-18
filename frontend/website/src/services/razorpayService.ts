@@ -85,7 +85,7 @@ export class RazorpayService {
   async createOrder(orderData: any): Promise<any> {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/payments/create-order', {
+      const response = await fetch('http://localhost:3500/api/payments/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export class RazorpayService {
   }): Promise<any> {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/payments/verify', {
+      const response = await fetch('http://localhost:3500/api/payments/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ export class RazorpayService {
   async handlePaymentFailure(orderId: string, error: any): Promise<void> {
     try {
       const token = localStorage.getItem('token');
-      await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/payments/failure', {
+      await fetch('http://localhost:3500/api/payments/failure', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

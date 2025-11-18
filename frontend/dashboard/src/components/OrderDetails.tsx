@@ -88,7 +88,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         setLoading(true);
         setError('');
 
-        const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`, {
+        const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
     try {
       setUpdatingStatus(true);
-      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:3500/api/admin/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -593,7 +593,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   onClick={async () => {
                     if (!token) return alert('Not authenticated');
                     try {
-                      const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/create-shipment`, {
+                      const resp = await fetch(`http://localhost:3500/api/admin/orders/${order._id}/create-shipment`, {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                       });
@@ -601,7 +601,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                       if (!resp.ok) throw new Error(json.message || 'Failed to create shipment');
                       alert('Shipment created successfully');
                       // refresh order details
-                      const details = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/details`, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+                      const details = await fetch(`http://localhost:3500/api/admin/orders/${order._id}/details`, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
                       const djson = await details.json();
                       if (details.ok) setOrder(djson.data.order);
                     } catch (e: any) {

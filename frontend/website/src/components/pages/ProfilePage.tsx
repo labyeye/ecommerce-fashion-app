@@ -66,7 +66,7 @@ const ProfilePage: React.FC = () => {
       formData.append("profilePicture", file);
 
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile-picture",
+        "http://localhost:3500/api/customer/profile-picture",
         {
           method: "POST",
           headers: {
@@ -133,7 +133,7 @@ const ProfilePage: React.FC = () => {
     setSaving(true);
     try {
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        "http://localhost:3500/api/customer/profile",
         {
           method: "PUT",
           headers: {
@@ -271,7 +271,7 @@ const ProfilePage: React.FC = () => {
         setOrdersError("");
         try {
           const response = await fetch(
-            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders",
+            "http://localhost:3500/api/customer/orders",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -331,7 +331,7 @@ const ProfilePage: React.FC = () => {
       const fetchDashboardData = async () => {
         try {
           const response = await fetch(
-            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/dashboard",
+            "http://localhost:3500/api/customer/dashboard",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -1245,7 +1245,7 @@ const ProfilePage: React.FC = () => {
                 onClick={async () => {
                   try {
                     const response = await fetch(
-                      "https://ecommerce-fashion-app-som7.vercel.app/api/customer/account",
+                      "http://localhost:3500/api/customer/account",
                       {
                         method: "DELETE",
                         headers: {

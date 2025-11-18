@@ -105,7 +105,7 @@ const OrderDetailsPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${orderId}/details`, {
+        const response = await fetch(`http://localhost:3500/api/customer/orders/${orderId}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const OrderDetailsPage: React.FC = () => {
     let mounted = true;
     const fetchStatus = async () => {
       try {
-        const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/orders/status/${orderId}`, {
+        const resp = await fetch(`http://localhost:3500/api/orders/status/${orderId}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         if (!resp.ok) return;
@@ -175,7 +175,7 @@ const OrderDetailsPage: React.FC = () => {
 
     try {
       setConfirmingDelivery(true);
-      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:3500/api/customer/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -74,7 +74,7 @@ const NavigationManagement: React.FC = () => {
   const fetchNavigationLinks = async () => {
     try {
       const token = localStorage.getItem("dashboard_token");
-      const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/navigation", {
+      const response = await fetch("http://localhost:3500/api/navigation", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -98,7 +98,7 @@ const NavigationManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("dashboard_token");
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/admin/categories",
+        "http://localhost:3500/api/admin/categories",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -124,8 +124,8 @@ const NavigationManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("dashboard_token");
       const url = editingId
-        ? `https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${editingId}`
-        : "https://ecommerce-fashion-app-som7.vercel.app/api/navigation";
+        ? `http://localhost:3500/api/navigation/${editingId}`
+        : "http://localhost:3500/api/navigation";
 
       const method = editingId ? "PUT" : "POST";
 
@@ -242,7 +242,7 @@ const NavigationManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("dashboard_token");
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/navigation/${id}`,
+        `http://localhost:3500/api/navigation/${id}`,
         {
           method: "DELETE",
           headers: {

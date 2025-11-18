@@ -54,7 +54,7 @@ const OrderDetailPage: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${id}/details`,
+          `http://localhost:3500/api/customer/orders/${id}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -703,7 +703,7 @@ const OrderDetailPage: React.FC = () => {
                         try {
                           setCanceling(true);
                           const resp = await fetch(
-                            `https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${id}/cancel`,
+                            `http://localhost:3500/api/customer/orders/${id}/cancel`,
                             {
                               method: "PUT",
                               headers: {

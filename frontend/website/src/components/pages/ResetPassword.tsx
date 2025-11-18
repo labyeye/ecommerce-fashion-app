@@ -18,7 +18,7 @@ const ResetPassword: React.FC = () => {
     if (password !== confirm) return setMessage('Passwords do not match');
     setLoading(true);
     try {
-      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/auth/reset-password', {
+      const res = await fetch('http://localhost:3500/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenParam, password })

@@ -60,7 +60,7 @@ const Overview: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          "https://ecommerce-fashion-app-som7.vercel.app/api/admin/dashboard",
+          "http://localhost:3500/api/admin/dashboard",
           {
             headers: {
               Authorization: `Bearer ${token}`,

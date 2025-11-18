@@ -99,7 +99,7 @@ const Analytics: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/analytics?days=${timeRange}`,
+          `http://localhost:3500/api/admin/analytics?days=${timeRange}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

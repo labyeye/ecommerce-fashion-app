@@ -396,7 +396,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 try {
                   const altData = await altResponse.json();
                   products = altData.products || altData.data || [];
-                  
                 } catch (altParseErr) {
                   console.warn("⚠️ Failed to parse alt API JSON:", altParseErr);
                 }
@@ -419,7 +418,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       }
 
       setSearchResults(products);
-      
     } catch (error) {
       console.error("❌ Search error:", error);
       setSearchResults([]);
@@ -578,10 +576,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                             {link.dropdownItems
                               .filter((item) => item.isActive)
                               .sort((a, b) => a.sortOrder - b.sortOrder)
-                              .map((item, index) => (
-                                <h6>
+                              .map((item, dropdownIndex) => (
+                                <h6
+                                  key={item.url || item.name || dropdownIndex}
+                                >
                                   <a
-                                    key={index}
                                     href={item.url}
                                     className="block px-4 py-3 font-bold hover:bg-fashion-cream hover:text-fashion-accent-brown transition-colors duration-300 text-fashion-dark-gray"
                                   >
@@ -594,9 +593,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       )}
                     </div>
                   ) : (
-                    <h6>
+                    <h6 key={link._id}>
                       <a
-                        key={link._id}
                         href={link.url}
                         className={`flex items-center text-lg font-bold tracking-wide hover:text-fashion-accent-brown transition-colors duration-300 relative group ${getTextColorClass()} text-fashion-dark-gray`}
                       >
@@ -674,9 +672,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       {/* Results container */}
                       <div className="flex-1 overflow-y-auto p-4 bg-white">
                         {searchLoading && (
-                            <div className="flex items-center justify-center py-4">
+                          <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                            <p className="ml-2 text-gray-500 m-0">Searching...</p>
+                            <p className="ml-2 text-gray-500 m-0">
+                              Searching...
+                            </p>
                           </div>
                         )}
 
@@ -734,11 +734,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                                             {(() => {
                                               const p: any = product;
-                                              const imgSrc = p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0
-                                                ? p.colors[0].images[0].url
-                                                : p.imageUrl || null;
+                                              const imgSrc =
+                                                p.colors &&
+                                                p.colors.length > 0 &&
+                                                p.colors[0].images &&
+                                                p.colors[0].images.length > 0
+                                                  ? p.colors[0].images[0].url
+                                                  : p.imageUrl || null;
                                               return imgSrc ? (
-                                                <img src={imgSrc} alt={p.name} className="w-full h-full object-cover" />
+                                                <img
+                                                  src={imgSrc}
+                                                  alt={p.name}
+                                                  className="w-full h-full object-cover"
+                                                />
                                               ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                   <ShoppingCart className="w-4 h-4" />
@@ -788,7 +796,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   {user ? (
                     <>
                       <div className="px-4 py-3 text-sm text-tertiary border-b border-tertiary/10 ">
-                        <p className="font-medium m-0">Welcome, {user.firstName}!</p>
+                        <p className="font-medium m-0">
+                          Welcome, {user.firstName}!
+                        </p>
                       </div>
                       <Link
                         to="/profile"
@@ -995,9 +1005,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                             .filter((item) => item.isActive)
                             .sort((a, b) => a.sortOrder - b.sortOrder)
                             .map((item, dropdownIndex) => (
-                              <h6>
+                              <h6
+                                key={item.url || item.name || dropdownIndex}
+                              >
                                 <a
-                                  key={dropdownIndex}
                                   href={item.url}
                                   className="block text-xl text-tertiary hover:text-fashion-accent-brown transition-all duration-300 transform"
                                   style={{
@@ -1070,7 +1081,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 {/* Results container (same behavior as desktop) */}
                 <div className="flex-1 overflow-y-auto p-4 bg-white">
                   {searchLoading && (
-                      <div className="flex items-center justify-center py-4">
+                    <div className="flex items-center justify-center py-4">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
                       <p className="ml-2 text-gray-500 m-0">Searching...</p>
                     </div>
@@ -1130,11 +1141,19 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                     <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                                       {(() => {
                                         const p: any = product;
-                                        const imgSrc = p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0
-                                          ? p.colors[0].images[0].url
-                                          : p.imageUrl || null;
+                                        const imgSrc =
+                                          p.colors &&
+                                          p.colors.length > 0 &&
+                                          p.colors[0].images &&
+                                          p.colors[0].images.length > 0
+                                            ? p.colors[0].images[0].url
+                                            : p.imageUrl || null;
                                         return imgSrc ? (
-                                          <img src={imgSrc} alt={p.name} className="w-full h-full object-cover" />
+                                          <img
+                                            src={imgSrc}
+                                            alt={p.name}
+                                            className="w-full h-full object-cover"
+                                          />
                                         ) : (
                                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                                             <ShoppingCart className="w-4 h-4" />
