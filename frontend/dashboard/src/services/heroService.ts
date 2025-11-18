@@ -60,7 +60,7 @@ export interface CreateHeroData {
 }
 
 class HeroService {
-  private baseURL = 'http://localhost:3500/api/heroes';
+  private baseURL = 'https://ecommerce-fashion-app-som7.vercel.app/api/heroes';
 
   async getAllHeroes(token: string): Promise<Hero[]> {
     try {

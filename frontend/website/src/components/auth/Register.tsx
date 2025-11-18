@@ -97,7 +97,7 @@ const Register: React.FC = () => {
 
   const handleGoogleCallback = async (response: any) => {
     try {
-      const res = await fetch("http://localhost:3500/api/auth/google", {
+      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken: response.credential }),

@@ -20,14 +20,14 @@ const sliderConfigs: Record<ProductSliderProps["type"], SliderConfig> = {
     title: "New Arrivals",
     description: "Fresh off the runway, straight to your wardrobe",
     apiEndpoint:
-      "http://localhost:3500/api/products?isNewArrival=true",
+      "https://ecommerce-fashion-app-som7.vercel.app/api/products?isNewArrival=true",
     emptyMessage: "New arrivals coming soon",
   },
   "best-sellers": {
     title: "Timeless Styles",
     description: "Designed for Dreamers and Loved by Travelers",
     apiEndpoint:
-      "http://localhost:3500/api/products?isBestSeller=true",
+      "https://ecommerce-fashion-app-som7.vercel.app/api/products?isBestSeller=true",
     emptyMessage: "Stay tuned for our best sellers",
   },
 };

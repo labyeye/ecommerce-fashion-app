@@ -44,7 +44,7 @@ const Wishlist: React.FC = () => {
         const config = getAuthConfig();
 
         const res = await axios.get(
-          "http://localhost:3500/api/wishlist",
+          "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist",
           config
         );
         setWishlist(res.data.wishlist || []);
@@ -64,7 +64,7 @@ const Wishlist: React.FC = () => {
       const config = getAuthConfig();
 
       await axios.post(
-        "http://localhost:3500/api/wishlist/remove",
+        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/remove",
         { productId },
         config
       );

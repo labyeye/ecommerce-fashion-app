@@ -70,7 +70,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
         ...(statusFilter && { status: statusFilter })
       });
 
-      const response = await fetch(`http://localhost:3500/api/admin/products?${queryParams}`, {
+      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/products?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
         throw new Error('No authentication token found. Please login again.');
       }
 
-      const response = await fetch(`http://localhost:3500/api/admin/products/${productId}`, {
+      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

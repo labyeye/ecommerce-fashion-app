@@ -13,7 +13,7 @@ const ForgotPassword: React.FC = () => {
     if (!email) return setMessage('Please enter your email');
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3500/api/auth/forgot-password', {
+      const res = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

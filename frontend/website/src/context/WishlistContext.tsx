@@ -29,7 +29,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const config = getAuthConfig();
 
-      const res = await axios.get("http://localhost:3500/api/wishlist", config);
+      const res = await axios.get("https://ecommerce-fashion-app-som7.vercel.app/api/wishlist", config);
       setWishlist(res.data.wishlist.map((p: any) => p._id));
     } catch (err: any) {
       setWishlist([]);
@@ -41,7 +41,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       const response = await axios.post(
-        "http://localhost:3500/api/wishlist/add",
+        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/add",
         { productId },
         config
       );
@@ -61,7 +61,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       await axios.post(
-        "http://localhost:3500/api/wishlist/remove",
+        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/remove",
         { productId },
         config
       );

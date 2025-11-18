@@ -1,7 +1,7 @@
 # Quick Testing Checklist
 
 ## Before Testing
-- [ ] Backend running on `http://localhost:3500`
+- [ ] Backend running on `https://ecommerce-fashion-app-som7.vercel.app`
 - [ ] Frontend running on `http://localhost:5173` (or your Vite port)
 - [ ] Email service configured in backend `.env`
 - [ ] Run `npm install` in backend folder to install axios
