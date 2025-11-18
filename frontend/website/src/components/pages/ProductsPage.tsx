@@ -49,7 +49,22 @@ const ProductPage: React.FC = () => {
       const params = new URLSearchParams();
 
       if (categoryParam) {
-        params.append('category', categoryParam);
+        // Normalize category parameter: API expects either an ObjectId or a slug.
+        // Some parts of the app may pass a category name (e.g. "Brunch Ready")
+        // so convert common name-style values into a slug (brunch-ready) before
+        // sending to the backend. If the value is already an ObjectId, leave it.
+        const isObjectId = /^[0-9a-fA-F]{24}$/.test(categoryParam);
+        const slugify = (s: string) =>
+          s
+            .toString()
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9\-]/g, '')
+            .replace(/-+/g, '-');
+
+        const resolvedCategory = isObjectId ? categoryParam : slugify(decodeURIComponent(categoryParam));
+        params.append('category', resolvedCategory);
       }
       if (searchQuery) params.append('search', searchQuery);
       params.append('page', currentPage.toString());
