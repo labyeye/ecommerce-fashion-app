@@ -174,28 +174,12 @@ const Register: React.FC = () => {
   };
 
   const passwordRules = (p: string) => {
-    const sequences = [
-      "0123",
-      "1234",
-      "2345",
-      "3456",
-      "4567",
-      "5678",
-      "6789",
-    ];
-
-    const lower = p.toLowerCase();
-
-    const hasCommonSeq = sequences.some((seq) =>
-      lower.includes(seq) || lower.includes(seq.split("").reverse().join(""))
-    );
 
     return {
       minLength: p.length >= 8,
       hasLetter: /[A-Za-z]/.test(p),
       hasNumber: /[0-9]/.test(p),
       hasSpecial: /[^A-Za-z0-9]/.test(p),
-      noCommonSequence: !hasCommonSeq,
     };
   };
 
@@ -221,13 +205,12 @@ const Register: React.FC = () => {
     } else {
       const pass = formData.password;
       const rules = passwordRules(pass);
-      if (!rules.minLength || !rules.hasLetter || !rules.hasNumber || !rules.hasSpecial || !rules.noCommonSequence) {
+      if (!rules.minLength || !rules.hasLetter || !rules.hasNumber || !rules.hasSpecial) {
         const msgs: string[] = [];
         if (!rules.minLength) msgs.push("be at least 8 characters");
         if (!rules.hasLetter) msgs.push("include a letter");
         if (!rules.hasNumber) msgs.push("include a number");
         if (!rules.hasSpecial) msgs.push("include a special character");
-        if (!rules.noCommonSequence) msgs.push("avoid simple number sequences like 1234");
         newErrors.password = "Password must " + msgs.join(", ");
       }
     }
@@ -572,16 +555,7 @@ const Register: React.FC = () => {
                             </span>
                           </li>
 
-                          <li className="flex items-center text-sm">
-                            {rules.noCommonSequence ? (
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                            ) : (
-                              <span className="inline-block w-4 h-4 mr-2 rounded-full border border-gray-300" />
-                            )}
-                            <span className={rules.noCommonSequence ? "text-gray-800" : "text-gray-500"}>
-                              Avoid simple number sequences like 1234
-                            </span>
-                          </li>
+                          
                         </ul>
                       );
                     })()}

@@ -5,60 +5,89 @@
 @layer components {
   /* Neomorphic card */
   .neo-card {
-    @apply bg-ds-100 rounded-xl;
-    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.08),
-      -8px -8px 18px rgba(255, 255, 255, 0.8);
+    @apply bg-neutral-card;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   }
 
   /* Slightly elevated card for stronger emphasis */
   .neo-card--elevated {
-    @apply bg-ds-100 rounded-xl;
-    box-shadow: 18px 18px 40px rgba(0, 0, 0, 0.12),
-      -10px -10px 20px rgba(255, 255, 255, 0.85);
+    @apply bg-neutral-card;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   }
 
   /* Inset style for input-like panels */
   .neo-inset {
-    @apply bg-ds-100 rounded-lg;
-    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.04),
-      inset -6px -6px 12px rgba(255, 255, 255, 0.7);
+    @apply bg-neutral-card;
+    border-radius: 12px;
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.02);
   }
 
   /* Neomorphic primary button */
   .neo-button {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-ds-100 bg-ds-700;
-    box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.12),
-      -4px -4px 12px rgba(255, 255, 255, 0.75);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    @apply inline-flex items-center justify-center px-4 py-2 text-white bg-primary-500;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 120ms ease;
+  }
+
+  .neo-button:hover {
+    background-color: #DB6516; /* primary-600 */
   }
 
   .neo-button:active {
     transform: translateY(1px);
-    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08),
-      -2px -2px 6px rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
 }
 
 /* Dashboard card styles: stronger drop shadow and hover lift for all rounded ds-100 cards */
 @layer components {
   .dash-card,
-  .bg-ds-100.rounded-xl,
-  .bg-ds-100.rounded-lg {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  .bg-neutral-card.rounded-xl,
+  .bg-neutral-card.rounded-lg {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     transition: transform 180ms ease, box-shadow 180ms ease;
+    border-radius: 18px;
+    background-color: #FFFFFF;
+    border: 1px solid #E8E8E8;
   }
 
   .dash-card:hover,
-  .bg-ds-100.rounded-xl:hover,
-  .bg-ds-100.rounded-lg:hover {
+  .bg-neutral-card.rounded-xl:hover,
+  .bg-neutral-card.rounded-lg:hover {
     transform: translateY(-6px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.04);
   }
 
   /* Slightly stronger inset for interactive elements */
-  .bg-ds-100.rounded-xl:active,
-  .bg-ds-100.rounded-lg:active {
+  .bg-neutral-card.rounded-xl:active,
+  .bg-neutral-card.rounded-lg:active {
     transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
   }
+}
+
+/* Global background */
+body {
+  background-color: #FDFDFD; /* neutral.background */
+  color: #4A4A4A; /* body text */
+}
+
+/* Utility: subtle text */
+.text-subtle { color: #808080; }
+
+/* Buttons */
+.btn-secondary {
+  background-color: #FFE8D9; /* primary-100 */
+  color: #7A3008; /* primary-900 */
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+}
+
+.search-input {
+  border: 1px solid #FFD2B5; /* primary-200 */
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
 }

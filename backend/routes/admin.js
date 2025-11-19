@@ -31,6 +31,39 @@ router.get("/dashboard", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(10);
 
+    // Get location counts (group by shipping or billing country where available)
+    const locAgg = await Order.aggregate([
+      {
+        $project: {
+          country: {
+            $trim: {
+              input: {
+                $ifNull: [
+                  "$shippingAddress.country",
+                  { $ifNull: ["$billingAddress.country", null] }
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $match: { country: { $ne: null } } },
+      {
+        $group: {
+          _id: "$country",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    const locationCounts = {};
+    locAgg.forEach((it) => {
+      if (!it._id) return;
+      const key = String(it._id).trim();
+      locationCounts[key] = it.count || 0;
+    });
+
     // Get low stock products
     const lowStockProducts = await Product.find({
       "stock.quantity": { $lte: 10 },
@@ -97,6 +130,7 @@ router.get("/dashboard", async (req, res) => {
         recentOrders,
         lowStockProducts,
         orderStatusCounts,
+        locationCounts,
       },
     });
   } catch (error) {
@@ -1204,6 +1238,81 @@ router.get("/analytics", async (req, res) => {
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // Build a time-series `series` for charting based on the requested `days` range.
+    // For small ranges (<= 60 days) return daily buckets; for larger ranges return monthly buckets.
+    let series = [];
+    try {
+      const start = startDate;
+      const end = new Date();
+
+      if ((days || 0) <= 60) {
+        // daily aggregation
+        const dailyAgg = await Order.aggregate([
+          { $match: { createdAt: { $gte: start } } },
+          {
+            $group: {
+              _id: {
+                year: { $year: "$createdAt" },
+                month: { $month: "$createdAt" },
+                day: { $dayOfMonth: "$createdAt" },
+              },
+              revenue: { $sum: "$total" },
+              orders: { $sum: 1 },
+            },
+          },
+          { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
+        ]);
+
+        const map = {};
+        dailyAgg.forEach((it) => {
+          const dt = new Date(it._id.year, it._id.month - 1, it._id.day);
+          const key = dt.toISOString().slice(0, 10);
+          const label = dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+          map[key] = { date: label, revenue: it.revenue || 0, orders: it.orders || 0 };
+        });
+
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          const key = d.toISOString().slice(0, 10);
+          const label = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+          const val = map[key] || { revenue: 0, orders: 0 };
+          series.push({ date: label, revenue: val.revenue, orders: val.orders });
+        }
+      } else {
+        // monthly aggregation
+        const monthlyAggForRange = await Order.aggregate([
+          { $match: { createdAt: { $gte: start } } },
+          {
+            $group: {
+              _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+              revenue: { $sum: "$total" },
+              orders: { $sum: 1 },
+            },
+          },
+          { $sort: { "_id.year": 1, "_id.month": 1 } },
+        ]);
+
+        const map = {};
+        monthlyAggForRange.forEach((it) => {
+          const key = `${it._id.year}-${String(it._id.month).padStart(2, "0")}`;
+          const label = `${monthNames[it._id.month - 1]} ${it._id.year}`;
+          map[key] = { revenue: it.revenue || 0, orders: it.orders || 0, label };
+        });
+
+        // iterate months from start to end (inclusive)
+        let cur = new Date(start.getFullYear(), start.getMonth(), 1);
+        const last = new Date(end.getFullYear(), end.getMonth(), 1);
+        while (cur <= last) {
+          const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`;
+          const label = `${monthNames[cur.getMonth()]} ${cur.getFullYear()}`;
+          const val = map[key] || { revenue: 0, orders: 0 };
+          series.push({ date: label, revenue: val.revenue, orders: val.orders });
+          cur.setMonth(cur.getMonth() + 1);
+        }
+      }
+    } catch (err) {
+      console.error("Error building analytics series:", err);
+      series = [];
+    }
 
     const dailyRevenue = await Order.aggregate([
       {
@@ -1276,6 +1385,7 @@ router.get("/analytics", async (req, res) => {
       topProducts,
       topCustomers,
       monthlyRevenue: formattedMonthlyRevenue,
+      series,
       orderStatusDistribution,
     };
 

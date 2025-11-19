@@ -107,15 +107,15 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ds-900">Customer Management</h1>
-          <p className="text-ds-700 mt-1">Manage and analyze your customer base</p>
+          <h1 className="text-2xl font-bold text-heading">Customer Management</h1>
+          <p className="text-subtle mt-1">Manage and analyze your customer base</p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-ds-100 border border-ds-200 rounded-lg hover:bg-ds-200 transition-colors">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-neutral-card border border-neutral-border rounded-lg hover:bg-primary-100 transition-colors">
             <Download className="w-4 h-4" />
             <span>Export</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-ds-700 text-ds-100 rounded-lg hover:bg-ds-800 transition-colors">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
             <Mail className="w-4 h-4" />
             <span>Send Campaign</span>
           </button>
@@ -124,10 +124,10 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
 
       {/* Customer Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-ds-100 p-6 rounded-xl shadow-sm border border-ds-200">
-          <div className="text-2xl font-bold text-ds-900">{stats.totalCustomers}</div>
-          <div className="text-sm text-ds-700">Total Customers</div>
-          <div className="text-xs text-ds-700 mt-1">All registered users</div>
+        <div className="bg-neutral-card p-6 rounded-xl shadow-sm border border-neutral-border">
+          <div className="text-2xl font-bold text-heading">{stats.totalCustomers}</div>
+          <div className="text-sm text-subtle">Total Customers</div>
+          <div className="text-xs text-subtle mt-1">All registered users</div>
         </div>
         <div className="bg-ds-100 p-6 rounded-xl shadow-sm border border-ds-200">
           <div className="text-2xl font-bold text-ds-900">{stats.activeCustomers}</div>
@@ -147,22 +147,22 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+      <div className="bg-neutral-card rounded-xl shadow-sm border border-neutral-border p-6">
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ds-500 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-subtle w-5 h-5" />
             <input
               type="text"
               placeholder="Search customers by name, email, or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-ds-200 rounded-lg focus:ring-2 focus:ring-ds-600 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 search-input"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-ds-200 rounded-lg focus:ring-2 focus:ring-ds-600 focus:border-transparent"
+            className="px-4 py-2 border border-neutral-border rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -170,7 +170,7 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
           </select>
           <button
             onClick={fetchCustomers}
-            className="flex items-center space-x-2 px-4 py-2 bg-ds-700 text-ds-100 rounded-lg hover:bg-ds-800 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <Search className="w-4 h-4" />
             <span>Search</span>
@@ -179,9 +179,9 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       </div>
 
       {/* Customer Table */}
-      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-ds-300">
-          <h3 className="text-lg font-semibold text-ds-900">Customer List</h3>
+      <div className="bg-neutral-card rounded-xl shadow-sm border border-neutral-border overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-border">
+          <h3 className="text-lg font-semibold text-heading">Customer List</h3>
         </div>
 
         {loading && (
@@ -200,15 +200,15 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
         {!loading && !error && (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-ds-200">
+              <thead className="bg-primary-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
                     Loyalty Tier
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
                     Joined
                   </th>
                   <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
@@ -228,24 +228,24 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-ds-100 divide-y divide-ds-300">
+              <tbody className="bg-neutral-card divide-y divide-neutral-border">
                 {customers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-ds-700">
+                    <td colSpan={7} className="px-6 py-12 text-center text-subtle">
                       No customers found
                     </td>
                   </tr>
                 ) : (
                   customers.map((customer) => (
-                    <tr key={customer._id} className="hover:bg-ds-200">
+                    <tr key={customer._id} className="hover:bg-primary-100">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-ds-900">
+                          <div className="text-sm font-medium text-heading">
                             {customer.firstName} {customer.lastName}
                           </div>
-                          <div className="text-sm text-ds-700">{customer.email}</div>
+                          <div className="text-sm text-subtle">{customer.email}</div>
                           {/* Mobile compact info */}
-                          <div className="sm:hidden text-sm text-ds-700 mt-1">
+                          <div className="sm:hidden text-sm text-subtle mt-1">
                             <div>{customer.phone || 'No phone'}</div>
                             <div className="truncate">
                               {customer.address?.city ? `${customer.address.city}${customer.address?.state ? ', ' + customer.address.state : ''}` : 'No address'}
@@ -254,12 +254,12 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-ds-900">
+                        <div className="text-sm text-heading">
                           {customer.phone || 'No phone'}
                         </div>
                       </td>
                       <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-ds-900">
+                        <div className="text-sm text-heading">
                           {customer.address?.city && customer.address?.state
                             ? `${customer.address.city}, ${customer.address.state}`
                             : 'No address'
@@ -269,20 +269,20 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
   {customer.loyaltyTier ? (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-      customer.loyaltyTier === 'gold' ? 'bg-ds-100 text-ds-800' :
-      customer.loyaltyTier === 'silver' ? 'bg-ds-100 text-ds-800' :
+      customer.loyaltyTier === 'gold' ? 'bg-primary-100 text-primary-900' :
+      customer.loyaltyTier === 'silver' ? 'bg-primary-100 text-primary-900' :
       'bg-amber-100 text-amber-800'
     }`}>
       {customer.loyaltyTier}
     </span>
-  ) : (
-    <span className="text-ds-700">None</span>
+    ) : (
+    <span className="text-subtle">None</span>
   )}
 </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-ds-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle">
                         {new Date(customer.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-ds-700">
+                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-subtle">
                         {customer.lastLogin
                           ? new Date(customer.lastLogin).toLocaleDateString()
                           : 'Never'
@@ -296,13 +296,13 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button
                           onClick={() => onViewDetails(customer._id)}
-                          className="text-ds-700 hover:text-ds-900"
+                          className="text-primary-900 hover:text-primary-700"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
-                          className="text-ds-700 hover:text-ds-900"
+                          className="text-primary-900 hover:text-primary-700"
                           title="Send Email"
                         >
                           <Mail className="w-4 h-4" />

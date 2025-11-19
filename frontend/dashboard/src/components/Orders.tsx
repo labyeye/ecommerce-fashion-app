@@ -140,56 +140,56 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ds-900">Order Management</h1>
-          <p className="text-ds-700 mt-1">Track and manage all customer orders</p>
+          <h1 className="text-2xl font-bold text-heading">Order Management</h1>
+          <p className="text-subtle mt-1">Track and manage all customer orders</p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-ds-100 border border-ds-200 rounded-lg hover:bg-ds-200 transition-colors">
-            <Download className="w-4 h-4" />
-            <span>Export CSV</span>
+          <button className="flex items-center space-x-2 px-4 py-2 bg-primary-100 border border-neutral-border rounded-lg hover:bg-primary-200 transition-colors">
+            <Download className="w-4 h-4 text-primary-600" />
+            <span className="text-body">Export CSV</span>
           </button>
-          <button className="px-4 py-2 bg-ds-700 text-ds-100 rounded-lg hover:bg-ds-800 transition-colors">
+          <button className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
             Bulk Update
           </button>
         </div>
       </div>
 
       {/* Order Pipeline */}
-      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
+      <div className="bg-neutral-card rounded-xl shadow-sm border border-neutral-border p-6">
         <h3 className="text-lg font-semibold text-ds-900 mb-4">Order Pipeline</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-ds-100 rounded-lg border border-ds-200">
-            <Package className="w-8 h-8 text-ds-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-ds-900">{getStatusCount('pending')}</div>
-            <div className="text-sm text-ds-700">Pending</div>
+          <div className="text-center p-4 bg-neutral-card rounded-lg border border-neutral-border">
+            <Package className="w-8 h-8 text-primary-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-heading">{getStatusCount('pending')}</div>
+            <div className="text-sm text-subtle">Pending</div>
           </div>
           <div className="text-center p-4 bg-ds-100 rounded-lg border border-ds-200">
-            <Package className="w-8 h-8 text-ds-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-ds-900">{getStatusCount('processing')}</div>
-            <div className="text-sm text-ds-700">Processing</div>
+            <Package className="w-8 h-8 text-primary-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-heading">{getStatusCount('processing')}</div>
+            <div className="text-sm text-subtle">Processing</div>
           </div>
-          <div className="text-center p-4 bg-ds-100 rounded-lg border border-ds-200">
-            <Truck className="w-8 h-8 text-ds-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-ds-900">{getStatusCount('shipped')}</div>
-            <div className="text-sm text-ds-700">Shipped</div>
+          <div className="text-center p-4 bg-neutral-card rounded-lg border border-neutral-border">
+            <Truck className="w-8 h-8 text-primary-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-heading">{getStatusCount('shipped')}</div>
+            <div className="text-sm text-subtle">Shipped</div>
           </div>
-          <div className="text-center p-4 bg-ds-100 rounded-lg border border-ds-200">
-            <CheckCircle className="w-8 h-8 text-ds-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-ds-900">{getStatusCount('delivered')}</div>
-            <div className="text-sm text-ds-700">Delivered</div>
+          <div className="text-center p-4 bg-neutral-card rounded-lg border border-neutral-border">
+            <CheckCircle className="w-8 h-8 text-primary-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-heading">{getStatusCount('delivered')}</div>
+            <div className="text-sm text-subtle">Delivered</div>
           </div>
         </div>
       </div>
 
       {/* Search and Filters */}
       <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 p-6">
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ds-500 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-600 w-5 h-5" />
             <input
               type="text"
               placeholder="Search orders by ID, customer, or status..."
-              className="w-full pl-10 pr-4 py-2 border border-ds-200 rounded-lg focus:ring-2 focus:ring-ds-600 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 search-input"
             />
           </div>
           <button className="flex items-center space-x-2 px-4 py-2 border border-ds-200 rounded-lg hover:bg-ds-200">
@@ -200,9 +200,9 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-ds-100 rounded-xl shadow-sm border border-ds-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-ds-300">
-          <h3 className="text-lg font-semibold text-ds-900">Recent Orders</h3>
+      <div className="bg-neutral-card rounded-xl shadow-sm border border-neutral-border overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-border">
+          <h3 className="text-lg font-semibold text-heading">Recent Orders</h3>
         </div>
         <div className="overflow-x-auto">
           {loading ? (
@@ -213,7 +213,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
             <div className="p-6 text-center text-ds-700">No orders found.</div>
           ) : (
             <table className="w-full text-sm">
-            <thead className="bg-ds-200">
+            <thead className="bg-ds-200 text-primary-900">
               <tr>
                   <th className="px-4 py-2 text-left font-semibold">Order #</th>
                   <th className="px-4 py-2 text-left font-semibold">Customer</th>
@@ -226,11 +226,11 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                   <th className="px-4 py-2 text-left font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-ds-100 divide-y divide-ds-300">
+            <tbody className="bg-ds-100 divide-y divide-neutral-border">
                 {orders.map((order) => {
                 const StatusIcon = getStatusIcon(order.status);
                 return (
-                    <tr key={order._id} className="hover:bg-ds-200">
+                    <tr key={order._id} className="hover:bg-primary-50">
                       <td className="px-4 py-2 font-medium">
                         <div className="font-medium">{order.orderNumber}</div>
                         <div className="sm:hidden text-sm text-ds-700 mt-1">
@@ -292,15 +292,15 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                       </td>
                       <td className="px-4 py-2">
                         <div className="flex items-center space-x-2">
-                          <StatusIcon className="w-4 h-4 text-ds-500" />
+                          <StatusIcon className="w-4 h-4 text-primary-900" />
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
                         </div>
                       </td>
                       <td className="px-4 py-2">
-                        <button onClick={() => onViewDetails(order._id)} className="text-ds-700 hover:text-ds-900 mr-3">View</button>
+                        <button onClick={() => onViewDetails(order._id)} className="text-primary-900 hover:text-primary-700 mr-3">View</button>
         {order.status === 'pending' && order.payment?.method === 'razorpay' && order.payment?.status !== 'paid' && (
           <button 
-            className="ml-2 px-3 py-1 bg-ds-700 text-ds-100 rounded hover:bg-ds-800 transition-colors"
+            className="ml-2 px-3 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
             onClick={() => handleConfirmPayment(order._id)}
           >
             Confirm Payment
