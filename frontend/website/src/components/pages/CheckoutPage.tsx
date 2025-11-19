@@ -130,14 +130,13 @@ const CheckoutPage: React.FC = () => {
     setShipping(payload);
     if (useSameAddress) setBilling(payload);
   };
-  useEffect(() => {
-  }, [cartItems, isLoading]);
+  useEffect(() => {}, [cartItems, isLoading]);
   useEffect(() => {
     if (useSameAddress) {
       setBilling(shipping);
     }
   }, [shipping, useSameAddress]);
-  const SHIPPING_FLAT: number = 150;
+  const SHIPPING_FLAT: number = 100;
   let baseAmount = 0; // a
   let taxAmount = 0; // b
   for (const item of cartItems) {
@@ -155,7 +154,10 @@ const CheckoutPage: React.FC = () => {
   const promoDiscountAmount = promoCode?.discountAmount || 0;
   const evolvDiscountAmount = evolvPointsRedemption?.discountAmount || 0;
   const totalDiscountAmount = promoDiscountAmount + evolvDiscountAmount;
-  const total = Math.max(0, baseAmount + taxAmount + shippingCost - totalDiscountAmount);
+  const total = Math.max(
+    0,
+    baseAmount + taxAmount + shippingCost - totalDiscountAmount
+  );
 
   const handleInput = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -224,7 +226,8 @@ const CheckoutPage: React.FC = () => {
   const processRazorpayPayment = async () => {
     try {
       const normalizeAddress = (addr: any) => {
-        const z = addr?.zipCode || addr?.pincode || userProfile?.address?.zipCode || "";
+        const z =
+          addr?.zipCode || addr?.pincode || userProfile?.address?.zipCode || "";
         return {
           ...addr,
           zipCode: String(z || ""),
@@ -233,7 +236,9 @@ const CheckoutPage: React.FC = () => {
       };
 
       const normalizedShipping = normalizeAddress(shipping);
-      const normalizedBilling = useSameAddress ? normalizedShipping : normalizeAddress(billing);
+      const normalizedBilling = useSameAddress
+        ? normalizedShipping
+        : normalizeAddress(billing);
 
       const orderData = {
         items: cartItems.map((item) => ({
@@ -250,7 +255,6 @@ const CheckoutPage: React.FC = () => {
         ...(promoCode?.code && { promoCode: promoCode.code }),
         evolvPointsToRedeem: evolvPointsRedemption?.pointsToRedeem || 0,
       };
-
 
       // Create Razorpay order
       const razorpayOrder = await razorpayService.createOrder(orderData);
@@ -373,7 +377,7 @@ const CheckoutPage: React.FC = () => {
   if (success) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto p-8 bg-white rounded-2xl shadow-lg text-center">
+        <div className="max-w-md mx-auto p-8 bg-background rounded-2xl shadow-lg text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-8 h-8 TEXT-[#95522C]" />
           </div>
@@ -435,16 +439,21 @@ const CheckoutPage: React.FC = () => {
   // Full page processing overlay shown during post-payment verification
   if (processingOrder) {
     return (
-      <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
+      <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center p-6">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#95522C] mb-6" />
-        <h2 className="text-2xl font-bold text-[#95522C] mb-2">Order Processing</h2>
-        <p className="text-[#95522C] text-center max-w-lg">Do not refresh or go back — we are finalizing your payment and confirming your order.</p>
+        <h2 className="text-2xl font-bold text-[#95522C] mb-2">
+          Order Processing
+        </h2>
+        <p className="text-[#95522C] text-center max-w-lg">
+          Do not refresh or go back — we are finalizing your payment and
+          confirming your order.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Progress Bar */}
         <div className="mb-8">
@@ -508,7 +517,7 @@ const CheckoutPage: React.FC = () => {
           {/* Main Checkout Form */}
           <div className="lg:col-span-2">
             {cartItems.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+              <div className="bg-background rounded-2xl shadow-sm p-8 text-center">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Truck className="w-12 h-12 text-gray-400" />
                 </div>
@@ -528,7 +537,7 @@ const CheckoutPage: React.FC = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Shipping Address */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <div className="bg-background rounded-2xl shadow-md p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
                       <MapPin className="w-6 h-6 text-[#95522C] mr-3" />
@@ -673,7 +682,7 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <div className="bg-background rounded-2xl shadow-sm p-6">
                   {savedAddresses && savedAddresses.length > 0 && (
                     <div className="w-full">
                       <div className="text-3xl font-bold text-[#95522C] mb-2">
@@ -698,7 +707,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Billing Address */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <div className="bg-background rounded-2xl shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
                       <CreditCard className="w-6 h-6 text-[#95522C] mr-3" />
@@ -847,7 +856,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Payment Method */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <div className="bg-background rounded-2xl shadow-md p-6">
                   <div className="flex items-center mb-6">
                     <CreditCard className="w-6 h-6 text-[#95522C] mr-3" />
                     <h3 className="text-3xl font-bold text-gray-900">
@@ -933,7 +942,7 @@ const CheckoutPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#95522C] text-white py-4 rounded-lg font-semibold hover:bg-[#2B463C] transition-colors disabled:bg-gray-400 flex items-center justify-center space-x-2"
+                  className="w-full bg-[#95522C] shadow-sm shadow-tertiary text-white py-4 rounded-lg font-semibold hover:bg-[#2B463C] transition-colors disabled:bg-gray-400 flex items-center justify-center space-x-2"
                   disabled={loading}
                 >
                   {loading ? (
@@ -954,7 +963,7 @@ const CheckoutPage: React.FC = () => {
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+            <div className="bg-background rounded-2xl shadow-sm p-6 sticky top-8">
               <h3 className="text-3xl text-[#95522C] mb-6">Order Summary</h3>
 
               {/* Cart Items */}
@@ -1021,7 +1030,9 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-[#95522C]">
                   <span>Tax</span>
-                  <span className="poppins-numeric">₹{taxAmount.toFixed(0)}</span>
+                  <span className="poppins-numeric">
+                    ₹{taxAmount.toFixed(0)}
+                  </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                   <span>Total</span>

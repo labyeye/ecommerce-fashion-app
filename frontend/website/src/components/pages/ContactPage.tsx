@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 const ContactPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-background/30 to-white">
+    <div className="h-full bg-gradient-to-br from-white via-background/30 to-white">
       <Header cartCount={0} onCartClick={() => {}} />
 
       <main>
@@ -27,7 +27,7 @@ const ContactPage: React.FC = () => {
         <section className="bg-[#FFF2E1] backdrop-blur-sm">
           <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-white/20">
+              <div className="backdrop-blur-sm rounded-3xl p-8 mb-20 shadow-lg border border-white/20">
                 <span
                   className="text-5xl font-bold mb-6 block text-center"
                   style={{ color: "#95522C" }}
@@ -35,69 +35,76 @@ const ContactPage: React.FC = () => {
                   Send us a message
                 </span>
                 <form className="space-y-6">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-lg font-medium mb-2"
-                      style={{ color: "#95522C" }}
-                    >
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      className="w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
-                      style={{ boxShadow: "none", outlineColor: "transparent" }}
-                      placeholder="Enter your name"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="block text-lg font-medium mb-2"
+                        style={{ color: "#95522C" }}
+                      >
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        className="w-full px-4 py-3 bg-background placeholder-tertiary border border-tertiary rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
+                        style={{
+                          boxShadow: "none",
+                          outlineColor: "transparent",
+                        }}
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block text-lg font-medium mb-2"
+                        style={{ color: "#95522C" }}
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="w-full px-4 py-3 bg-background placeholder-tertiary border border-tertiary rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
+                        style={{ boxShadow: "none" }}
+                        placeholder="Enter your email"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-lg font-medium mb-2"
-                      style={{ color: "#95522C" }}
-                    >
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      className="w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
-                      style={{ boxShadow: "none" }}
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="subject"
-                      className="block text-lg font-medium mb-2"
-                      style={{ color: "#95522C" }}
-                    >
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      id="subject"
-                      className="w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
-                      style={{ boxShadow: "none" }}
-                      placeholder="What's this about?"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-lg font-medium mb-2"
-                      style={{ color: "#95522C" }}
-                    >
-                      Your Message
-                    </label>
-                    <textarea
-                      id="message"
-                      rows={5}
-                      className="w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
-                      style={{ boxShadow: "none" }}
-                      placeholder="Type your message here..."
-                    ></textarea>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="subject"
+                        className="block text-lg font-medium mb-2"
+                        style={{ color: "#95522C" }}
+                      >
+                        Subject
+                      </label>
+                      <input
+                        type="text"
+                        id="subject"
+                        className="w-full px-4 py-3 bg-background placeholder-tertiary border border-tertiary rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
+                        style={{ boxShadow: "none" }}
+                        placeholder="What's this about?"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="message"
+                        className="block text-lg font-medium mb-2"
+                        style={{ color: "#95522C" }}
+                      >
+                        Your Message
+                      </label>
+                      <textarea
+                        id="message"
+                        rows={5}
+                        className="w-full px-4 py-3 bg-background placeholder-tertiary border border-tertiary rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
+                        style={{ boxShadow: "none" }}
+                        placeholder="Type your message here..."
+                      ></textarea>
+                    </div>
                   </div>
                   <button
                     type="submit"
@@ -189,7 +196,6 @@ const ContactPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
               </div>
             </div>
           </div>

@@ -590,7 +590,7 @@ const OrderDetailPage: React.FC = () => {
 
                   // Fallback to the common flat shipping used by the server if nothing is present.
                   // This avoids showing 0 when the value is missing in older records.
-                  if (!shippingCost) shippingCost = 150;
+                  if (!shippingCost) shippingCost = 100;
 
                   const tax =
                     typeof order.order.tax === 'number'

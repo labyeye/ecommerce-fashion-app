@@ -23,9 +23,9 @@ router.post('/create-order', async (req, res) => {
     // Tax Calculation per requirement:
     // product selling price / 1.05 = Base amt (a)
     // Tax = base amt * 0.05 (b)
-    // Shipping (c) = 150 INR (flat)
+    // Shipping (c) = 100 INR (flat)
     // Total = a + b + c
-    const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT || 150);
+    const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT || 100);
 
     let subtotalCalculated = 0; // a
     let taxCalculated = 0; // b
