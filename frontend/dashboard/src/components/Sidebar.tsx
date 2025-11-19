@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Mobile close button */}
         {mobileOpen && (
-          <div className="p-4 md:hidden border-b border-neutral-border flex items-center justify-between">
+          <div className="p-4 md:hidden flex items-center justify-between">
             <h2 className="text-lg font-bold text-heading">Flaunt By Nishi</h2>
             <button
               onClick={() => onClose && onClose()}
@@ -149,9 +149,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {!mobileOpen && (
-          <div className="p-4 border-b border-neutral-border mx-auto">
+          <div className="p-4 mx-auto">
             <img src={logo} alt="Flaunt By Nishi Logo" className="w-28 h-28"/>
-            <p className="text-sm text-black mt-1">Admin Dashboard</p>
           </div>
         )}
 

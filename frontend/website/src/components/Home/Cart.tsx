@@ -117,7 +117,7 @@ const Cart: React.FC<CartProps> = ({
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <ShoppingBag className="w-6 h-6 text-[#914D26]" />
-            <h5 className="text-xl text-[#914D26]">Your Bag</h5>
+            <span role="heading" aria-level={2} className="text-lg sm:text-xl md:text-2xl text-[#914D26] font-semibold">Your Bag</span>
             <span
               className="text-[#914D26] text-lg px-0 py-0 rounded-full poppins-numeric"
               style={{
@@ -141,18 +141,21 @@ const Cart: React.FC<CartProps> = ({
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {items.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-r from-[#FFF2E1] to-[#914D26] rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-24 h-24 bg-tertiary rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShoppingBag className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-[#914D26] mb-2">
+              <span role="heading" aria-level={3} className="block text-lg sm:text-xl md:text-2xl font-bold text-[#914D26] mb-2">
                 Your Bag is empty
-              </h3>
-              <p className="text-[#914D26] mb-6">
+              </span>
+              <span className="block text-sm sm:text-base md:text-lg text-[#914D26] mb-6">
                 Add some stylish fashion items to get started!
-              </p>
+              </span>
               <button
-                onClick={onClose}
-                className="bg-gradient-to-r from-[#914D26] to-[#FFF2E1] text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+                onClick={() => {
+                  onClose();
+                  navigate("/products");
+                }}
+                className="bg-tertiary text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
                 Continue Shopping
               </button>
@@ -171,13 +174,13 @@ const Cart: React.FC<CartProps> = ({
                   />
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#914D26] truncate">
+                    <span role="heading" aria-level={4} className="block font-semibold text-[#914D26] truncate text-sm sm:text-base md:text-lg">
                       {item.name}
-                    </h3>
-                    <p className="text-sm text-[#914D26]">Size: {item.size}</p>
-                    <p className="text-lg font-bold text-[#914D26] poppins-numeric">
+                    </span>
+                    <span className="block text-xs sm:text-sm text-[#914D26]">Size: {item.size}</span>
+                    <span className="block text-sm sm:text-base md:text-lg font-bold text-[#914D26] poppins-numeric">
                       ₹{item.price}
-                    </p>
+                    </span>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -460,7 +463,10 @@ const Cart: React.FC<CartProps> = ({
 
             <div className="text-center">
               <button
-                onClick={onClose}
+                onClick={() => {
+                  onClose();
+                  navigate("/products");
+                }}
                 className="text-[#914D26] hover:text-[#2B463C] font-medium transition-colors duration-200"
               >
                 Continue Shopping

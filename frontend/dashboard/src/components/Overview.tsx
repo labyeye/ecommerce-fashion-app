@@ -499,7 +499,11 @@ const Overview: React.FC = () => {
         items.find(
           (it: any) =>
             it &&
-            (it.product || it.name || it.title || it.productName || it.product_name)
+            (it.product ||
+              it.name ||
+              it.title ||
+              it.productName ||
+              it.product_name)
         ) || items[0];
     } else if (o.product) {
       first = o.product;
@@ -559,7 +563,8 @@ const Overview: React.FC = () => {
         break;
       }
     }
-    if (img && typeof img === "object") img = img.url || img.src || img.path || null;
+    if (img && typeof img === "object")
+      img = img.url || img.src || img.path || null;
 
     // small inline SVG placeholder (light gray rounded box with dash)
     const placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(
@@ -1148,88 +1153,110 @@ const Overview: React.FC = () => {
             </div>
           </div>
         </div>
-
-        
       </div>
       <div className="bg-neutral-card rounded-[10px] shadow-md border border-neutral-border p-4">
-          <div className="flex items-center space-x-2 mb-3">
-            <TrendingUp className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-semibold text-heading">Recent Orders</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm table-auto">
-              <thead>
-                <tr className="text-left text-xs text-subtle uppercase tracking-wider">
-                  <th className="px-3 py-2">No</th>
-                  <th className="px-3 py-2">Order ID</th>
-                  <th className="px-3 py-2">Customer</th>
-                  <th className="px-3 py-2">Product</th>
-                  <th className="px-3 py-2">Qty</th>
-                  <th className="px-3 py-2">Total</th>
-                  <th className="px-3 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {recentOrders.slice(0, 5).map((order, index) => {
-                  const o = order as any;
-                  const customerName =
-                    (o.customer?.firstName || o.customer?.name || "Guest") +
-                    (o.customer?.lastName ? ` ${o.customer.lastName}` : "");
-
-                  const { name: productName, img: imgSrc } = getProductInfo(o);
-
-                  const qty =
-                    (o.items && o.items.reduce((s: number, it: any) => s + (it.quantity || it.qty || 1), 0)) ||
-                    o.qty ||
-                    1;
-
-                  const status = (o.status || "").toString().toLowerCase();
-                  const statusClass =
-                    status === "delivered"
-                      ? "bg-green-100 text-green-700"
-                      : status === "pending"
-                      ? "bg-pink-100 text-pink-700"
-                      : status === "processing" || status === "shipped"
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-gray-100 text-gray-700";
-
-                  return (
-                    <tr key={o._id || index} className="align-middle">
-                      <td className="px-3 py-3 align-middle">
-                        <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center text-subtle font-semibold text-sm">
-                          {index + 1}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">#{o.orderNumber}</td>
-                      <td className="px-3 py-3">{customerName}</td>
-                      <td className="px-3 py-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-9 h-9 bg-gray-50 rounded-md overflow-hidden flex items-center justify-center">
-                            {imgSrc ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={imgSrc} alt="product" className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="text-xs text-subtle">—</div>
-                            )}
-                          </div>
-                          <div className="text-sm text-heading">{productName}</div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">{qty}</td>
-                      <td className="px-3 py-3 font-semibold">₹{(o.total ?? 0).toFixed(2)}</td>
-                      <td className="px-3 py-3">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusClass}`}>
-                          <span className="w-2 h-2 rounded-full mr-2" style={{ background: status === 'delivered' ? '#10B981' : status === 'pending' ? '#F472B6' : '#FB923C' }} />
-                          {o.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex items-center space-x-2 mb-3">
+          <TrendingUp className="w-5 h-5 text-primary-600" />
+          <h3 className="text-lg font-semibold text-heading">Recent Orders</h3>
         </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm table-auto">
+            <thead>
+              <tr className="text-left text-xs text-subtle uppercase tracking-wider">
+                <th className="px-3 py-2">No</th>
+                <th className="px-3 py-2">Order ID</th>
+                <th className="px-3 py-2">Customer</th>
+                <th className="px-3 py-2">Product</th>
+                <th className="px-3 py-2">Qty</th>
+                <th className="px-3 py-2">Total</th>
+                <th className="px-3 py-2">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {recentOrders.slice(0, 5).map((order, index) => {
+                const o = order as any;
+                const customerName =
+                  (o.customer?.firstName || o.customer?.name || "Guest") +
+                  (o.customer?.lastName ? ` ${o.customer.lastName}` : "");
+
+                const { name: productName, img: imgSrc } = getProductInfo(o);
+
+                const qty =
+                  (o.items &&
+                    o.items.reduce(
+                      (s: number, it: any) => s + (it.quantity || it.qty || 1),
+                      0
+                    )) ||
+                  o.qty ||
+                  1;
+
+                const status = (o.status || "").toString().toLowerCase();
+                const statusClass =
+                  status === "delivered"
+                    ? "bg-green-100 text-green-700"
+                    : status === "pending"
+                    ? "bg-pink-100 text-pink-700"
+                    : status === "processing" || status === "shipped"
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-gray-100 text-gray-700";
+
+                return (
+                  <tr key={o._id || index} className="align-middle">
+                    <td className="px-3 py-3 align-middle">
+                      <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center text-black font-semibold text-sm">
+                        {index + 1}
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">#{o.orderNumber}</td>
+                    <td className="px-3 py-3">{customerName}</td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-9 h-9 bg-gray-50 rounded-md overflow-hidden flex items-center justify-center">
+                          {imgSrc ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={imgSrc}
+                              alt="product"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-xs text-subtle">—</div>
+                          )}
+                        </div>
+                        <div className="text-sm text-heading">
+                          {productName}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">{qty}</td>
+                    <td className="px-3 py-3 font-semibold">
+                      ₹{(o.total ?? 0).toFixed(2)}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusClass}`}
+                      >
+                        <span
+                          className="w-2 h-2 rounded-full mr-2"
+                          style={{
+                            background:
+                              status === "delivered"
+                                ? "#10B981"
+                                : status === "pending"
+                                ? "#F472B6"
+                                : "#FB923C",
+                          }}
+                        />
+                        {o.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Recent Orders */}
 

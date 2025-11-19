@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { getConsent, setConsent } from "../utils/cookieConsent";
 
 const CookieConsent: React.FC = () => {
