@@ -25,9 +25,11 @@ router.get("/dashboard", async (req, res) => {
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
 
-    // Get recent orders
+    // Get recent orders (populate customer and ordered product details so
+    // frontend can show product name and image without extra requests)
     const recentOrders = await Order.find()
       .populate("customer", "firstName lastName email")
+      .populate({ path: "items.product", select: "name images slug price" })
       .sort({ createdAt: -1 })
       .limit(10);
 

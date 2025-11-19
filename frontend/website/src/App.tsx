@@ -16,6 +16,7 @@ function ScrollToTopOnMount() {
 }
 import Cart from "./components/Home/Cart";
 import Footer from "./components/Home/Footer";
+import CookieConsent from "./components/CookieConsent";
 // import LoadingMountainSunsetBeach from "./components/ui/LoadingMountainSunsetBeach";
 import HomePage from "./components/pages/HomePage";
 import AboutPage from "./components/pages/AboutPage";
@@ -97,6 +98,7 @@ function App() {
                 <Route path="/wishlist" element={<Wishlist />} />
               </Routes>
               <Footer />
+              <CookieConsent />
               <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
             </div>
             {/* Coming Soon Overlay */}
