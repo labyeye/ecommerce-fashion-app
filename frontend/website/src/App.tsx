@@ -5,12 +5,10 @@ import { CartProvider, useCartContext } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Header from "./components/Home/Header";
 
-// ScrollToTopOnMount component
 function ScrollToTopOnMount() {
   const { pathname } = useLocation();
   
   useEffect(() => {
-    // Scroll to top immediately when the route changes
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -18,7 +16,7 @@ function ScrollToTopOnMount() {
 }
 import Cart from "./components/Home/Cart";
 import Footer from "./components/Home/Footer";
-import LoadingMountainSunsetBeach from "./components/ui/LoadingMountainSunsetBeach";
+// import LoadingMountainSunsetBeach from "./components/ui/LoadingMountainSunsetBeach";
 import HomePage from "./components/pages/HomePage";
 import AboutPage from "./components/pages/AboutPage";
 import ProductPage from "./components/pages/ProductsPage";
@@ -52,17 +50,17 @@ import ResetPassword from './components/pages/ResetPassword';
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   // Show a one-time splash on initial load that cycles all logos once
-  const [showSplash, setShowSplash] = useState(true);
+  // const [showSplash, setShowSplash] = useState(true);
   return (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <Router>
-            {showSplash ? (
+            {/* {showSplash ? (
               <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
-                <LoadingMountainSunsetBeach text="Welcome" loop={false} onComplete={() => setShowSplash(false)} />
+                <LoadingMountainSunsetBeach text="Welcome" loop={false} force={true} onComplete={() => setShowSplash(false)} />
               </div>
-            ) : null}
+            ) : null} */}
             <ScrollToTopOnMount />
             <div className="min-h-screen bg-white">
               <HeaderWithCartCount onCartClick={() => setIsCartOpen(true)} />

@@ -41,72 +41,280 @@ const sendTokenResponse = (user, statusCode, res) => {
 };
 
 // OTP support: send and verify (Email-based)
-const Otp = require('../models/Otp');
+const Otp = require("../models/Otp");
 
 // POST /api/auth/send-otp
-router.post('/send-otp', [
-  body('email').isEmail().withMessage('Valid email is required')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
-
-    const { email } = req.body;
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Generate 6-digit OTP
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Expire in 5 minutes
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-    // Save otp (invalidate previous for this email)
-    await Otp.updateMany({ email: normalizedEmail, used: false }, { used: true });
-    await Otp.create({ email: normalizedEmail, code, expiresAt, type: 'login' });
-
-    // Find user to get firstName
-    const user = await User.findOne({ email: normalizedEmail });
-
-    // Send OTP via email
-    try {
-      await sendOTPEmail(normalizedEmail, code, user?.firstName || '');
-    } catch (sendErr) {
-      console.error('Email send error:', sendErr);
-      return res.status(500).json({ success: false, message: 'Failed to send OTP email' });
-    }
-
-    res.json({ success: true, message: 'OTP sent to your email' });
-  } catch (error) {
-    console.error('send-otp error:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP' });
-  }
-});
-
-  // POST /api/auth/verify-otp
-  router.post('/verify-otp', [
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('code').notEmpty().withMessage('OTP code is required')
-  ], async (req, res) => {
+// Supports email-based OTP (existing) and phone-based OTP via Twilio Verify.
+router.post(
+  "/send-otp",
+  [
+    body("email").optional().isEmail().withMessage("Valid email is required"),
+    body("phone")
+      .optional()
+      .matches(/^[\+]?[1-9][\d]{0,15}$/)
+      .withMessage("Please provide a valid phone number"),
+  ],
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { email, code } = req.body;
+      const { email, phone } = req.body;
+
+      // Phone-based OTP via Twilio Verify
+      if (phone) {
+        // Require Twilio config
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+        if (!accountSid || !authToken || !serviceSid) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Twilio not configured" });
+        }
+
+        const url = `https://verify.twilio.com/v2/Services/${serviceSid}/Verifications`;
+        try {
+          const params = new URLSearchParams();
+          params.append("To", phone);
+          params.append("Channel", "sms");
+
+          await axios.post(url, params.toString(), {
+            auth: { username: accountSid, password: authToken },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          });
+
+          return res.json({ success: true, message: "OTP sent to phone" });
+        } catch (twErr) {
+          console.error(
+            "Twilio send error:",
+            twErr.response?.data || twErr.message || twErr
+          );
+
+          // If Twilio trial account blocks unverified numbers (21608) and
+          // developer fallback is enabled, create a dev OTP record so testing
+          // can proceed without sending SMS. Controlled via env var.
+          const twCode = twErr.response?.data?.code;
+          const allowFallback =
+            process.env.TWILIO_DEV_FALLBACK === "true" ||
+            process.env.NODE_ENV !== "production";
+          if (twCode === 21608 && allowFallback) {
+            try {
+              // create a 6-digit code and store it for phone
+              const code = Math.floor(
+                100000 + Math.random() * 900000
+              ).toString();
+              const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+              await Otp.updateMany({ phone, used: false }, { used: true });
+              await Otp.create({ phone, code, expiresAt, type: "phone-login" });
+              // Return the code in the response only in dev mode (for local testing)
+              const payload = {
+                success: true,
+                message: "OTP (dev) generated for phone",
+              };
+              if (process.env.NODE_ENV !== "production") payload.code = code;
+              return res.json(payload);
+            } catch (err2) {
+              console.error("Fallback OTP generation failed:", err2);
+              return res.status(500).json({
+                success: false,
+                message: "Failed to generate dev OTP",
+              });
+            }
+          }
+
+          return res
+            .status(500)
+            .json({ success: false, message: "Failed to send OTP via SMS" });
+        }
+      }
+
+      // Fallback to email-based OTP (existing behavior)
+      if (!email) {
+        return res
+          .status(400)
+          .json({ success: false, message: "email or phone is required" });
+      }
+
       const normalizedEmail = email.toLowerCase().trim();
 
-      const otp = await Otp.findOne({ 
-        email: normalizedEmail, 
-        code, 
-        used: false, 
-        expiresAt: { $gt: new Date() } 
+      // Generate 6-digit OTP
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Expire in 5 minutes
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      // Save otp (invalidate previous for this email)
+      await Otp.updateMany(
+        { email: normalizedEmail, used: false },
+        { used: true }
+      );
+      await Otp.create({
+        email: normalizedEmail,
+        code,
+        expiresAt,
+        type: "login",
+      });
+
+      // Find user to get firstName
+      const user = await User.findOne({ email: normalizedEmail });
+
+      // Send OTP via email
+      try {
+        await sendOTPEmail(normalizedEmail, code, user?.firstName || "");
+      } catch (sendErr) {
+        console.error("Email send error:", sendErr);
+        return res
+          .status(500)
+          .json({ success: false, message: "Failed to send OTP email" });
+      }
+
+      res.json({ success: true, message: "OTP sent to your email" });
+    } catch (error) {
+      console.error("send-otp error:", error);
+      res.status(500).json({ success: false, message: "Failed to send OTP" });
+    }
+  }
+);
+
+// POST /api/auth/verify-otp
+// Supports email-based OTP and phone-based OTP via Twilio Verify
+router.post(
+  "/verify-otp",
+  [
+    body("email").optional().isEmail().withMessage("Valid email is required"),
+    body("phone")
+      .optional()
+      .matches(/^[\+]?[1-9][\d]{0,15}$/)
+      .withMessage("Please provide a valid phone number"),
+    body("code").notEmpty().withMessage("OTP code is required"),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { email, phone, code } = req.body;
+
+      // Phone-based verification using Twilio
+      if (phone) {
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+        if (!accountSid || !authToken || !serviceSid) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Twilio not configured" });
+        }
+
+        const url = `https://verify.twilio.com/v2/Services/${serviceSid}/VerificationCheck`;
+        try {
+          const params = new URLSearchParams();
+          params.append("To", phone);
+          params.append("Code", code);
+
+          const resp = await axios.post(url, params.toString(), {
+            auth: { username: accountSid, password: authToken },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          });
+
+          const status = resp.data?.status;
+          if (status !== "approved") {
+            return res
+              .status(400)
+              .json({ success: false, message: "Invalid or expired OTP" });
+          }
+
+          // Find user by phone
+          let user = await User.findOne({ phone });
+          if (user) {
+            return sendTokenResponse(user, 200, res);
+          }
+
+          // Do NOT auto-create user for phone sign-in. If the phone is not
+          // registered, inform the frontend so it can offer registration.
+          return res.json({
+            success: true,
+            userExists: false,
+            message: "Phone not registered, Create Account using Email Address",
+          });
+        } catch (twErr) {
+          console.error(
+            "Twilio verify error:",
+            twErr.response?.data || twErr.message || twErr
+          );
+
+          const twCode = twErr.response?.data?.code;
+          const allowFallback =
+            process.env.TWILIO_DEV_FALLBACK === "true" ||
+            process.env.NODE_ENV !== "production";
+          if (twCode === 21608 && allowFallback) {
+            // Trial account blocked sending/verification; try DB fallback
+            try {
+              const otpRec = await Otp.findOne({
+                phone,
+                code,
+                used: false,
+                expiresAt: { $gt: new Date() },
+              }).sort({ createdAt: -1 });
+              if (!otpRec) {
+                return res.status(400).json({
+                  success: false,
+                  message: "Invalid or expired OTP (dev fallback)",
+                });
+              }
+              otpRec.used = true;
+              await otpRec.save();
+
+              let user = await User.findOne({ phone });
+              if (user) {
+                return sendTokenResponse(user, 200, res);
+              }
+              // Do not auto-create user in dev fallback either; inform frontend
+              return res.json({
+                success: true,
+                userExists: false,
+                message: "Phone not registered",
+              });
+            } catch (fbErr) {
+              console.error("Dev fallback verify error:", fbErr);
+              return res.status(500).json({
+                success: false,
+                message: "Failed to verify OTP (dev fallback)",
+              });
+            }
+          }
+
+          return res
+            .status(500)
+            .json({ success: false, message: "Failed to verify OTP" });
+        }
+      }
+
+      // Fallback to email-based OTP (existing behavior)
+      if (!email) {
+        return res
+          .status(400)
+          .json({ success: false, message: "email or phone is required" });
+      }
+
+      const normalizedEmail = email.toLowerCase().trim();
+
+      const otp = await Otp.findOne({
+        email: normalizedEmail,
+        code,
+        used: false,
+        expiresAt: { $gt: new Date() },
       }).sort({ createdAt: -1 });
 
       if (!otp) {
-        return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or expired OTP" });
       }
 
       // Mark used
@@ -120,27 +328,71 @@ router.post('/send-otp', [
         return sendTokenResponse(user, 200, res);
       }
 
-      // New email: return a short-lived temp token so frontend can collect
-      // registration details and create the user. The temp token proves OTP was verified.
-      const tempToken = jwt.sign(
-        { email: normalizedEmail, otpVerified: true }, 
-        process.env.JWT_SECRET, 
-        { expiresIn: '10m' }
-      );
-      return res.json({ success: true, userExists: false, tempToken });
-    } catch (error) {
-      console.error('verify-otp error:', error);
-      res.status(500).json({ success: false, message: 'OTP verification failed' });
-    }
-  });
+      // New email: auto-create a user (email verified via OTP) and return JWT
+      try {
+        const randomPassword = crypto.randomBytes(12).toString("hex");
+        const newUser = await User.create({
+          firstName: "Email",
+          lastName: "User",
+          email: normalizedEmail,
+          password: randomPassword,
+          phone: "",
+          role: "customer",
+          isEmailVerified: true,
+        });
 
-  // POST /api/auth/register-with-otp
-  router.post('/register-with-otp', [
-    body('tempToken').notEmpty().withMessage('tempToken is required'),
-    body('firstName').notEmpty().withMessage('First name is required'),
-    body('lastName').notEmpty().withMessage('Last name is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-  ], async (req, res) => {
+        // Send welcome email (best-effort)
+        try {
+          await sendWelcomeEmail(newUser.email, newUser.firstName);
+        } catch (weErr) {
+          console.warn(
+            "Failed to send welcome email to new OTP user:",
+            weErr && weErr.message ? weErr.message : weErr
+          );
+        }
+
+        // Return token and user, mark as new
+        const token = generateToken(newUser._id);
+        const options = {
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        };
+        res.cookie("token", token, options).status(201).json({
+          success: true,
+          token,
+          user: newUser.getPublicProfile(),
+          isNew: true,
+        });
+        return;
+      } catch (createErr) {
+        console.error("Failed to auto-create user from email OTP:", createErr);
+        return res
+          .status(500)
+          .json({ success: false, message: "Failed to create user" });
+      }
+    } catch (error) {
+      console.error("verify-otp error:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "OTP verification failed" });
+    }
+  }
+);
+
+// POST /api/auth/register-with-otp
+router.post(
+  "/register-with-otp",
+  [
+    body("tempToken").notEmpty().withMessage("tempToken is required"),
+    body("firstName").notEmpty().withMessage("First name is required"),
+    body("lastName").notEmpty().withMessage("Last name is required"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+  ],
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -152,11 +404,15 @@ router.post('/send-otp', [
       try {
         payload = jwt.verify(tempToken, process.env.JWT_SECRET);
       } catch (err) {
-        return res.status(400).json({ success: false, message: 'Invalid or expired temp token' });
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or expired temp token" });
       }
 
       if (!payload || !payload.email || !payload.otpVerified) {
-        return res.status(400).json({ success: false, message: 'Invalid temp token payload' });
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid temp token payload" });
       }
 
       const email = payload.email;
@@ -164,7 +420,10 @@ router.post('/send-otp', [
       // Check again if user exists
       const existing = await User.findOne({ email });
       if (existing) {
-        return res.status(400).json({ success: false, message: 'User with this email already exists' });
+        return res.status(400).json({
+          success: false,
+          message: "User with this email already exists",
+        });
       }
 
       // Create user
@@ -173,25 +432,26 @@ router.post('/send-otp', [
         lastName,
         email,
         password,
-        phone: phone || '',
-        role: 'customer',
-        isEmailVerified: true // Email verified via OTP
+        phone: phone || "",
+        role: "customer",
+        isEmailVerified: true, // Email verified via OTP
       });
 
       // Send welcome email
       try {
         await sendWelcomeEmail(email, firstName);
       } catch (err) {
-        console.warn('Failed to send welcome email:', err.message);
+        console.warn("Failed to send welcome email:", err.message);
       }
 
       // Return JWT
       sendTokenResponse(user, 201, res);
     } catch (error) {
-      console.error('register-with-otp error:', error);
-      res.status(500).json({ success: false, message: 'Registration failed' });
+      console.error("register-with-otp error:", error);
+      res.status(500).json({ success: false, message: "Registration failed" });
     }
-  });
+  }
+);
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -779,13 +1039,11 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Validation failed",
-            errors: errors.array(),
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: errors.array(),
+        });
       }
 
       const { token, password } = req.body;
@@ -813,12 +1071,10 @@ router.post(
       user.passwordResetExpires = undefined;
       await user.save();
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Password has been reset successfully",
-        });
+      res.status(200).json({
+        success: true,
+        message: "Password has been reset successfully",
+      });
     } catch (error) {
       console.error("Reset password error:", error);
       res
@@ -831,83 +1087,89 @@ router.post(
 // @desc    Google Sign-In with ID Token
 // @route   POST /api/auth/google
 // @access  Public
-router.post('/google', [
-  body('idToken').notEmpty().withMessage('Google ID token is required')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
-
-    const { idToken } = req.body;
-
-    // Verify the Google ID token
-    let googleUser;
+router.post(
+  "/google",
+  [body("idToken").notEmpty().withMessage("Google ID token is required")],
+  async (req, res) => {
     try {
-      const response = await axios.get(
-        `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
-      );
-      googleUser = response.data;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
 
-      // Verify the token is for our app
-      if (googleUser.aud !== process.env.GOOGLE_CLIENT_ID) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Invalid token audience' 
+      const { idToken } = req.body;
+
+      // Verify the Google ID token
+      let googleUser;
+      try {
+        const response = await axios.get(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
+        );
+        googleUser = response.data;
+
+        // Verify the token is for our app
+        if (googleUser.aud !== process.env.GOOGLE_CLIENT_ID) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid token audience",
+          });
+        }
+      } catch (error) {
+        console.error(
+          "Google token verification error:",
+          error.response?.data || error.message
+        );
+        return res.status(401).json({
+          success: false,
+          message: "Invalid Google token",
         });
       }
-    } catch (error) {
-      console.error('Google token verification error:', error.response?.data || error.message);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid Google token' 
-      });
-    }
 
-    // Check if user exists with this Google ID
-    let user = await User.findOne({ googleId: googleUser.sub });
+      // Check if user exists with this Google ID
+      let user = await User.findOne({ googleId: googleUser.sub });
 
-    if (!user) {
-      // Check if email already exists
-      user = await User.findOne({ email: googleUser.email });
+      if (!user) {
+        // Check if email already exists
+        user = await User.findOne({ email: googleUser.email });
 
-      if (user) {
-        // Link Google account to existing user
-        user.googleId = googleUser.sub;
-        user.isEmailVerified = true;
-        await user.save();
-      } else {
-        // Create new user
-        const nameParts = googleUser.name?.split(' ') || ['User', ''];
-        user = await User.create({
-          googleId: googleUser.sub,
-          firstName: nameParts[0] || googleUser.given_name || 'User',
-          lastName: nameParts.slice(1).join(' ') || googleUser.family_name || '',
-          email: googleUser.email,
-          isEmailVerified: true,
-          role: "customer",
-          password: crypto.randomBytes(32).toString("hex"), // Random password for OAuth users
-        });
+        if (user) {
+          // Link Google account to existing user
+          user.googleId = googleUser.sub;
+          user.isEmailVerified = true;
+          await user.save();
+        } else {
+          // Create new user
+          const nameParts = googleUser.name?.split(" ") || ["User", ""];
+          user = await User.create({
+            googleId: googleUser.sub,
+            firstName: nameParts[0] || googleUser.given_name || "User",
+            lastName:
+              nameParts.slice(1).join(" ") || googleUser.family_name || "",
+            email: googleUser.email,
+            isEmailVerified: true,
+            role: "customer",
+            password: crypto.randomBytes(32).toString("hex"), // Random password for OAuth users
+          });
 
-        // Send welcome email
-        try {
-          await sendWelcomeEmail(user.email, user.firstName);
-        } catch (err) {
-          console.warn("Failed to send welcome email:", err.message);
+          // Send welcome email
+          try {
+            await sendWelcomeEmail(user.email, user.firstName);
+          } catch (err) {
+            console.warn("Failed to send welcome email:", err.message);
+          }
         }
       }
-    }
 
-    // Generate JWT and send response
-    sendTokenResponse(user, 200, res);
-  } catch (error) {
-    console.error('Google sign-in error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Google sign-in failed' 
-    });
+      // Generate JWT and send response
+      sendTokenResponse(user, 200, res);
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Google sign-in failed",
+      });
+    }
   }
-});
+);
 
 module.exports = router;

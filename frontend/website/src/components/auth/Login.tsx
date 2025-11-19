@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Phone } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import logo from '../../assets/images/logoblack.png';
+import logo from "../../assets/images/logoblack.png";
 // Google Sign-In Script Loader
 const loadGoogleScript = () => {
   return new Promise<void>((resolve, reject) => {
@@ -23,10 +23,16 @@ const loadGoogleScript = () => {
 };
 
 const Login: React.FC = () => {
-  const [loginMode] = useState<"email" | "otp">("email");
+  const [loginMode, setLoginMode] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // Phone OTP state
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [sent, setSent] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const { login, isLoading, error, clearError } = useAuth();
   const { setCredentials } = useAuth() as any;
@@ -79,7 +85,7 @@ const Login: React.FC = () => {
 
       if (res.ok && data.success) {
         if (setCredentials) {
-          setCredentials(data.token, data.user);
+          await setCredentials(data.token, data.user);
         } else {
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
@@ -103,6 +109,84 @@ const Login: React.FC = () => {
       navigate("/");
     } catch (error) {
       // Error handled by auth context
+    }
+  };
+
+  const sendOtpPhone = async () => {
+    if (!phone)
+      return alert(
+        "Please enter your phone number in international format (e.g. +919876543210)"
+      );
+    setIsSending(true);
+    try {
+      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSent(true);
+        alert(data.message || "OTP sent");
+      } else {
+        alert(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error while sending OTP");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const verifyOtpPhone = async () => {
+    if (!phone || !otp) return alert("Please enter phone and OTP");
+    setIsVerifying(true);
+    try {
+      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, code: otp }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.token && data.user) {
+          if (setCredentials) {
+            await setCredentials(data.token, data.user);
+          } else {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+          // If backend marked this account as newly created, send user to profile to complete details
+          if (data.isNew) {
+            navigate("/profile");
+          } else {
+            navigate("/");
+          }
+          return;
+        }
+
+        // Backwards compat: if backend returns tempToken (older flow), redirect to register
+        if (data.userExists === false && data.tempToken) {
+          const params = new URLSearchParams();
+          params.set("tempToken", data.tempToken);
+          params.set("phone", phone);
+          navigate("/register?" + params.toString());
+          return;
+        }
+
+        alert(
+          data.message ||
+            "OTP verification succeeded but returned unexpected payload"
+        );
+      } else {
+        alert(data.message || "OTP verification failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error while verifying OTP");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -153,7 +237,11 @@ const Login: React.FC = () => {
 
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <img src={logo} alt="Flaunt by Nishi Logo" className="mx-auto w-48 h-48" />
+          <img
+            src={logo}
+            alt="Flaunt by Nishi Logo"
+            className="mx-auto w-48 h-48"
+          />
           <Link
             to="/"
             className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-2xl sm:text-xl"
@@ -167,6 +255,27 @@ const Login: React.FC = () => {
         </div>
 
         <div className="form-card rounded-xl sm:rounded-2xl p-6 sm:p-8">
+          <div className="mb-4 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setLoginMode("email")}
+              className={`toggle-btn flex-1 py-2 rounded-lg font-semibold ${
+                loginMode === "email" ? "active" : ""
+              }`}
+            >
+              Email Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setLoginMode("otp")}
+              className={`toggle-btn flex-1 py-2 rounded-lg font-semibold ${
+                loginMode === "otp" ? "active" : ""
+              }`}
+            >
+              Phone Login
+            </button>
+          </div>
+
           {loginMode === "email" && (
             <form onSubmit={handleEmailPasswordSubmit} className="space-y-4">
               {error && (
@@ -239,6 +348,69 @@ const Login: React.FC = () => {
                 {isLoading ? "Signing in..." : "Sign In"}
               </button>
             </form>
+          )}
+
+          {loginMode === "otp" && (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="phone" className="block text-xl font-bold mb-2">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" />
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-lg"
+                    placeholder="+919876543210"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={sendOtpPhone}
+                  disabled={isSending}
+                  className="submit-btn flex-1 py-3 rounded-lg font-semibold text-lg"
+                >
+                  {isSending ? "Sending..." : "Send OTP"}
+                </button>
+              </div>
+
+              {sent && (
+                <>
+                  <div>
+                    <label
+                      htmlFor="otp"
+                      className="block text-xl font-bold mb-2"
+                    >
+                      Enter OTP
+                    </label>
+                    <input
+                      id="otp"
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      className="w-full pr-4 py-3 rounded-lg"
+                      placeholder="6-digit code"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={verifyOtpPhone}
+                    disabled={isVerifying}
+                    className="submit-btn w-full py-3 rounded-lg font-semibold text-lg"
+                  >
+                    {isVerifying ? "Verifying..." : "Verify OTP and Sign In"}
+                  </button>
+                </>
+              )}
+            </div>
           )}
 
           {/* OTP Login */}

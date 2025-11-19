@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import p1 from "../../assets/images/hat.webp";
 import p2 from "../../assets/images/luggage.webp";
 import p3 from "../../assets/images/resort.webp";
@@ -36,17 +37,29 @@ type Props = {
   text?: string;
   loop?: boolean;
   onComplete?: () => void;
+  force?: boolean;
 };
 
 export default function LoadingMountainSunsetBeach({
   text = "Loading...",
   loop = true,
   onComplete,
+  force = false,
 }: Props) {
+  // determine if current route is the home page; run full animation only there
+  const location = useLocation();
+  const isHome = location?.pathname === "/" || location?.pathname === "/home";
   const [index, setIndex] = React.useState(0);
   const [fade, setFade] = React.useState(true);
 
   React.useEffect(() => {
+    // Only run the animation loop on the home page unless `force` is true
+    if (!isHome && !force) {
+      setIndex(0);
+      setFade(true);
+      return;
+    }
+
     let mounted = true;
     const visibleDuration = 200;
     const fadeDuration = 300;
@@ -83,18 +96,22 @@ export default function LoadingMountainSunsetBeach({
     return () => {
       mounted = false;
     };
-  }, [loop, onComplete]);
+  }, [loop, onComplete, isHome]);
 
   return (
     <div className="flex flex-col items-center justify-center py-8">
-      <div
-        style={{
-          transition: "opacity 0.25s",
-          opacity: fade ? 1 : 0,
-        }}
-      >
-        {svgs[index]}
-      </div>
+      {isHome ? (
+        <div
+          style={{
+            transition: "opacity 0.25s",
+            opacity: fade ? 1 : 0,
+          }}
+        >
+          {svgs[index]}
+        </div>
+      ) : (
+        <div>{svgs[0]}</div>
+      )}
       <span className="mt-3 text-gray-500">{text}</span>
     </div>
   );

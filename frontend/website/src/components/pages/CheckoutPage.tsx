@@ -18,7 +18,7 @@ import razorpayService, {
 const CheckoutPage: React.FC = () => {
   const { cartItems, clearCart, isLoading, promoCode, evolvPointsRedemption } =
     useCartContext();
-  const { token } = useAuth();
+  const { token, authInitializing } = useAuth();
 
   const [shipping, setShipping] = useState({
     firstName: "",
@@ -170,6 +170,12 @@ const CheckoutPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (authInitializing) {
+      setError("Finishing login — please wait a moment and try again.");
+      setLoading(false);
+      return;
+    }
 
     if (!token) {
       setError(

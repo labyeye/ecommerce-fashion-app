@@ -166,16 +166,6 @@ const Footer: React.FC = () => {
                   </a>
                 </p>
               </li>
-              <li>
-                <p>
-                  <a
-                    href="/returns"
-                    className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
-                  >
-                    Returns & Refunds
-                  </a>
-                </p>
-              </li>
 
               <li>
                 <p>

@@ -26,7 +26,7 @@ import {
   // FileArchive,
   ScrollText,
   Undo2,
-  Handshake,
+  // Handshake,
 } from "lucide-react";
 
 const ProfilePage: React.FC = () => {
@@ -82,8 +82,7 @@ const ProfilePage: React.FC = () => {
       } else {
         const data = await response.json();
         alert(
-          "Error uploading profile picture: " +
-            (data.message || "Unknown error")
+          "Error uploading profile picture: " + (data.message || "Unknown error")
         );
       }
     } catch (error) {
@@ -94,18 +93,35 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    } else {
-      console.log("ProfilePage - User data:", user);
-      // console.log("ProfilePage - User loyalty data:", {
-      //   loyaltyPoints: user.loyaltyPoints,
-      //   evolvPoints: user.evolvPoints,
-      //   loyaltyTier: user.loyaltyTier,
-      // });
-    }
-  }, [user, navigate]);
+  // Render loading UI while user is being resolved, but keep hooks
+  // and effects declared above to avoid changing hook order between renders.
+  const isUserLoading = !user;
+
+  const userData = {
+    name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "User",
+    email: user?.email || "",
+    phone: user?.phone || "Not provided",
+    address: user?.address
+      ? `${user.address.street || ""}, ${user.address.city || ""}, ${
+          user.address.state || ""
+        } ${user.address.zipCode || ""}`
+          .replace(/^,\s*/, "")
+          .replace(/,\s*,/g, ",")
+      : "Not provided",
+    joinDate: user?.createdAt
+      ? new Date(user.createdAt).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        })
+      : "",
+    profileImage: user?.profileImage || null,
+    totalOrders: orderStats?.total || 0,
+    totalSpent: orderStats?.totalSpent || 0,
+  };
+
+  if (isUserLoading) {
+    return <LoadingMountainSunsetBeach text="Loading profile..." />;
+  }
 
   useEffect(() => {
     if (user) {
@@ -164,49 +180,7 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  if (!user) {
-    return <LoadingMountainSunsetBeach text="Loading profile..." />;
-  }
-  const userData = {
-    name: `${user.firstName} ${user.lastName}`,
-    email: user.email,
-    phone: user.phone || "Not provided",
-    address: user.address
-      ? `${user.address.street || ""}, ${user.address.city || ""}, ${
-          user.address.state || ""
-        } ${user.address.zipCode || ""}`
-          .replace(/^,\s*/, "")
-          .replace(/,\s*,/g, ",")
-      : "Not provided",
-    joinDate: new Date(user.createdAt).toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    }),
-    profileImage: user.profileImage || null,
-    totalOrders: orderStats?.total || 0,
-    totalSpent: orderStats?.totalSpent || 0,
-    // loyaltyPoints: user.loyaltyPoints || 0,
-    // evolvPoints: user.evolvPoints || 0,
-    // currentTier: user.loyaltyTier || "bronze",
-    // nextTier:
-    //   user.loyaltyTier === "bronze"
-    //     ? "silver"
-    //     : user.loyaltyTier === "silver"
-    //     ? "gold"
-    //     : "gold",
-    // progressToNextTier:
-    //   user.loyaltyTier === "gold"
-    //     ? 100
-    //     : user.loyaltyTier === "bronze"
-    //     ? Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 1000) * 100))
-    //     : Math.min(100, Math.floor(((user.loyaltyPoints || 0) / 2500) * 100)),
-    // nextTierPoints:
-    //   user.loyaltyTier === "bronze"
-    //     ? 1000
-    //     : user.loyaltyTier === "silver"
-    //     ? 2500
-    //     : 0,
-  };
+  
   // const tiers = [
   //   {
   //     name: "Bronze",
@@ -281,8 +255,15 @@ const ProfilePage: React.FC = () => {
           );
           const data = await response.json();
           console.log("Fetched customer orders:", data); // Debug log
-          if (!response.ok)
+          if (!response.ok) {
+            if (response.status === 401) {
+              console.warn("Orders fetch returned 401 - logging out user");
+              logout();
+              navigate("/login");
+              return;
+            }
             throw new Error(data.message || "Failed to fetch orders");
+          }
           setOrders(data.data.orders);
         } catch (err: any) {
           setOrdersError(err.message || "Failed to fetch orders");
@@ -341,6 +322,14 @@ const ProfilePage: React.FC = () => {
 
           if (response.ok) {
             setOrderStats(data.data.orderStats);
+          } else {
+            if (response.status === 401) {
+              console.warn("Dashboard fetch returned 401 - logging out user");
+              logout();
+              navigate("/login");
+              return;
+            }
+            console.error("Failed to fetch dashboard data:", data);
           }
         } catch (error) {
           console.error("Error fetching dashboard data:", error);
@@ -461,7 +450,7 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
               </button>
-              <button
+              {/* <button
                 onClick={() => navigate("/invite-friends")}
                 className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
               >
@@ -470,7 +459,7 @@ const ProfilePage: React.FC = () => {
                   <div className="text-xl text-white">Invite Friends</div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
-              </button>
+              </button> */}
               <button
                 onClick={() => navigate("/terms")}
                 className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"

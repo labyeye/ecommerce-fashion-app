@@ -34,6 +34,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  authInitializing?: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
@@ -86,21 +87,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authInitializing, setAuthInitializing] = useState<boolean>(true);
   // const navigate = useNavigate();
 
   // Check if user is authenticated on app load
   useEffect(() => {
-    if (token) {
-      fetchUser();
-    }
+    const run = async () => {
+      if (token) {
+        setAuthInitializing(true);
+        await fetchUser(token);
+        setAuthInitializing(false);
+      } else {
+        setAuthInitializing(false);
+      }
+    };
+    run();
   }, [token]);
 
-  const fetchUser = async () => {
+  const fetchUser = async (tokenArg?: string) => {
+    setAuthInitializing(true);
     try {
+      // Determine which token to use: explicit arg, state token, or localStorage
+      const authToken = tokenArg || token || localStorage.getItem("token");
+
       // First get basic user data
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -115,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               `${API_BASE_URL}/customer/profile`,
               {
                 headers: {
-                  Authorization: `Bearer ${token}`,
+                  Authorization: `Bearer ${authToken}`,
                   "Content-Type": "application/json",
                 },
               }
@@ -150,6 +163,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
+    } finally {
+      setAuthInitializing(false);
     }
   };
 
@@ -228,7 +243,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // cause render errors). Use a hard navigation so this works
     // even outside React Router lifecycle.
     try {
-      window.location.href = '/login';
+      window.location.href = "/login";
     } catch (e) {
       // ignore
     }
@@ -239,11 +254,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Helper to set credentials after OTP login
-  const setCredentials = (newToken: string, newUser: any) => {
-    setToken(newToken);
-    setUser(newUser);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
+  // Helper to set credentials after OTP login
+  // Also trigger a server-validated fetch of the user to ensure token is valid.
+  const setCredentials = async (newToken: string, newUser?: any) => {
+    try {
+      localStorage.setItem("token", newToken);
+      setToken(newToken);
+      // If a user object is provided, set it immediately for optimistic UI
+      if (newUser) {
+        localStorage.setItem("user", JSON.stringify(newUser));
+        setUser(newUser);
+      }
+
+      // Validate token by fetching authoritative user data from server
+      await fetchUser(newToken);
+    } catch (err) {
+      console.error("setCredentials error", err);
+    }
   };
 
   const value: AuthContextType = {
@@ -256,7 +283,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     error,
     clearError,
     // expose internal setter for OTP flow
-    setCredentials
+    setCredentials,
+    authInitializing,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

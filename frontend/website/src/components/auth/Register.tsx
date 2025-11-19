@@ -107,7 +107,7 @@ const Register: React.FC = () => {
 
       if (res.ok && data.success) {
         if (setCredentials) {
-          setCredentials(data.token, data.user);
+          await setCredentials(data.token, data.user);
         } else {
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
