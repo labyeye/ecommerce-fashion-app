@@ -18,6 +18,7 @@ import CategoryManagement from "./components/CategoryManagement";
 import HeroManagement from "./components/HeroManagement";
 import BlogManagement from "./components/BlogManagement";
 import Newsletter from "./components/Newsletter";
+import ExchangeRequests from "./components/ExchangeRequests";
 
 import { Menu } from "lucide-react";
 
@@ -70,7 +71,6 @@ function DashboardApp() {
   }
 
   const renderContent = () => {
-    // Handle Add Product
     if (currentView.view === "add" && currentView.section === "products") {
       return (
         <AddProduct
@@ -83,7 +83,6 @@ function DashboardApp() {
       );
     }
 
-    // Handle Edit Product
     if (
       currentView.view === "edit" &&
       currentView.section === "products" &&
@@ -100,8 +99,6 @@ function DashboardApp() {
         />
       );
     }
-
-    // Handle Detail Views
     if (currentView.view === "details") {
       switch (currentView.section) {
         case "orders":
@@ -124,8 +121,6 @@ function DashboardApp() {
           break;
       }
     }
-
-    // Handle List Views
     switch (currentView.section) {
       case "overview":
         return <Overview />;
@@ -194,6 +189,8 @@ function DashboardApp() {
         return <Analytics />;
       case "newsletter":
         return <Newsletter />;
+      case "exchanges":
+        return <ExchangeRequests />;
       case "alerts":
         return (
           <div className="p-8 text-center text-gray-500">
@@ -224,7 +221,6 @@ function DashboardApp() {
 
   return (
     <div className="flex min-h-screen bg-neutral-background text-body">
-      {/* Sidebar (desktop) and mobile overlay when open */}
       <Sidebar
         activeSection={activeSection}
         onSectionChange={(s: string) => {
@@ -234,8 +230,6 @@ function DashboardApp() {
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-
-      {/* Topbar for mobile */}
       <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-2 border-b border-neutral-border bg-neutral-card shadow-sm">
         <button
           onClick={() => setMobileOpen(true)}
@@ -269,9 +263,7 @@ function DashboardApp() {
 
       <main className="flex-1 p-4 md:p-6 pt-16 md:pt-0 overflow-x-hidden">
         <div className="hidden md:flex items-end justify-between mb-6">
-          <div className="flex items-end space-x-3">
-            
-          </div>
+          <div className="flex items-end space-x-3"></div>
         </div>
 
         {renderContent()}

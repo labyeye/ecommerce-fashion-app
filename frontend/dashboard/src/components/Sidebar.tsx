@@ -37,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { user, logout } = useAuth();
 
   const menuItems = [
+    { id: "exchanges", icon: FileText, label: "Exchanges" },
     { id: "overview", icon: Home, label: "Overview" },
     { id: "analytics", icon: BarChart3, label: "Analytics" },
     { id: "customers", icon: Users, label: "Customers" },

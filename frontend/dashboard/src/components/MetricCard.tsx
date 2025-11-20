@@ -30,7 +30,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon }) => {
   
 
   return (
-    <div className="bg-neutral-card p-6 shadow-sm border border-neutral-border hover:shadow-md transition-shadow duration-200">
+    <div className="bg-neutral-card p-6 shadow-sm border border-neutral-border hover:shadow-md transition-shadow duration-200 rounded-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <div className="p-2 bg-primary-50 rounded-lg">

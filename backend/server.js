@@ -109,6 +109,9 @@ mongoose.connect(process.env.MONGODB_URI,{
   require('./models/Product');
   require('./models/NavigationLink');
   require('./models/Review');
+  // Exchange models
+  require('./models/ExchangeRequest');
+  require('./models/ExchangeStatusLog');
 
   // Start Express server only after DB connection is established
   app.listen(PORT, () => {
@@ -136,6 +139,8 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/shipping', shippingRoutes);
+const exchangeRoutes = require('./routes/exchange');
+app.use('/api/exchange', exchangeRoutes);
 app.get('/api/health', (req, res) => {
   console.log('Health check request received from:', req.headers.origin);
   res.json({ 

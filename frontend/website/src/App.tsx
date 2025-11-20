@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { CartProvider, useCartContext } from './context/CartContext';
-import { WishlistProvider } from './context/WishlistContext';
+import { CartProvider, useCartContext } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import Header from "./components/Home/Header";
 
 function ScrollToTopOnMount() {
   const { pathname } = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -30,23 +36,23 @@ import Register from "./components/auth/Register";
 import ProductDetailsPage from "./components/pages/ProductDetailsPage";
 import OrderDetailPage from "./components/pages/OrderDetailPage";
 import Dashboard from "./components/pages/Dashboard";
-import NewsletterPage from './components/pages/NewsletterPage';
-import CheckoutPage from './components/pages/CheckoutPage';
-import VerifyEmailPage from './components/pages/VerifyEmailPage';
+import NewsletterPage from "./components/pages/NewsletterPage";
+import CheckoutPage from "./components/pages/CheckoutPage";
+import VerifyEmailPage from "./components/pages/VerifyEmailPage";
 import Wishlist from "./components/pages/Wishlist";
-import AddressesPage from './components/pages/AddressesPage';
-import OrderCompletePage from './components/pages/OrderCompletePage';
-import TermsPage from './components/pages/TermsPage';
-import PrivacyPage from './components/pages/PrivacyPage';
-import FaqPage from './components/pages/FaqPage';
-import ReturnPolicy from './components/pages/ReturnPolicy';
-import ShippingInfoPage from './components/pages/ShippingInfoPage';
-import SettingsPage from './components/pages/SettingsPage';
-import ChangePassword from './components/pages/ChangePassword';
-import ChangeEmail from './components/pages/ChangeEmail';
-import ChangePhone from './components/pages/ChangePhone';
-import ForgotPassword from './components/pages/ForgotPassword';
-import ResetPassword from './components/pages/ResetPassword';
+import AddressesPage from "./components/pages/AddressesPage";
+import OrderCompletePage from "./components/pages/OrderCompletePage";
+import TermsPage from "./components/pages/TermsPage";
+import PrivacyPage from "./components/pages/PrivacyPage";
+import FaqPage from "./components/pages/FaqPage";
+import ReturnPolicy from "./components/pages/ReturnPolicy";
+import ShippingInfoPage from "./components/pages/ShippingInfoPage";
+import SettingsPage from "./components/pages/SettingsPage";
+import ChangePassword from "./components/pages/ChangePassword";
+import ChangeEmail from "./components/pages/ChangeEmail";
+import ChangePhone from "./components/pages/ChangePhone";
+import ForgotPassword from "./components/pages/ForgotPassword";
+import ResetPassword from "./components/pages/ResetPassword";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -85,12 +91,21 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnPolicy />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/settings/change-password" element={<ChangePassword />} />
-                  <Route path="/settings/change-email" element={<ChangeEmail />} />
-                  <Route path="/settings/change-phone" element={<ChangePhone />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route
+                  path="/settings/change-password"
+                  element={<ChangePassword />}
+                />
+                <Route
+                  path="/settings/change-email"
+                  element={<ChangeEmail />}
+                />
+                <Route
+                  path="/settings/change-phone"
+                  element={<ChangePhone />}
+                />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/shipping" element={<ShippingInfoPage />} />
                 <Route path="/return-policy" element={<ReturnPolicy />} />
                 <Route path="/order-complete" element={<OrderCompletePage />} />
@@ -99,7 +114,10 @@ function App() {
               </Routes>
               <Footer />
               <CookieConsent />
-              <CartWithContext isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+              <CartWithContext
+                isCartOpen={isCartOpen}
+                setIsCartOpen={setIsCartOpen}
+              />
             </div>
             {/* Coming Soon Overlay */}
             {/* <ComingSoon /> */}
@@ -116,7 +134,13 @@ function HeaderWithCartCount({ onCartClick }: { onCartClick: () => void }) {
   return <Header cartCount={cartCount} onCartClick={onCartClick} />;
 }
 
-function CartWithContext({ isCartOpen, setIsCartOpen }: { isCartOpen: boolean, setIsCartOpen: (open: boolean) => void }) {
+function CartWithContext({
+  isCartOpen,
+  setIsCartOpen,
+}: {
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+}) {
   const { cartItems, updateQuantity, removeItem } = useCartContext();
   const navigate = useNavigate();
   return (
@@ -128,8 +152,8 @@ function CartWithContext({ isCartOpen, setIsCartOpen }: { isCartOpen: boolean, s
       onRemoveItem={removeItem}
       onProceedToCheckout={() => {
         setIsCartOpen(false);
-        navigate('/checkout');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigate("/checkout");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }}
     />
   );

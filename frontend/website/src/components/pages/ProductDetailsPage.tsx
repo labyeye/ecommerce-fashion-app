@@ -144,7 +144,8 @@ const ProductDetailsPage: React.FC = () => {
         const pickup = data.pickup || null;
         setDeliveryInfo({
           deliverable: Boolean(data.deliverable),
-          estDays: typeof data.estDays === 'number' ? Number(data.estDays) : undefined,
+          estDays:
+            typeof data.estDays === "number" ? Number(data.estDays) : undefined,
           message: data.message,
           pickup,
           fallback: Boolean(data.fallback),
@@ -176,11 +177,14 @@ const ProductDetailsPage: React.FC = () => {
 
   // Helper to compute estimated delivery date string
   const getEstimatedDate = (days?: number) => {
-    if (!days || typeof days !== 'number') return null;
+    if (!days || typeof days !== "number") return null;
     try {
       const now = new Date();
       const target = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
-      return target.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return target.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
     } catch (e) {
       return null;
     }
@@ -355,27 +359,39 @@ const ProductDetailsPage: React.FC = () => {
         const newProd = { ...prev } as any;
         // If color-specific sizes
         if (Array.isArray(newProd.colors) && newProd.colors.length > 0) {
-          const colorIdx = newProd.colors.findIndex((c: any) => c.name === selectedColor);
+          const colorIdx = newProd.colors.findIndex(
+            (c: any) => c.name === selectedColor
+          );
           if (colorIdx !== -1) {
-            const sizeIdx = (newProd.colors[colorIdx].sizes || []).findIndex((s: any) => s.size === selectedSize);
+            const sizeIdx = (newProd.colors[colorIdx].sizes || []).findIndex(
+              (s: any) => s.size === selectedSize
+            );
             if (sizeIdx !== -1) {
-              newProd.colors[colorIdx].sizes[sizeIdx].stock = Math.max(0, (newProd.colors[colorIdx].sizes[sizeIdx].stock || 0) - quantity);
+              newProd.colors[colorIdx].sizes[sizeIdx].stock = Math.max(
+                0,
+                (newProd.colors[colorIdx].sizes[sizeIdx].stock || 0) - quantity
+              );
             }
           }
         } else if (Array.isArray(newProd.sizes) && newProd.sizes.length > 0) {
-          const sizeIdx = newProd.sizes.findIndex((s: any) => s.size === selectedSize);
+          const sizeIdx = newProd.sizes.findIndex(
+            (s: any) => s.size === selectedSize
+          );
           if (sizeIdx !== -1) {
-            newProd.sizes[sizeIdx].stock = Math.max(0, (newProd.sizes[sizeIdx].stock || 0) - quantity);
+            newProd.sizes[sizeIdx].stock = Math.max(
+              0,
+              (newProd.sizes[sizeIdx].stock || 0) - quantity
+            );
           }
         }
         return newProd;
       });
     } catch (e) {
-      console.warn('Failed to update local stock view', e);
+      console.warn("Failed to update local stock view", e);
     }
 
     // Reset the success message after 2 seconds
-    setTimeout(() => setAddedToCart(false), 2000);
+    setTimeout(() => setAddedToCart(false), 10000);
   };
 
   const SizeChartModal = () => {
@@ -888,19 +904,19 @@ const ProductDetailsPage: React.FC = () => {
                       {/* Replace label with 'Out of Stock' on hover for OOS sizes */}
                       {size.stock === 0 && (
                         <>
-                          <p className="absolute inset-0 flex items-center justify-center text-[#E4A95D] text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <p className="absolute inset-0 flex items-center justify-center text-tertiary text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             Out of Stock
                           </p>
                           {/* Mobile-only strike line across the size box to indicate out-of-stock */}
                           <span className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none z-30 opacity-95 overflow-visible">
-                            <span className="block w-[120%] h-[2px] bg-fashion-accent-brown rounded-full shadow-sm transform -rotate-12" />
+                            <span className="block w-[120%] h-[2px] bg-background rounded-full shadow-sm transform -rotate-12" />
                           </span>
                         </>
                       )}
 
                       {size.stock > 0 &&
                         (size.stock < 3 ? (
-                          <p className="absolute -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full font-semibold">
+                          <p className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full">
                             {size.stock} left
                           </p>
                         ) : size.stock <= 5 ? (
@@ -970,8 +986,14 @@ const ProductDetailsPage: React.FC = () => {
                     {deliveryInfo.deliverable ? (
                       (() => {
                         const pickup = (deliveryInfo as any).pickup || null;
-                        const processing = pickup && pickup.processingDays ? Number(pickup.processingDays) : 0;
-                        const transit = typeof deliveryInfo.estDays === 'number' ? Number(deliveryInfo.estDays) : null;
+                        const processing =
+                          pickup && pickup.processingDays
+                            ? Number(pickup.processingDays)
+                            : 0;
+                        const transit =
+                          typeof deliveryInfo.estDays === "number"
+                            ? Number(deliveryInfo.estDays)
+                            : null;
                         const totalDays = (transit ?? 0) + processing;
 
                         // If transit is known, show full ETA (processing + transit)
@@ -980,9 +1002,13 @@ const ProductDetailsPage: React.FC = () => {
                             <p className="text-green-600">
                               Deliverable
                               {transit ? ` · ${transit} day(s) transit` : ""}
-                              {processing ? ` · ${processing} day(s) processing` : ""}
+                              {processing
+                                ? ` · ${processing} day(s) processing`
+                                : ""}
                               {totalDays > 0 && (
-                                <span className="block text-xl text-tertiary">Est. delivery: {getEstimatedDate(totalDays)}</span>
+                                <span className="block text-xl text-tertiary">
+                                  Est. delivery: {getEstimatedDate(totalDays)}
+                                </span>
                               )}
                             </p>
                           );
@@ -992,9 +1018,15 @@ const ProductDetailsPage: React.FC = () => {
                         return (
                           <p className="text-green-600">
                             Deliverable · {processing} day(s) processing
-                            <span className="block text-sm text-tertiary/80">Transit estimate unavailable from carrier for this pincode.</span>
+                            <span className="block text-sm text-tertiary/80">
+                              Transit estimate unavailable from carrier for this
+                              pincode.
+                            </span>
                             {pickup && pickup.name && (
-                              <span className="block text-sm text-tertiary/80">From: {pickup.name}{pickup.pin ? ` (PIN ${pickup.pin})` : ""}</span>
+                              <span className="block text-sm text-tertiary/80">
+                                From: {pickup.name}
+                                {pickup.pin ? ` (PIN ${pickup.pin})` : ""}
+                              </span>
                             )}
                           </p>
                         );
@@ -1043,11 +1075,13 @@ const ProductDetailsPage: React.FC = () => {
 
               {/* Mobile-only out of stock line */}
               {selectedSizeData?.stock === 0 && (
-                <div className="md:hidden mt-2 text-center text-red-600 font-medium">OUT OF STOCK</div>
+                <div className="md:hidden mt-2 text-center text-red-600 font-medium">
+                  OUT OF STOCK
+                </div>
               )}
 
               {addedToCart && (
-                <div className="flex flex-col items-center justify-center space-y-3 text-green-600 bg-green-50 py-3 px-4 rounded-lg border border-green-200 animate-pulse">
+                <div className="flex flex-col items-center justify-center space-y-3 text-tertiary bg-background py-3 px-4 rounded-lg border border-green-200 animate-pulse">
                   <svg
                     className="w-5 h-5"
                     fill="currentColor"
@@ -1062,8 +1096,8 @@ const ProductDetailsPage: React.FC = () => {
                   <p className="font-medium">Successfully added to bag!</p>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => navigate('/checkout')}
-                      className="px-4 py-2 bg-[#95522C] text-white rounded"
+                      onClick={() => navigate("/checkout")}
+                      className="px-4 py-2 bg-background text-tertiary rounded"
                     >
                       Go to Bag
                     </button>

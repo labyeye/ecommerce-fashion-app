@@ -98,6 +98,12 @@ const OrderDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirmingDelivery, setConfirmingDelivery] = useState(false);
+  const [eligible, setEligible] = useState<boolean>(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [exchangeReason, setExchangeReason] = useState('');
+  const [submittingExchange, setSubmittingExchange] = useState(false);
+  const [exchangeSubmitted, setExchangeSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -130,6 +136,29 @@ const OrderDetailsPage: React.FC = () => {
 
     fetchOrderDetails();
   }, [token, orderId]);
+
+  // Check exchange eligibility after order loads
+  useEffect(() => {
+    const checkEligibility = async () => {
+      if (!token || !orderId) return;
+      try {
+        const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/exchange/eligibility/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (json.success) {
+          setEligible(Boolean(json.eligible));
+        }
+      } catch (err) {
+        // ignore
+      } finally {
+        setEligibilityChecked(true);
+      }
+    };
+
+    if (order) checkEligibility();
+  }, [order, token, orderId]);
 
   // Poll order status and shipment every 12 seconds
   useEffect(() => {
@@ -252,6 +281,55 @@ const OrderDetailsPage: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#688F4E] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
+        {/* Exchange Modal */}
+        {showExchangeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+              <h3 className="text-lg font-semibold mb-3">Request Exchange</h3>
+              <p className="text-sm text-gray-600 mb-4">Please provide a reason for the exchange.</p>
+              <textarea
+                value={exchangeReason}
+                onChange={(e) => setExchangeReason(e.target.value)}
+                className="w-full border rounded p-2 mb-4 h-28"
+                placeholder="Reason for exchange"
+              />
+              <div className="flex justify-end space-x-2">
+                <button onClick={() => { setShowExchangeModal(false); setExchangeReason(''); }} className="px-4 py-2 rounded bg-gray-200">Cancel</button>
+                <button
+                  onClick={async () => {
+                    if (!exchangeReason.trim()) { alert('Please provide a reason'); return; }
+                    try {
+                      setSubmittingExchange(true);
+                      const resp = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/exchange/request', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId: orderId, reason: exchangeReason })
+                      });
+                      if (!resp.ok) {
+                        const err = await resp.json();
+                        throw new Error(err.message || 'Failed to submit exchange request');
+                      }
+                      const json = await resp.json();
+                      alert('Exchange request submitted');
+                      setExchangeSubmitted(true);
+                      setEligible(false);
+                      setShowExchangeModal(false);
+                    } catch (err: any) {
+                      alert('Error: ' + (err.message || err));
+                    } finally {
+                      setSubmittingExchange(false);
+                      setExchangeReason('');
+                    }
+                  }}
+                  disabled={submittingExchange}
+                  className="px-4 py-2 rounded bg-[#688F4E] text-white disabled:opacity-60"
+                >
+                  {submittingExchange ? 'Submitting...' : 'Submit Request'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -305,6 +383,18 @@ const OrderDetailsPage: React.FC = () => {
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </span>
+                {/* Exchange button shown only for eligible delivered orders */}
+                {order.status === 'delivered' && eligibilityChecked && (
+                  <div>
+                    <button
+                      onClick={() => setShowExchangeModal(true)}
+                      disabled={!eligible || exchangeSubmitted}
+                      className={`ml-3 px-3 py-1 rounded-md text-white text-sm ${eligible && !exchangeSubmitted ? 'bg-[#688F4E] hover:bg-[#2B463C]' : 'bg-gray-300 cursor-not-allowed'}`}
+                    >
+                      {exchangeSubmitted ? 'Exchange Requested' : 'Exchange'}
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>

@@ -489,8 +489,145 @@ async function checkPincodeServiceability(pincode) {
   }
 }
 
+async function createReversePickupForExchange(exchange) {
+  try {
+    const order = exchange.order || (exchange.orderId ? await Order.findById(exchange.orderId) : null);
+    if (!order) return { success: false, error: 'Order not found on exchange' };
+
+    // pickup_location should be customer's address (pickup from customer)
+    const cAddr = order.shippingAddress || {};
+    const pickup_location = {
+      name: `${cAddr.firstName || ''} ${cAddr.lastName || ''}`.trim(),
+      add: cAddr.street || '',
+      city: cAddr.city || '',
+      state: cAddr.state || '',
+      pin: cAddr.zipCode || cAddr.pincode || '',
+      phone: (cAddr.phone && String(cAddr.phone)) || ''
+    };
+
+    // consignee will be seller (return destination)
+    const sellerName = process.env.SELLER_NAME || 'NS designs';
+    const sellerAdd = process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '';
+    const shipment = {
+      client_order_id: `${exchange._id}-reverse`,
+      name: sellerName,
+      add: sellerAdd,
+      city: process.env.SELLER_CITY || '',
+      state: process.env.SELLER_STATE || '',
+      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || '',
+      country: 'India',
+      phone: process.env.SELLER_PHONE || '',
+      payment_mode: 'Prepaid',
+      total_amount: 0,
+      cod_amount: 0,
+      seller_name: sellerName,
+      seller_add: sellerAdd,
+      seller_inv: order.orderNumber || '',
+      seller_inv_date: (order.createdAt || new Date()).toISOString().slice(0,10),
+      products_desc: (exchange.items && exchange.items.map(it => (it.product && it.product.name) || it.note || 'Item').join(' | ')) || 'Returned items',
+      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5)
+    };
+
+    const payload = { pickup_location, shipments: [shipment] };
+    const formData = new URLSearchParams();
+    formData.append('format', 'json');
+    formData.append('data', JSON.stringify(payload));
+
+    const res = await axios.post(CMU_URL, formData.toString(), {
+      headers: {
+        Authorization: `Token ${API_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      timeout: 15000
+    });
+
+    const data = res && res.data ? res.data : {};
+    const pkgs = data && Array.isArray(data.packages) ? data.packages : [];
+    const primaryPkg = pkgs.length ? pkgs[0] : null;
+    if (data && data.success === true && primaryPkg) {
+      const waybill = primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || '';
+      if (waybill) {
+        return { success: true, data: { awb: waybill }, raw: data };
+      }
+    }
+    return { success: false, error: 'Delhivery did not return AWB for reverse pickup', raw: data };
+  } catch (err) {
+    console.error('createReversePickupForExchange error:', err && err.message ? err.message : err);
+    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+  }
+}
+
+async function createForwardShipmentForExchange(exchange) {
+  try {
+    const order = exchange.order || (exchange.orderId ? await Order.findById(exchange.orderId) : null);
+    if (!order) return { success: false, error: 'Order not found on exchange' };
+
+    // pickup_location = seller (same as createShipmentForOrder)
+    const pickup_location = {
+      name: process.env.SELLER_NAME || 'NS designs',
+      add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '',
+      city: process.env.SELLER_CITY || '',
+      state: process.env.SELLER_STATE || '',
+      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || '',
+      phone: process.env.SELLER_PHONE || ''
+    };
+
+    // consignee = customer
+    const cAddr = order.shippingAddress || {};
+    const shipment = {
+      client_order_id: `${exchange._id}-forward`,
+      name: `${cAddr.firstName || ''} ${cAddr.lastName || ''}`.trim(),
+      add: cAddr.street || '',
+      city: cAddr.city || '',
+      state: cAddr.state || '',
+      pin: cAddr.zipCode || cAddr.pincode || '',
+      country: 'India',
+      phone: (cAddr.phone && String(cAddr.phone)) || '',
+      payment_mode: 'Prepaid',
+      total_amount: 0,
+      cod_amount: 0,
+      seller_name: process.env.SELLER_NAME || 'NS designs',
+      seller_add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '',
+      seller_inv: order.orderNumber || '',
+      seller_inv_date: (order.createdAt || new Date()).toISOString().slice(0,10),
+      products_desc: (exchange.items && exchange.items.map(it => (it.product && it.product.name) || it.note || 'Item').join(' | ')) || 'Replacement items',
+      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5)
+    };
+
+    const payload = { pickup_location, shipments: [shipment] };
+    const formData = new URLSearchParams();
+    formData.append('format', 'json');
+    formData.append('data', JSON.stringify(payload));
+
+    const res = await axios.post(CMU_URL, formData.toString(), {
+      headers: {
+        Authorization: `Token ${API_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      timeout: 15000
+    });
+
+    const data = res && res.data ? res.data : {};
+    const pkgs = data && Array.isArray(data.packages) ? data.packages : [];
+    const primaryPkg = pkgs.length ? pkgs[0] : null;
+    if (data && data.success === true && primaryPkg) {
+      const waybill = primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || '';
+      if (waybill) {
+        return { success: true, data: { awb: waybill }, raw: data, pickupDate: new Date() };
+      }
+    }
+    return { success: false, error: 'Delhivery did not return AWB for forward shipment', raw: data };
+  } catch (err) {
+    console.error('createForwardShipmentForExchange error:', err && err.message ? err.message : err);
+    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+  }
+}
+
 module.exports = {
   createShipmentForOrder,
   fetchTrackingForAwb,
   checkPincodeServiceability,
+  createReversePickupForExchange,
+  createForwardShipmentForExchange
 };
+
