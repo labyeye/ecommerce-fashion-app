@@ -37,13 +37,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { user, logout } = useAuth();
 
   const menuItems = [
-    { id: "exchanges", icon: FileText, label: "Exchanges" },
+    
     { id: "overview", icon: Home, label: "Overview" },
     { id: "analytics", icon: BarChart3, label: "Analytics" },
     { id: "customers", icon: Users, label: "Customers" },
     { id: "orders", icon: ShoppingCart, label: "Orders" },
     { id: "products", icon: Package, label: "Products" },
     { id: "categories", icon: Folder, label: "Categories" },
+    { id: "exchanges", icon: FileText, label: "Exchanges" },
     { id: "newsletter", icon: Megaphone, label: "Newsletter" },
     { id: "heroes", icon: Image, label: "Hero Slider" },
     { id: "blogs", icon: FileText, label: "Blogs" },

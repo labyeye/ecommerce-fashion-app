@@ -326,6 +326,44 @@ module.exports = {
   sendPasswordResetEmail,
 };
 
+// Send picked up notification to customer (used when carrier marks pickup)
+const sendOrderPickedEmail = async (email, firstName, order) => {
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      to: email,
+      subject: `Your order ${order.orderNumber || ''} has been picked up`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+          <div style="background:linear-gradient(135deg,#DB2777,#F973A0); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+            <h2 style="margin:0">Order Picked Up</h2>
+          </div>
+          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+            <p>Hi ${firstName || ''},</p>
+            <p>Your order <strong>${order.orderNumber || ''}</strong> has been picked up and is now on its way to you.</p>
+            <p>You can track your shipment using the AWB number available in your order details.</p>
+            <p>Thanks for shopping with Flaunt By Nishi.</p>
+            <p>Best regards,<br/>Flaunt By Nishi Team</p>
+          </div>
+        </div>
+      `,
+      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} has been picked up and is on its way to you.\n\nTrack using your AWB in order details.\n\nThanks,\nFlaunt By Nishi Team`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Order picked email sent:', info.messageId || 'dev-message-id');
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('Error sending order picked email:', err);
+    return { success: false, error: err && err.message ? err.message : String(err) };
+  }
+};
+
+// export new function
+module.exports.sendOrderPickedEmail = sendOrderPickedEmail;
+
 // Send order cancellation email
 const sendOrderCancellationEmail = async (email, firstName, order) => {
   try {

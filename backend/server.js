@@ -113,6 +113,18 @@ mongoose.connect(process.env.MONGODB_URI,{
   require('./models/ExchangeRequest');
   require('./models/ExchangeStatusLog');
 
+  // Start periodic Delhivery sync job
+  try {
+    const { syncOnce } = require('./services/delhiverySyncService');
+    const syncIntervalMinutes = Number(process.env.DELHIVERY_SYNC_MINUTES || 5);
+    console.log(`Starting Delhivery sync job every ${syncIntervalMinutes} minutes`);
+    // initial run after startup
+    setTimeout(() => syncOnce(), 10 * 1000);
+    setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
+  } catch (err) {
+    console.error('Failed to start Delhivery sync job:', err);
+  }
+
   // Start Express server only after DB connection is established
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

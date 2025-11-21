@@ -7,17 +7,14 @@ import {
   Truck, 
   CheckCircle, 
   Clock, 
-  MapPin, 
-  CreditCard, 
   Star,
   Crown,
-  Gift,
-  Calendar,
   Phone,
   Mail,
-  FileText,
-  AlertCircle
+  AlertCircle,
+  
 } from 'lucide-react';
+import OrderStatusTracker from '../OrderStatusTracker';
 
 interface OrderItem {
   product: {
@@ -278,7 +275,7 @@ const OrderDetailsPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#688F4E] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7B3F00] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
         {/* Exchange Modal */}
@@ -309,7 +306,6 @@ const OrderDetailsPage: React.FC = () => {
                         const err = await resp.json();
                         throw new Error(err.message || 'Failed to submit exchange request');
                       }
-                      const json = await resp.json();
                       alert('Exchange request submitted');
                       setExchangeSubmitted(true);
                       setEligible(false);
@@ -322,7 +318,7 @@ const OrderDetailsPage: React.FC = () => {
                     }
                   }}
                   disabled={submittingExchange}
-                  className="px-4 py-2 rounded bg-[#688F4E] text-white disabled:opacity-60"
+                  className="px-4 py-2 rounded bg-[#7B3F00] text-white disabled:opacity-60"
                 >
                   {submittingExchange ? 'Submitting...' : 'Submit Request'}
                 </button>
@@ -359,7 +355,7 @@ const OrderDetailsPage: React.FC = () => {
         <div className="mb-8">
           <button
             onClick={() => navigate('/profile')}
-            className="flex items-center space-x-2 text-[#688F4E] hover:text-[#2B463C] transition-colors mb-4"
+            className="flex items-center space-x-2 text-[#7B3F00] hover:text-[#5a2f00] transition-colors mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Profile</span>
@@ -389,7 +385,7 @@ const OrderDetailsPage: React.FC = () => {
                     <button
                       onClick={() => setShowExchangeModal(true)}
                       disabled={!eligible || exchangeSubmitted}
-                      className={`ml-3 px-3 py-1 rounded-md text-white text-sm ${eligible && !exchangeSubmitted ? 'bg-[#688F4E] hover:bg-[#2B463C]' : 'bg-gray-300 cursor-not-allowed'}`}
+                      className={`ml-3 px-3 py-1 rounded-md text-white text-sm ${eligible && !exchangeSubmitted ? 'bg-[#7B3F00] hover:bg-[#5a2f00]' : 'bg-gray-300 cursor-not-allowed'}`}
                     >
                       {exchangeSubmitted ? 'Exchange Requested' : 'Exchange'}
                     </button>
@@ -421,12 +417,15 @@ const OrderDetailsPage: React.FC = () => {
                       <p className="text-sm text-gray-600 poppins-numeric">₹{item.price} each</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-[#688F4E] poppins-numeric">₹{item.total}</p>
+                      <p className="font-semibold text-[#7B3F00] poppins-numeric">₹{item.total}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Order Status Tracker */}
+            <OrderStatusTracker status={(order.status || '').toString()} />
 
             {/* Order Timeline */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -434,7 +433,7 @@ const OrderDetailsPage: React.FC = () => {
               <div className="space-y-4">
                 {order.timeline.map((event, index) => (
                   <div key={index} className="flex items-start space-x-4">
-                    <div className="w-3 h-3 bg-[#688F4E] rounded-full mt-2"></div>
+                    <div className="w-3 h-3 bg-[#7B3F00] rounded-full mt-2"></div>
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{event.status.charAt(0).toUpperCase() + event.status.slice(1)}</p>
                       <p className="text-sm text-gray-600">{event.message}</p>
@@ -463,7 +462,7 @@ const OrderDetailsPage: React.FC = () => {
                 <button
                   onClick={handleConfirmDelivery}
                   disabled={confirmingDelivery}
-                  className="bg-[#688F4E] text-white px-6 py-3 rounded-lg hover:bg-[#2B463C] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
+                  className="bg-[#7B3F00] text-white px-6 py-3 rounded-lg hover:bg-[#5a2f00] transition-colors disabled:bg-gray-400 flex items-center space-x-2"
                 >
                   {confirmingDelivery ? (
                     <>
@@ -527,11 +526,11 @@ const OrderDetailsPage: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Progress to next tier</span>
-                      <span className="text-[#688F4E]">{loyaltyInfo.progressToNextTier}%</span>
+                      <span className="text-[#7B3F00]">{loyaltyInfo.progressToNextTier}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-[#688F4E] h-2 rounded-full transition-all duration-500"
+                        className="bg-[#7B3F00] h-2 rounded-full transition-all duration-500"
                         style={{ width: `${loyaltyInfo.progressToNextTier}%` }}
                       ></div>
                     </div>
@@ -541,17 +540,17 @@ const OrderDetailsPage: React.FC = () => {
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Points earned from this order</span>
-                      <span className="text-[#688F4E] font-medium poppins-numeric">{pointsEarned}</span>
+                      <span className="text-[#7B3F00] font-medium poppins-numeric">{pointsEarned}</span>
                     </div>
                     {order.status === 'delivered' && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Delivery bonus points</span>
-                        <span className="text-[#688F4E] font-medium poppins-numeric">+{deliveryBonusPoints}</span>
+                        <span className="text-[#7B3F00] font-medium poppins-numeric">+{deliveryBonusPoints}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-medium">
                       <span>Total from this order</span>
-                      <span className="text-[#688F4E]">{pointsEarned + deliveryBonusPoints}</span>
+                      <span className="text-[#7B3F00]">{pointsEarned + deliveryBonusPoints}</span>
                     </div>
                   </div>
                 </div>
@@ -589,7 +588,7 @@ const OrderDetailsPage: React.FC = () => {
                       <p className="text-sm text-gray-600">Shipment ID: <span className="font-medium">{(order as any).shipment.shipmentId}</span></p>
                     )}
                     {(order as any).shipment.trackingUrl && (
-                      <a href={(order as any).shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[#688F4E] hover:underline">
+                      <a href={(order as any).shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[#7B3F00] hover:underline">
                         Track on Delhivery
                       </a>
                     )}

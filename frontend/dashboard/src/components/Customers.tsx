@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Download, Mail, Eye, Loader2 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { Search, Download, Mail, Eye, Loader2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 interface Customer {
   _id: string;
@@ -30,17 +30,17 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeCustomers: 0,
     newCustomers: 0,
-    vipCustomers: 0
+    vipCustomers: 0,
   });
 
   const { token } = useAuth();
-  const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api';
+  const API_BASE_URL = "https://ecommerce-fashion-app-som7.vercel.app/api";
 
   useEffect(() => {
     fetchCustomers();
@@ -53,8 +53,8 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
 
       const response = await fetch(`${API_BASE_URL}/admin/users`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -62,10 +62,10 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
         const data = await response.json();
         setCustomers(data.data.users);
       } else {
-        setError('Failed to fetch customers');
+        setError("Failed to fetch customers");
       }
     } catch {
-      setError('Network error');
+      setError("Network error");
     } finally {
       setLoading(false);
     }
@@ -73,11 +73,10 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
 
   const fetchStats = async () => {
     try {
-
       const response = await fetch(`${API_BASE_URL}/admin/dashboard`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -87,19 +86,18 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
           totalCustomers: data.data.stats.totalUsers,
           activeCustomers: data.data.stats.totalUsers, // Assuming all are active for now
           newCustomers: data.data.stats.totalUsers, // Will calculate based on recent registrations
-          vipCustomers: Math.floor(data.data.stats.totalUsers * 0.1) // 10% as VIP
+          vipCustomers: Math.floor(data.data.stats.totalUsers * 0.1), // 10% as VIP
         });
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     }
   };
-  
 
   const getStatusColor = (status: string) => {
-    return status === 'Active'
-      ? 'bg-green-100 text-green-800'
-      : 'bg-gray-100 text-gray-800';
+    return status === "Active"
+      ? "bg-green-100 text-green-800"
+      : "bg-gray-100 text-gray-800";
   };
 
   return (
@@ -107,8 +105,12 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-heading">Customer Management</h1>
-          <p className="text-subtle mt-1">Manage and analyze your customer base</p>
+          <h1 className="text-2xl font-bold text-heading">
+            Customer Management
+          </h1>
+          <p className="text-subtle mt-1">
+            Manage and analyze your customer base
+          </p>
         </div>
         <div className="flex space-x-3">
           <button className="flex items-center space-x-2 px-4 py-2 bg-neutral-card border border-neutral-border rounded-lg hover:bg-primary-100 transition-colors">
@@ -125,22 +127,30 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
       {/* Customer Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-neutral-card p-6 rounded-xl shadow-sm border border-neutral-border">
-          <div className="text-2xl font-bold text-heading">{stats.totalCustomers}</div>
+          <div className="text-2xl font-bold text-heading">
+            {stats.totalCustomers}
+          </div>
           <div className="text-sm text-subtle">Total Customers</div>
           <div className="text-xs text-subtle mt-1">All registered users</div>
         </div>
         <div className="bg-ds-100 p-6 rounded-xl shadow-sm border border-ds-200">
-          <div className="text-2xl font-bold text-ds-900">{stats.activeCustomers}</div>
+          <div className="text-2xl font-bold text-ds-900">
+            {stats.activeCustomers}
+          </div>
           <div className="text-sm text-ds-700">Active Customers</div>
           <div className="text-xs text-ds-700 mt-1">Currently active</div>
         </div>
         <div className="bg-ds-100 p-6 rounded-xl shadow-sm border border-ds-200">
-          <div className="text-2xl font-bold text-ds-900">{stats.vipCustomers}</div>
+          <div className="text-2xl font-bold text-ds-900">
+            {stats.vipCustomers}
+          </div>
           <div className="text-sm text-ds-700">VIP Customers</div>
           <div className="text-xs text-ds-700 mt-1">Top 10% customers</div>
         </div>
         <div className="bg-ds-100 p-6 rounded-xl shadow-sm border border-ds-200">
-          <div className="text-2xl font-bold text-ds-900">{stats.newCustomers}</div>
+          <div className="text-2xl font-bold text-ds-900">
+            {stats.newCustomers}
+          </div>
           <div className="text-sm text-ds-700">New Customers</div>
           <div className="text-xs text-ds-700 mt-1">Recently registered</div>
         </div>
@@ -192,9 +202,7 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
         )}
 
         {error && (
-          <div className="px-6 py-4 text-red-600 bg-red-50">
-            {error}
-          </div>
+          <div className="px-6 py-4 text-red-600 bg-red-50">{error}</div>
         )}
 
         {!loading && !error && (
@@ -202,13 +210,10 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
             <table className="w-full">
               <thead className="bg-primary-100">
                 <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
                     Customer
                   </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
-                    Loyalty Tier
-                  </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">
                     Joined
                   </th>
                   <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
@@ -217,9 +222,9 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                   <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Location
                   </th>
-                                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
-                                      Last Login
-                                    </th>
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
+                    Last Login
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-ds-700 uppercase tracking-wider">
                     Status
                   </th>
@@ -231,7 +236,10 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
               <tbody className="bg-neutral-card divide-y divide-neutral-border">
                 {customers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-subtle">
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-subtle"
+                    >
                       No customers found
                     </td>
                   </tr>
@@ -243,54 +251,70 @@ const Customers: React.FC<CustomersProps> = ({ onViewDetails }) => {
                           <div className="text-sm font-medium text-heading">
                             {customer.firstName} {customer.lastName}
                           </div>
-                          <div className="text-sm text-subtle">{customer.email}</div>
+                          <div className="text-sm text-subtle">
+                            {customer.email}
+                          </div>
                           {/* Mobile compact info */}
                           <div className="sm:hidden text-sm text-subtle mt-1">
-                            <div>{customer.phone || 'No phone'}</div>
+                            <div>{customer.phone || "No phone"}</div>
                             <div className="truncate">
-                              {customer.address?.city ? `${customer.address.city}${customer.address?.state ? ', ' + customer.address.state : ''}` : 'No address'}
+                              {customer.address?.city
+                                ? `${customer.address.city}${
+                                    customer.address?.state
+                                      ? ", " + customer.address.state
+                                      : ""
+                                  }`
+                                : "No address"}
                             </div>
                           </div>
                         </div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle">
+                        {new Date(customer.createdAt).toLocaleDateString()}
+                      </td>
+                      
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-heading">
-                          {customer.phone || 'No phone'}
+                          {customer.phone || "No phone"}
                         </div>
                       </td>
                       <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-heading">
                           {customer.address?.city && customer.address?.state
                             ? `${customer.address.city}, ${customer.address.state}`
-                            : 'No address'
-                          }
+                            : "No address"}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-  {customer.loyaltyTier ? (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-      customer.loyaltyTier === 'gold' ? 'bg-primary-100 text-primary-900' :
-      customer.loyaltyTier === 'silver' ? 'bg-primary-100 text-primary-900' :
-      'bg-amber-100 text-amber-800'
-    }`}>
-      {customer.loyaltyTier}
-    </span>
-    ) : (
-    <span className="text-subtle">None</span>
-  )}
-</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle">
-                        {new Date(customer.createdAt).toLocaleDateString()}
-                      </td>
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
+                        {customer.loyaltyTier ? (
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                              customer.loyaltyTier === "gold"
+                                ? "bg-primary-100 text-primary-900"
+                                : customer.loyaltyTier === "silver"
+                                ? "bg-primary-100 text-primary-900"
+                                : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            {customer.loyaltyTier}
+                          </span>
+                        ) : (
+                          <span className="text-subtle">None</span>
+                        )}
+                      </td> */}
                       <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-subtle">
                         {customer.lastLogin
                           ? new Date(customer.lastLogin).toLocaleDateString()
-                          : 'Never'
-                        }
+                          : "Never"}
                       </td>
+                      
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.isActive ? 'Active' : 'Inactive')}`}>
-                          {customer.isActive ? 'Active' : 'Inactive'}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                            customer.isActive ? "Active" : "Inactive"
+                          )}`}
+                        >
+                          {customer.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">

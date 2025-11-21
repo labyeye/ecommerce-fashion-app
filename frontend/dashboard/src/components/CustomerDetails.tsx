@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Mail, Phone, MapPin, CreditCard, Package, TrendingUp, Calendar, Gift, Star, Award, Crown, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, CreditCard, Package, TrendingUp, Calendar, Loader2, AlertCircle } from 'lucide-react';
 
 interface CustomerDetailsProps {
   customerId: string;
@@ -76,14 +76,14 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
     fetchCustomerDetails();
   }, [token, customerId]);
 
-  const getSegmentColor = (tier: string) => {
-    switch (tier) {
-      case 'gold': return 'bg-yellow-100 text-yellow-800';
-      case 'silver': return 'bg-gray-100 text-gray-800';
-      case 'bronze': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // const getSegmentColor = (tier: string) => {
+  //   switch (tier) {
+  //     case 'gold': return 'bg-yellow-100 text-yellow-800';
+  //     case 'silver': return 'bg-gray-100 text-gray-800';
+  //     case 'bronze': return 'bg-orange-100 text-orange-800';
+  //     default: return 'bg-gray-100 text-gray-800';
+  //   }
+  // };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -303,12 +303,12 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
                   <span>Send Email</span>
                 </div>
               </button>
-              <button className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
+              {/* <button className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
                 <div className="flex items-center space-x-2">
                   <Gift className="w-4 h-4" />
                   <span>Add Loyalty Points</span>
                 </div>
-              </button>
+              </button> */}
               <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
                 <div className="flex items-center space-x-2">
                   <Package className="w-4 h-4" />

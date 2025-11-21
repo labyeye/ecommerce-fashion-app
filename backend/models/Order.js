@@ -102,7 +102,20 @@ items: [{
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'],
+    enum: [
+      'pending',
+      'placed',
+      'confirmed',
+      'processing',
+      'packed',
+      'picked',
+      'in_transit',
+      'out_for_delivery',
+      'shipped',
+      'delivered',
+      'cancelled',
+      'refunded'
+    ],
     default: 'pending'
   },
   payment: {

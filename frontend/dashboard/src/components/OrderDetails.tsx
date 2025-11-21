@@ -1,6 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Package, Truck, CheckCircle, MapPin, CreditCard, User, Calendar, Gift, Star, Award, Crown, Loader2, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import {
+  ArrowLeft,
+  Package,
+  Truck,
+  CheckCircle,
+  MapPin,
+  CreditCard,
+  User,
+  Calendar,
+  Gift,
+  Star,
+  Award,
+  Crown,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import OrderStatusTracker from "./OrderStatusTracker";
 
 interface OrderDetailsProps {
   orderId: string;
@@ -77,7 +93,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loyaltyInfo, setLoyaltyInfo] = useState<LoyaltyInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
@@ -86,64 +102,108 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
       try {
         setLoading(true);
-        setError('');
+        setError("");
 
-        const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch order details');
+          throw new Error(errorData.message || "Failed to fetch order details");
         }
 
         const data = await response.json();
         setOrder(data.data.order);
         setLoyaltyInfo(data.data.loyaltyInfo);
       } catch (err: any) {
-        console.error('Order details fetch error:', err);
-        setError(err.message || 'Failed to fetch order details');
+        console.error("Order details fetch error:", err);
+        setError(err.message || "Failed to fetch order details");
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrderDetails();
+    // Poll for updates every 12 seconds
+    let mounted = true;
+    const interval = setInterval(async () => {
+      try {
+        if (!token || !orderId) return;
+        const resp = await fetch(
+          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (mounted && json.success && json.data) {
+          setOrder(json.data.order);
+        }
+      } catch (err) {
+        // ignore polling errors
+      }
+    }, 12000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, [token, orderId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return Package;
-      case 'confirmed': return CheckCircle;
-      case 'processing': return Package;
-      case 'shipped': return Truck;
-      case 'delivered': return CheckCircle;
-      default: return Package;
+      case "pending":
+        return Package;
+      case "confirmed":
+        return CheckCircle;
+      case "processing":
+        return Package;
+      case "shipped":
+        return Truck;
+      case "delivered":
+        return CheckCircle;
+      default:
+        return Package;
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -152,43 +212,47 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
     try {
       setUpdatingStatus(true);
-      const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          status: newStatus,
-          notes: `Status updated to ${newStatus}`
-        }),
-      });
+      const response = await fetch(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: newStatus,
+            notes: `Status updated to ${newStatus}`,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update order status');
+        throw new Error(errorData.message || "Failed to update order status");
       }
 
       const data = await response.json();
       setOrder(data.data);
-      
+
       // Recalculate loyalty info for the new status
       const pointsEarned = Math.floor(data.data.total);
-      const deliveryBonusPoints = newStatus === 'delivered' ? Math.floor(data.data.total * 0.1) : 0;
+      const deliveryBonusPoints =
+        newStatus === "delivered" ? Math.floor(data.data.total * 0.1) : 0;
       const totalPointsFromOrder = pointsEarned + deliveryBonusPoints;
 
       setLoyaltyInfo({
         pointsEarned,
         deliveryBonusPoints,
         totalPointsFromOrder,
-        customerTier: data.data.customer.loyaltyTier || 'bronze',
-        customerPoints: data.data.customer.loyaltyPoints || 0
+        customerTier: data.data.customer.loyaltyTier || "bronze",
+        customerPoints: data.data.customer.loyaltyPoints || 0,
       });
 
-      alert('Order status updated successfully!');
+      alert("Order status updated successfully!");
     } catch (err: any) {
-      console.error('Status update error:', err);
-      alert(err.message || 'Failed to update order status');
+      console.error("Status update error:", err);
+      alert(err.message || "Failed to update order status");
     } finally {
       setUpdatingStatus(false);
     }
@@ -232,7 +296,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <AlertCircle className="w-5 h-5 text-yellow-600" />
             <h2 className="font-semibold text-yellow-900">Order Not Found</h2>
           </div>
-          <p className="text-yellow-700">The order you're looking for doesn't exist.</p>
+          <p className="text-yellow-700">
+            The order you're looking for doesn't exist.
+          </p>
           <button
             onClick={onBack}
             className="mt-4 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors"
@@ -256,22 +322,45 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
-            <p className="text-gray-600 mt-1">Placed on {formatDate(order.createdAt)}</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Order #{order.orderNumber}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Placed on {formatDate(order.createdAt)}
+            </p>
           </div>
+          <OrderStatusTracker status={order.status} />
         </div>
         <div className="flex items-center space-x-3">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+              order.status
+            )}`}
+          >
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </span>
+
           {(() => {
-            const awbVal = (order as any).awb || (order as any).trackingNumber || (order as any).shipment?.awb;
+            const awbVal =
+              (order as any).awb ||
+              (order as any).trackingNumber ||
+              (order as any).shipment?.awb;
             if (awbVal) {
               return (
                 <div className="px-4 py-2 bg-yellow-50 rounded-lg text-yellow-800 flex items-center space-x-3">
                   <div>
                     <div className="font-medium">Synced with Delhivery</div>
-                    <div className="text-sm">AWB: <a className="font-semibold text-yellow-800 hover:underline" href={`https://track.delhivery.com/?waybill=${awbVal}`} target="_blank" rel="noopener noreferrer">{awbVal}</a></div>
+                    <div className="text-sm">
+                      AWB:{" "}
+                      <a
+                        className="font-semibold text-yellow-800 hover:underline"
+                        href={`https://track.delhivery.com/?waybill=${awbVal}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {awbVal}
+                      </a>
+                    </div>
                   </div>
                 </div>
               );
@@ -307,28 +396,41 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         <div className="lg:col-span-2 space-y-6">
           {/* Order Timeline */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Order Timeline</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Order Timeline
+            </h3>
             <div className="space-y-4">
               {order.timeline && order.timeline.length > 0 ? (
                 order.timeline.map((step, index) => {
                   const StatusIcon = getStatusIcon(step.status);
                   return (
                     <div key={index} className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        step.status === 'delivered' ? 'bg-green-100' : 'bg-blue-100'
-                      }`}>
-                        <StatusIcon className={`w-5 h-5 ${
-                          step.status === 'delivered' ? 'text-green-600' : 'text-blue-600'
-                        }`} />
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          step.status === "delivered"
+                            ? "bg-green-100"
+                            : "bg-blue-100"
+                        }`}
+                      >
+                        <StatusIcon
+                          className={`w-5 h-5 ${
+                            step.status === "delivered"
+                              ? "text-green-600"
+                              : "text-blue-600"
+                          }`}
+                        />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">
-                          {step.status.charAt(0).toUpperCase() + step.status.slice(1)}
+                          {step.status.charAt(0).toUpperCase() +
+                            step.status.slice(1)}
                         </p>
                         <p className="text-sm text-gray-500">{step.message}</p>
-                        <p className="text-xs text-gray-400">{formatDate(step.updatedAt)}</p>
+                        <p className="text-xs text-gray-400">
+                          {formatDate(step.updatedAt)}
+                        </p>
                       </div>
-                      {step.status === 'delivered' && (
+                      {step.status === "delivered" && (
                         <CheckCircle className="w-5 h-5 text-green-600" />
                       )}
                     </div>
@@ -345,48 +447,81 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
           {/* Order Items */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Order Items</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Order Items
+            </h3>
             <div className="space-y-4">
               {order.items.map((item) => (
-                <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                <div
+                  key={item._id}
+                  className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
+                >
                   {(() => {
                     const p: any = item.product;
-                    const img = (p.colors && p.colors.length > 0 && p.colors[0].images && p.colors[0].images.length > 0)
-                      ? (p.colors[0].images[0].url)
-                      : null;
-                    return <img src={img || '/assets/img-placeholder-80.png'} alt={item.product.name} className="w-16 h-16 object-cover rounded-lg" />;
+                    const img =
+                      p.colors &&
+                      p.colors.length > 0 &&
+                      p.colors[0].images &&
+                      p.colors[0].images.length > 0
+                        ? p.colors[0].images[0].url
+                        : null;
+                    return (
+                      <img
+                        src={img || "/assets/img-placeholder-80.png"}
+                        alt={item.product.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    );
                   })()}
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{item.product.name}</h4>
-                    <p className="text-sm text-gray-500">{item.product.description}</p>
-                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    <h4 className="font-medium text-gray-900">
+                      {item.product.name}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      {item.product.description}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Quantity: {item.quantity}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</p>
-                    <p className="text-sm text-gray-500">₹{item.price.toFixed(2)} each</p>
+                    <p className="font-semibold text-gray-900">
+                      ₹{(item.price * item.quantity).toFixed(2)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      ₹{item.price.toFixed(2)} each
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
-            
+
             {/* Order Summary */}
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="text-gray-900">₹{order.subtotal?.toFixed(2) || '0.00'}</span>
+                  <span className="text-gray-900">
+                    ₹{order.subtotal?.toFixed(2) || "0.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="text-gray-900">₹{order.shipping?.cost?.toFixed(2) || '0.00'}</span>
+                  <span className="text-gray-900">
+                    ₹{order.shipping?.cost?.toFixed(2) || "0.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax</span>
-                  <span className="text-gray-900">₹{order.tax?.toFixed(2) || '0.00'}</span>
+                  <span className="text-gray-900">
+                    ₹{order.tax?.toFixed(2) || "0.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-gray-900">₹{order.total.toFixed(2)}</span>
+                  <span className="text-gray-900">
+                    ₹{order.total.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -397,17 +532,27 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Gift className="w-6 h-6 text-green-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Loyalty Points Earned</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Loyalty Points Earned
+                </h3>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Customer Tier */}
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
                   <div className="flex items-center gap-3 mb-3">
-                    {order.customer.loyaltyTier === 'bronze' && <Star className="w-6 h-6 text-[#CD7F32]" />}
-                    {order.customer.loyaltyTier === 'silver' && <Award className="w-6 h-6 text-[#C0C0C0]" />}
-                    {order.customer.loyaltyTier === 'gold' && <Crown className="w-6 h-6 text-[#FFD700]" />}
-                    <h4 className="font-semibold capitalize">{order.customer.loyaltyTier} Tier</h4>
+                    {order.customer.loyaltyTier === "bronze" && (
+                      <Star className="w-6 h-6 text-[#CD7F32]" />
+                    )}
+                    {order.customer.loyaltyTier === "silver" && (
+                      <Award className="w-6 h-6 text-[#C0C0C0]" />
+                    )}
+                    {order.customer.loyaltyTier === "gold" && (
+                      <Crown className="w-6 h-6 text-[#FFD700]" />
+                    )}
+                    <h4 className="font-semibold capitalize">
+                      {order.customer.loyaltyTier} Tier
+                    </h4>
                   </div>
                   <p className="text-gray-600 text-sm">
                     Customer has {order.customer.loyaltyPoints || 0} points
@@ -423,12 +568,16 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Purchase Points:</span>
-                      <span className="font-medium text-green-600">+{loyaltyInfo.pointsEarned}</span>
+                      <span className="font-medium text-green-600">
+                        +{loyaltyInfo.pointsEarned}
+                      </span>
                     </div>
-                    {order.status === 'delivered' && (
+                    {order.status === "delivered" && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Delivery Bonus:</span>
-                        <span className="font-medium text-green-600">+{loyaltyInfo.deliveryBonusPoints}</span>
+                        <span className="font-medium text-green-600">
+                          +{loyaltyInfo.deliveryBonusPoints}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm font-bold text-gray-900 border-t pt-2">
@@ -444,15 +593,21 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Current Points:</span>
-                      <span className="font-medium">{order.customer.loyaltyPoints || 0}</span>
+                      <span className="font-medium">
+                        {order.customer.loyaltyPoints || 0}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Evolv Points:</span>
-                      <span className="font-medium">{order.customer.evolvPoints || 0}</span>
+                      <span className="font-medium">
+                        {order.customer.evolvPoints || 0}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Tier:</span>
-                      <span className="font-medium capitalize">{order.customer.loyaltyTier || 'bronze'}</span>
+                      <span className="font-medium capitalize">
+                        {order.customer.loyaltyTier || "bronze"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -462,26 +617,42 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
           {/* Shipping Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Shipping Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Shipping Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Shipping Address</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Shipping Address
+                </h4>
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div className="text-sm text-gray-700">
-                    <p className="font-medium">{order.customer.firstName} {order.customer.lastName}</p>
+                    <p className="font-medium">
+                      {order.customer.firstName} {order.customer.lastName}
+                    </p>
                     <p>{order.shippingAddress.street}</p>
-                    <p>{order.shippingAddress.city}, {order.shippingAddress.state}</p>
-                    <p>{order.shippingAddress.zipCode}, {order.shippingAddress.country}</p>
+                    <p>
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.state}
+                    </p>
+                    <p>
+                      {order.shippingAddress.zipCode},{" "}
+                      {order.shippingAddress.country}
+                    </p>
                   </div>
                 </div>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Shipping Method</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Shipping Method
+                </h4>
                 <div className="flex items-center space-x-3">
                   <Truck className="w-5 h-5 text-gray-400" />
                   <div className="text-sm text-gray-700">
-                    <p className="font-medium">{order.shipping.method || 'Standard Shipping'}</p>
+                    <p className="font-medium">
+                      {order.shipping.method || "Standard Shipping"}
+                    </p>
                     <p>3-5 business days</p>
                   </div>
                 </div>
@@ -494,13 +665,19 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         <div className="space-y-6">
           {/* Customer Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Customer Information</h4>
+            <h4 className="font-semibold text-gray-900 mb-4">
+              Customer Information
+            </h4>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <User className="w-5 h-5 text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900">{order.customer.firstName} {order.customer.lastName}</p>
-                  <p className="text-sm text-gray-500">{order.customer.email}</p>
+                  <p className="font-medium text-gray-900">
+                    {order.customer.firstName} {order.customer.lastName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {order.customer.email}
+                  </p>
                 </div>
               </div>
               {order.customer.phone && (
@@ -508,7 +685,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   <User className="w-5 h-5 text-gray-400" />
                   <div>
                     <p className="text-sm text-gray-900">Phone</p>
-                    <p className="text-sm text-gray-500">{order.customer.phone}</p>
+                    <p className="text-sm text-gray-500">
+                      {order.customer.phone}
+                    </p>
                   </div>
                 </div>
               )}
@@ -516,7 +695,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-900">Order placed</p>
-                  <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatDate(order.createdAt)}
+                  </p>
                 </div>
               </div>
               <div className="pt-3 border-t border-gray-200">
@@ -529,18 +710,25 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
           {/* Payment Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Payment Information</h4>
+            <h4 className="font-semibold text-gray-900 mb-4">
+              Payment Information
+            </h4>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <CreditCard className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="text-sm font-medium text-gray-900 capitalize">
-                    {order.payment.method?.replace(/_/g, ' ')}
+                    {order.payment.method?.replace(/_/g, " ")}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Status: <span className={`capitalize ${
-                      order.payment.status === 'paid' ? 'text-green-600' : 'text-yellow-600'
-                    }`}>
+                    Status:{" "}
+                    <span
+                      className={`capitalize ${
+                        order.payment.status === "paid"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
                       {order.payment.status}
                     </span>
                   </p>
@@ -559,10 +747,15 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <h4 className="font-semibold text-gray-900 mb-4">Order Actions</h4>
             <div className="space-y-3">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Update Status</label>
-                {order && (order as any).shipment && (order as any).shipment.awb ? (
+                <label className="text-sm font-medium text-gray-700">
+                  Update Status
+                </label>
+                {order &&
+                (order as any).shipment &&
+                (order as any).shipment.awb ? (
                   <div className="w-full px-3 py-2 border border-yellow-200 rounded-lg bg-yellow-50 text-yellow-800">
-                    This order is synced with Delhivery. Status will update automatically.
+                    This order is synced with Delhivery. Status will update
+                    automatically.
                   </div>
                 ) : (
                   <select
@@ -591,21 +784,38 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
               {order && !(order as any).shipment?.awb ? (
                 <button
                   onClick={async () => {
-                    if (!token) return alert('Not authenticated');
+                    if (!token) return alert("Not authenticated");
                     try {
-                      const resp = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/create-shipment`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                      });
+                      const resp = await fetch(
+                        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/create-shipment`,
+                        {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
                       const json = await resp.json();
-                      if (!resp.ok) throw new Error(json.message || 'Failed to create shipment');
-                      alert('Shipment created successfully');
+                      if (!resp.ok)
+                        throw new Error(
+                          json.message || "Failed to create shipment"
+                        );
+                      alert("Shipment created successfully");
                       // refresh order details
-                      const details = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/details`, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+                      const details = await fetch(
+                        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/details`,
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
                       const djson = await details.json();
                       if (details.ok) setOrder(djson.data.order);
                     } catch (e: any) {
-                      alert('Create shipment failed: ' + (e.message || e));
+                      alert("Create shipment failed: " + (e.message || e));
                     }
                   }}
                   className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
@@ -613,7 +823,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   Create Shipment (Delhivery)
                 </button>
               ) : (
-                <div className="w-full px-4 py-2 bg-yellow-50 text-yellow-800 rounded-lg">Shipment exists: <span className="font-medium">{(order as any).shipment?.shipmentId || (order as any).shipment?.awb}</span></div>
+                <div className="w-full px-4 py-2 bg-yellow-50 text-yellow-800 rounded-lg">
+                  Shipment exists:{" "}
+                  <span className="font-medium">
+                    {(order as any).shipment?.shipmentId ||
+                      (order as any).shipment?.awb}
+                  </span>
+                </div>
               )}
               <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
                 Send Update Email

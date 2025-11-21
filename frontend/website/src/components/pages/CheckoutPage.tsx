@@ -441,10 +441,10 @@ const CheckoutPage: React.FC = () => {
     return (
       <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center p-6">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#95522C] mb-6" />
-        <h2 className="text-2xl font-bold text-[#95522C] mb-2">
+        <span className="text-4xl font-bold text-tertiary mb-8">
           Order Processing
-        </h2>
-        <p className="text-[#95522C] text-center max-w-lg">
+        </span>
+        <p className="text-tertiary text-center max-w-lg">
           Do not refresh or go back — we are finalizing your payment and
           confirming your order.
         </p>
