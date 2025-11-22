@@ -103,15 +103,18 @@ const ProductDetailsPage: React.FC = () => {
   const fetchOtherProducts = async () => {
     try {
       // Try a simple products endpoint; backend can provide better related-product API
-      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`);
+      const res = await axios.get(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`
+      );
       const data = res?.data?.data || res?.data || [];
       // Filter out current product
       const filtered = Array.isArray(data)
         ? data.filter((p: any) => p._id !== id).slice(0, 6)
         : [];
       setOtherProducts(filtered);
-    } catch (err) {
-      console.warn("Failed to fetch other products", err);
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.warn("Failed to fetch other products", text);
       setOtherProducts([]);
     }
   };
@@ -161,10 +164,13 @@ const ProductDetailsPage: React.FC = () => {
           message: "Delivery info unavailable",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const anyErr = err as any;
       console.warn(
         "Delivery check failed",
-        err?.response?.data || err.message || err
+        anyErr?.response?.data ||
+          (err instanceof Error ? err.message : String(err)) ||
+          err
       );
       setDeliveryInfo({
         deliverable: false,
@@ -197,8 +203,9 @@ const ProductDetailsPage: React.FC = () => {
       );
       const data = res.data && res.data.data ? res.data.data : [];
       setProductReviews(data);
-    } catch (err) {
-      console.error("Failed to load product reviews", err);
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.warn("Failed to load product reviews", text);
     }
   };
 
@@ -212,8 +219,9 @@ const ProductDetailsPage: React.FC = () => {
         }
       );
       setHasPurchased(Boolean(res.data?.hasPurchased));
-    } catch (err) {
-      console.error("Purchase check failed", err);
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.warn("Purchase check failed", text);
       setHasPurchased(false);
     }
   };
@@ -250,12 +258,7 @@ const ProductDetailsPage: React.FC = () => {
         )
       : 0;
 
-  // Debug logging
-  console.log("Product:", product);
-  console.log("Selected Color:", selectedColor);
-  console.log("Current Color Object:", currentColor);
-  console.log("Current Images:", currentImages);
-  console.log("Color Images:", currentColor?.images);
+  // Debug logging removed in cleanup
 
   // Build a merged image list (color-specific first, then product-level images)
   // and ensure we always have an absolute URL or a placeholder

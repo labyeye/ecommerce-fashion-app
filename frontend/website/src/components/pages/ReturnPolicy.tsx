@@ -233,14 +233,10 @@ const ReturnPolicy: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-fashion-cream py-16">
+    <div className="min-h-screen bg-background py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-fashion-cream rounded-xl shadow-sm p-8 sm:p-12">
-          <img
-            src={logo}
-            alt="Return Policy"
-            className="w-48 h-48 mx-auto rounded-lg"
-          />
+        <div className="bg-background rounded-xl shadow-sm p-8 sm:p-12">
+          
           <span className="block text-2xl sm:text-3xl md:text-5xl font-semibold text-[#95522C] mb-12 text-center">
             Return & Exchange Policy
           </span>
@@ -249,9 +245,11 @@ const ReturnPolicy: React.FC = () => {
             {list.map((qa, i) => (
               <div key={i} className="border-b border-gray-100">
                 <button
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full flex items-center justify-between py-4 text-left"
-                >
+                      onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                      aria-expanded={openIndex === i}
+                      aria-controls={`qa-${i}`}
+                      className="w-full flex items-center justify-between py-4 text-left"
+                    >
                   <span className="block text-base sm:text-lg md:text-xl font-medium text-fashion-accent-brown">
                     {qa.question}
                   </span>
@@ -261,13 +259,14 @@ const ReturnPolicy: React.FC = () => {
                     }`}
                   />
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-200 ${
-                    openIndex === i ? "max-h-screen py-4" : "max-h-0"
-                  }`}
-                >
-                  <div className="px-2">{qa.answer}</div>
-                </div>
+                    <div
+                      id={`qa-${i}`}
+                      className={`overflow-hidden transition-all duration-200 ${
+                        openIndex === i ? "max-h-screen py-4" : "max-h-0"
+                      }`}
+                    >
+                      <div className="px-2">{qa.answer}</div>
+                    </div>
               </div>
             ))}
           </div>

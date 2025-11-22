@@ -27,6 +27,7 @@ const BlogsPage: React.FC = () => {
   useEffect(() => {
     fetchBlogs();
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, currentPage, searchQuery]);
 
   const fetchBlogs = async () => {
@@ -45,7 +46,6 @@ const BlogsPage: React.FC = () => {
       setBlogs(response.blogs);
       setTotalPages(response.totalPages);
     } catch (err) {
-      console.error("Error fetching blogs:", err);
       setError("Failed to fetch blogs. Please try again later.");
     } finally {
       setLoading(false);
@@ -56,8 +56,8 @@ const BlogsPage: React.FC = () => {
     try {
       const cats = await blogService.getCategories();
       setCategories(cats);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
+    } catch (_err) {
+      // ignore category load failure silently
     }
   };
 
@@ -70,6 +70,10 @@ const BlogsPage: React.FC = () => {
     e.preventDefault();
     setCurrentPage(1);
   };
+
+  const handlePrevPage = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const handleNextPage = () =>
+    setCurrentPage((p) => Math.min(p + 1, totalPages));
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -121,13 +125,11 @@ const BlogsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FFF2E1" }}>
-      {/* Search and Category Filter */}
       <section
         className="py-8"
         style={{ backgroundColor: "rgba(255,242,225,0.8)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search Bar */}
           <form onSubmit={handleSearch} className="mb-6">
             <div className="max-w-md mx-auto">
               <div className="relative">
@@ -146,8 +148,6 @@ const BlogsPage: React.FC = () => {
               </div>
             </div>
           </form>
-
-          {/* Category Filter */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
             <button
               onClick={() => handleCategoryChange("all")}
@@ -182,7 +182,6 @@ const BlogsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Blog */}
       {featuredBlog && (
         <section className="py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -402,9 +401,7 @@ const BlogsPage: React.FC = () => {
                 <div className="flex justify-center mt-12">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
+                      onClick={handlePrevPage}
                       disabled={currentPage === 1}
                       className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                       style={{ borderColor: "rgba(149,82,44,0.15)" }}
@@ -417,9 +414,7 @@ const BlogsPage: React.FC = () => {
                     </span>
 
                     <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
+                      onClick={handleNextPage}
                       disabled={currentPage === totalPages}
                       className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                       style={{ borderColor: "rgba(149,82,44,0.15)" }}

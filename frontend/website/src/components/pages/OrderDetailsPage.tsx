@@ -127,8 +127,9 @@ const OrderDetailsPage: React.FC = () => {
         setLoyaltyInfo(data.data.loyaltyInfo);
         setPointsEarned(data.data.pointsEarned);
         setDeliveryBonusPoints(data.data.deliveryBonusPoints);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        const text = err instanceof Error ? err.message : String(err);
+        setError(text);
       } finally {
         setLoading(false);
       }
@@ -150,8 +151,8 @@ const OrderDetailsPage: React.FC = () => {
         if (json.success) {
           setEligible(Boolean(json.eligible));
         }
-      } catch (err) {
-        // ignore
+      } catch (err: unknown) {
+        // ignore transient errors
       } finally {
         setEligibilityChecked(true);
       }
@@ -185,7 +186,7 @@ const OrderDetailsPage: React.FC = () => {
             } as Order;
           });
         }
-      } catch (err) {
+      } catch (err: unknown) {
         // ignore polling errors
       }
     };
@@ -228,8 +229,9 @@ const OrderDetailsPage: React.FC = () => {
       
       // Refresh the page to get updated data
       window.location.reload();
-    } catch (err: any) {
-      alert('Error confirming delivery: ' + err.message);
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      alert('Error confirming delivery: ' + text);
     } finally {
       setConfirmingDelivery(false);
     }

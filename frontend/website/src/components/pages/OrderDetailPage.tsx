@@ -35,6 +35,31 @@ const OrderDetailPage: React.FC = () => {
   const [canceling, setCanceling] = useState(false);
   const invoiceRef = useRef<HTMLDivElement | null>(null);
 
+  const handleDownloadInvoice = async () => {
+    try {
+      if (!invoiceRef.current) return;
+      await downloadRefAsPDF(
+        invoiceRef.current,
+        `invoice-${order?.order?.orderNumber || order?.order?._id || 'order'}.pdf`
+      );
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.warn('Invoice download error', text);
+      alert('Failed to download invoice');
+    }
+  };
+
+  const handlePrintInvoice = () => {
+    try {
+      if (!invoiceRef.current) return;
+      printRef(invoiceRef.current);
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.warn('Invoice print error', text);
+      alert('Failed to print invoice');
+    }
+  };
+
   useEffect(() => {
     const fetchOrder = async () => {
       if (!token) {
@@ -69,9 +94,10 @@ const OrderDetailPage: React.FC = () => {
 
         const data = await response.json();
         setOrder(data.data);
-      } catch (err: any) {
-        console.error("Fetch order error:", err);
-        setError(err.message || "Failed to fetch order details");
+      } catch (err: unknown) {
+        const text = err instanceof Error ? err.message : String(err);
+        console.error("Fetch order error:", text);
+        setError(text || "Failed to fetch order details");
       } finally {
         setLoading(false);
       }
@@ -251,33 +277,14 @@ const OrderDetailPage: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={async () => {
-                try {
-                  if (!invoiceRef.current) return;
-                  await downloadRefAsPDF(
-                    invoiceRef.current,
-                    `invoice-${order?.order?.orderNumber || order?.order?._id || 'order'}.pdf`
-                  );
-                } catch (err) {
-                  console.error('Invoice download error', err);
-                  alert('Failed to download invoice');
-                }
-              }}
+              onClick={handleDownloadInvoice}
               className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors"
             >
               <Download className="w-4 h-4" />
               <span>Download Invoice</span>
             </button>
             <button
-              onClick={() => {
-                try {
-                  if (!invoiceRef.current) return;
-                  printRef(invoiceRef.current);
-                } catch (err) {
-                  console.error('Invoice print error', err);
-                  alert('Failed to print invoice');
-                }
-              }}
+              onClick={handlePrintInvoice}
               className="flex items-center gap-2 px-4 py-2 text-[#95522C] hover:text-[#95522C] transition-colors"
             >
               <Printer className="w-4 h-4" />

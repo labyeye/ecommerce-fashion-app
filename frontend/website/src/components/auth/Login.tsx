@@ -295,7 +295,7 @@ const Login: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg placeholder-tertiary"
                     placeholder="you@example.com"
                     required
                   />
@@ -316,7 +316,7 @@ const Login: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 rounded-lg"
+                    className="w-full pl-10 pr-12 py-3 rounded-lg placeholder-tertiary"
                     placeholder="Enter your password"
                     required
                   />
@@ -343,7 +343,7 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="submit-btn w-full py-3 rounded-lg font-semibold text-lg transition-all duration-300"
+                className="submit-btn w-full py-3 rounded-lg placeholder-tertiary font-semibold text-lg transition-all duration-300"
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </button>
@@ -363,7 +363,7 @@ const Login: React.FC = () => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg placeholder-tertiary"
                     placeholder="+919876543210"
                     required
                   />
@@ -375,7 +375,7 @@ const Login: React.FC = () => {
                   type="button"
                   onClick={sendOtpPhone}
                   disabled={isSending}
-                  className="submit-btn flex-1 py-3 rounded-lg font-semibold text-lg"
+                  className="submit-btn flex-1 py-3 rounded-lg placeholder-tertiary font-semibold text-lg"
                 >
                   {isSending ? "Sending..." : "Send OTP"}
                 </button>
@@ -395,7 +395,7 @@ const Login: React.FC = () => {
                       type="text"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="w-full pr-4 py-3 rounded-lg"
+                      className="w-full pr-4 py-3 rounded-lg placeholder-tertiary"
                       placeholder="6-digit code"
                     />
                   </div>
@@ -404,7 +404,7 @@ const Login: React.FC = () => {
                     type="button"
                     onClick={verifyOtpPhone}
                     disabled={isVerifying}
-                    className="submit-btn w-full py-3 rounded-lg font-semibold text-lg"
+                    className="submit-btn w-full py-3 rounded-lg placeholder-tertiary font-semibold text-lg"
                   >
                     {isVerifying ? "Verifying..." : "Verify OTP and Sign In"}
                   </button>
@@ -421,7 +421,7 @@ const Login: React.FC = () => {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-xl font-bold">
-              <span className="px-2 bg-[#FFF2E1] text-gray-500">
+              <span className="px-2 bg-[#FFF2E1]">
                 Or continue with
               </span>
             </div>
@@ -433,7 +433,7 @@ const Login: React.FC = () => {
           </div>
 
           {!googleLoaded && (
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm">
               Loading Google Sign-In...
             </p>
           )}

@@ -82,12 +82,14 @@ const ProfilePage: React.FC = () => {
       } else {
         const data = await response.json();
         alert(
-          "Error uploading profile picture: " + (data.message || "Unknown error")
+          "Error uploading profile picture: " +
+            (data.message || "Unknown error")
         );
       }
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      alert("Error uploading profile picture. Please try again.");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.error("Error uploading profile picture:", text);
+      alert(text || "Error uploading profile picture. Please try again.");
     } finally {
       setProfilePictureUploading(false);
     }
@@ -172,15 +174,15 @@ const ProfilePage: React.FC = () => {
         const data = await response.json();
         alert("Error updating profile: " + (data.message || "Unknown error"));
       }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Error updating profile. Please try again.");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.error("Error updating profile:", text);
+      alert(text || "Error updating profile. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
-  
   // const tiers = [
   //   {
   //     name: "Bronze",
