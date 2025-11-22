@@ -1,3 +1,4 @@
+import React from "react";
 import HeroComponent from "../Home/Hero";
 import ProductSlider from "../Home/ProductSlider";
 import CategoryCards from "../Home/CategoryCards";
@@ -6,7 +7,7 @@ import Features from "../Home/Features";
 import useFadeOnScroll from "../ui/useFadeOnScroll";
 import useRevealOnScroll from "../ui/useRevealOnScroll";
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const heroFade = useFadeOnScroll<HTMLElement>();
   const categoryFade = useFadeOnScroll<HTMLElement>();
   const categoryReveal = useRevealOnScroll<HTMLElement>();

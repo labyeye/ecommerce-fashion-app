@@ -60,7 +60,7 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
               padding: 0;
             }
             .header {
-              background: linear-gradient(135deg, #DB2777, #F973A0);
+              background: linear-gradient(135deg, #914D26, #FFF2E1);
               color: #fff;
               text-align: center;
               padding: 32px 24px 24px 24px;

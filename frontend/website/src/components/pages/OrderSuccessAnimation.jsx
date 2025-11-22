@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Check, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import Lottie from 'lottie-react';
 import animationData from './success-animation.json';
 

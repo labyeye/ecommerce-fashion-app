@@ -3,9 +3,11 @@ import Header from "../Home/Header";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 const ContactPage: React.FC = () => {
+  const handleCartClick = () => {};
+
   return (
     <div className="h-full bg-gradient-to-br from-white via-background/30 to-white">
-      <Header cartCount={0} onCartClick={() => {}} />
+      <Header cartCount={0} onCartClick={handleCartClick} />
 
       <main>
         <section className="pt-32 pb-20" style={{ backgroundColor: "#FFF2E1" }}>
@@ -99,7 +101,7 @@ const ContactPage: React.FC = () => {
                       </label>
                       <textarea
                         id="message"
-                        rows={5}
+                        rows={3}
                         className="w-full px-4 py-3 bg-background placeholder-tertiary border border-tertiary rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300"
                         style={{ boxShadow: "none" }}
                         placeholder="Type your message here..."
@@ -108,7 +110,7 @@ const ContactPage: React.FC = () => {
                   </div>
                   <button
                     type="submit"
-                    className="w-full py-3 px-6 rounded-2xl font-semibold flex items-center justify-center space-x-2 hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                    className="w-full py-5 px-6 rounded-2xl font-semibold flex items-center justify-center space-x-2 hover:shadow-xl hover:scale-105 transition-all duration-300 group"
                     style={{ backgroundColor: "#95522C", color: "#fff" }}
                   >
                     <Send className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />

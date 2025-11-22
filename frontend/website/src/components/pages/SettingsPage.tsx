@@ -49,8 +49,9 @@ const SettingsPage: React.FC = () => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (err: any) {
-      setMessage(err.message || "Error");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      setMessage(text || "Error");
     } finally {
       setLoading(false);
     }
@@ -77,8 +78,9 @@ const SettingsPage: React.FC = () => {
       setActive("none");
       setNewEmail("");
       setEmailPassword("");
-    } catch (err: any) {
-      setMessage(err.message || "Error");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      setMessage(text || "Error");
     } finally {
       setLoading(false);
     }
@@ -104,8 +106,9 @@ const SettingsPage: React.FC = () => {
       setMessage("Phone number updated");
       setActive("none");
       setNewPhone("");
-    } catch (err: any) {
-      setMessage(err.message || "Error");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      setMessage(text || "Error");
     } finally {
       setLoading(false);
     }

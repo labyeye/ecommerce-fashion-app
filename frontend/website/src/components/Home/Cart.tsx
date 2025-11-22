@@ -137,9 +137,9 @@ const Cart: React.FC<CartProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            className="p-2 hover:bg-tertiary  rounded-full transition-colors duration-200"
           >
-            <X className="w-6 h-6 text-gray-500" />
+            <X className="w-6 h-6 text-tertiary hover:text-background" />
           </button>
         </div>
 
@@ -187,14 +187,14 @@ const Cart: React.FC<CartProps> = ({
                     <span
                       role="heading"
                       aria-level={4}
-                      className="block font-semibold text-[#914D26] truncate text-sm sm:text-base md:text-lg"
+                      className="block font-semibold text-[#914D26] truncate text-sm sm:text-base md:text-xl"
                     >
                       {item.name}
                     </span>
-                    <span className="block text-xs sm:text-sm text-[#914D26]">
+                    <span className="block text-xl md:text-lg sm:text-sm text-[#914D26]">
                       Size: {item.size}
                     </span>
-                    <span className="block text-sm sm:text-base md:text-lg font-bold text-[#914D26] poppins-numeric">
+                    <span className="block text-md sm:text-base md:text-lg text-[#914D26] poppins-numeric">
                       ₹{item.price}
                     </span>
                   </div>
@@ -207,12 +207,12 @@ const Cart: React.FC<CartProps> = ({
                           Math.max(0, item.quantity - 1)
                         )
                       }
-                      className="w-8 h-8 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
+                      className="w-5 h-5 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
-                      <Minus className="w-4 h-4 text-[#914D26]" />
+                      <Minus className="w-3 h-3 text-[#914D26]" />
                     </button>
                     <span
-                      className="w-8 text-center font-semibold text-[#914D26] poppins-numeric"
+                      className="w-5 text-center font-semibold text-[#914D26] poppins-numeric"
                       style={{
                         fontVariantNumeric: "lining-nums",
                         fontFeatureSettings: '"tnum"',
@@ -228,9 +228,9 @@ const Cart: React.FC<CartProps> = ({
                           item.quantity + 1
                         )
                       }
-                      className="w-8 h-8 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
+                      className="w-5 h-5 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
-                      <Plus className="w-4 h-4 text-[#914D26]" />
+                      <Plus className="w-3 h-3 text-[#914D26]" />
                     </button>
                   </div>
 
@@ -238,9 +238,9 @@ const Cart: React.FC<CartProps> = ({
                     onClick={() =>
                       onRemoveItem(`${item.id}-${item.size}-${item.color}`)
                     }
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
+                    className="p-2 text-tertiary hover:bg-red-50 rounded-full transition-colors duration-200"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -320,7 +320,7 @@ const Cart: React.FC<CartProps> = ({
                 </div>
               )}
 
-              {showEvolvPointsInput && !promoCode && !evolvPointsRedemption && (
+              {/* {showEvolvPointsInput && !promoCode && !evolvPointsRedemption && (
                 <div className="space-y-2">
                   <div className="flex space-x-2">
                     <input
@@ -366,7 +366,7 @@ const Cart: React.FC<CartProps> = ({
                     Cancel
                   </button>
                 </div>
-              )}
+              )} */}
 
               {promoCode && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
@@ -390,7 +390,7 @@ const Cart: React.FC<CartProps> = ({
                 </div>
               )}
 
-              {evolvPointsRedemption && (
+              {/* {evolvPointsRedemption && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -411,7 +411,7 @@ const Cart: React.FC<CartProps> = ({
                     ₹{evolvPointsRedemption.discountAmount} discount applied
                   </p>
                 </div>
-              )}
+              )} */}
             </div>
 
             <div className="space-y-2">
@@ -440,7 +440,7 @@ const Cart: React.FC<CartProps> = ({
 
               <div className="flex justify-between text-[914D26">
                 <span>Shipping</span>
-                <span className="poppins-numeric">
+                <span className="">
                   {shipping === 0 ? "To be Calculated" : `₹${shipping}`}
                 </span>
               </div>
@@ -453,7 +453,7 @@ const Cart: React.FC<CartProps> = ({
                 </p>
               )}
 
-              <div className="flex justify-between text-lg font-bold text-[#914D26] pt-2 border-t border-tertiary">
+              <div className="flex justify-between text-lg font-semibold text-[#914D26] pt-2 border-t border-tertiary">
                 <span>Total</span>
                 <span className="poppins-numeric">
                   ₹{Math.max(0, total).toFixed(0)}

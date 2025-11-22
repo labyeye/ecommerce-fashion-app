@@ -178,15 +178,11 @@ const FaqPage: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-fashion-cream py-16">
+    <div className="min-h-screen bg-background py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-fashion-cream rounded-xl shadow-sm p-8 sm:p-12">
-          <img
-            src={logo}
-            alt="Flaunt by Nishi"
-            className="w-48 h-48 mx-auto rounded-lg"
-          />
-          <h3 className="text-5xl font-semibold text-[#95522C] mb-12 text-center">
+        <div className="bg-background rounded-xl shadow-sm p-8 sm:p-12">
+          
+          <h3 className="text-5xl font-semibold text-[#95522C] mb-3 text-center">
             Frequently Asked Questions
           </h3>
 

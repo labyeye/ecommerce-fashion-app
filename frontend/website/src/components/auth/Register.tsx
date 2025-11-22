@@ -125,10 +125,17 @@ const Register: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // If the field is 'city' or 'state', allow only alphabetic characters while typing
+    const newValue = (name === "city" || name === "state")
+      ? value.replace(/[^A-Za-z]/g, "")
+      : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: newValue,
     }));
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
@@ -139,9 +146,8 @@ const Register: React.FC = () => {
 
     // Live password/confirm validation
     if (name === "password" || name === "confirmPassword") {
-      const pass = name === "password" ? value : formData.password;
-      const conf =
-        name === "confirmPassword" ? value : formData.confirmPassword;
+      const pass = name === "password" ? newValue : formData.password;
+      const conf = name === "confirmPassword" ? newValue : formData.confirmPassword;
       // update confirm password live error
       if (conf && pass !== conf) {
         setErrors((prev) => ({
@@ -305,12 +311,8 @@ const Register: React.FC = () => {
 
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
-        <div className="text-center">
-          <img
-            src={logo}
-            alt="Flaunt by Nishi Logo"
-            className="mx-auto w-48 h-48"
-          />
+        <div className="text-center mt-20">
+          
           {!registrationSuccess ? (
             <>
               <h3 className="font-bold text-black mb-2">Create Account</h3>
@@ -332,18 +334,13 @@ const Register: React.FC = () => {
         </div>
 
         {!registrationSuccess ? (
-          /* Register Form */
           <div className="form-card rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Error Message */}
-              
-
-              {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-md font-medium text-black mb-2"
+                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
                   >
                     First Name
                   </label>
@@ -375,7 +372,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-md font-medium text-black mb-2"
+                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
                   >
                     Last Name
                   </label>
@@ -404,7 +401,7 @@ const Register: React.FC = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-md font-medium text-black mb-2"
+                  className="block text-md font-medium placeholder-tertiary text-black mb-2"
                 >
                   Email Address
                 </label>
@@ -435,7 +432,7 @@ const Register: React.FC = () => {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-md font-medium text-black mb-2"
+                  className="block text-md font-medium placeholder-tertiary text-black mb-2"
                 >
                   Phone Number (Optional)
                 </label>
@@ -467,7 +464,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-md font-medium text-black mb-2"
+                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
                   >
                     Password
                   </label>
@@ -565,7 +562,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-md font-medium text-black mb-2"
+                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
                   >
                     Confirm Password
                   </label>
@@ -632,6 +629,7 @@ const Register: React.FC = () => {
                   <input
                     name="city"
                     type="text"
+                    pattern="[A-Za-z]+"
                     autoComplete="address-level2"
                     value={formData.city}
                     onChange={handleChange}
@@ -644,16 +642,17 @@ const Register: React.FC = () => {
                     autoComplete="address-level1"
                     value={formData.state}
                     onChange={handleChange}
-                    className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
+                    className="block  w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
                     placeholder="State"
                   />
                   <input
                     name="zipCode"
                     type="text"
+                    maxLength={6}
                     autoComplete="postal-code"
                     value={formData.zipCode}
                     onChange={handleChange}
-                    className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
+                    className="block w-full poppins-numeric px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
                     placeholder="ZIP Code"
                   />
                 </div>

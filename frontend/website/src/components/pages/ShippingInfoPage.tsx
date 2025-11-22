@@ -6,18 +6,14 @@ const ShippingInfoPage: React.FC = () => {
     <div className="min-h-screen bg-background py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-background rounded-xl p-8 sm:p-12">
-          <img
-            src={logo}
-            alt="Shipping"
-            className="w-36 h-36 mx-auto rounded-md"
-          />
+         
 
           <h3 className="text-4xl font-semibold text-[#95522C] mb-6 text-center">
             Shipping Information
           </h3>
 
           <div className="flex flex-col items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Delhivery_Logo_%282019%29.png" alt="Delhivery" className="w-40 h-auto mb-4" />
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Delhivery_Logo_%282019%29.png" alt="Delhivery" className="w-40 h-auto mb-4" />
             <p className="mb-4 text-lg text-justify max-w-3xl mt-10">
               We partner with Delhivery to fulfil and deliver orders across India.
               When you place an order, we share only the minimum shipment

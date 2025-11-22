@@ -1,8 +1,8 @@
 import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from 'react-router-dom';
-import ProductCard from '../Home/ProductCard';
-import { Product } from '../Home/ProductCard';
+import { useSearchParams } from "react-router-dom";
+import ProductCard from "../Home/ProductCard";
+import { Product } from "../Home/ProductCard";
 
 interface Category {
   _id: string;
@@ -24,17 +24,17 @@ interface ProductsPageData {
 
 const ProductPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const [data, setData] = useState<ProductsPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get category from URL params
-  const categoryParam = searchParams.get('category');
-  const searchQuery = searchParams.get('search') || '';
-  const sortParam = searchParams.get('sort') || 'createdAt';
-  const orderParam = searchParams.get('order') || 'desc';
+  const categoryParam = searchParams.get("category");
+  const searchQuery = searchParams.get("search") || "";
+  const sortParam = searchParams.get("sort") || "createdAt";
+  const orderParam = searchParams.get("order") || "desc";
 
   useEffect(() => {
     fetchProducts();
@@ -45,9 +45,9 @@ const ProductPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = 'https://ecommerce-fashion-app-som7.vercel.app/api/products';
+      let url = "https://ecommerce-fashion-app-som7.vercel.app/api/products";
       const params = new URLSearchParams();
-      let resolvedCategory = '';
+      let resolvedCategory = "";
 
       if (categoryParam) {
         // Normalize category parameter: API expects either an ObjectId or a slug.
@@ -59,35 +59,38 @@ const ProductPage: React.FC = () => {
             .toString()
             .trim()
             .toLowerCase()
-            .replace(/\s+/g, '-')
-            .replace(/[^a-z0-9\-]/g, '')
-            .replace(/-+/g, '-');
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9\-]/g, "")
+            .replace(/-+/g, "-");
 
         const decoded = decodeURIComponent(categoryParam);
         resolvedCategory = isObjectId ? categoryParam : slugify(decoded);
-        console.log('ProductsPage: categoryParam=', categoryParam, 'decoded=', decoded, 'resolvedCategory=', resolvedCategory);
-        params.append('category', resolvedCategory);
+        params.append("category", resolvedCategory);
       }
-      if (searchQuery) params.append('search', searchQuery);
-      params.append('page', currentPage.toString());
-      params.append('limit', '12');
-      params.append('sort', sortParam);
-      params.append('order', orderParam);
-      params.append('status', 'active');
+      if (searchQuery) params.append("search", searchQuery);
+      params.append("page", currentPage.toString());
+      params.append("limit", "12");
+      params.append("sort", sortParam);
+      params.append("order", orderParam);
+      params.append("status", "active");
 
       const finalUrl = `${url}?${params.toString()}`;
 
       const response = await fetch(finalUrl, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
         const body = await response.text();
-        console.error('Products API returned non-OK status', response.status, body);
+        console.error(
+          "Products API returned non-OK status",
+          response.status,
+          body
+        );
         throw new Error(`Server responded with status ${response.status}`);
       }
 
@@ -96,10 +99,10 @@ const ProductPage: React.FC = () => {
       try {
         result = JSON.parse(resultText);
       } catch (err) {
-        console.warn('Products API returned non-JSON response:', resultText);
+        console.warn("Products API returned non-JSON response:", resultText);
         result = { success: false, data: [] };
       }
-      console.log('Products API response (parsed):', result);
+      // parsed response received
 
       // Check the actual structure of the response
       if (result.success) {
@@ -111,7 +114,8 @@ const ProductPage: React.FC = () => {
           // If empty and a categoryParam was provided, attempt a fallback lookup
           if (result.data.length === 0 && categoryParam) {
             try {
-              const API_BASE = 'https://ecommerce-fashion-app-som7.vercel.app/api';
+              const API_BASE =
+                "https://ecommerce-fashion-app-som7.vercel.app/api";
               const decoded = decodeURIComponent(categoryParam);
               // Try to find a matching category by slug or name
               const catResp = await fetch(`${API_BASE}/categories`);
@@ -121,13 +125,16 @@ const ProductPage: React.FC = () => {
                 const match = categories.find((c: any) => {
                   if (!c) return false;
                   const slugMatch = c.slug === resolvedCategory;
-                  const nameMatch = c.name && c.name.toLowerCase() === decoded.toLowerCase();
+                  const nameMatch =
+                    c.name && c.name.toLowerCase() === decoded.toLowerCase();
                   return slugMatch || nameMatch;
                 });
 
                 if (match) {
                   // Fetch products by category id
-                  const catProductsResp = await fetch(`${API_BASE}/categories/${match._id}/products`);
+                  const catProductsResp = await fetch(
+                    `${API_BASE}/categories/${match._id}/products`
+                  );
                   if (catProductsResp.ok) {
                     const catProductsJson = await catProductsResp.json();
                     if (catProductsJson.success && catProductsJson.data) {
@@ -138,16 +145,21 @@ const ProductPage: React.FC = () => {
                           page: 1,
                           limit: 12,
                           total: (catProductsJson.data.products || []).length,
-                          pages: Math.ceil(((catProductsJson.data.products || []).length || 0) / 12)
-                        }
+                          pages: Math.ceil(
+                            ((catProductsJson.data.products || []).length ||
+                              0) / 12
+                          ),
+                        },
                       });
                       return;
                     }
                   }
                 }
               }
-            } catch (fbErr) {
-              console.warn('Fallback category lookup failed', fbErr);
+            } catch (fbErr: unknown) {
+              const text =
+                fbErr instanceof Error ? fbErr.message : String(fbErr);
+              console.warn("Fallback category lookup failed", text);
             }
           }
 
@@ -157,27 +169,26 @@ const ProductPage: React.FC = () => {
               page: currentPage,
               limit: 12,
               total: result.data.length,
-              pages: Math.ceil(result.data.length / 12)
-            }
+              pages: Math.ceil(result.data.length / 12),
+            },
           });
         } else {
-          console.error('Unexpected data format:', result);
-          throw new Error('Unexpected response format from server');
+          console.error("Unexpected data format:", result);
+          throw new Error("Unexpected response format from server");
         }
       } else {
-        console.error('Invalid response:', result);
-        throw new Error(result.message || 'Invalid response from server');
+        console.error("Invalid response:", result);
+        throw new Error(result.message || "Invalid response from server");
       }
-    } catch (err) {
-      console.error('Error fetching products:', err);
-      if (err instanceof Error) {
-        if (err.message.includes('Failed to fetch')) {
-          setError('Could not connect to the server. Please check if the backend server is running.');
-        } else {
-          setError(`Error: ${err.message}`);
-        }
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      console.error("Error fetching products:", text);
+      if (text.includes("Failed to fetch")) {
+        setError(
+          "Could not connect to the server. Please check if the backend server is running."
+        );
       } else {
-        setError('An unexpected error occurred while fetching products.');
+        setError(`Error: ${text}`);
       }
     } finally {
       setLoading(false);
@@ -188,10 +199,10 @@ const ProductPage: React.FC = () => {
     // Update the URL search params using react-router's setSearchParams so
     // the component re-renders and fetchProducts picks up the new sort/order.
     const newParams = new URLSearchParams(searchParams.toString());
-    newParams.set('sort', sortBy);
-    newParams.set('order', order);
+    newParams.set("sort", sortBy);
+    newParams.set("order", order);
     // reset to first page when sorting changes
-    newParams.set('page', '1');
+    newParams.set("page", "1");
     setSearchParams(newParams);
     setCurrentPage(1);
   };
@@ -207,7 +218,7 @@ const ProductPage: React.FC = () => {
     if (searchQuery) {
       return `Search Results for "${searchQuery}"`;
     }
-    return 'All Products';
+    return "All Products";
   };
 
   const getPageDescription = () => {
@@ -215,19 +226,21 @@ const ProductPage: React.FC = () => {
       return data.category.description;
     }
     if (searchQuery) {
-      return `Found ${data?.pagination?.total || 0} products matching your search`;
+      return `Found ${
+        data?.pagination?.total || 0
+      } products matching your search`;
     }
-    return 'Discover our complete collection of fashion items';
+    return "Discover our complete collection of fashion items";
   };
 
   if (loading) {
-  return (
-    <div className="min-h-screen bg-fashion-cream">
-      <div className="container mx-auto px-4 py-24 flex flex-col items-center justify-center">
-        <LoadingMountainSunsetBeach text="Loading products..." />
+    return (
+      <div className="min-h-screen bg-fashion-cream">
+        <div className="container mx-auto px-4 py-24 flex flex-col items-center justify-center">
+          <LoadingMountainSunsetBeach text="Loading products..." />
+        </div>
       </div>
-    </div>
-  );
+    );
   }
 
   if (error) {
@@ -240,9 +253,13 @@ const ProductPage: React.FC = () => {
               <p className="text-[#95522C] mb-2">{error}</p>
               <p className="text-sm text-[#95522C]">
                 If the issue persists, please make sure:
-                <br />1. The backend server is running at https://ecommerce-fashion-app-som7.vercel.app
-                <br />2. You have an active internet connection
-                <br />3. You have the required permissions
+                <br />
+                1. The backend server is running at
+                https://ecommerce-fashion-app-som7.vercel.app
+                <br />
+                2. You have an active internet connection
+                <br />
+                3. You have the required permissions
               </p>
             </div>
             <div className="space-x-4">
@@ -253,7 +270,7 @@ const ProductPage: React.FC = () => {
                 Try Again
               </button>
               <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => (window.location.href = "/")}
                 className="bg-white border border-fashion-charcoal/20 text-[#95522C] px-6 py-3 rounded-fashion hover:bg-fashion-cream transition-colors"
               >
                 Go to Homepage
@@ -290,13 +307,25 @@ const ProductPage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Category Breadcrumb */}
             <div className="flex items-center space-x-2 text-sm text-[#95522C]/60">
-              <a href="/" className="hover:text-fashion-accent-brown transition-colors text-xl">Home</a>
+              <a
+                href="/"
+                className="hover:text-fashion-accent-brown transition-colors text-xl"
+              >
+                Home
+              </a>
               <span>/</span>
-              <a href="/products" className="hover:text-fashion-accent-brown transition-colors text-xl">Products</a>
+              <a
+                href="/products"
+                className="hover:text-fashion-accent-brown transition-colors text-xl"
+              >
+                Products
+              </a>
               {data?.category && (
                 <>
                   <span>/</span>
-                  <span className="text-fashion-accent-brown font-medium">{data.category.name}</span>
+                  <span className="text-fashion-accent-brown font-medium">
+                    {data.category.name}
+                  </span>
                 </>
               )}
             </div>
@@ -307,7 +336,7 @@ const ProductPage: React.FC = () => {
               <select
                 value={`${sortParam}-${orderParam}`}
                 onChange={(e) => {
-                  const [sort, order] = e.target.value.split('-');
+                  const [sort, order] = e.target.value.split("-");
                   handleSortChange(sort, order);
                 }}
                 className="px-3 py-1 bg-[#fffaf4] border border-fashion-charcoal/20 rounded-fashion text-sm focus:outline-none focus:ring-2 focus:ring-fashion-accent-brown focus:border-transparent"
@@ -328,7 +357,9 @@ const ProductPage: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         {loading ? (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-light text-[#95522C] mb-4">Loading Products...</h3>
+            <h3 className="text-2xl font-light text-[#95522C] mb-4">
+              Loading Products...
+            </h3>
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
             </div>
@@ -338,7 +369,10 @@ const ProductPage: React.FC = () => {
             {data.products && data.products.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                 {data.products.map((product) => (
-                  <div key={product._id || product.id} className="group relative transition-all duration-300 hover:z-10">
+                  <div
+                    key={product._id || product.id}
+                    className="group relative transition-all duration-300 hover:z-10"
+                  >
                     <ProductCard
                       key={product._id || product.id}
                       product={product}
@@ -349,13 +383,15 @@ const ProductPage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <h3 className="text-2xl font-light text-[#95522C] mb-4">No products found</h3>
+                <h3 className="text-2xl font-light text-[#95522C] mb-4">
+                  No products found
+                </h3>
                 <p className="text-[#95522C] mb-8">
                   {categoryParam
                     ? `No products available in this category yet`
                     : searchQuery
                     ? `No products match your search "${searchQuery}"`
-                    : 'No products available at the moment'}
+                    : "No products available at the moment"}
                 </p>
                 {(categoryParam || searchQuery) && (
                   <a
@@ -382,14 +418,17 @@ const ProductPage: React.FC = () => {
                   </button>
 
                   {/* Page Numbers */}
-                  {Array.from({ length: data.pagination.pages }, (_, i) => i + 1).map((page) => (
+                  {Array.from(
+                    { length: data.pagination.pages },
+                    (_, i) => i + 1
+                  ).map((page) => (
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
                       className={`px-4 py-2 border rounded-fashion transition-colors ${
                         page === currentPage
-                          ? 'bg-fashion-accent-brown text-white border-fashion-accent-brown'
-                          : 'border-fashion-charcoal/20 text-[#95522C] hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown'
+                          ? "bg-fashion-accent-brown text-white border-fashion-accent-brown"
+                          : "border-fashion-charcoal/20 text-[#95522C] hover:bg-fashion-accent-brown hover:text-white hover:border-fashion-accent-brown"
                       }`}
                     >
                       {page}
@@ -410,7 +449,9 @@ const ProductPage: React.FC = () => {
           </>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-light text-[#95522C] mb-4">Loading Products...</h3>
+            <h3 className="text-2xl font-light text-[#95522C] mb-4">
+              Loading Products...
+            </h3>
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fashion-accent-brown"></div>
             </div>

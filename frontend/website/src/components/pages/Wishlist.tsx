@@ -48,7 +48,9 @@ const Wishlist: React.FC = () => {
           config
         );
         setWishlist(res.data.wishlist || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const text = err instanceof Error ? err.message : String(err);
+        console.warn("Failed to fetch wishlist", text);
       } finally {
         setLoading(false);
       }
@@ -71,11 +73,13 @@ const Wishlist: React.FC = () => {
 
       // Update local state immediately for better UX
       setWishlist(wishlist.filter((p) => p._id !== productId));
-    } catch (err: any) {
-      if (err.response?.status === 401) {
+    } catch (err: unknown) {
+      const anyErr = err as any;
+      if (anyErr?.response?.status === 401) {
         alert("Please log in to manage your wishlist");
       } else {
-        alert("Failed to remove item from wishlist");
+        const text = err instanceof Error ? err.message : String(err);
+        alert(text || "Failed to remove item from wishlist");
       }
     }
   };

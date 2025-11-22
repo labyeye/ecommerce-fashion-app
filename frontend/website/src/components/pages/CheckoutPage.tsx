@@ -62,13 +62,16 @@ const CheckoutPage: React.FC = () => {
 
       try {
         setLoadingProfile(true);
-        const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+        const response = await fetch(
+          "https://ecommerce-fashion-app-som7.vercel.app/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -93,8 +96,8 @@ const CheckoutPage: React.FC = () => {
             setBilling(addressData);
           }
         }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
+      } catch (_error: unknown) {
+        // ignore profile load errors silently
       } finally {
         setLoadingProfile(false);
       }
@@ -130,7 +133,6 @@ const CheckoutPage: React.FC = () => {
     setShipping(payload);
     if (useSameAddress) setBilling(payload);
   };
-  useEffect(() => {}, [cartItems, isLoading]);
   useEffect(() => {
     if (useSameAddress) {
       setBilling(shipping);
@@ -269,7 +271,6 @@ const CheckoutPage: React.FC = () => {
         order_id: razorpayOrder.id,
         handler: async (response: RazorpayResponse) => {
           try {
-            // Show full-page processing overlay while verification occurs
             setProcessingOrder(true);
             const verificationData = {
               razorpay_order_id: response.razorpay_order_id,
@@ -281,6 +282,7 @@ const CheckoutPage: React.FC = () => {
             const verificationResult = await razorpayService.verifyPayment(
               verificationData
             );
+
             if (
               verificationResult.success ||
               verificationResult.paymentStatus === "paid"
@@ -293,12 +295,15 @@ const CheckoutPage: React.FC = () => {
             } else {
               setError("Payment verification failed. Please contact support.");
             }
-          } catch (verifyError: any) {
-            console.error("Payment verification error:", verifyError);
-            setError(verifyError.message || "Payment verification failed");
+          } catch (verifyError: unknown) {
+            const text =
+              verifyError instanceof Error
+                ? verifyError.message
+                : String(verifyError);
+            setError(text || "Payment verification failed");
             await razorpayService.handlePaymentFailure(
               razorpayOrder.order_id,
-              verifyError
+              verifyError as any
             );
           } finally {
             setLoading(false);
@@ -355,9 +360,9 @@ const CheckoutPage: React.FC = () => {
       };
       // Open Razorpay checkout
       await razorpayService.openCheckout(options);
-    } catch (error: any) {
-      console.error("Razorpay payment error:", error);
-      setError(error.message || "Failed to initiate payment");
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message : String(err);
+      setError(text || "Failed to initiate payment");
       setLoading(false);
     }
   };
