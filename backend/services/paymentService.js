@@ -42,7 +42,16 @@ const createRazorpayOrder = async (amount, currency = 'INR', receipt = null) => 
     };
   } catch (error) {
     console.error('Razorpay order creation error:', error);
-    
+    // In development, also log full error object (including non-enumerable props) to help debugging
+    if ((process.env.NODE_ENV || 'development') === 'development') {
+      try {
+        // Print non-enumerable props and nested error details
+        console.error('Razorpay error full dump:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      } catch (dumpErr) {
+        console.error('Failed to stringify Razorpay error for debugging:', dumpErr);
+      }
+    }
+
     // Throw error to be handled by the route
     throw new Error(error.message || 'Failed to create Razorpay order');
   }
