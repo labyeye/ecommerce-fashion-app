@@ -46,7 +46,7 @@ A modern, responsive website for Evolv's protein shake company with authenticati
    ```
 
 4. **Open your browser**
-   Navigate to `https://flauntbynishi.com`
+   Navigate to `https://www.flauntbynishi.com`
 
 ## Project Structure
 

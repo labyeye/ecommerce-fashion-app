@@ -59,8 +59,8 @@ A comprehensive Node.js/Express backend API with role-based authentication for a
    MONGODB_URI=mongodb://localhost:27017/vitals_db
    JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
    JWT_EXPIRE=7d
-   FRONTEND_URL=https://flauntbynishi.com
-   DASHBOARD_URL=https://flauntbynishi.com
+   FRONTEND_URL=https://www.flauntbynishi.com
+   DASHBOARD_URL=https://www.flauntbynishi.com
    ```
 
 4. **Start the server**
