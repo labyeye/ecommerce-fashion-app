@@ -469,7 +469,6 @@ router.post(
       .withMessage("Last name must be between 2 and 50 characters"),
     body("email")
       .isEmail()
-      .normalizeEmail()
       .withMessage("Please provide a valid email"),
     body("password")
       .isLength({ min: 6 })
@@ -499,9 +498,12 @@ router.post(
       }
 
       const { firstName, lastName, email, password, phone, address } = req.body;
+      
+      // Manually normalize email
+      const normalizedEmail = email.toLowerCase().trim();
 
       // Check if user already exists
-      const existingUser = await User.findByEmail(email);
+      const existingUser = await User.findOne({ email: normalizedEmail });
       if (existingUser) {
         return res.status(400).json({
           success: false,
@@ -513,7 +515,7 @@ router.post(
       const user = await User.create({
         firstName,
         lastName,
-        email,
+        email: normalizedEmail,
         password,
         phone,
         address,
@@ -649,7 +651,6 @@ router.post(
   [
     body("email")
       .isEmail()
-      .normalizeEmail()
       .withMessage("Please provide a valid email"),
   ],
   async (req, res) => {
@@ -664,10 +665,13 @@ router.post(
       }
 
       const { email } = req.body;
+      
+      // Manually normalize email
+      const normalizedEmail = email.toLowerCase().trim();
 
       // Find unverified user
       const user = await User.findOne({
-        email,
+        email: normalizedEmail,
         isEmailVerified: false,
       });
 
@@ -711,7 +715,6 @@ router.post(
   [
     body("email")
       .isEmail()
-      .normalizeEmail()
       .withMessage("Please provide a valid email"),
     body("password").notEmpty().withMessage("Password is required"),
   ],
@@ -728,9 +731,12 @@ router.post(
       }
 
       const { email, password } = req.body;
+      
+      // Manually normalize email
+      const normalizedEmail = email.toLowerCase().trim();
 
       // Check if user exists
-      const user = await User.findByEmail(email).select("+password");
+      const user = await User.findOne({ email: normalizedEmail }).select("+password");
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -738,8 +744,9 @@ router.post(
         });
       }
 
-      // Check if email is verified (only for customers, not admin)
-      if (user.role === "customer" && !user.isEmailVerified) {
+      // Check if email is verified - BUT only for users who registered normally
+      // Google OAuth users are auto-verified, so skip this check for them
+      if (user.role === "customer" && !user.isEmailVerified && !user.googleId) {
         return res.status(403).json({
           success: false,
           message: "Please verify your email address before logging in",
@@ -960,7 +967,6 @@ router.post(
   [
     body("email")
       .isEmail()
-      .normalizeEmail()
       .withMessage("Please provide a valid email"),
   ],
   async (req, res) => {
@@ -976,14 +982,21 @@ router.post(
       }
 
       const { email } = req.body;
+      
+      // Manually normalize email instead of relying on validator's normalizeEmail
+      const normalizedEmail = email.toLowerCase().trim();
 
-      const user = await User.findByEmail(email);
+      const user = await User.findOne({ email: normalizedEmail });
+      
       if (!user) {
         return res.status(404).json({
           success: false,
           message: "User with this email does not exist",
         });
       }
+
+      // Allow password reset for all users, including Google OAuth users
+      // This lets them set a password for email/password login
 
       // Generate reset token
       const resetToken = crypto.randomBytes(32).toString("hex");
@@ -1069,11 +1082,16 @@ router.post(
       user.password = password;
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
+      
+      // Ensure email is verified when they set a password
+      // (Google users already have this true, but doesn't hurt)
+      user.isEmailVerified = true;
+      
       await user.save();
 
       res.status(200).json({
         success: true,
-        message: "Password has been reset successfully",
+        message: "Password has been reset successfully. You can now login with your email and new password.",
       });
     } catch (error) {
       console.error("Reset password error:", error);

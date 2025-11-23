@@ -14,7 +14,6 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/images/logoblack.png";
 
 // Google Sign-In Script Loader (same approach as Login.tsx)
 const loadGoogleScript = () => {
@@ -78,6 +77,7 @@ const Register: React.FC = () => {
 
     window.google.accounts.id.initialize({
       client_id:
+        (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) ||
         "526636396003-t2i7mikheekskvb1j27su7alqlhj15vm.apps.googleusercontent.com",
       callback: handleGoogleCallback,
     });
@@ -127,9 +127,10 @@ const Register: React.FC = () => {
     const { name, value } = e.target;
 
     // If the field is 'city' or 'state', allow only alphabetic characters while typing
-    const newValue = (name === "city" || name === "state")
-      ? value.replace(/[^A-Za-z]/g, "")
-      : value;
+    const newValue =
+      name === "city" || name === "state"
+        ? value.replace(/[^A-Za-z]/g, "")
+        : value;
 
     setFormData((prev) => ({
       ...prev,
@@ -147,7 +148,8 @@ const Register: React.FC = () => {
     // Live password/confirm validation
     if (name === "password" || name === "confirmPassword") {
       const pass = name === "password" ? newValue : formData.password;
-      const conf = name === "confirmPassword" ? newValue : formData.confirmPassword;
+      const conf =
+        name === "confirmPassword" ? newValue : formData.confirmPassword;
       // update confirm password live error
       if (conf && pass !== conf) {
         setErrors((prev) => ({
@@ -180,7 +182,6 @@ const Register: React.FC = () => {
   };
 
   const passwordRules = (p: string) => {
-
     return {
       minLength: p.length >= 8,
       hasLetter: /[A-Za-z]/.test(p),
@@ -211,7 +212,12 @@ const Register: React.FC = () => {
     } else {
       const pass = formData.password;
       const rules = passwordRules(pass);
-      if (!rules.minLength || !rules.hasLetter || !rules.hasNumber || !rules.hasSpecial) {
+      if (
+        !rules.minLength ||
+        !rules.hasLetter ||
+        !rules.hasNumber ||
+        !rules.hasSpecial
+      ) {
         const msgs: string[] = [];
         if (!rules.minLength) msgs.push("be at least 8 characters");
         if (!rules.hasLetter) msgs.push("include a letter");
@@ -312,23 +318,26 @@ const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center mt-20">
-          
           {!registrationSuccess ? (
             <>
-              <h3 className="font-bold text-black mb-2">Create Account</h3>
-              <p className="text-gray-600 text-md">
+              <span className="font-bold text-black mb-2 block text-5xl sm:text-xl md:text-2xl lg:text-5xl">
+                Create Account
+              </span>
+              <span className="text-gray-600 block text-lg sm:text-base md:text-lg">
                 Join Flauntbynishi for exclusive fashion
-              </p>
+              </span>
             </>
           ) : (
             <>
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="font-bold text-black mb-2">Check Your Email</h2>
-              <p className="text-gray-600 text-md">
+              <span className="font-bold text-black mb-2 block text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                Check Your Email
+              </span>
+              <span className="text-gray-600 block text-sm sm:text-base md:text-lg">
                 We've sent a verification link to {userEmail}
-              </p>
+              </span>
             </>
           )}
         </div>
@@ -340,7 +349,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                    className="block text-md font-medium  text-black mb-2"
                   >
                     First Name
                   </label>
@@ -356,23 +365,23 @@ const Register: React.FC = () => {
                       required
                       value={formData.firstName}
                       onChange={handleChange}
-                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                      className={`block w-full pl-10 placeholder-tertiary pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                         errors.firstName ? "border-red-300" : "border-gray-300"
                       }`}
                       placeholder="First name"
                     />
                   </div>
                   {errors.firstName && (
-                    <p className="mt-1 text-md text-red-600">
+                    <span className="block mt-1 text-sm sm:text-md text-red-600">
                       {errors.firstName}
-                    </p>
+                    </span>
                   )}
                 </div>
 
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                    className="block text-md font-medium  text-black mb-2"
                   >
                     Last Name
                   </label>
@@ -384,15 +393,15 @@ const Register: React.FC = () => {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                    className={`block w-full px-3 placeholder-tertiary py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                       errors.lastName ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="Last name"
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-md text-red-600">
+                    <span className="block mt-1 text-sm sm:text-md text-red-600">
                       {errors.lastName}
-                    </p>
+                    </span>
                   )}
                 </div>
               </div>
@@ -401,7 +410,7 @@ const Register: React.FC = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                  className="block text-md font-medium  text-black mb-2"
                 >
                   Email Address
                 </label>
@@ -417,14 +426,16 @@ const Register: React.FC = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                    className={`block w-full pl-10 placeholder-tertiary pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                       errors.email ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="Enter your email"
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-1 text-md text-red-600">{errors.email}</p>
+                  <span className="block mt-1 text-sm sm:text-md text-red-600">
+                    {errors.email}
+                  </span>
                 )}
               </div>
 
@@ -432,20 +443,19 @@ const Register: React.FC = () => {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                  className="block text-md font-medium  text-black mb-2"
                 >
-                  Phone Number (Optional)
+                  Phone Number
                 </label>
                 <div className="relative">
                   <div className="absolute top-3.5 ml-3 flex items-center pointer-events-none">
                     <Phone className="h-5 w-5 text-gray-400" />
                   </div>
-                  {/* @ts-ignore */}
                   <PhoneInput
                     country={"in"}
                     value={phoneLocal}
                     onChange={(value: string) => handlePhoneChange(value)}
-                    inputClass={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                    inputClass={`block w-full pl-10 placeholder-tertiary py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                       errors.phone ? "border-red-300" : "border-gray-300"
                     }`}
                     inputProps={{ name: "phone", id: "phone", maxLength: 20 }}
@@ -455,7 +465,9 @@ const Register: React.FC = () => {
                   </div>
                 </div>
                 {errors.phone && (
-                  <p className="mt-1 text-md text-red-600">{errors.phone}</p>
+                  <span className="block mt-1 text-sm sm:text-md text-red-600">
+                    {errors.phone}
+                  </span>
                 )}
               </div>
 
@@ -464,7 +476,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                    className="block text-md font-medium  text-black mb-2"
                   >
                     Password
                   </label>
@@ -480,7 +492,7 @@ const Register: React.FC = () => {
                       required
                       value={formData.password}
                       onChange={handleChange}
-                      className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                      className={`block w-full pl-10 pr-12 placeholder-tertiary py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                         errors.password ? "border-red-300" : "border-gray-300"
                       }`}
                       placeholder="Create a password"
@@ -498,9 +510,9 @@ const Register: React.FC = () => {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="mt-1 text-md text-red-600">
+                    <span className="block mt-1 text-sm sm:text-md text-red-600">
                       {errors.password}
-                    </p>
+                    </span>
                   )}
                   {/* Live password rule hints */}
                   <div className="mt-2 text-sm space-y-1">
@@ -514,7 +526,13 @@ const Register: React.FC = () => {
                             ) : (
                               <span className="inline-block w-4 h-4 mr-2 rounded-full border border-gray-300" />
                             )}
-                            <span className={rules.minLength ? "text-gray-800" : "text-gray-500"}>
+                            <span
+                              className={
+                                rules.minLength
+                                  ? "text-gray-800"
+                                  : "text-gray-500"
+                              }
+                            >
                               Minimum 8 characters
                             </span>
                           </li>
@@ -525,7 +543,13 @@ const Register: React.FC = () => {
                             ) : (
                               <span className="inline-block w-4 h-4 mr-2 rounded-full border border-gray-300" />
                             )}
-                            <span className={rules.hasLetter ? "text-gray-800" : "text-gray-500"}>
+                            <span
+                              className={
+                                rules.hasLetter
+                                  ? "text-gray-800"
+                                  : "text-gray-500"
+                              }
+                            >
                               At least one letter
                             </span>
                           </li>
@@ -536,7 +560,13 @@ const Register: React.FC = () => {
                             ) : (
                               <span className="inline-block w-4 h-4 mr-2 rounded-full border border-gray-300" />
                             )}
-                            <span className={rules.hasNumber ? "text-gray-800" : "text-gray-500"}>
+                            <span
+                              className={
+                                rules.hasNumber
+                                  ? "text-gray-800"
+                                  : "text-gray-500"
+                              }
+                            >
                               At least one number
                             </span>
                           </li>
@@ -547,12 +577,16 @@ const Register: React.FC = () => {
                             ) : (
                               <span className="inline-block w-4 h-4 mr-2 rounded-full border border-gray-300" />
                             )}
-                            <span className={rules.hasSpecial ? "text-gray-800" : "text-gray-500"}>
+                            <span
+                              className={
+                                rules.hasSpecial
+                                  ? "text-gray-800"
+                                  : "text-gray-500"
+                              }
+                            >
                               At least one special character (e.g. @, #, !)
                             </span>
                           </li>
-
-                          
                         </ul>
                       );
                     })()}
@@ -562,7 +596,7 @@ const Register: React.FC = () => {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-md font-medium placeholder-tertiary text-black mb-2"
+                    className="block text-md font-medium  text-black mb-2"
                   >
                     Confirm Password
                   </label>
@@ -578,7 +612,7 @@ const Register: React.FC = () => {
                       required
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
+                      className={`block w-full pl-10 placeholder-tertiary pr-12 placeholder-tertiary py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400 ${
                         errors.confirmPassword
                           ? "border-red-300"
                           : "border-gray-300"
@@ -600,15 +634,15 @@ const Register: React.FC = () => {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="mt-1 text-md text-red-600">
+                    <span className="block mt-1 text-sm sm:text-md text-red-600">
                       {errors.confirmPassword}
-                    </p>
+                    </span>
                   )}
                 </div>
               </div>
 
               {/* Address Fields (Optional) */}
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <h6 className="text-md font-medium text-black">
                   Shipping Address (Optional)
                 </h6>
@@ -656,7 +690,7 @@ const Register: React.FC = () => {
                     placeholder="ZIP Code"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Submit Button */}
               <button
@@ -693,14 +727,14 @@ const Register: React.FC = () => {
             </div>
 
             {!googleLoaded && (
-              <p className="text-center text-sm text-gray-500">
+              <span className="block text-center text-sm sm:text-base text-gray-500">
                 Loading Google Sign-In...
-              </p>
+              </span>
             )}
 
             {/* Login Link */}
             <div className="mt-6 text-center">
-              <p className="text-md text-black">
+              <span className="block text-lg sm:text-base text-black">
                 Already have an account?{" "}
                 <Link
                   to="/login"
@@ -708,18 +742,18 @@ const Register: React.FC = () => {
                 >
                   Sign in here
                 </Link>
-              </p>
+              </span>
             </div>
           </div>
         ) : (
           /* Success Message */
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-300/20 text-center">
             <div className="space-y-4">
-              <p className="text-gray-600">
+              <span className="block text-sm sm:text-base text-gray-600">
                 Please check your email and click the verification link to
                 activate your account.
-              </p>
-              <p className="text-md text-gray-400">
+              </span>
+              <span className="block text-sm sm:text-base text-gray-400">
                 Didn't receive the email? Check your spam folder or{" "}
                 <button
                   onClick={() => {
@@ -730,7 +764,7 @@ const Register: React.FC = () => {
                 >
                   resend verification email
                 </button>
-              </p>
+              </span>
               <div className="pt-4">
                 <Link
                   to="/login"
@@ -745,7 +779,7 @@ const Register: React.FC = () => {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-xs text-gray-400/70">
+          <span className="block text-md sm:text-md text-gray-400/70">
             By creating an account, you agree to our{" "}
             <Link to="/terms" className="underline hover:text-black">
               Terms of Service
@@ -754,7 +788,7 @@ const Register: React.FC = () => {
             <Link to="/privacy" className="underline hover:text-black">
               Privacy Policy
             </Link>
-          </p>
+          </span>
         </div>
       </div>
     </div>

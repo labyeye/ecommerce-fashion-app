@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface User {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: 'admin' | 'customer';
+  role: "admin" | "customer";
   phone?: string;
   address?: {
     street?: string;
@@ -21,7 +27,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -33,7 +40,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -42,14 +49,16 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api';
+const API_BASE_URL = "https://ecommerce-fashion-app-som7.vercel.app/api";
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('dashboard_user');
+    const savedUser = localStorage.getItem("dashboard_user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-  const [token, setToken] = useState<string | null>(localStorage.getItem('dashboard_token'));
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("dashboard_token")
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,8 +73,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -76,18 +85,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // loyalty: data.loyalty
         };
         setUser(userData);
-        localStorage.setItem('dashboard_user', JSON.stringify(userData));
+        localStorage.setItem("dashboard_user", JSON.stringify(userData));
       } else {
         // Token is invalid, clear it
-        localStorage.removeItem('dashboard_token');
-        localStorage.removeItem('dashboard_user');
+        localStorage.removeItem("dashboard_token");
+        localStorage.removeItem("dashboard_user");
         setToken(null);
         setUser(null);
       }
     } catch (error) {
-      console.error('Error fetching user:', error);
-      localStorage.removeItem('dashboard_token');
-      localStorage.removeItem('dashboard_user');
+      console.error("Error fetching user:", error);
+      localStorage.removeItem("dashboard_token");
+      localStorage.removeItem("dashboard_user");
       setToken(null);
       setUser(null);
     }
@@ -99,9 +108,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -111,23 +120,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         setToken(data.token);
         setUser(data.user);
-        localStorage.setItem('dashboard_token', data.token);
-        localStorage.setItem('dashboard_user', JSON.stringify(data.user));
+        localStorage.setItem("dashboard_token", data.token);
+        localStorage.setItem("dashboard_user", JSON.stringify(data.user));
+        return true;
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message || "Login failed");
+        return false;
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('dashboard_token');
-    localStorage.removeItem('dashboard_user');
+    (async () => {
+      try {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        console.warn("Logout API call failed:", err);
+      } finally {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("dashboard_token");
+        localStorage.removeItem("dashboard_user");
+      }
+    })();
   };
 
   const clearError = () => {
@@ -144,9 +168,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearError,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}; 
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

@@ -96,9 +96,9 @@ const BlogsPage: React.FC = () => {
       >
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-[#95522C] mx-auto mb-4" />
-          <p className="text-lg" style={{ color: "#95522C" }}>
+          <span className="text-lg block" style={{ color: "#95522C" }}>
             Loading blogs...
-          </p>
+          </span>
         </div>
       </div>
     );
@@ -108,7 +108,7 @@ const BlogsPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white to-[#B1D182]/10 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg text-red-600 mb-4">{error}</p>
+          <span className="text-lg text-red-600 mb-4">{error}</span>
           <button
             onClick={fetchBlogs}
             className="px-6 py-3 bg-[#A79277] text-white font-medium rounded-lg hover:bg-[#5a7a42] transition-colors duration-300"
@@ -185,12 +185,12 @@ const BlogsPage: React.FC = () => {
       {featuredBlog && (
         <section className="py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2
-              className="text-2xl sm:text-3xl font-bold mb-8 text-center"
+            <span
+              className="block text-2xl sm:text-3xl font-bold mb-8 text-center"
               style={{ color: "#95522C" }}
             >
               Featured Article
-            </h2>
+            </span>
             <article className="bg-white rounded-xl shadow-lg overflow-hidden group max-w-4xl mx-auto">
               <div className="relative overflow-hidden">
                 <img
@@ -225,16 +225,16 @@ const BlogsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <h3
-                  className="text-2xl sm:text-3xl font-bold mb-4 transition-colors duration-300"
+                <span
+                  className="block text-2xl sm:text-3xl font-bold mb-4 transition-colors duration-300"
                   style={{ color: "#95522C" }}
                 >
                   {featuredBlog.title}
-                </h3>
+                </span>
 
-                <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                <span className="block text-gray-600 mb-6 text-lg leading-relaxed">
                   {featuredBlog.excerpt}
-                </p>
+                </span>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -256,12 +256,12 @@ const BlogsPage: React.FC = () => {
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-[#2B463C]">
+                      <span className="font-semibold text-[#2B463C]">
                         {featuredBlog.author?.name || "Unknown"}
-                      </p>
-                      <p className="text-sm text-gray-500">
+                      </span>
+                      <span className="text-sm text-gray-500">
                         {featuredBlog.views} views
-                      </p>
+                      </span>
                     </div>
                   </div>
                   <button
@@ -283,21 +283,21 @@ const BlogsPage: React.FC = () => {
       {/* Blogs Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2
-            className="font-bold mb-8 text-center"
+          <span
+            className="block font-bold mb-8 text-center"
             style={{ color: "#95522C" }}
           >
             Latest Articles
-          </h2>
+          </span>
 
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-[#A79277] mx-auto mb-4" />
-              <p className="text-[#2B463C]">Loading more articles...</p>
+              <span className="text-[#2B463C] block">Loading more articles...</span>
             </div>
           ) : regularBlogs.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No articles found.</p>
+              <span className="text-gray-500 text-lg block">No articles found.</span>
             </div>
           ) : (
             <>
@@ -334,16 +334,16 @@ const BlogsPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <h3
-                        className="text-xl font-bold mb-3 transition-colors duration-300"
+                      <span
+                        className="block text-xl font-bold mb-3 transition-colors duration-300"
                         style={{ color: "#95522C" }}
                       >
                         {blog.title}
-                      </h3>
+                      </span>
 
-                      <p className="text-gray-600 mb-4 line-clamp-3">
+                      <span className="block text-gray-600 mb-4 line-clamp-3">
                         {blog.excerpt}
-                      </p>
+                      </span>
 
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">

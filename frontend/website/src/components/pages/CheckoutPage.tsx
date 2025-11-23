@@ -62,16 +62,13 @@ const CheckoutPage: React.FC = () => {
 
       try {
         setLoadingProfile(true);
-        const response = await fetch(
-          "https://ecommerce-fashion-app-som7.vercel.app/api/auth/me",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
+        const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -152,23 +149,41 @@ const CheckoutPage: React.FC = () => {
   // Round to 2 decimals for display
   baseAmount = Math.round((baseAmount + Number.EPSILON) * 100) / 100;
   taxAmount = Math.round((taxAmount + Number.EPSILON) * 100) / 100;
-  const shippingCost = SHIPPING_FLAT;
+  // baseAmount and taxAmount were computed above per unit (base = price/1.05, tax = base*0.05)
+  const subtotalExclTax = Math.round((baseAmount + Number.EPSILON) * 100) / 100; // displayable subtotal excluding tax
+  const taxDisplay = Math.round((taxAmount + Number.EPSILON) * 100) / 100;
+  const subtotalInclTax =
+    Math.round((subtotalExclTax + taxDisplay + Number.EPSILON) * 100) / 100;
+  // Free shipping for orders >= ₹3000 based on subtotal including tax
+  const shippingCost = subtotalInclTax >= 3000 ? 0 : SHIPPING_FLAT;
   const promoDiscountAmount = promoCode?.discountAmount || 0;
   const evolvDiscountAmount = evolvPointsRedemption?.discountAmount || 0;
   const totalDiscountAmount = promoDiscountAmount + evolvDiscountAmount;
-  const total = Math.max(
-    0,
-    baseAmount + taxAmount + shippingCost - totalDiscountAmount
-  );
+  // final total will be calculated when rendering to ensure it uses displayed subtotal/tax/shipping values
 
   const handleInput = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "shipping" | "billing"
   ) => {
     const { name, value } = e.target;
+    // Sanitization rules:
+    // - phone: digits only, max 10
+    // - zipCode: digits only, max 6
+    // - city/state: letters, spaces, hyphen and apostrophe only
+    let newValue = value;
+    if (name === "phone") {
+      newValue = (value || "").replace(/\D+/g, "").slice(0, 10);
+    } else if (name === "zipCode") {
+      newValue = (value || "").replace(/\D+/g, "").slice(0, 6);
+    } else if (name === "city" || name === "state") {
+      newValue = (value || "").replace(/[^A-Za-z\s\-']/g, "");
+      // cap length to reasonable 60 chars
+      newValue = newValue.slice(0, 60);
+    }
+
     if (type === "shipping")
-      setShipping((prev) => ({ ...prev, [name]: value }));
-    else setBilling((prev) => ({ ...prev, [name]: value }));
+      setShipping((prev) => ({ ...prev, [name]: newValue }));
+    else setBilling((prev) => ({ ...prev, [name]: newValue }));
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -371,9 +386,9 @@ const CheckoutPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+          <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#95522C] mx-auto mb-4"></div>
-          <p className="text-[#95522C]">Loading your cart...</p>
+          <span className="text-[#95522C] block">Loading your cart...</span>
         </div>
       </div>
     );
@@ -386,13 +401,8 @@ const CheckoutPage: React.FC = () => {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-8 h-8 TEXT-[#95522C]" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Order Placed Successfully!
-          </h2>
-          <p className="text-[#95522C] mb-4">
-            Thank you for your purchase. You will receive an email confirmation
-            shortly.
-          </p>
+          <span className="block text-2xl sm:text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</span>
+          <span className="block text-[#95522C] mb-4">Thank you for your purchase. You will receive an email confirmation shortly.</span>
 
           {orderData && (
             <div className="mb-6 p-4 bg-[#95522C]/10 rounded-lg">
@@ -402,8 +412,7 @@ const CheckoutPage: React.FC = () => {
                   Flaunt By Nishi Points Earned!
                 </span>
               </div>
-              <p className="text-sm text-[#95522C] font-bold">
-                +
+              <span className="block text-sm text-[#95522C] font-bold">+
                 {Math.floor(
                   orderData.order.total *
                     (orderData.newTier === "bronze"
@@ -411,14 +420,9 @@ const CheckoutPage: React.FC = () => {
                       : orderData.newTier === "silver"
                       ? 0.15
                       : 0.2)
-                )}{" "}
-                points
-              </p>
-              <p className="text-xs text-[#95522C] mt-1">
-                Current Tier:{" "}
-                {orderData.newTier.charAt(0).toUpperCase() +
-                  orderData.newTier.slice(1)}
-              </p>
+                )} points
+              </span>
+              <span className="block text-xs text-[#95522C] mt-1">Current Tier: {orderData.newTier.charAt(0).toUpperCase() + orderData.newTier.slice(1)}</span>
             </div>
           )}
 
@@ -446,13 +450,8 @@ const CheckoutPage: React.FC = () => {
     return (
       <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center p-6">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#95522C] mb-6" />
-        <span className="text-4xl font-bold text-tertiary mb-8">
-          Order Processing
-        </span>
-        <p className="text-tertiary text-center max-w-lg">
-          Do not refresh or go back — we are finalizing your payment and
-          confirming your order.
-        </p>
+        <span className="text-4xl font-bold text-tertiary mb-8">Order Processing</span>
+        <span className="block text-tertiary text-center max-w-lg">Do not refresh or go back — we are finalizing your payment and confirming your order.</span>
       </div>
     );
   }
@@ -526,12 +525,8 @@ const CheckoutPage: React.FC = () => {
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Truck className="w-12 h-12 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Your cart is empty
-                </h3>
-                <p className="text-[#95522C] mb-6">
-                  Add some products to your cart to continue with checkout.
-                </p>
+                <span className="block text-xl sm:text-xl font-bold text-gray-900 mb-2">Your cart is empty</span>
+                <span className="block text-[#95522C] mb-6">Add some products to your cart to continue with checkout.</span>
                 <button
                   onClick={() => navigate("/")}
                   className="bg-[#95522C] text-white px-6 py-3 rounded-lg hover:bg-[#2B463C] transition-colors"
@@ -546,11 +541,9 @@ const CheckoutPage: React.FC = () => {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
                       <MapPin className="w-6 h-6 text-[#95522C] mr-3" />
-                      <h3 className="text-3xl font-bold text-gray-900">
-                        <span className="bg-tertiary bg-clip-text text-transparent">
-                          Shipping Address
-                        </span>
-                      </h3>
+                      <span className="block text-3xl sm:text-3xl font-bold text-gray-900">
+                        <span className="bg-tertiary bg-clip-text text-transparent">Shipping Address</span>
+                      </span>
                     </div>
                   </div>
 
@@ -614,6 +607,9 @@ const CheckoutPage: React.FC = () => {
                         required
                         name="phone"
                         placeholder="Enter phone number"
+                        inputMode="numeric"
+                        pattern="\d{10}"
+                        maxLength={10}
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                         value={shipping.phone}
                         onChange={(e) => handleInput(e, "shipping")}
@@ -640,6 +636,9 @@ const CheckoutPage: React.FC = () => {
                         required
                         name="city"
                         placeholder="Enter city"
+                        inputMode="text"
+                        pattern="[A-Za-z\s\-']+"
+                        maxLength={60}
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                         value={shipping.city}
                         onChange={(e) => handleInput(e, "shipping")}
@@ -653,6 +652,9 @@ const CheckoutPage: React.FC = () => {
                         required
                         name="state"
                         placeholder="Enter state"
+                        inputMode="text"
+                        pattern="[A-Za-z\s\-']+"
+                        maxLength={60}
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                         value={shipping.state}
                         onChange={(e) => handleInput(e, "shipping")}
@@ -666,6 +668,9 @@ const CheckoutPage: React.FC = () => {
                         required
                         name="zipCode"
                         placeholder="Enter PIN code"
+                        inputMode="numeric"
+                        pattern="\d{6}"
+                        maxLength={6}
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                         value={shipping.zipCode}
                         onChange={(e) => handleInput(e, "shipping")}
@@ -716,11 +721,9 @@ const CheckoutPage: React.FC = () => {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
                       <CreditCard className="w-6 h-6 text-[#95522C] mr-3" />
-                      <h3 className="text-3xl font-bold text-gray-900">
-                        <span className="bg-tertiary bg-clip-text text-transparent">
-                          Billing Address{" "}
-                        </span>
-                      </h3>
+                      <span className="block text-3xl sm:text-3xl font-bold text-gray-900">
+                        <span className="bg-tertiary bg-clip-text text-transparent">Billing Address</span>
+                      </span>
                     </div>
                     <label className="flex items-center">
                       <input
@@ -786,6 +789,9 @@ const CheckoutPage: React.FC = () => {
                           required
                           name="phone"
                           placeholder="Enter phone number"
+                          inputMode="numeric"
+                          pattern="\d{10}"
+                          maxLength={10}
                           className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                           value={billing.phone}
                           onChange={(e) => handleInput(e, "billing")}
@@ -812,6 +818,9 @@ const CheckoutPage: React.FC = () => {
                           required
                           name="city"
                           placeholder="Enter city"
+                          inputMode="text"
+                          pattern="[A-Za-z\s\-']+"
+                          maxLength={60}
                           className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                           value={billing.city}
                           onChange={(e) => handleInput(e, "billing")}
@@ -825,6 +834,9 @@ const CheckoutPage: React.FC = () => {
                           required
                           name="state"
                           placeholder="Enter state"
+                          inputMode="text"
+                          pattern="[A-Za-z\s\-']+"
+                          maxLength={60}
                           className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                           value={billing.state}
                           onChange={(e) => handleInput(e, "billing")}
@@ -838,6 +850,9 @@ const CheckoutPage: React.FC = () => {
                           required
                           name="zipCode"
                           placeholder="Enter ZIP code"
+                          inputMode="numeric"
+                          pattern="\d{6}"
+                          maxLength={6}
                           className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                           value={billing.zipCode}
                           onChange={(e) => handleInput(e, "billing")}
@@ -864,11 +879,9 @@ const CheckoutPage: React.FC = () => {
                 <div className="bg-background rounded-2xl shadow-md p-6">
                   <div className="flex items-center mb-6">
                     <CreditCard className="w-6 h-6 text-[#95522C] mr-3" />
-                    <h3 className="text-3xl font-bold text-gray-900">
-                      <span className="bg-tertiary bg-clip-text text-transparent">
-                        Payment Method
-                      </span>
-                    </h3>
+                    <span className="block text-3xl sm:text-3xl font-bold text-gray-900">
+                      <span className="bg-tertiary bg-clip-text text-transparent">Payment Method</span>
+                    </span>
                   </div>
                   <select
                     value={paymentMethod}
@@ -969,7 +982,7 @@ const CheckoutPage: React.FC = () => {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-background rounded-2xl shadow-sm p-6 sticky top-8">
-              <h3 className="text-3xl text-[#95522C] mb-6">Order Summary</h3>
+              <span className="block text-3xl text-[#95522C] mb-6">Order Summary</span>
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
@@ -984,14 +997,11 @@ const CheckoutPage: React.FC = () => {
                       className="w-16 h-16 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h4>{item.name}</h4>
-                      <p>
-                        Size: {item.size} || Qty:{" "}
-                        <span className="poppins-numeric">{item.quantity}</span>
-                      </p>
-                      <p className="poppins-numeric">
-                        ₹{(item.price * item.quantity).toFixed(2)}
-                      </p>
+                      <span className="block font-medium">{item.name}</span>
+                      <span className="block">
+                        Size: {item.size} || Qty: <span className="poppins-numeric">{item.quantity}</span>
+                      </span>
+                      <span className="block poppins-numeric">₹{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   </div>
                 ))}
@@ -1002,7 +1012,7 @@ const CheckoutPage: React.FC = () => {
                 <div className="flex justify-between text-[#95522C]">
                   <span>Subtotal</span>
                   <span className="poppins-numeric">
-                    ₹{baseAmount.toFixed(0)}
+                    ₹{subtotalExclTax.toFixed(0)}
                   </span>
                 </div>
 
@@ -1030,18 +1040,31 @@ const CheckoutPage: React.FC = () => {
                 <div className="flex justify-between text-[#95522C]">
                   <span>Shipping</span>
                   <span className="poppins-numeric">
-                    {shippingCost === 0 ? "Free" : `₹${shippingCost}`}
+                    {shippingCost === 0 ? "Free Shipping" : `₹${shippingCost}`}
                   </span>
                 </div>
+                {subtotalInclTax < 3000 && (
+                  <div className="text-xs text-gray-500">
+                    Free shipping on orders ₹3000 and above
+                  </div>
+                )}
                 <div className="flex justify-between text-[#95522C]">
                   <span>Tax</span>
                   <span className="poppins-numeric">
-                    ₹{taxAmount.toFixed(0)}
+                    ₹{taxDisplay.toFixed(0)}
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                   <span>Total</span>
-                  <span className="poppins-numeric">₹{total.toFixed(0)}</span>
+                  <span className="poppins-numeric">
+                    ₹
+                    {(
+                      subtotalExclTax +
+                      taxDisplay +
+                      shippingCost -
+                      totalDiscountAmount
+                    ).toFixed(0)}
+                  </span>
                 </div>
               </div>
 
@@ -1053,9 +1076,7 @@ const CheckoutPage: React.FC = () => {
                     Secure Checkout
                   </span>
                 </div>
-                <p className="text-xs TEXT-[#95522C] mt-1">
-                  Your payment information is encrypted and secure.
-                </p>
+                <span className="block text-xs TEXT-[#95522C] mt-1">Your payment information is encrypted and secure.</span>
               </div>
             </div>
           </div>

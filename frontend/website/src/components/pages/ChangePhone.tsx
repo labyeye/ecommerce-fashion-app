@@ -46,9 +46,9 @@ const ChangePhone: React.FC = () => {
     <div className="min-h-screen pt-24 bg-[#FFF2E1]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm p-6 max-w-xl mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Change Phone</h2>
+          <span className="block text-xl sm:text-2xl font-semibold mb-4">Change Phone</span>
           {message && (
-            <div className="mb-4 text-sm text-red-700">{message}</div>
+            <span className="block mb-4 text-sm text-red-700">{message}</span>
           )}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>

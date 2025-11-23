@@ -48,17 +48,17 @@ const Cart: React.FC<CartProps> = ({
     promoCodeLoading,
     promoCodeError,
     evolvPointsRedemption,
-    applyEvolvPoints,
-    removeEvolvPoints,
-    evolvPointsLoading,
-    evolvPointsError,
+    // applyEvolvPoints,
+    // removeEvolvPoints,
+    // evolvPointsLoading,
+    // evolvPointsError,
     userEvolvPoints,
     fetchUserEvolvPoints,
   } = useCartContext();
 
   const [promoCodeInput, setPromoCodeInput] = useState("");
   const [showPromoInput, setShowPromoInput] = useState(false);
-  const [evolvPointsInput, setEvolvPointsInput] = useState("");
+  // const [evolvPointsInput, setEvolvPointsInput] = useState("");
   const [showEvolvPointsInput, setShowEvolvPointsInput] = useState(false);
 
   // Fetch user Evolv points when cart opens
@@ -72,7 +72,8 @@ const Cart: React.FC<CartProps> = ({
     (total, item) => total + item.price * item.quantity,
     0
   );
-  const shipping = subtotal > 1000 ? 0 : 50;
+  // Shipping: free when subtotal >= 3000, otherwise flat 100
+  const shipping = subtotal >= 3000 ? 0 : 100;
   const promoDiscount = promoCode?.discountAmount || 0;
   const evolvDiscount = evolvPointsRedemption?.discountAmount || 0;
   const totalDiscount = promoDiscount + evolvDiscount;
@@ -86,23 +87,20 @@ const Cart: React.FC<CartProps> = ({
       await applyPromoCode(promoCodeInput.trim());
       setPromoCodeInput("");
       setShowPromoInput(false);
-    } catch (error) {
-      // Error is handled in context
-    }
+    } catch (error) {}
   };
 
-  const handleApplyEvolvPoints = async () => {
-    const pointsToRedeem = parseInt(evolvPointsInput);
-    if (!pointsToRedeem || pointsToRedeem <= 0) return;
+  // const handleApplyEvolvPoints = async () => {
+  //   const pointsToRedeem = parseInt(evolvPointsInput);
+  //   if (!pointsToRedeem || pointsToRedeem <= 0) return;
 
-    try {
-      await applyEvolvPoints(pointsToRedeem);
-      setEvolvPointsInput("");
-      setShowEvolvPointsInput(false);
-    } catch (error) {
-      // Error is handled in context
-    }
-  };
+  //   try {
+  //     await applyEvolvPoints(pointsToRedeem);
+  //     setEvolvPointsInput("");
+  //     setShowEvolvPointsInput(false);
+  //   } catch (error) {
+  //   }
+  // };
 
   if (!isOpen) return null;
 

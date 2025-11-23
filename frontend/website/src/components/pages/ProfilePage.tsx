@@ -2,24 +2,23 @@ import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect, useRef } from "react";
 import Invoice from "../Invoice";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../ui/ProfilePictureUpload";
 import {
   User,
   Package,
   Heart,
   Settings,
-  LogOut,
   // Crown,
   // Star,
   // Award,
   MapPin,
   Phone,
   Mail,
+  Key,
   CreditCard,
   Shield,
   // TrendingUp,
-  Eye,
   X,
   Save,
   ChevronRight,
@@ -28,11 +27,13 @@ import {
   Undo2,
   // Handshake,
 } from "lucide-react";
+// Inline compact settings for desktop (avoid importing full SettingsPage)
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [orders, setOrders] = useState<any[]>([]);
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] =
@@ -40,7 +41,6 @@ const ProfilePage: React.FC = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
@@ -57,6 +57,26 @@ const ProfilePage: React.FC = () => {
   const [orderStats, setOrderStats] = useState<any>(null);
   const [profilePictureUploading, setProfilePictureUploading] = useState(false);
   const [isMobile, setMobile] = useState<boolean>(false);
+  const _initialTabApplied = useRef(false);
+
+  // Apply `tab` from query/state only once on mount so user can switch tabs afterwards
+  useEffect(() => {
+    if (_initialTabApplied.current) return;
+    try {
+      const params = new URLSearchParams(location.search || "");
+      const tabParam = params.get("tab");
+      const stateTab = (location.state as any)?.tab;
+      const tab = tabParam || stateTab;
+      if (tab && typeof tab === "string") {
+        setActiveTab(tab);
+      }
+    } catch (err) {
+      // ignore malformed URLSearchParams
+    }
+    _initialTabApplied.current = true;
+    // run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleProfilePictureUpload = async (file: File) => {
     if (!token) return;
 
@@ -525,7 +545,7 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
         {!isMobile && (
-          <div className="bg-white  border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
+          <div className="bg-background rounded-3xl border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="relative">
                 <ProfilePictureUpload
@@ -535,15 +555,15 @@ const ProfilePage: React.FC = () => {
                 />
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h4 className="font-light text-tertiary tracking-wide mb-3 text-2xl md:text-3xl">
+                <span className="block font-light text-tertiary tracking-wide mb-3 text-2xl sm:text-2xl md:text-3xl lg:text-4xl">
                   {userData.name}
-                </h4>
-                <p className="text-tertiary mb-2 text-2xl md:text-xl">
+                </span>
+                <span className="block text-tertiary mb-2 text-2xl sm:text-xl md:text-xl">
                   {userData.email}
-                </p>
-                <p className="text-tertiary mb-4 text-xl md:text-lg">
+                </span>
+                <span className="block text-tertiary mb-4 text-xl sm:text-lg md:text-lg">
                   Member since {userData.joinDate}
-                </p>
+                </span>
                 <div className="flex items-center justify-center md:justify-start gap-4">
                   <div className="flex items-center gap-2 text-tertiary">
                     <Package className="w-5 h-5" />
@@ -569,9 +589,9 @@ const ProfilePage: React.FC = () => {
         {/* <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Crown className="w-8 h-8 text-[#FFD700]" />
-            <h4 className="text-2xl font-bold" style={{ color: "#95522C" }}>
+            <span className="block text-2xl sm:text-2xl md:text-3xl font-bold" style={{ color: "#95522C" }}>
               Loyalty Program
-            </h4>
+            </span>
           </div>
           <div
             className="rounded-xl p-6 mb-6"
@@ -582,18 +602,12 @@ const ProfilePage: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h4 
-                  className="text-xl font-bold mb-2"
-                  style={{ color: "#95522C" }}
-                >
-                  Current Tier:{" "}
-                  {userData.currentTier.charAt(0).toUpperCase() +
-                    userData.currentTier.slice(1)}
-                </h4>
-                <p style={{ color: "#5a4a42" }}>
-                  Tier Points: {userData.loyaltyPoints} | Evolv Points:{" "}
-                  {userData.evolvPoints}
-                </p>
+                <span className="block text-xl sm:text-xl md:text-2xl font-bold mb-2" style={{ color: "#95522C" }}>
+                  Current Tier: {userData.currentTier.charAt(0).toUpperCase() + userData.currentTier.slice(1)}
+                </span>
+                <span className="block text-sm sm:text-sm md:text-base" style={{ color: "#5a4a42" }}>
+                  Tier Points: {userData.loyaltyPoints} | Evolv Points: {userData.evolvPoints}
+                </span>
               </div>
               <Crown className="w-12 h-12 text-white" />
             </div>
@@ -644,19 +658,8 @@ const ProfilePage: React.FC = () => {
                         }`}
                       />
                     </div>
-                    <h4
-                      className={`font-bold text-lg ${
-                        isCurrentTier ? tier.textColor : "text-gray-600"
-                      }`}
-                    >
-                      {tier.name}
-                    </h4>
-                    <p className="text-sm text-tertiary">
-                      {tier.minPoints === 0
-                        ? "0"
-                        : tier.minPoints.toLocaleString()}
-                      + points
-                    </p>
+                    <span className={`block font-bold text-lg ${isCurrentTier ? tier.textColor : "text-gray-600"} sm:text-lg md:text-xl`}>{tier.name}</span>
+                    <span className="block text-sm sm:text-sm text-tertiary">{tier.minPoints === 0 ? "0" : tier.minPoints.toLocaleString()}+ points</span>
                     {isCurrentTier && (
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 ${tier.bgColor} ${tier.textColor}`}
@@ -667,13 +670,7 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <h5
-                      className={`font-semibold text-sm ${
-                        isCurrentTier ? tier.textColor : "text-tertiary"
-                      }`}
-                    >
-                      Benefits:
-                    </h5>
+                    <span className={`block font-semibold text-sm ${isCurrentTier ? tier.textColor : "text-tertiary"}`}>Benefits:</span>
                     <ul className="space-y-1">
                       {tier.benefits.map((benefit, index) => (
                         <li
@@ -706,7 +703,7 @@ const ProfilePage: React.FC = () => {
 
         {}
         {!isMobile && (
-          <div className="bg-white rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
+          <div className="bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
             <div className="flex flex-wrap border-b border-fashion-charcoal/10">
               {[
                 { id: "overview", label: "Overview", icon: User },
@@ -744,35 +741,41 @@ const ProfilePage: React.FC = () => {
                 <div className="space-y-6">
                   {}
                   <div>
-                    <h4 className="font-light text-tertiary mb-6 tracking-wide">
+                    <span className="block font-light text-tertiary mb-6 tracking-wide text-lg sm:text-lg md:text-xl">
                       Personal Information
-                    </h4>
+                    </span>
                     <div className="grid md:grid-cols-2 gap-6">
-                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                        <Mail className="w-5 h-5 text-fashion-accent-brown" />
+                      <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                        <Mail className="w-5 h-5 " />
                         <div>
-                          <p className="text-xl text-tertiary/60">Email</p>
-                          <p className="text-tertiary font-medium mt-1">
+                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                            Email
+                          </span>
+                          <span className="block text-tertiary font-medium mt-1">
                             {userData.email}
-                          </p>
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
-                        <Phone className="w-5 h-5 text-fashion-accent-brown" />
+                      <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
+                        <Phone className="w-5 h-5 " />
                         <div>
-                          <p className="text-xl text-tertiary/60">Phone</p>
-                          <p className="text-tertiary poppins-numeric mt-1">
+                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                            Phone
+                          </span>
+                          <span className="block text-tertiary poppins-numeric mt-1">
                             {userData.phone}
-                          </p>
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 p-5 bg-fashion-warm-white rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
-                        <MapPin className="w-5 h-5 text-fashion-accent-brown" />
+                      <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
+                        <MapPin className="w-5 h-5 " />
                         <div>
-                          <p className="text-xl text-tertiary/60">Address</p>
-                          <p className="text-tertiary font-medium mt-1">
+                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                            Address
+                          </span>
+                          <span className="block text-tertiary font-medium mt-1">
                             {userData.address}
-                          </p>
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -782,12 +785,12 @@ const ProfilePage: React.FC = () => {
 
               {activeTab === "orders" && (
                 <div>
-                  <h4
-                    className="text-xl font-bold mb-4"
+                  <span
+                    className="block text-xl sm:text-xl md:text-2xl font-bold mb-4"
                     style={{ color: "#95522C" }}
                   >
                     Recent Orders
-                  </h4>
+                  </span>
                   {!token && (
                     <div className="text-center py-8 text-red-600">
                       You are not logged in. Please log in to view your orders.
@@ -811,12 +814,12 @@ const ProfilePage: React.FC = () => {
                           className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <h6
-                              className="font-semibold poppins-numeric"
+                            <span
+                              className="block font-semibold poppins-numeric"
                               style={{ color: "#95522C" }}
                             >
                               {order.orderNumber}
-                            </h6>
+                            </span>
                             <span
                               className={`px-3 py-1 rounded-full text-sm font-medium ${
                                 order.status === "delivered"
@@ -830,38 +833,38 @@ const ProfilePage: React.FC = () => {
                             </span>
                           </div>
 
-                          <p className="text-tertiary poppins-numeric text-sm mb-2">
+                          <span className="block text-sm sm:text-sm text-tertiary poppins-numeric mb-2">
                             {new Date(order.createdAt).toLocaleDateString()}
-                          </p>
-                          <p className="text-tertiary text-sm mb-2">
+                          </span>
+                          <span className="block text-sm sm:text-sm text-tertiary mb-2">
                             {order.items
                               .map((item: any) => item.product?.name)
                               .join(", ")}
-                          </p>
-                          <p className="text-tertiary poppins-numeric text-tertiary">
+                          </span>
+                          <span className="block text-sm sm:text-sm text-tertiary poppins-numeric">
                             ₹{order.total}
-                          </p>
+                          </span>
                           {order.shipment && (
                             <div className="text-sm text-gray-600 mt-2">
                               {(order.shipment.shipmentId ||
                                 order.shipment.awb) && (
-                                <p className="text-tertiary font-semibold">
+                                <span className="block text-tertiary font-semibold">
                                   Delhivery ID:{" "}
                                   <span className="font-medium text-tertiary poppins-numeric">
                                     {order.shipment.shipmentId ||
                                       order.shipment.awb}
                                   </span>
-                                </p>
+                                </span>
                               )}
                               {order.shipment.name && (
-                                <p className="text-xs text-tertiary mt-1">
+                                <span className="block text-xs sm:text-xs text-tertiary mt-1">
                                   Consignee: {order.shipment.name}
-                                </p>
+                                </span>
                               )}
                               {order.shipment.pincode && (
-                                <p className="text-xs text-tertiary">
+                                <span className="block text-xs sm:text-xs text-tertiary">
                                   Pincode: {order.shipment.pincode}
-                                </p>
+                                </span>
                               )}
                             </div>
                           )}
@@ -938,12 +941,14 @@ const ProfilePage: React.FC = () => {
 
               {activeTab === "wishlist" && (
                 <div>
-                  <h3 className="text-xl font-bold text-tertiary mb-4">
+                  <span className="block text-xl sm:text-lg md:text-xl font-bold text-tertiary mb-4">
                     My Wishlist
-                  </h3>
+                  </span>
                   <div className="text-center py-8">
                     <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-600">Your wishlist is empty</p>
+                    <span className="block text-gray-600">
+                      Your wishlist is empty
+                    </span>
                     <button className="mt-4 px-6 py-2 bg-tertiary text-white rounded-lg hover:bg-[#7a3f20] transition-colors">
                       Start Shopping
                     </button>
@@ -952,59 +957,54 @@ const ProfilePage: React.FC = () => {
               )}
 
               {activeTab === "settings" && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-tertiary mb-4">
-                      Account Settings
-                    </h3>
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleEditProfile}
-                        className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <User
-                          className="w-5 h-5"
-                          style={{ color: "#95522C" }}
-                        />
-                        <span className="text-left">Edit Profile</span>
-                      </button>
-                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <Shield
-                          className="w-5 h-5"
-                          style={{ color: "#95522C" }}
-                        />
-                        <span className="text-left">Privacy Settings</span>
-                      </button>
-                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <CreditCard
-                          className="w-5 h-5"
-                          style={{ color: "#95522C" }}
-                        />
-                        <span className="text-left">Payment Methods</span>
-                      </button>
-                      <button className="flex items-center gap-3 w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <Eye className="w-5 h-5" style={{ color: "#95522C" }} />
-                        <span className="text-left">
-                          Notification Preferences
-                        </span>
-                      </button>
-                    </div>
+                <div className="w-full bg-background rounded-lg border border-fashion-charcoal/10 p-4 shadow-sm">
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => navigate("/settings/change-password")}
+                      className="flex items-center gap-3 w-full p-3 bg-background rounded-lg hover:bg-background border border-tertiary transition-colors text-left"
+                    >
+                      <Key className="w-5 h-5" />
+                      <div>
+                        <div className="font-medium">Change Password</div>
+                        <div className="text-sm text-tertiary">
+                          Secure your account
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/settings/change-email")}
+                      className="flex items-center gap-3 w-full p-3 bg-background rounded-lg hover:bg-background border border-tertiary transition-colors text-left"
+                    >
+                      <Mail className="w-5 h-5" />
+                      <div>
+                        <div className="font-medium">Change Email</div>
+                        <div className="text-sm text-tertiary">
+                          Update your primary email
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/settings/change-phone")}
+                      className="flex items-center gap-3 w-full p-3 bg-background rounded-lg hover:bg-background border border-tertiary transition-colors text-left"
+                    >
+                      <Phone className="w-5 h-5" />
+                      <div>
+                        <div className="font-medium">Change Phone</div>
+                        <div className="text-sm text-tertiary">
+                          Update phone number on your account
+                        </div>
+                      </div>
+                    </button>
                   </div>
 
-                  <div className="border-t pt-6">
+                  <div className=" pt-4 mt-4 space-y-2">
                     <button
-                      onClick={logout}
-                      className="flex items-center gap-3 w-full p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-red-600"
+                      onClick={() => logout()}
+                      className="w-full p-3 rounded-lg border border-tertiary text-center text-tertiary"
                     >
-                      <LogOut className="w-5 h-5" />
-                      <span className="text-left">Sign Out</span>
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      className="mt-3 flex items-center gap-3 w-full p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors text-red-700"
-                    >
-                      <X className="w-5 h-5" />
-                      <span className="text-left">Delete My Account</span>
+                      Sign Out
                     </button>
                   </div>
                 </div>
@@ -1020,9 +1020,9 @@ const ProfilePage: React.FC = () => {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-tertiary">
+                <span className="block text-2xl sm:text-2xl md:text-3xl font-bold text-tertiary">
                   Edit Profile
-                </h2>
+                </span>
                 <button
                   onClick={() => setShowEditModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -1035,9 +1035,9 @@ const ProfilePage: React.FC = () => {
             <div className="p-6 space-y-6">
               {}
               <div>
-                <h3 className="text-lg font-semibold text-tertiary mb-4">
+                <span className="block text-lg sm:text-base md:text-lg font-semibold text-tertiary mb-4">
                   Personal Information
-                </h3>
+                </span>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-lg font-medium text-tertiary mb-2">
@@ -1084,9 +1084,9 @@ const ProfilePage: React.FC = () => {
 
               {}
               <div>
-                <h3 className="text-lg font-semibold text-tertiary mb-4">
+                <span className="block text-lg sm:text-base md:text-lg font-semibold text-tertiary mb-4">
                   Address Information
-                </h3>
+                </span>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <label className="block text-lg font-medium text-tertiary mb-2">
@@ -1209,60 +1209,6 @@ const ProfilePage: React.FC = () => {
                     <span>Save Changes</span>
                   </>
                 )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold text-tertiary mb-4">
-              Delete Account
-            </h3>
-            <p className="text-sm text-tertiary mb-6">
-              This action will permanently delete your account and all related
-              data (orders, wishlist, reviews). This cannot be undone. Are you
-              sure you want to proceed?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded-lg border"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch(
-                      "https://ecommerce-fashion-app-som7.vercel.app/api/customer/account",
-                      {
-                        method: "DELETE",
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    );
-                    const data = await response.json();
-                    if (!response.ok)
-                      throw new Error(
-                        data.message || "Failed to delete account"
-                      );
-                    // On success, logout and redirect to home
-                    logout();
-                    window.location.href = "/";
-                  } catch (err: any) {
-                    alert(
-                      "Error deleting account: " +
-                        (err.message || "Unknown error")
-                    );
-                  }
-                }}
-                className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
-              >
-                Delete
               </button>
             </div>
           </div>

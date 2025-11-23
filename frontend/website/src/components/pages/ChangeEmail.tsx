@@ -43,16 +43,16 @@ const ChangeEmail: React.FC = () => {
   const handleCancel = () => navigate("/settings");
 
   return (
-    <div className="min-h-screen pt-24 bg-[#FFF2E1]">
+    <div className="h-[50vh] pt-24 bg-[#FFF2E1]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-sm p-6 max-w-xl mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Change Email</h2>
+        <div className="bg-background rounded-xl shadow-lg p-6 max-w-xl mx-auto">
+          <span className="block text-3xl sm:text-3xl font-semibold mb-4">Change Email</span>
           {message && (
-            <div className="mb-4 text-sm text-red-700">{message}</div>
+            <span className="block mb-4 text-sm text-red-700">{message}</span>
           )}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-sm">New Email</label>
+              <label className="block text-xl sm:text-xl">New Email</label>
               <input
                 type="email"
                 value={newEmail}
@@ -61,7 +61,7 @@ const ChangeEmail: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm">
+              <label className="block text-xl sm:text-xl">
                 Current Password (to confirm)
               </label>
               <input
@@ -74,14 +74,14 @@ const ChangeEmail: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="px-4 py-2 bg-[#95522C] text-white rounded"
+                className="px-6 py-2 bg-[#95522C] text-background rounded"
                 disabled={loading}
               >
                 Save
               </button>
               <button
                 type="button"
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border border-tertiary rounded"
                 onClick={handleCancel}
               >
                 Cancel

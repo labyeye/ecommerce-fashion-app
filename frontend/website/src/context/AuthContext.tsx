@@ -35,7 +35,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   authInitializing?: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
   isLoading: boolean;
@@ -188,11 +188,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(data.user);
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        return true;
       } else {
         setError(data.message || "Login failed");
+        return false;
       }
     } catch (error) {
       setError("Network error. Please try again.");
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -234,19 +237,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    // Ensure we redirect to login immediately to avoid leaving the user
-    // on a protected page (some components may assume user exists and
-    // cause render errors). Use a hard navigation so this works
-    // even outside React Router lifecycle.
-    try {
-      window.location.href = "/login";
-    } catch (e) {
-      // ignore
-    }
+    // Call backend to clear httpOnly cookie (if present), then clear client state
+    (async () => {
+      try {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        console.warn("Logout API call failed:", err);
+      } finally {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        try {
+          window.location.href = "/login";
+        } catch (e) {
+          // ignore
+        }
+      }
+    })();
   };
 
   const clearError = () => {

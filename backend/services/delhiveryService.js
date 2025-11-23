@@ -1,5 +1,6 @@
 const axios = require("axios");
 const Order = require("../models/Order");
+const nodemailer = require("nodemailer");
 
 const API_KEY =
   process.env.DELHIVERY_API_KEY || "8976acf224d7787aed465acb1a436ff778c96b23";
@@ -22,6 +23,48 @@ async function createShipmentForOrder(order) {
   }
 
   try {
+    // Helper to send an alert email to admin when carrier returns critical failures
+    async function sendAdminAlert(subject, text, html) {
+      try {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        if (!adminEmail)
+          return { success: false, reason: "No ADMIN_EMAIL configured" };
+
+        // create a basic transporter using EMAIL_ env vars if available
+        const transporter = nodemailer.createTransport(
+          process.env.EMAIL_USER && process.env.EMAIL_PASS
+            ? {
+                service: process.env.EMAIL_SERVICE || "gmail",
+                auth: {
+                  user: process.env.EMAIL_USER,
+                  pass: process.env.EMAIL_PASS,
+                },
+              }
+            : { streamTransport: true, newline: "unix", buffer: true }
+        );
+
+        const mailOptions = {
+          from: process.env.EMAIL_FROM || "noreply@flauntbynishi.com",
+          to: adminEmail,
+          subject: subject,
+          text: text || "",
+          html: html || undefined,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.info(
+          "Admin alert email sent",
+          info && info.messageId ? info.messageId : "dev"
+        );
+        return { success: true };
+      } catch (err) {
+        console.error(
+          "Failed to send admin alert email:",
+          err && err.message ? err.message : err
+        );
+        return { success: false, error: err };
+      }
+    }
     // Re-fetch the order with populated product details so we can build clean product names
     const fullOrder = await Order.findById(order._id).populate("items.product");
     const useOrder = fullOrder || order;
@@ -91,12 +134,18 @@ async function createShipmentForOrder(order) {
       const qty = Number(it.quantity || 0) || 1;
       const price = Number(it.price || 0) || 0;
       const total = Number(it.total != null ? it.total : price * qty) || 0;
-      itemsList.push({ name: cleanedName, qty, price, total });
+      const size = (it.size || it.selectedSize || (it.variant && it.variant.value) || "").toString();
+      const color = (it.color || (it.variant && it.variant.name) || "").toString();
+
+      itemsList.push({ name: cleanedName, qty, price, total, size, color });
       totalQty += qty;
       totalValue += total;
     }
 
-    const products_desc = itemsList.map((i) => i.name).join(" | ");
+    // Build products_desc to include quantity and size (eg: "Tulum dress x1 (XS)")
+    const products_desc = itemsList
+      .map((i) => `${i.name}${i.qty ? ' x' + i.qty : ''}${i.size ? ' (' + i.size + ')' : ''}`)
+      .join(" | ");
 
     // Build pickup_location using environment seller info; force name to match account if provided
     const pickup_location = {
@@ -148,6 +197,8 @@ async function createShipmentForOrder(order) {
       seller_inv: sellerInv,
       seller_inv_date: sellerInvDate,
       products_desc,
+      quantity: totalQty,
+      products: itemsList,
       weight: defaultWeight,
       shipment_height: undefined,
       shipment_width: undefined,
@@ -165,19 +216,88 @@ async function createShipmentForOrder(order) {
       JSON.stringify(payload, null, 2)
     );
 
-    const res = await axios.post(CMU_URL, formData.toString(), {
-      headers: {
-        Authorization: `Token ${API_KEY}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      timeout: 15000,
-    });
+    // Helper: sleep for retries
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    const data = res && res.data ? res.data : {};
+    // Helper: attempt CMU post with retries for transient/internal errors
+    const maxAttempts = 3;
+    const attemptDelayMs = [1000, 3000, 7000];
+    let data = null;
+    let lastErr = null;
 
-    // Log payload & raw response for debugging
-    console.debug("Delhivery CMU sent payload:", JSON.stringify(payload));
-    console.debug("Delhivery CMU raw response:", JSON.stringify(data));
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const res = await axios.post(CMU_URL, formData.toString(), {
+          headers: {
+            Authorization: `Token ${API_KEY}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          timeout: 15000,
+        });
+
+        data = res && res.data ? res.data : {};
+
+        // Log payload & raw response for debugging
+        console.debug("Delhivery CMU sent payload:", JSON.stringify(payload));
+        console.debug(
+          "Delhivery CMU raw response (attempt " + attempt + "):",
+          JSON.stringify(data)
+        );
+
+        // If Delhivery returned success true and packages present, stop retrying
+        if (
+          data &&
+          data.success === true &&
+          Array.isArray(data.packages) &&
+          data.packages.length > 0
+        ) {
+          break;
+        }
+
+        // If this is the last attempt, break and proceed to error handling below
+        if (attempt === maxAttempts) break;
+
+        // Detect likely transient/internal error markers in the response remark(s)
+        const overallRemarks =
+          (data && (data.remarks || data.remark || "")) || "";
+        const pkgRemarks =
+          Array.isArray(data.packages) && data.packages[0]
+            ? data.packages[0].remarks || data.packages[0].remark || ""
+            : "";
+        const combinedRemarks = `${overallRemarks} ${pkgRemarks}`;
+        const isTransient =
+          /internal error|temporar|please try|partially saved|crash|crashing|Unable to consume/i.test(
+            combinedRemarks
+          );
+
+        if (!isTransient) {
+          // Non-transient error, no point retrying
+          break;
+        }
+
+        // Wait before next attempt
+        await sleep(
+          attemptDelayMs[Math.min(attempt - 1, attemptDelayMs.length - 1)]
+        );
+      } catch (err) {
+        lastErr = err;
+        console.error(
+          "Delhivery CMU attempt error (attempt " + attempt + "):",
+          err && err.response
+            ? err.response.data || err.response.statusText
+            : err.message
+        );
+        // if final attempt, let it fall through
+        if (attempt === maxAttempts) {
+          // attempt to capture any response body
+          data = err && err.response ? err.response.data : null;
+          break;
+        }
+        await sleep(
+          attemptDelayMs[Math.min(attempt - 1, attemptDelayMs.length - 1)]
+        );
+      }
+    }
 
     // Structured error helper
     function buildErrorObj(msg, p, raw) {
@@ -208,17 +328,19 @@ async function createShipmentForOrder(order) {
         awb = waybill;
       } else {
         // Detect known carrier remarks such as insufficient prepaid balance
-        const rawRemarks = (primaryPkg && (primaryPkg.remarks || primaryPkg.remark)) || (data && (data.remarks || data.remark)) || "";
-        const insufficientBalance = /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(rawRemarks);
+        const rawRemarks =
+          (primaryPkg && (primaryPkg.remarks || primaryPkg.remark)) ||
+          (data && (data.remarks || data.remark)) ||
+          "";
+        const insufficientBalance =
+          /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(
+            rawRemarks
+          );
         const friendlyMessage = insufficientBalance
           ? "Delhivery prepaid balance is insufficient, please recharge wallet"
           : "Delhivery reported package not successful or missing waybill";
 
-        const err = buildErrorObj(
-          friendlyMessage,
-          primaryPkg,
-          data
-        );
+        const err = buildErrorObj(friendlyMessage, primaryPkg, data);
         if (insufficientBalance) err.code = "DELHIVERY_INSUFFICIENT_BALANCE";
         // persist failure info
         const shipmentDoc = {
@@ -226,7 +348,22 @@ async function createShipmentForOrder(order) {
           sentPayload: payload,
           carrier: "Delhivery",
           lastSyncedAt: new Date(),
+          upload_wbn: data && data.upload_wbn ? data.upload_wbn : undefined,
+          packages: Array.isArray(data.packages)
+            ? data.packages.map((p) => ({
+                status: p.status,
+                waybill: p.waybill || p.awb || p.waybill_number || undefined,
+                remarks: p.remarks || p.remark || undefined,
+                client: p.client || undefined,
+                serviceable: p.serviceable || undefined,
+                payment: p.payment || undefined,
+                cod_amount: p.cod_amount || undefined,
+                raw: p,
+              }))
+            : undefined,
           status: "failed",
+          products: itemsList,
+          quantity: totalQty,
         };
         const savedFail = await Order.findByIdAndUpdate(
           order._id,
@@ -241,6 +378,14 @@ async function createShipmentForOrder(order) {
           order._id,
           err
         );
+        // Notify admin for manual inspection when Delhivery reports package failure
+        try {
+          const subject = `Delhivery package failure for order ${order.orderNumber || order._id}`;
+          const body = `Delhivery response for order ${order._id}:\n\n${JSON.stringify(data || err || {}, null, 2)}`;
+          sendAdminAlert(subject, body).catch((e) => console.error('Admin alert error:', e));
+        } catch (e) {
+          console.error('sendAdminAlert failed:', e);
+        }
         return {
           success: false,
           error: err,
@@ -250,24 +395,40 @@ async function createShipmentForOrder(order) {
     } else {
       // No packages or data.success false: return structured error
       // Detect common remark for insufficient balance in the overall response
-      const overallRemarks = (data && (data.remarks || data.remark || (data.message || ''))) || '';
-      const insufficientBalanceOverall = /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(overallRemarks);
+      const overallRemarks =
+        (data && (data.remarks || data.remark || data.message || "")) || "";
+      const insufficientBalanceOverall =
+        /insufficient\s+balance|insufficient\s+funds|prepaid\s+balance/i.test(
+          overallRemarks
+        );
       const friendlyOverallMessage = insufficientBalanceOverall
         ? "Delhivery prepaid balance is insufficient, please recharge wallet"
         : "Delhivery did not return success === true or packages[] missing";
 
-      const err = buildErrorObj(
-        friendlyOverallMessage,
-        primaryPkg,
-        data
-      );
-      if (insufficientBalanceOverall) err.code = "DELHIVERY_INSUFFICIENT_BALANCE";
+      const err = buildErrorObj(friendlyOverallMessage, primaryPkg, data);
+      if (insufficientBalanceOverall)
+        err.code = "DELHIVERY_INSUFFICIENT_BALANCE";
       const shipmentDoc = {
         rawResponse: data,
         sentPayload: payload,
         carrier: "Delhivery",
         lastSyncedAt: new Date(),
+        upload_wbn: data && data.upload_wbn ? data.upload_wbn : undefined,
+        packages: Array.isArray(data.packages)
+          ? data.packages.map((p) => ({
+              status: p.status,
+              waybill: p.waybill || p.awb || p.waybill_number || undefined,
+              remarks: p.remarks || p.remark || undefined,
+              client: p.client || undefined,
+              serviceable: p.serviceable || undefined,
+              payment: p.payment || undefined,
+              cod_amount: p.cod_amount || undefined,
+              raw: p,
+            }))
+          : undefined,
         status: "failed",
+        products: itemsList,
+        quantity: totalQty,
       };
       const savedFail = await Order.findByIdAndUpdate(
         order._id,
@@ -282,6 +443,14 @@ async function createShipmentForOrder(order) {
         order._id,
         err
       );
+      // Notify admin for manual inspection when Delhivery returns non-success
+      try {
+        const subject = `Delhivery CMU error for order ${order.orderNumber || order._id}`;
+        const body = `Delhivery CMU response for order ${order._id}:\n\n${JSON.stringify(data || err || {}, null, 2)}`;
+        sendAdminAlert(subject, body).catch((e) => console.error('Admin alert error:', e));
+      } catch (e) {
+        console.error('sendAdminAlert failed:', e);
+      }
       return {
         success: false,
         error: err,
@@ -300,6 +469,21 @@ async function createShipmentForOrder(order) {
       shipment_status: "created",
       trackingUrl: `https://track.delhivery.com/?waybill=${awb}`,
       status: "created",
+      upload_wbn: data && data.upload_wbn ? data.upload_wbn : undefined,
+      packages: Array.isArray(data.packages)
+        ? data.packages.map((p) => ({
+            status: p.status,
+            waybill: p.waybill || p.awb || p.waybill_number || undefined,
+            remarks: p.remarks || p.remark || undefined,
+            client: p.client || undefined,
+            serviceable: p.serviceable || undefined,
+            payment: p.payment || undefined,
+            cod_amount: p.cod_amount || undefined,
+            raw: p,
+          }))
+        : undefined,
+      products: itemsList,
+      quantity: totalQty,
     };
     const updatePayload = {
       $set: {
@@ -491,135 +675,187 @@ async function checkPincodeServiceability(pincode) {
 
 async function createReversePickupForExchange(exchange) {
   try {
-    const order = exchange.order || (exchange.orderId ? await Order.findById(exchange.orderId) : null);
-    if (!order) return { success: false, error: 'Order not found on exchange' };
+    const order =
+      exchange.order ||
+      (exchange.orderId ? await Order.findById(exchange.orderId) : null);
+    if (!order) return { success: false, error: "Order not found on exchange" };
 
     // pickup_location should be customer's address (pickup from customer)
     const cAddr = order.shippingAddress || {};
     const pickup_location = {
-      name: `${cAddr.firstName || ''} ${cAddr.lastName || ''}`.trim(),
-      add: cAddr.street || '',
-      city: cAddr.city || '',
-      state: cAddr.state || '',
-      pin: cAddr.zipCode || cAddr.pincode || '',
-      phone: (cAddr.phone && String(cAddr.phone)) || ''
+      name: `${cAddr.firstName || ""} ${cAddr.lastName || ""}`.trim(),
+      add: cAddr.street || "",
+      city: cAddr.city || "",
+      state: cAddr.state || "",
+      pin: cAddr.zipCode || cAddr.pincode || "",
+      phone: (cAddr.phone && String(cAddr.phone)) || "",
     };
 
     // consignee will be seller (return destination)
-    const sellerName = process.env.SELLER_NAME || 'NS designs';
-    const sellerAdd = process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '';
+    const sellerName = process.env.SELLER_NAME || "NS designs";
+    const sellerAdd =
+      process.env.SELLER_ADD || process.env.SELLER_ADDRESS || "";
     const shipment = {
       client_order_id: `${exchange._id}-reverse`,
       name: sellerName,
       add: sellerAdd,
-      city: process.env.SELLER_CITY || '',
-      state: process.env.SELLER_STATE || '',
-      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || '',
-      country: 'India',
-      phone: process.env.SELLER_PHONE || '',
-      payment_mode: 'Prepaid',
+      city: process.env.SELLER_CITY || "",
+      state: process.env.SELLER_STATE || "",
+      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || "",
+      country: "India",
+      phone: process.env.SELLER_PHONE || "",
+      payment_mode: "Prepaid",
       total_amount: 0,
       cod_amount: 0,
       seller_name: sellerName,
       seller_add: sellerAdd,
-      seller_inv: order.orderNumber || '',
-      seller_inv_date: (order.createdAt || new Date()).toISOString().slice(0,10),
-      products_desc: (exchange.items && exchange.items.map(it => (it.product && it.product.name) || it.note || 'Item').join(' | ')) || 'Returned items',
-      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5)
+      seller_inv: order.orderNumber || "",
+      seller_inv_date: (order.createdAt || new Date())
+        .toISOString()
+        .slice(0, 10),
+      products_desc:
+        (exchange.items &&
+          exchange.items
+            .map((it) => (it.product && it.product.name) || it.note || "Item")
+            .join(" | ")) ||
+        "Returned items",
+      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5),
     };
 
     const payload = { pickup_location, shipments: [shipment] };
     const formData = new URLSearchParams();
-    formData.append('format', 'json');
-    formData.append('data', JSON.stringify(payload));
+    formData.append("format", "json");
+    formData.append("data", JSON.stringify(payload));
 
     const res = await axios.post(CMU_URL, formData.toString(), {
       headers: {
         Authorization: `Token ${API_KEY}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      timeout: 15000
+      timeout: 15000,
     });
 
     const data = res && res.data ? res.data : {};
     const pkgs = data && Array.isArray(data.packages) ? data.packages : [];
     const primaryPkg = pkgs.length ? pkgs[0] : null;
     if (data && data.success === true && primaryPkg) {
-      const waybill = primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || '';
+      const waybill =
+        primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || "";
       if (waybill) {
         return { success: true, data: { awb: waybill }, raw: data };
       }
     }
-    return { success: false, error: 'Delhivery did not return AWB for reverse pickup', raw: data };
+    return {
+      success: false,
+      error: "Delhivery did not return AWB for reverse pickup",
+      raw: data,
+    };
   } catch (err) {
-    console.error('createReversePickupForExchange error:', err && err.message ? err.message : err);
-    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+    console.error(
+      "createReversePickupForExchange error:",
+      err && err.message ? err.message : err
+    );
+    return {
+      success: false,
+      error:
+        err && err.response
+          ? err.response.data || err.response.statusText
+          : err.message,
+    };
   }
 }
 
 async function createForwardShipmentForExchange(exchange) {
   try {
-    const order = exchange.order || (exchange.orderId ? await Order.findById(exchange.orderId) : null);
-    if (!order) return { success: false, error: 'Order not found on exchange' };
+    const order =
+      exchange.order ||
+      (exchange.orderId ? await Order.findById(exchange.orderId) : null);
+    if (!order) return { success: false, error: "Order not found on exchange" };
 
     // pickup_location = seller (same as createShipmentForOrder)
     const pickup_location = {
-      name: process.env.SELLER_NAME || 'NS designs',
-      add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '',
-      city: process.env.SELLER_CITY || '',
-      state: process.env.SELLER_STATE || '',
-      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || '',
-      phone: process.env.SELLER_PHONE || ''
+      name: process.env.SELLER_NAME || "NS designs",
+      add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || "",
+      city: process.env.SELLER_CITY || "",
+      state: process.env.SELLER_STATE || "",
+      pin: process.env.SELLER_PINCODE || process.env.SELLER_PIN || "",
+      phone: process.env.SELLER_PHONE || "",
     };
 
     // consignee = customer
     const cAddr = order.shippingAddress || {};
     const shipment = {
       client_order_id: `${exchange._id}-forward`,
-      name: `${cAddr.firstName || ''} ${cAddr.lastName || ''}`.trim(),
-      add: cAddr.street || '',
-      city: cAddr.city || '',
-      state: cAddr.state || '',
-      pin: cAddr.zipCode || cAddr.pincode || '',
-      country: 'India',
-      phone: (cAddr.phone && String(cAddr.phone)) || '',
-      payment_mode: 'Prepaid',
+      name: `${cAddr.firstName || ""} ${cAddr.lastName || ""}`.trim(),
+      add: cAddr.street || "",
+      city: cAddr.city || "",
+      state: cAddr.state || "",
+      pin: cAddr.zipCode || cAddr.pincode || "",
+      country: "India",
+      phone: (cAddr.phone && String(cAddr.phone)) || "",
+      payment_mode: "Prepaid",
       total_amount: 0,
       cod_amount: 0,
-      seller_name: process.env.SELLER_NAME || 'NS designs',
-      seller_add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || '',
-      seller_inv: order.orderNumber || '',
-      seller_inv_date: (order.createdAt || new Date()).toISOString().slice(0,10),
-      products_desc: (exchange.items && exchange.items.map(it => (it.product && it.product.name) || it.note || 'Item').join(' | ')) || 'Replacement items',
-      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5)
+      seller_name: process.env.SELLER_NAME || "NS designs",
+      seller_add: process.env.SELLER_ADD || process.env.SELLER_ADDRESS || "",
+      seller_inv: order.orderNumber || "",
+      seller_inv_date: (order.createdAt || new Date())
+        .toISOString()
+        .slice(0, 10),
+      products_desc:
+        (exchange.items &&
+          exchange.items
+            .map((it) => (it.product && it.product.name) || it.note || "Item")
+            .join(" | ")) ||
+        "Replacement items",
+      weight: Number(process.env.DELHIVERY_DEFAULT_WEIGHT || 0.5),
     };
 
     const payload = { pickup_location, shipments: [shipment] };
     const formData = new URLSearchParams();
-    formData.append('format', 'json');
-    formData.append('data', JSON.stringify(payload));
+    formData.append("format", "json");
+    formData.append("data", JSON.stringify(payload));
 
     const res = await axios.post(CMU_URL, formData.toString(), {
       headers: {
         Authorization: `Token ${API_KEY}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      timeout: 15000
+      timeout: 15000,
     });
 
     const data = res && res.data ? res.data : {};
     const pkgs = data && Array.isArray(data.packages) ? data.packages : [];
     const primaryPkg = pkgs.length ? pkgs[0] : null;
     if (data && data.success === true && primaryPkg) {
-      const waybill = primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || '';
+      const waybill =
+        primaryPkg.waybill || primaryPkg.awb || primaryPkg.waybill_number || "";
       if (waybill) {
-        return { success: true, data: { awb: waybill }, raw: data, pickupDate: new Date() };
+        return {
+          success: true,
+          data: { awb: waybill },
+          raw: data,
+          pickupDate: new Date(),
+        };
       }
     }
-    return { success: false, error: 'Delhivery did not return AWB for forward shipment', raw: data };
+    return {
+      success: false,
+      error: "Delhivery did not return AWB for forward shipment",
+      raw: data,
+    };
   } catch (err) {
-    console.error('createForwardShipmentForExchange error:', err && err.message ? err.message : err);
-    return { success: false, error: err && err.response ? err.response.data || err.response.statusText : err.message };
+    console.error(
+      "createForwardShipmentForExchange error:",
+      err && err.message ? err.message : err
+    );
+    return {
+      success: false,
+      error:
+        err && err.response
+          ? err.response.data || err.response.statusText
+          : err.message,
+    };
   }
 }
 
@@ -628,6 +864,5 @@ module.exports = {
   fetchTrackingForAwb,
   checkPincodeServiceability,
   createReversePickupForExchange,
-  createForwardShipmentForExchange
+  createForwardShipmentForExchange,
 };
-

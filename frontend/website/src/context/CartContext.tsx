@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getProductById } from '../services/productService';
 
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: CartItem) => void;
-  updateQuantity: (cartItemId: string, newQuantity: number) => void;
+  updateQuantity: (cartItemId: string, newQuantity: number) => Promise<void>;
   removeItem: (cartItemId: string) => void;
   clearCart: () => void;
   isLoading: boolean;
@@ -103,18 +104,72 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateQuantity = (cartItemId: string, newQuantity: number) => {
+  const updateQuantity = async (cartItemId: string, newQuantity: number) => {
+    // Parse cartItemId format: `${id}-${size}-${color}`
+    const parts = cartItemId.split('-');
+    const productId = parts[0];
+    const size = parts[1];
+    const color = parts.slice(2).join('-');
+
     if (newQuantity === 0) {
       removeItem(cartItemId);
-    } else {
-      setCartItems((items) =>
-        items.map((item) =>
-          `${item.id}-${item.size}-${item.color}` === cartItemId
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
+      return;
     }
+    // Synchronously update quantity, but validate against current stock when increasing
+    setCartItems((items) => {
+      const existing = items.find((it) => `${it.id}-${it.size}-${it.color}` === cartItemId);
+      if (!existing) return items;
+      // If increasing, check stock from server first
+      if (newQuantity > existing.quantity) {
+        (async () => {
+          try {
+            const prod = await getProductById(productId);
+            if (prod) {
+              // prod may not match frontend TypeScript Product shape exactly (variant sizes/stock can be nested),
+              // cast to `any` to safely access runtime fields such as `colors[].sizes[].stock`, `sizes[].stock`, or `stock.quantity`.
+              const prodAny: any = prod as any;
+              let available: number | null = null;
+              if (Array.isArray(prodAny.colors) && prodAny.colors.length > 0) {
+                const colorObj = (prodAny.colors as any[]).find((c: any) => c.name === color);
+                if (colorObj && Array.isArray(colorObj.sizes)) {
+                  const sizeObj = (colorObj.sizes as any[]).find((s: any) => s.size === size);
+                  if (sizeObj) available = Number((sizeObj as any).stock || 0);
+                }
+              }
+              if (available === null && Array.isArray(prodAny.sizes)) {
+                const sizeObj = (prodAny.sizes as any[]).find((s: any) => s.size === size);
+                if (sizeObj) available = Number((sizeObj as any).stock || 0);
+              }
+              if (available === null && prodAny.stock && typeof prodAny.stock.quantity === 'number') {
+                available = Number(prodAny.stock.quantity || 0);
+              }
+
+              if (available !== null && newQuantity > available) {
+                alert(`Only ${available} units available for the selected variant. Adjusting quantity.`);
+                // Apply clamped value
+                setCartItems((itms) =>
+                  itms.map((it) =>
+                    `${it.id}-${it.size}-${it.color}` === cartItemId
+                      ? { ...it, quantity: available as number }
+                      : it
+                  )
+                );
+                return;
+              }
+            }
+          } catch (err) {
+            console.warn('Failed to validate stock before updating cart quantity', err);
+          }
+        })();
+      }
+
+      // If no clamping happened, apply requested quantity
+      return items.map((item) =>
+        `${item.id}-${item.size}-${item.color}` === cartItemId
+          ? { ...item, quantity: newQuantity }
+          : item
+      );
+    });
   };
 
   const removeItem = (cartItemId: string) => {

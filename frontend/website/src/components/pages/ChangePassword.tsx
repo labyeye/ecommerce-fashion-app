@@ -47,16 +47,20 @@ const ChangePassword: React.FC = () => {
   const handleForgot = () => navigate("/forgot-password");
 
   return (
-    <div className="min-h-screen pt-24 bg-[#FFF2E1]">
+    <div className="h-[60vh] pt-24 bg-[#FFF2E1]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-sm p-6 max-w-xl mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Change Password</h2>
+        <div className="bg-background rounded-xl shadow-lg p-6 max-w-xl mx-auto">
+          <span className="block text-3xl sm:text-3xl font-semibold mb-4">
+            Change Password
+          </span>
           {message && (
-            <div className="mb-4 text-sm text-red-700">{message}</div>
+            <span className="block mb-4 text-sm text-red-700">{message}</span>
           )}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-sm">Current Password</label>
+              <label className="block text-xl sm:text-xl">
+                Current Password
+              </label>
               <input
                 type="password"
                 value={currentPassword}
@@ -65,7 +69,7 @@ const ChangePassword: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm">New Password</label>
+              <label className="block text-xl sm:text-xl">New Password</label>
               <input
                 type="password"
                 value={newPassword}
@@ -74,7 +78,9 @@ const ChangePassword: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm">Confirm New Password</label>
+              <label className="block text-xl sm:text-xl">
+                Confirm New Password
+              </label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -98,7 +104,7 @@ const ChangePassword: React.FC = () => {
                 Cancel
               </button>
             </div>
-            <div className="mt-2 text-sm">
+            <div className="mt-2 text-xl sm:text-xl">
               <button
                 type="button"
                 className="text-[#914D26] underline"

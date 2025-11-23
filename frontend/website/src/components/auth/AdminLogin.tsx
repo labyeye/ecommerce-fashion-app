@@ -54,13 +54,15 @@ const AdminLogin: React.FC = () => {
     }
 
     try {
-      await login(formData.email, formData.password);
-      // Check if user is admin and redirect accordingly
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
+      const ok = await login(formData.email, formData.password);
+      if (ok) {
+        // Check if user is admin and redirect accordingly
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          navigate('/');
+        }
       }
     } catch (error) {
       // Error is handled by the auth context

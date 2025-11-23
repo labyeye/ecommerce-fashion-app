@@ -24,7 +24,13 @@ const app = express();
 const PORT = process.env.PORT || 3500;
 
 // Security middleware
-app.use(helmet());
+// Configure Helmet to avoid a strict Cross-Origin-Opener-Policy which
+// can block cross-origin `window.postMessage` calls from the frontend.
+// Default Helmet COOP is `same-origin` which is restrictive; allow
+// popups or override via env var `COOP_POLICY` if needed.
+app.use(helmet({
+  crossOriginOpenerPolicy: { policy: process.env.COOP_POLICY || 'same-origin-allow-popups' }
+}));
 
 // Rate limiting - More lenient for development
 const limiter = rateLimit({

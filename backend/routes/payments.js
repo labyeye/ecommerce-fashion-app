@@ -26,6 +26,7 @@ router.post('/create-order', async (req, res) => {
     // Shipping (c) = 100 INR (flat)
     // Total = a + b + c
     const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT || 100);
+    const FREE_SHIPPING_THRESHOLD = Number(process.env.FREE_SHIPPING_THRESHOLD || 3000);
 
     let subtotalCalculated = 0; // a
     let taxCalculated = 0; // b
@@ -43,7 +44,7 @@ router.post('/create-order', async (req, res) => {
     // Round to 2 decimals
     subtotalCalculated = Math.round((subtotalCalculated + Number.EPSILON) * 100) / 100;
     taxCalculated = Math.round((taxCalculated + Number.EPSILON) * 100) / 100;
-    const shippingCostCalculated = SHIPPING_FLAT;
+    const shippingCostCalculated = subtotalCalculated >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
     const totalCalculated = Math.round((subtotalCalculated + taxCalculated + shippingCostCalculated + Number.EPSILON) * 100) / 100;
 
     // Validate required fields (use server-calculated total)
@@ -61,8 +62,8 @@ router.post('/create-order', async (req, res) => {
         product: item.product,
         quantity: item.quantity,
         price: item.price,
-        size: item.size,
-        color: item.color,
+        size: (item.size || '').toString().trim(),
+        color: (item.color || '').toString().trim(),
         total: item.itemTotal
       })),
       shippingAddress,
@@ -217,6 +218,68 @@ router.post('/verify', async (req, res) => {
     };
 
     const updatedOrderAfterPayment = await Order.findByIdAndUpdate(order._id, paymentUpdate, { new: true });
+    // Decrement product stock now that payment is confirmed
+    try {
+      const Product = require('../models/Product');
+      for (const it of updatedOrderAfterPayment.items || []) {
+        try {
+          // Try atomic decrement for color + size using arrayFilters
+          if (it.color && it.size) {
+            const updateRes = await Product.findOneAndUpdate(
+              { _id: it.product, 'colors.name': it.color },
+              { $inc: { 'colors.$[c].sizes.$[s].stock': -(it.quantity || 0) } },
+              {
+                arrayFilters: [{ 'c.name': it.color }, { 's.size': it.size }],
+                new: true
+              }
+            );
+
+            // If updated, ensure stock doesn't go negative (clamp)
+            if (updateRes) {
+              // Post-process to clamp negatives where some drivers may not support multi-positional updates
+              await Product.updateOne(
+                { _id: it.product, 'colors.sizes.stock': { $lt: 0 } },
+                { $set: { 'colors.$[].sizes.$[s].stock': 0 } },
+                { arrayFilters: [{ 's.stock': { $lt: 0 } }], multi: true }
+              ).catch(() => {});
+              continue;
+            }
+          }
+
+          // Try atomic decrement for size-only products
+          if (it.size) {
+            const updateRes2 = await Product.findOneAndUpdate(
+              { _id: it.product, 'sizes.size': it.size },
+              { $inc: { 'sizes.$[s].stock': -(it.quantity || 0) } },
+              { arrayFilters: [{ 's.size': it.size }], new: true }
+            );
+
+            if (updateRes2) {
+              await Product.updateOne(
+                { _id: it.product, 'sizes.stock': { $lt: 0 } },
+                { $set: { 'sizes.$[s].stock': 0 } },
+                { arrayFilters: [{ 's.stock': { $lt: 0 } }] }
+              ).catch(() => {});
+              continue;
+            }
+          }
+
+          // Fallback: decrement top-level stock.quantity if present
+          const fallback = await Product.findOneAndUpdate(
+            { _id: it.product, 'stock.quantity': { $exists: true } },
+            { $inc: { 'stock.quantity': -(it.quantity || 0) } },
+            { new: true }
+          );
+          if (fallback && fallback.stock && fallback.stock.quantity < 0) {
+            await Product.findByIdAndUpdate(it.product, { $set: { 'stock.quantity': 0 } });
+          }
+        } catch (decrErr) {
+          console.error('Failed to decrement stock for item', it, decrErr);
+        }
+      }
+    } catch (stockErr) {
+      console.error('Error while reducing stock after payment:', stockErr);
+    }
 
     // After confirming payment, attempt to create Delhivery shipment but do NOT throw on failure
     try {

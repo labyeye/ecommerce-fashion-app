@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/images/logoblack.png";
 // Google Sign-In Script Loader
 const loadGoogleScript = () => {
   return new Promise<void>((resolve, reject) => {
@@ -58,6 +57,7 @@ const Login: React.FC = () => {
 
     window.google.accounts.id.initialize({
       client_id:
+        (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) ||
         "526636396003-t2i7mikheekskvb1j27su7alqlhj15vm.apps.googleusercontent.com",
       callback: handleGoogleCallback,
     });
@@ -105,8 +105,10 @@ const Login: React.FC = () => {
     clearError();
 
     try {
-      await login(email, password);
-      navigate("/");
+      const ok = await login(email, password);
+      if (ok) {
+        navigate("/");
+      }
     } catch (error) {
       // Error handled by auth context
     }
@@ -237,21 +239,12 @@ const Login: React.FC = () => {
 
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <img
-            src={logo}
-            alt="Flaunt by Nishi Logo"
-            className="mx-auto w-48 h-48"
-          />
-          <Link
-            to="/"
-            className="inline-flex items-center text-gray-600 hover:text-black transition-colors duration-300 mb-4 sm:mb-6 text-2xl sm:text-xl"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-          <p className="text-gray-600 text-2xl sm:text-xl">
-            Sign in to your Flaunt by Nishi account
-          </p>
+          <span className="font-bold text-black mb-2 block text-5xl sm:text-xl md:text-2xl lg:text-5xl">
+                Sign In  
+              </span>
+              <span className="text-gray-600 block text-lg sm:text-base md:text-lg">
+                Sign in with Flauntbynishi for exclusive fashion
+              </span>
         </div>
 
         <div className="form-card rounded-xl sm:rounded-2xl p-6 sm:p-8">
@@ -433,20 +426,20 @@ const Login: React.FC = () => {
           </div>
 
           {!googleLoaded && (
-            <p className="text-center text-sm">
+            <span className="block text-center text-sm sm:text-base">
               Loading Google Sign-In...
-            </p>
+            </span>
           )}
         </div>
 
         {/* Register Link */}
         <div className="text-center">
-          <p className="text-gray-600 text-xl">
+          <span className="block text-gray-600 text-xl sm:text-xl">
             Don't have an account?{" "}
             <Link to="/register" className="font-semibold hover:underline">
               Sign Up
             </Link>
-          </p>
+          </span>
         </div>
       </div>
     </div>

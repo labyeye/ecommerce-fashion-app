@@ -34,7 +34,7 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
     const transporter = createTransporter();
 
     const verificationUrl = `${
-      process.env.FRONTEND_URL || "https://flauntbynishi.com"
+      process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
     }/verify-email?token=${verificationToken}`;
 
     const mailOptions = {
@@ -109,7 +109,7 @@ const sendVerificationEmail = async (email, firstName, verificationToken) => {
         <body>
           <div class="header">
             <div class="logo">
-              <img src="https://flauntbynishi.com/logo.png" alt="Flaunt by Nishi" style="width:44px;height:44px;object-fit:contain;" />
+              <img src="https://ecommerce-fashion-app-som7.vercel.app/logo.png" alt="Flaunt by Nishi" style="width:44px;height:44px;object-fit:contain;" />
             </div>
             <h1 style="font-size:2rem; font-weight:700; margin-bottom:8px;">Welcome to Flaunt by Nishi</h1>
             <p style="font-size:1rem; font-weight:400;">Thanks for joining our style community</p>
@@ -196,9 +196,9 @@ const sendWelcomeEmail = async (email, firstName) => {
           <title>Welcome to Flaunt By Nishi</title>
           <style>
             body { font-family: Arial, sans-serif; line-height:1.6; color:#111827; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA }
-            .header { background: linear-gradient(135deg,#DB2777,#F973A0); color:#fff; text-align:center; padding:28px; border-radius:10px 10px 0 0 }
+            .header { background: linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; text-align:center; padding:28px; border-radius:10px 10px 0 0 }
             .content { background:#fff; padding:24px; border-radius:0 0 10px 10px }
-            .button { display:inline-block; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; padding:12px 26px; text-decoration:none; border-radius:22px; font-weight:700 }
+            .button { display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:12px 26px; text-decoration:none; border-radius:22px; font-weight:700 }
             .feature { background:#fff; padding:16px; margin:12px 0; border-radius:8px; border-left:4px solid #FCA5D1 }
           </style>
         </head>
@@ -230,7 +230,7 @@ const sendWelcomeEmail = async (email, firstName) => {
 
             <div style="text-align: center;">
               <a href="${
-                process.env.FRONTEND_URL || "https://flauntbynishi.com"
+                process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
               }" class="button">Start Shopping</a>
             </div>
 
@@ -263,7 +263,7 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
     const transporter = createTransporter();
 
     const resetUrl = `${
-      process.env.FRONTEND_URL || "https://flauntbynishi.com"
+      process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
     }/reset-password?token=${resetToken}`;
 
     const mailOptions = {
@@ -281,7 +281,7 @@ const sendPasswordResetEmail = async (email, firstName, resetToken) => {
           <title>Password Reset</title>
           <style>
             body { font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827 }
-            .button { display:inline-block; padding:12px 20px; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; border-radius:8px; text-decoration:none }
+            .button { display:inline-block; padding:12px 20px; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; border-radius:8px; text-decoration:none }
           </style>
         </head>
         <body>
@@ -332,32 +332,41 @@ const sendOrderPickedEmail = async (email, firstName, order) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || 'noreply@flauntbynishi.com'}>`,
+      from: `"Flaunt By Nishi Team" <${
+        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      }>`,
       to: email,
-      subject: `Your order ${order.orderNumber || ''} has been picked up`,
+      subject: `Your order ${order.orderNumber || ""} has been picked up`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
-          <div style="background:linear-gradient(135deg,#DB2777,#F973A0); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
             <h2 style="margin:0">Order Picked Up</h2>
           </div>
           <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ''},</p>
-            <p>Your order <strong>${order.orderNumber || ''}</strong> has been picked up and is now on its way to you.</p>
+            <p>Hi ${firstName || ""},</p>
+            <p>Your order <strong>${
+              order.orderNumber || ""
+            }</strong> has been picked up and is now on its way to you.</p>
             <p>You can track your shipment using the AWB number available in your order details.</p>
             <p>Thanks for shopping with Flaunt By Nishi.</p>
             <p>Best regards,<br/>Flaunt By Nishi Team</p>
           </div>
         </div>
       `,
-      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} has been picked up and is on its way to you.\n\nTrack using your AWB in order details.\n\nThanks,\nFlaunt By Nishi Team`
+      text: `Hi ${firstName || ""},\n\nYour order ${
+        order.orderNumber || ""
+      } has been picked up and is on its way to you.\n\nTrack using your AWB in order details.\n\nThanks,\nFlaunt By Nishi Team`,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Order picked email sent:', info.messageId || 'dev-message-id');
+    console.log("Order picked email sent:", info.messageId || "dev-message-id");
     return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error('Error sending order picked email:', err);
-    return { success: false, error: err && err.message ? err.message : String(err) };
+    console.error("Error sending order picked email:", err);
+    return {
+      success: false,
+      error: err && err.message ? err.message : String(err),
+    };
   }
 };
 
@@ -377,7 +386,7 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
       subject: `Your order ${order.orderNumber || ""} has been cancelled`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
-          <div style="background:linear-gradient(135deg,#DB2777,#F973A0); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
             <h2 style="margin:0">Order Cancelled</h2>
           </div>
           <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
@@ -454,9 +463,9 @@ const sendOTPEmail = async (email, otp, firstName = "") => {
           <title>OTP Verification</title>
           <style>
             body { font-family: 'Inter', 'Arial', sans-serif; background:#FFF8FA; color:#111827; max-width:600px; margin:0 auto; padding:0 }
-            .header { background: linear-gradient(135deg,#DB2777,#F973A0); color:#fff; text-align:center; padding:32px 24px; border-radius:18px 18px 0 0 }
+            .header { background: linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; text-align:center; padding:32px 24px; border-radius:18px 18px 0 0 }
             .content { background:#fff; padding:28px 24px; border-radius:0 0 18px 18px; box-shadow:0 2px 8px rgba(0,0,0,0.04) }
-            .otp-code { display:inline-block; background:linear-gradient(90deg,#DB2777,#F973A0); color:#fff; padding:18px 36px; font-size:28px; font-weight:700; letter-spacing:6px; border-radius:10px; margin:18px 0; box-shadow:0 6px 18px rgba(219,39,119,0.12) }
+            .otp-code { display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:18px 36px; font-size:28px; font-weight:700; letter-spacing:6px; border-radius:10px; margin:18px 0; box-shadow:0 6px 18px rgba(219,39,119,0.12) }
             .footer { text-align:center; margin-top:28px; padding-top:16px; border-top:1px solid #f1e6ea; color:#9CA3AF; font-size:13px }
           </style>
         </head>

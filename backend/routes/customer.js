@@ -1147,8 +1147,8 @@ router.post('/orders', [
         product: item.product,
         quantity: item.quantity,
         price: item.price,
-        size: item.size,
-        color: item.color,
+        size: (item.size || '').toString().trim(),
+        color: (item.color || '').toString().trim(),
         total: item.price * item.quantity
       })),
       subtotal,
@@ -1181,24 +1181,34 @@ router.post('/orders', [
     // Save the order
     await order.save();
 
-    // Update product stock quantities
+    // Update product stock quantities (atomic where possible)
     for (const item of items) {
-      const product = await Product.findById(item.product);
-      
-      if (Array.isArray(product.colors) && product.colors.length > 0) {
-        // Decrement stock for specific color/size using arrayFilters
+      try {
+        if (item.color && item.size) {
+          await Product.findOneAndUpdate(
+            { _id: item.product, 'colors.name': item.color },
+            { $inc: { 'colors.$[c].sizes.$[s].stock': -item.quantity } },
+            { arrayFilters: [{ 'c.name': item.color }, { 's.size': item.size }] }
+          );
+          continue;
+        }
+
+        if (item.size) {
+          await Product.findOneAndUpdate(
+            { _id: item.product, 'sizes.size': item.size },
+            { $inc: { 'sizes.$[s].stock': -item.quantity } },
+            { arrayFilters: [{ 's.size': item.size }] }
+          );
+          continue;
+        }
+
+        // Fallback to top-level stock.quantity if present
         await Product.findOneAndUpdate(
-          { _id: item.product },
-          { $inc: { 'colors.$[c].sizes.$[s].stock': -item.quantity } },
-          {
-            arrayFilters: [ { 'c.name': item.color }, { 's.size': item.size } ]
-          }
+          { _id: item.product, 'stock.quantity': { $exists: true } },
+          { $inc: { 'stock.quantity': -item.quantity } }
         );
-      } else if (product.stock && product.stock.trackStock) {
-        // Legacy product - update general stock
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { 'stock.quantity': -item.quantity }
-        });
+      } catch (err) {
+        console.error('Failed to decrement stock when placing order for item', item, err);
       }
     }
 
