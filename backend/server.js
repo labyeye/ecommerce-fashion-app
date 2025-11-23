@@ -105,11 +105,11 @@ app.use(
           allowedHosts.includes(originHostname) ||
           allowedHosts.includes(originHost)
         ) {
-          return callback(null, true);
+          return callback(null, origin);
         }
       } catch (e) {
         // If URL parsing fails, fall back to direct match
-        if (allowedFullOrigins.includes(origin)) return callback(null, true);
+        if (allowedFullOrigins.includes(origin)) return callback(null, origin);
       }
 
       return callback(
