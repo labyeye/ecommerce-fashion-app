@@ -82,7 +82,8 @@ app.use(cors({
         '127.0.0.1',
         'ecommerce-fashion-app.vercel.app',
         'ecommerce-fashion-app-dashboard.vercel.app',
-        'flauntbynishi.com'
+        'flauntbynishi.com',
+        'www.flauntbynishi.com'
       ];
 
       try {
