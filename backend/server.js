@@ -47,17 +47,45 @@ app.use(limiter);
 
 // CORS configuration - Allow dashboard and website origins for development
 app.use(cors({
-    origin: [
-      'http://localhost:5173', // Vite default for dashboard
-      'http://localhost:5174', // Vite default for website (if used)
-      'http://localhost:3000', // React default (if used)
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      'https://ecommerce-fashion-app.vercel.app',
-      'https://ecommerce-fashion-app-dashboard.vercel.app',
-      'https://www.flauntbynishi.com',
-      'https://flauntbynishi.com'
-    ],
+    origin: (origin, callback) => {
+      // Allow non-browser requests (e.g., server-to-server, curl) with no origin
+      if (!origin) return callback(null, true);
+
+      const allowedFullOrigins = [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:3000',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174',
+        'https://ecommerce-fashion-app.vercel.app',
+        'https://ecommerce-fashion-app-dashboard.vercel.app',
+        'https://www.flauntbynishi.com',
+        'https://flauntbynishi.com'
+      ];
+
+      const allowedHosts = [
+        'localhost',
+        '127.0.0.1',
+        'ecommerce-fashion-app.vercel.app',
+        'ecommerce-fashion-app-dashboard.vercel.app',
+        'flauntbynishi.com'
+      ];
+
+      try {
+        const parsed = new URL(origin);
+        const originHost = parsed.host; // includes port if present
+        const originHostname = parsed.hostname; // hostname without port
+
+        if (allowedFullOrigins.includes(origin) || allowedHosts.includes(originHostname) || allowedHosts.includes(originHost)) {
+          return callback(null, true);
+        }
+      } catch (e) {
+        // If URL parsing fails, fall back to direct match
+        if (allowedFullOrigins.includes(origin)) return callback(null, true);
+      }
+
+      return callback(new Error('CORS policy: This origin is not allowed: ' + origin));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','HEAD'],
     allowedHeaders: [
