@@ -765,7 +765,7 @@ const ProductDetailsPage: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${
+                      className={`w-4 h-4 poppins-numeric ${
                         i < Math.floor(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
                           : "text-tertiary/20"
@@ -803,7 +803,7 @@ const ProductDetailsPage: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${
+                      className={`w-4 h-4 poppins-numeric ${
                         i < Math.round(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
                           : "text-tertiary/20"
@@ -919,9 +919,9 @@ const ProductDetailsPage: React.FC = () => {
 
                       {size.stock > 0 &&
                         (size.stock < 3 ? (
-                          <p className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full">
+                          <span className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-sm px-1 py-0.5 rounded-full">
                             {size.stock} left
-                          </p>
+                          </span>
                         ) : size.stock <= 5 ? (
                           <div className="absolute -top-1 -right-1 w-2 h-2 bg-tertiary rounded-full" />
                         ) : null)}
@@ -974,7 +974,7 @@ const ProductDetailsPage: React.FC = () => {
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
-                  placeholder="Enter 6-digit pincode"
+                  placeholder="Enter Pincode"
                   className="border placeholder-tertiary/30 px-3 py-1 rounded w-40 text-lg font-medium text-tertiary poppins-numeric"
                 />
                 <button
@@ -1210,7 +1210,7 @@ const ProductDetailsPage: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${
+                              className={`w-4 h-4 poppins-numeric ${
                                 i < r.rating
                                   ? "fill-fashion-accent-brown text-fashion-accent-brown"
                                   : "text-tertiary/20"

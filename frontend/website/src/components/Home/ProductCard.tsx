@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       className={`group relative bg-background transition-all duration-300 overflow-hidden ${
-        isHovered ? "shadow-2xl -translate-y-1" : ""
+        isHovered ? " -translate-y-1" : ""
       } ${!canAccess ? "opacity-60" : ""} ${
         cardClassName || defaultProductPageClass
       }`}
@@ -201,7 +201,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className={`w-6 h-6 transition-colors duration-300
             ${
               localWishlisted || isHovered
-                ? "fill-[#FFF2E1] text-red-500"
+                ? "fill-[#FFF2E1] text-background"
                 : "text-[#FFF2E1]"
             }
           `}

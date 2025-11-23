@@ -501,15 +501,15 @@ const BlogManagement: React.FC = () => {
                   />
                 </div>
 
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category *
+                    Category
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   >
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
@@ -519,13 +519,12 @@ const BlogManagement: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status *
+                    Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => handleInputChange('status', e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   >
                     {statuses.map(status => (
                       <option key={status} value={status}>
@@ -551,14 +550,13 @@ const BlogManagement: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Excerpt *
+                  Excerpt
                 </label>
                 <textarea
                   value={formData.excerpt}
                   onChange={(e) => handleInputChange('excerpt', e.target.value)}
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                 />
               </div>
 
@@ -607,27 +605,25 @@ const BlogManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Featured Image URL *
+                    Featured Image URL
                   </label>
                   <input
                     type="url"
                     value={formData.featuredImage.url}
                     onChange={(e) => handleInputChange('featuredImage.url', e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Image Alt Text *
+                    Image Alt Text
                   </label>
                   <input
                     type="text"
                     value={formData.featuredImage.alt}
                     onChange={(e) => handleInputChange('featuredImage.alt', e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
               </div>

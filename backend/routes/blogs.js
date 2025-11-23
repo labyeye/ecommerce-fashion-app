@@ -174,7 +174,25 @@ router.post('/', protect, async (req, res) => {
         email: req.user.email
       }
     };
-    
+
+    // Provide sensible defaults when fields are omitted from the admin UI
+    if (!blogData.excerpt && blogData.content) {
+      // Generate a short excerpt from content (strip simple HTML tags if present)
+      const stripped = String(blogData.content).replace(/<[^>]+>/g, '');
+      blogData.excerpt = stripped.substring(0, 300).trim();
+    }
+
+    if (!blogData.featuredImage) {
+      blogData.featuredImage = { url: '', alt: '' };
+    } else {
+      blogData.featuredImage.url = blogData.featuredImage.url || '';
+      blogData.featuredImage.alt = blogData.featuredImage.alt || '';
+    }
+
+    if (!blogData.category) {
+      blogData.category = 'Other';
+    }
+
     const blog = new Blog(blogData);
     await blog.save();
     

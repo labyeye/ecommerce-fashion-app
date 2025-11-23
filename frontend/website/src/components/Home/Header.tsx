@@ -890,9 +890,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               >
                 <HandbagIcon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 text-fashion-dark-gray" />
                 {cartCount > 0 && (
-                  <p className="absolute -top-1 -right-1 rounded-full poppins-numeric bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
+                  <span className="absolute -top-1 -right-1 rounded-full poppins-numeric bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
                     {cartCount}
-                  </p>
+                  </span>
                 )}
               </button>
             </div>

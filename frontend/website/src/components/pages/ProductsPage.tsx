@@ -283,9 +283,9 @@ const ProductPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-fashion-cream">
+    <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <div className="bg-[#FFF2E1] border-b border-fashion-charcoal/10">
+      <div className="bg-background border-b border-fashion-charcoal/10">
         <div className="container mx-auto px-4 py-16 text-center mt-10">
           <h1 className="text-5xl md:text-5xl font-light text-[#95522C] mb-4 tracking-wide">
             {getPageTitle()}
