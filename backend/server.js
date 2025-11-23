@@ -1,24 +1,24 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const path = require("path");
+require("dotenv").config();
 
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const customerRoutes = require('./routes/customer');
-const productRoutes = require('./routes/products');
-const orderRoutes = require('./routes/orders');
-const categoryRoutes = require('./routes/category');
-const navigationRoutes = require('./routes/navigation');
-const paymentRoutes = require('./routes/payments');
-const heroRoutes = require('./routes/heroes');
-const blogRoutes = require('./routes/blogs');
-const wishlistRoutes = require('./routes/wishlist');
-const reviewsRoutes = require('./routes/reviews');
-const shippingRoutes = require('./routes/shipping');
+const authRoutes = require("./routes/auth");
+const adminRoutes = require("./routes/admin");
+const customerRoutes = require("./routes/customer");
+const productRoutes = require("./routes/products");
+const orderRoutes = require("./routes/orders");
+const categoryRoutes = require("./routes/category");
+const navigationRoutes = require("./routes/navigation");
+const paymentRoutes = require("./routes/payments");
+const heroRoutes = require("./routes/heroes");
+const blogRoutes = require("./routes/blogs");
+const wishlistRoutes = require("./routes/wishlist");
+const reviewsRoutes = require("./routes/reviews");
+const shippingRoutes = require("./routes/shipping");
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -28,13 +28,17 @@ const PORT = process.env.PORT || 3500;
 // if X-Forwarded-For is present but `trust proxy` is not enabled. Make this
 // behavior configurable via the `TRUST_PROXY` env var. In many hosted
 // environments it's safe to set to `1` or `true`.
-const trustProxyEnabled = process.env.TRUST_PROXY === 'true' || process.env.TRUST_PROXY === '1' || process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const trustProxyEnabled =
+  process.env.TRUST_PROXY === "true" ||
+  process.env.TRUST_PROXY === "1" ||
+  process.env.VERCEL === "1" ||
+  process.env.NODE_ENV === "production";
 if (trustProxyEnabled) {
   // Use a single trusted proxy hop by default (common for many platforms)
-  app.set('trust proxy', 1);
-  console.log('Express trust proxy enabled (1)');
+  app.set("trust proxy", 1);
+  console.log("Express trust proxy enabled (1)");
 } else {
-  console.log('Express trust proxy disabled');
+  console.log("Express trust proxy disabled");
 }
 
 // Security middleware
@@ -42,17 +46,21 @@ if (trustProxyEnabled) {
 // can block cross-origin `window.postMessage` calls from the frontend.
 // Default Helmet COOP is `same-origin` which is restrictive; allow
 // popups or override via env var `COOP_POLICY` if needed.
-app.use(helmet({
-  crossOriginOpenerPolicy: { policy: process.env.COOP_POLICY || 'same-origin-allow-popups' }
-}));
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: {
+      policy: process.env.COOP_POLICY || "same-origin-allow-popups",
+    },
+  })
+);
 
 // Rate limiting - More lenient for development
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 500, // More requests in development
+  max: process.env.NODE_ENV === "production" ? 100 : 500, // More requests in development
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again later.',
+    message: "Too many requests from this IP, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -60,30 +68,31 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration - Allow dashboard and website origins for development
-app.use(cors({
+app.use(
+  cors({
     origin: (origin, callback) => {
       // Allow non-browser requests (e.g., server-to-server, curl) with no origin
       if (!origin) return callback(null, true);
 
       const allowedFullOrigins = [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:3000',
-        'http://127.0.0.1:5173',
-        'http://127.0.0.1:5174',
-        'https://ecommerce-fashion-app.vercel.app',
-        'https://ecommerce-fashion-app-dashboard.vercel.app',
-        'https://www.flauntbynishi.com',
-        'https://flauntbynishi.com'
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "https://ecommerce-fashion-app.vercel.app",
+        "https://ecommerce-fashion-app-dashboard.vercel.app",
+        "https://www.flauntbynishi.com",
+        "https://flauntbynishi.com",
       ];
 
       const allowedHosts = [
-        'localhost',
-        '127.0.0.1',
-        'ecommerce-fashion-app.vercel.app',
-        'ecommerce-fashion-app-dashboard.vercel.app',
-        'flauntbynishi.com',
-        'www.flauntbynishi.com'
+        "localhost",
+        "127.0.0.1",
+        "ecommerce-fashion-app.vercel.app",
+        "ecommerce-fashion-app-dashboard.vercel.app",
+        "flauntbynishi.com",
+        "www.flauntbynishi.com",
       ];
 
       try {
@@ -91,7 +100,11 @@ app.use(cors({
         const originHost = parsed.host; // includes port if present
         const originHostname = parsed.hostname; // hostname without port
 
-        if (allowedFullOrigins.includes(origin) || allowedHosts.includes(originHostname) || allowedHosts.includes(originHost)) {
+        if (
+          allowedFullOrigins.includes(origin) ||
+          allowedHosts.includes(originHostname) ||
+          allowedHosts.includes(originHost)
+        ) {
           return callback(null, true);
         }
       } catch (e) {
@@ -99,144 +112,161 @@ app.use(cors({
         if (allowedFullOrigins.includes(origin)) return callback(null, true);
       }
 
-      return callback(new Error('CORS policy: This origin is not allowed: ' + origin));
+      return callback(
+        new Error("CORS policy: This origin is not allowed: " + origin)
+      );
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','HEAD'],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allowedHeaders: [
-      'Accept',
-      'Accept-Language',
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'X-CSRF-Token',
-      'x-auth-token',
-      'Origin',
-      'Cache-Control',
-      'Pragma'
+      "Accept",
+      "Accept-Language",
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "X-CSRF-Token",
+      "x-auth-token",
+      "Origin",
+      "Cache-Control",
+      "Pragma",
     ],
-    exposedHeaders: ['Set-Cookie', 'Date', 'ETag', 'Content-type']
-  }));
+    exposedHeaders: ["Set-Cookie", "Date", "ETag", "Content-type"],
+  })
+);
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files for uploaded images with explicit CORS headers
-app.use('/uploads', (req, res, next) => {
-  // Set CORS headers
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Set Cross-Origin-Resource-Policy header to allow cross-origin access
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  
-  // Set additional security headers for images
-  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-}, express.static(path.join(__dirname, 'uploads')));
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    // Set CORS headers
+    res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+    res.header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.header("Access-Control-Allow-Credentials", "true");
+
+    // Set Cross-Origin-Resource-Policy header to allow cross-origin access
+    res.header("Cross-Origin-Resource-Policy", "cross-origin");
+
+    // Set additional security headers for images
+    res.header("Cross-Origin-Embedder-Policy", "unsafe-none");
+
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI,{
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  // Wait up to 10s for server selection (adjust if needed)
-  serverSelectionTimeoutMS: 10000,
-  connectTimeoutMS: 10000,
-})
-.then(() => {
-  console.log('Connected to MongoDB');
-  // require models after successful connection to register schemas
-  require('./models/User'); // Make sure you have this file
-  require('./models/Category');
-  require('./models/Product');
-  require('./models/NavigationLink');
-  require('./models/Review');
-  // Exchange models
-  require('./models/ExchangeRequest');
-  require('./models/ExchangeStatusLog');
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // Wait up to 10s for server selection (adjust if needed)
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+    // require models after successful connection to register schemas
+    require("./models/User"); // Make sure you have this file
+    require("./models/Category");
+    require("./models/Product");
+    require("./models/NavigationLink");
+    require("./models/Review");
+    // Exchange models
+    require("./models/ExchangeRequest");
+    require("./models/ExchangeStatusLog");
 
-  // Start periodic Delhivery sync job
-  try {
-    const { syncOnce } = require('./services/delhiverySyncService');
-    const syncIntervalMinutes = Number(process.env.DELHIVERY_SYNC_MINUTES || 5);
-    console.log(`Starting Delhivery sync job every ${syncIntervalMinutes} minutes`);
-    // initial run after startup
-    setTimeout(() => syncOnce(), 10 * 1000);
-    setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
-  } catch (err) {
-    console.error('Failed to start Delhivery sync job:', err);
-  }
+    // Start periodic Delhivery sync job
+    try {
+      const { syncOnce } = require("./services/delhiverySyncService");
+      const syncIntervalMinutes = Number(
+        process.env.DELHIVERY_SYNC_MINUTES || 5
+      );
+      console.log(
+        `Starting Delhivery sync job every ${syncIntervalMinutes} minutes`
+      );
+      // initial run after startup
+      setTimeout(() => syncOnce(), 10 * 1000);
+      setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
+    } catch (err) {
+      console.error("Failed to start Delhivery sync job:", err);
+    }
 
-  // Start Express server only after DB connection is established
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
+    // Start Express server only after DB connection is established
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    // Fail fast: exit process when DB connection fails at startup
+    // so platforms (PM2, systemd, or container orchestrators) can retry
+    process.exit(1);
   });
-})
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-  // Fail fast: exit process when DB connection fails at startup
-  // so platforms (PM2, systemd, or container orchestrators) can retry
-  process.exit(1);
-});
 
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/customer', customerRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/navigation', navigationRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/heroes', heroRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/shipping', shippingRoutes);
-const exchangeRoutes = require('./routes/exchange');
-app.use('/api/exchange', exchangeRoutes);
-app.get('/api/health', (req, res) => {
-  console.log('Health check request received from:', req.headers.origin);
-  res.json({ 
-    status: 'OK', 
-    message: 'Vitals API is running',
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/customer", customerRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/navigation", navigationRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/heroes", heroRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/blogs", blogRoutes);
+app.use("/api/reviews", reviewsRoutes);
+app.use("/api/shipping", shippingRoutes);
+const exchangeRoutes = require("./routes/exchange");
+app.use("/api/exchange", exchangeRoutes);
+app.get("/api/health", (req, res) => {
+  console.log("Health check request received from:", req.headers.origin);
+  res.json({
+    status: "OK",
+    message: "Vitals API is running",
     timestamp: new Date().toISOString(),
-    cors: 'enabled'
+    cors: "enabled",
   });
 });
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  res.status(500).json({
+    success: false,
+    message: "Something went wrong!",
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal server error",
   });
 });
 
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
   });
 });
 
 // Mongoose connection events for runtime diagnostics
-mongoose.connection.on('connected', () => {
-  console.log('Mongoose connected (event)');
+mongoose.connection.on("connected", () => {
+  console.log("Mongoose connected (event)");
 });
-mongoose.connection.on('error', (err) => {
-  console.error('Mongoose connection error (event):', err);
+mongoose.connection.on("error", (err) => {
+  console.error("Mongoose connection error (event):", err);
 });
-mongoose.connection.on('disconnected', () => {
-  console.warn('Mongoose disconnected');
+mongoose.connection.on("disconnected", () => {
+  console.warn("Mongoose disconnected");
 });
 
 // Optional: disable mongoose command buffering so operations fail fast
