@@ -23,6 +23,20 @@ const shippingRoutes = require('./routes/shipping');
 const app = express();
 const PORT = process.env.PORT || 3500;
 
+// Respect proxy headers when the app is running behind a proxy/reverse-proxy
+// (Vercel, Heroku, nginx, Cloudflare, etc.). express-rate-limit will throw
+// if X-Forwarded-For is present but `trust proxy` is not enabled. Make this
+// behavior configurable via the `TRUST_PROXY` env var. In many hosted
+// environments it's safe to set to `1` or `true`.
+const trustProxyEnabled = process.env.TRUST_PROXY === 'true' || process.env.TRUST_PROXY === '1' || process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+if (trustProxyEnabled) {
+  // Use a single trusted proxy hop by default (common for many platforms)
+  app.set('trust proxy', 1);
+  console.log('Express trust proxy enabled (1)');
+} else {
+  console.log('Express trust proxy disabled');
+}
+
 // Security middleware
 // Configure Helmet to avoid a strict Cross-Origin-Opener-Policy which
 // can block cross-origin `window.postMessage` calls from the frontend.
