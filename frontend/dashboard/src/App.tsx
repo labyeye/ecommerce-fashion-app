@@ -11,6 +11,7 @@ import AddProduct from "./components/AddProduct";
 import CustomerDetails from "./components/CustomerDetails";
 import OrderDetails from "./components/OrderDetails";
 import Analytics from "./components/Analytics";
+import UserActivityAnalytics from "./components/UserActivityAnalytics";
 import Login from "./components/Login";
 import EditProduct from "./components/EditProduct";
 import NavigationManagement from "./components/NavigationManagement";
@@ -187,6 +188,8 @@ function DashboardApp() {
         return <NavigationManagement />;
       case "analytics":
         return <Analytics />;
+      case "user-activity":
+        return <UserActivityAnalytics />;
       case "newsletter":
         return <Newsletter />;
       case "exchanges":

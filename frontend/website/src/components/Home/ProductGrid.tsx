@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useFilteredProducts } from "../../hooks/useFilteredProducts";
 import type { Product } from "../../services/productService";
+import { trackEvent } from "../../services/analyticsService";
 
 const ProductGrid: React.FC = () => {
   const { products, loading, error } = useFilteredProducts();
@@ -44,6 +45,14 @@ const ProductGrid: React.FC = () => {
 
     return filtered;
   }, [products, searchTerm, sortBy]);
+
+  useEffect(() => {
+    try {
+      trackEvent("page_view", "home");
+    } catch (e) {
+      // swallow errors - analytics is best-effort
+    }
+  }, []);
 
   return (
     <section
@@ -291,5 +300,11 @@ const ProductGrid: React.FC = () => {
     </section>
   );
 };
+
+// track home page view
+try {
+  // best-effort fire-and-forget when this module is loaded
+  trackEvent('page_view', 'home');
+} catch (e) {}
 
 export default ProductGrid;

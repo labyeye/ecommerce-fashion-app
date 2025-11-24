@@ -144,6 +144,58 @@ router.get("/dashboard", async (req, res) => {
   }
 });
 
+// @desc    Get user activity analytics (page counts and time series)
+// @route   GET /api/admin/analytics/user-activity
+// @access  Admin only
+router.get('/analytics/user-activity', async (req, res) => {
+  try {
+    const days = Math.max(0, Number(req.query.days || 30));
+    const since = new Date();
+    if (days > 0) {
+      since.setDate(since.getDate() - days);
+    } else {
+      // if days=0 or invalid, return all time
+      since.setTime(0);
+    }
+
+    const match = { createdAt: { $gte: since } };
+
+    // Total counts per page
+    const perPage = await require('../models/AnalyticsEvent').aggregate([
+      { $match: match },
+      { $group: { _id: '$page', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
+
+    // Total counts per event
+    const perEvent = await require('../models/AnalyticsEvent').aggregate([
+      { $match: match },
+      { $group: { _id: '$event', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
+
+    // Time series (group by day)
+    const timeSeries = await require('../models/AnalyticsEvent').aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: {
+            day: { $dateToString: { format: "%Y-%m-%d", date: '$createdAt' } },
+            page: '$page',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { '_id.day': 1 } },
+    ]);
+
+    res.json({ success: true, data: { perPage, perEvent, timeSeries } });
+  } catch (err) {
+    console.error('User activity analytics error', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch analytics' });
+  }
+});
+
 // @desc    Get all categories
 // @route   GET /api/admin/categories
 // @access  Admin only

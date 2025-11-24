@@ -82,16 +82,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleWishlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user || !product._id) return;
-    if (localWishlisted) {
-      setLocalWishlisted(false);
-      setToast("Removed from wishlist");
-      removeFromWishlist(product._id);
-    } else {
-      setLocalWishlisted(true);
-      setToast("Added to wishlist");
-      addToWishlist(product._id);
+    try {
+      if (localWishlisted) {
+        // await backend removal and update context
+        await removeFromWishlist(product._id);
+        setToast("Removed from wishlist");
+      } else {
+        await addToWishlist(product._id);
+        setToast("Added to wishlist");
+      }
+      // sync local state to context value (wishlist contains ids)
+      setLocalWishlisted((prev) => !prev);
+      // also notify other windows/components
+      try {
+        window.dispatchEvent(new CustomEvent("wishlist:refresh"));
+      } catch (e) {}
+    } catch (err) {
+      console.error("Wishlist action failed", err);
+    } finally {
+      setTimeout(() => setToast(null), 2000);
     }
-    setTimeout(() => setToast(null), 2000);
   };
   const userTier = useLoyaltyTier();
   const canAccess =

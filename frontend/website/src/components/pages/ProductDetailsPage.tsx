@@ -7,8 +7,10 @@ import { useLoyaltyTier } from "../../hooks/useLoyaltyTier";
 import { canAccessProduct } from "../../hooks/useProductAccess";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { useWishlist } from "../../context/WishlistContext";
 import sizechart from "../../assets/images/sizechart.jpg";
 import ProductCard from "../Home/ProductCard";
+import { trackEvent } from "../../services/analyticsService";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,12 +25,16 @@ const ProductDetailsPage: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+  // touch/swipe state for mobile carousel
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
 
   const hasAccess = product ? canAccessProduct(product, userTier) : true;
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
   const { user } = useAuth() || {};
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   // Product reviews state
   const [productReviews, setProductReviews] = useState<any[]>([]);
@@ -67,6 +73,11 @@ const ProductDetailsPage: React.FC = () => {
 
         setProduct(fetchedProduct);
 
+        // Track product page view (best-effort)
+        try {
+          trackEvent('page_view', 'product', { productId: fetchedProduct._id || fetchedProduct.id });
+        } catch (e) {}
+
         // Set initial color if available
         if (
           Array.isArray(fetchedProduct.colors) &&
@@ -97,6 +108,12 @@ const ProductDetailsPage: React.FC = () => {
     // Check purchase status if user is logged in
     if (id && user) checkPurchase();
   }, [id]);
+
+  // keep local wishlisted state in sync with context
+  useEffect(() => {
+    if (!product || !product._id) return;
+    setIsWishlisted(!!wishlist && wishlist.includes(product._id));
+  }, [wishlist, product]);
 
   // Other products (recommendations)
   const [otherProducts, setOtherProducts] = useState<any[]>([]);
@@ -316,6 +333,39 @@ const ProductDetailsPage: React.FC = () => {
       document.body.style.overflow = "";
     };
   }, [modalOpen, displayImages.length]);
+
+  // Touch handlers for mobile swipe gestures (works both in modal and main image)
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (!e.touches || e.touches.length === 0) return;
+    setTouchStartX(e.touches[0].clientX);
+    setTouchCurrentX(e.touches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!e.touches || e.touches.length === 0) return;
+    setTouchCurrentX(e.touches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (touchStartX === null || touchCurrentX === null) {
+      setTouchStartX(null);
+      setTouchCurrentX(null);
+      return;
+    }
+    const delta = touchCurrentX - touchStartX;
+    const threshold = 50; // px required to consider as swipe
+    if (Math.abs(delta) > threshold) {
+      if (delta < 0) {
+        // swipe left -> next
+        nextImage();
+      } else {
+        // swipe right -> prev
+        prevImage();
+      }
+    }
+    setTouchStartX(null);
+    setTouchCurrentX(null);
+  };
 
   const handleAddToCart = () => {
     if (!product || !selectedSize || !hasAccess) {
@@ -563,6 +613,19 @@ const ProductDetailsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={() => {
+                  // if it wasn't a swipe, treat as tap and open gallery
+                  if (touchStartX === null || touchCurrentX === null) {
+                    setModalOpen(true);
+                    return;
+                  }
+                  const delta = Math.abs((touchCurrentX || 0) - (touchStartX || 0));
+                  const tapThreshold = 10;
+                  if (delta <= tapThreshold) setModalOpen(true);
+                  onTouchEnd();
+                }}
                 className="w-full h-full block"
                 aria-label="Open gallery"
               >
@@ -599,7 +662,23 @@ const ProductDetailsPage: React.FC = () => {
 
               {/* Wishlist Button */}
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={async () => {
+                  if (!product || !product._id) return;
+                  try {
+                    if (isWishlisted) {
+                      await removeFromWishlist(product._id);
+                    } else {
+                      await addToWishlist(product._id);
+                    }
+                    // toggle local state after operation
+                    setIsWishlisted((s) => !s);
+                    try {
+                      window.dispatchEvent(new CustomEvent("wishlist:refresh"));
+                    } catch (e) {}
+                  } catch (e) {
+                    console.warn("Wishlist action failed", e);
+                  }
+                }}
                 className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm text-tertiary hover:bg-white transition-all duration-300 flex items-center justify-center rounded-full shadow-lg"
               >
                 <Heart
@@ -690,23 +769,30 @@ const ProductDetailsPage: React.FC = () => {
                   </button>
 
                   <div className="mx-auto flex flex-col items-center">
-                    <div className="group relative bg-white rounded">
-                      <img
-                        src={displayImages[selectedImageIndex]?.url || ""}
-                        alt={
-                          displayImages[selectedImageIndex]?.alt || product.name
-                        }
-                        className="max-h-[75vh] w-auto object-contain block"
-                        onError={(e) => {
-                          const t = e.target as HTMLImageElement;
-                          if (
-                            t.src !== "/assets/img-placeholder-800x1000.png"
-                          ) {
-                            t.src = "/assets/img-placeholder-800x1000.png";
-                          }
+                      <div
+                        className="group relative bg-white rounded"
+                        onTouchStart={onTouchStart}
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={() => {
+                          onTouchEnd();
                         }}
-                      />
-                    </div>
+                      >
+                        <img
+                          src={displayImages[selectedImageIndex]?.url || ""}
+                          alt={
+                            displayImages[selectedImageIndex]?.alt || product.name
+                          }
+                          className="max-h-[75vh] w-auto object-contain block"
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement;
+                            if (
+                              t.src !== "/assets/img-placeholder-800x1000.png"
+                            ) {
+                              t.src = "/assets/img-placeholder-800x1000.png";
+                            }
+                          }}
+                        />
+                      </div>
 
                     <div className="flex items-center space-x-2 mt-4 overflow-x-auto">
                       {displayImages.map((img, i) => (
@@ -1115,7 +1201,22 @@ const ProductDetailsPage: React.FC = () => {
               )}
 
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={async () => {
+                  if (!product || !product._id) return;
+                  try {
+                    if (isWishlisted) {
+                      await removeFromWishlist(product._id);
+                    } else {
+                      await addToWishlist(product._id);
+                    }
+                    setIsWishlisted((s) => !s);
+                    try {
+                      window.dispatchEvent(new CustomEvent("wishlist:refresh"));
+                    } catch (e) {}
+                  } catch (e) {
+                    console.warn("Wishlist action failed", e);
+                  }
+                }}
                 className={`w-full py-1 border-2 font-medium tracking-wide transition-all duration-300 text-lg ${
                   isWishlisted
                     ? "border-red-500 bg-red-50 text-red-600"

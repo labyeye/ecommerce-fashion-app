@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCartContext } from "../../context/CartContext";
+import { trackEvent } from "../../services/analyticsService";
 
 export interface CartItem {
   id: string;
@@ -65,6 +66,9 @@ const Cart: React.FC<CartProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchUserEvolvPoints();
+      try {
+        trackEvent('page_view', 'cart');
+      } catch (e) {}
     }
   }, [isOpen, fetchUserEvolvPoints]);
 

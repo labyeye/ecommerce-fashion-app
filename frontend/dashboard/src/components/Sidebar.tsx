@@ -47,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: "exchanges", icon: FileText, label: "Exchanges" },
     { id: "newsletter", icon: Megaphone, label: "Newsletter" },
     { id: "heroes", icon: Image, label: "Hero Slider" },
+    { id: "user-activity", icon: BarChart3, label: "User Activity" },
     { id: "blogs", icon: FileText, label: "Blogs" },
     { id: "promo-codes", icon: Percent, label: "Promo Codes" },
     { id: "navigation", icon: Navigation, label: "Navigation" },
