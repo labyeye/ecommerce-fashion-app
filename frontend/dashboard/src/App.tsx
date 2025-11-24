@@ -44,6 +44,49 @@ function DashboardApp() {
     return () => document.body.classList.remove("overflow-hidden");
   }, [mobileOpen]);
 
+  // Sync view with URL path so routes like /analytics work
+  useEffect(() => {
+    const mapPathToSection = (path: string) => {
+      const p = path.replace(/^\//, "");
+      if (!p || p === "" || p === "dashboard") return "overview";
+      // keep same ids as sections used in the app
+      const known = [
+        "overview",
+        "customers",
+        "orders",
+        "products",
+        "categories",
+        "marketing",
+        "promo-codes",
+        "heroes",
+        "blogs",
+        "navigation",
+        "analytics",
+        "user-activity",
+        "newsletter",
+        "exchanges",
+        "alerts",
+        "security",
+        "settings",
+      ];
+      return known.includes(p) ? p : "overview";
+    };
+
+    const applyPath = () => {
+      const section = mapPathToSection(window.location.pathname || "/");
+      setActiveSection(section);
+      setCurrentView({ section, view: "list" });
+    };
+
+    // initial sync
+    applyPath();
+
+    // handle back/forward
+    const onPop = () => applyPath();
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   // If not authenticated, show login
   if (!user) {
     return <Login />;
@@ -220,6 +263,12 @@ function DashboardApp() {
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
     setCurrentView({ section, view: "list" });
+    try {
+      const newPath = section === "overview" ? "/" : `/${section}`;
+      window.history.pushState({}, "", newPath);
+    } catch (e) {
+      // ignore history push errors
+    }
   };
 
   return (

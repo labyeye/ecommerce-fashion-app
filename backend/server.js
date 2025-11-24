@@ -20,6 +20,7 @@ const wishlistRoutes = require("./routes/wishlist");
 const reviewsRoutes = require("./routes/reviews");
 const shippingRoutes = require("./routes/shipping");
 const analyticsRoutes = require("./routes/analytics");
+const activityRoutes = require("./routes/activity");
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -184,6 +185,12 @@ mongoose
     // Exchange models
     require("./models/ExchangeRequest");
     require("./models/ExchangeStatusLog");
+    // Activity log model
+    try {
+      require("./models/ActivityLog");
+    } catch (err) {
+      console.warn('ActivityLog model not loaded:', err.message || err);
+    }
 
     // Start periodic Delhivery sync job
     try {
@@ -228,6 +235,7 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/shipping", shippingRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/activity", activityRoutes);
 const exchangeRoutes = require("./routes/exchange");
 app.use("/api/exchange", exchangeRoutes);
 app.get("/api/health", (req, res) => {

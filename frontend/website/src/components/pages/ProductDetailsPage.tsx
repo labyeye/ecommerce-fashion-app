@@ -11,6 +11,7 @@ import { useWishlist } from "../../context/WishlistContext";
 import sizechart from "../../assets/images/sizechart.jpg";
 import ProductCard from "../Home/ProductCard";
 import { trackEvent } from "../../services/analyticsService";
+import { logEvent } from "../../services/activityService";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,6 +77,10 @@ const ProductDetailsPage: React.FC = () => {
         // Track product page view (best-effort)
         try {
           trackEvent('page_view', 'product', { productId: fetchedProduct._id || fetchedProduct.id });
+        } catch (e) {}
+        try {
+          // activity log
+          logEvent('product_view', { productId: fetchedProduct._id || fetchedProduct.id, page: `/product/${fetchedProduct._id || fetchedProduct.id}` });
         } catch (e) {}
 
         // Set initial color if available
@@ -404,6 +409,9 @@ const ProductDetailsPage: React.FC = () => {
 
     addToCart(cartItem);
     setAddedToCart(true);
+    try {
+      logEvent('add_to_cart', { productId: product?._id, quantity });
+    } catch (e) {}
 
     // Reduce local displayed stock so the button becomes disabled when stock is exhausted
     try {

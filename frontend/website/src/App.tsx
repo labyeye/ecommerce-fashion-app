@@ -6,6 +6,7 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import { logEvent } from "./services/activityService";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider, useCartContext } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
@@ -63,6 +64,7 @@ function App() {
       <CartProvider>
         <WishlistProvider>
           <Router>
+            <RouteTracker />
             {/* {showSplash ? (
               <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
                 <LoadingMountainSunsetBeach text="Welcome" loop={false} force={true} onComplete={() => setShowSplash(false)} />
@@ -126,6 +128,16 @@ function App() {
       </CartProvider>
     </AuthProvider>
   );
+}
+
+function RouteTracker() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    try {
+      logEvent('page_view', { page: pathname });
+    } catch (e) {}
+  }, [pathname]);
+  return null;
 }
 
 function HeaderWithCartCount({ onCartClick }: { onCartClick: () => void }) {

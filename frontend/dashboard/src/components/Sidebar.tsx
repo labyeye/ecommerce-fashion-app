@@ -161,16 +161,25 @@ const Sidebar: React.FC<SidebarProps> = ({
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
+            const href = item.id === "overview" ? "/" : `/${item.id}`;
 
             return (
-              <button
+              <a
                 key={item.id}
-                onClick={() => onSectionChange(item.id)}
+                href={href}
+                onClick={(e) => {
+                  // keep SPA navigation: prevent full reload and use callback
+                  e.preventDefault();
+                  onSectionChange(item.id);
+                  // close mobile if open
+                  onClose && onClose();
+                }}
                 className={`w-full flex items-center px-4 py-3 text-left transition-all duration-200 hover:bg-primary-100 ${
                   isActive
                     ? "bg-primary-500 text-white"
                     : "text-heading hover:text-primary-900"
                 }`}
+                aria-current={isActive ? "page" : undefined}
               >
                 <Icon
                   className={`w-5 h-5 mr-3 ${
@@ -178,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </a>
             );
           })}
         </nav>
