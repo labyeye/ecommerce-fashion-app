@@ -43,7 +43,7 @@ const UserActivityAnalytics: React.FC = () => {
       setError('');
       try {
         // fetch graphs and summary from new activity API
-        const base = (window as any).LOCAL_API_BASE || '';
+        const base = 'https://ecommerce-fashion-app-som7.vercel.app';
         const headers: Record<string, string> = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
