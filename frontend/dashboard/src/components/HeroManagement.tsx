@@ -118,7 +118,9 @@ const HeroManagement: React.FC = () => {
       setHeroes(heroData || []);
     } catch (err: any) {
       console.error('Error fetching heroes:', err);
-      setError(err.message || 'Failed to fetch heroes');
+      // If response body contains unexpected HTML, include a snippet for debugging
+      const msg = err?.message || String(err);
+      setError(msg.includes('<') ? `Failed to fetch heroes: received HTML response. ${msg.slice(0,200)}` : msg || 'Failed to fetch heroes');
     } finally {
       setLoading(false);
     }

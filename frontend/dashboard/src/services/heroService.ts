@@ -66,17 +66,32 @@ class HeroService {
     try {
       const response = await fetch(`${this.baseURL}/all`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
+      const contentType = response.headers.get('content-type') || '';
+
+      // Try to parse JSON, but provide a helpful error when the body is HTML
       if (!response.ok) {
-        throw new Error('Failed to fetch heroes');
+        let bodyText = '';
+        try {
+          bodyText = await response.text();
+        } catch (e) {
+          /* ignore */
+        }
+        throw new Error(`Failed to fetch heroes (status ${response.status}). ${bodyText.slice(0, 200)}`);
+      }
+
+      // If response isn't JSON, surface a clearer error instead of letting JSON.parse throw
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text();
+        throw new Error(`Expected JSON but received ${contentType || 'unknown'}: ${txt.slice(0, 200)}`);
       }
 
       const data = await response.json();
-      return data.data.heroes;
+      return data.data?.heroes || [];
     } catch (error) {
       console.error('Error fetching heroes:', error);
       throw error;
@@ -93,7 +108,14 @@ class HeroService {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch hero');
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Failed to fetch hero (status ${response.status}). ${txt.slice(0,200)}`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Expected JSON but got ${contentType}: ${txt.slice(0,200)}`);
       }
 
       const data = await response.json();
@@ -116,8 +138,21 @@ class HeroService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create hero');
+        const txt = await response.text().catch(() => '');
+        let errMsg = txt;
+        try {
+          const parsed = JSON.parse(txt);
+          errMsg = parsed.message || JSON.stringify(parsed);
+        } catch (e) {
+          // keep txt
+        }
+        throw new Error(errMsg || `Failed to create hero (status ${response.status})`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Expected JSON but got ${contentType}: ${txt.slice(0,200)}`);
       }
 
       const data = await response.json();
@@ -140,8 +175,19 @@ class HeroService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update hero');
+        const txt = await response.text().catch(() => '');
+        let errMsg = txt;
+        try {
+          const parsed = JSON.parse(txt);
+          errMsg = parsed.message || JSON.stringify(parsed);
+        } catch (e) {}
+        throw new Error(errMsg || `Failed to update hero (status ${response.status})`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Expected JSON but got ${contentType}: ${txt.slice(0,200)}`);
       }
 
       const data = await response.json();
@@ -163,8 +209,13 @@ class HeroService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete hero');
+        const txt = await response.text().catch(() => '');
+        let errMsg = txt;
+        try {
+          const parsed = JSON.parse(txt);
+          errMsg = parsed.message || JSON.stringify(parsed);
+        } catch (e) {}
+        throw new Error(errMsg || `Failed to delete hero (status ${response.status})`);
       }
     } catch (error) {
       console.error('Error deleting hero:', error);
@@ -183,8 +234,19 @@ class HeroService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to toggle hero status');
+        const txt = await response.text().catch(() => '');
+        let errMsg = txt;
+        try {
+          const parsed = JSON.parse(txt);
+          errMsg = parsed.message || JSON.stringify(parsed);
+        } catch (e) {}
+        throw new Error(errMsg || `Failed to toggle hero status (status ${response.status})`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Expected JSON but got ${contentType}: ${txt.slice(0,200)}`);
       }
 
       const data = await response.json();
@@ -207,8 +269,19 @@ class HeroService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to reorder heroes');
+        const txt = await response.text().catch(() => '');
+        let errMsg = txt;
+        try {
+          const parsed = JSON.parse(txt);
+          errMsg = parsed.message || JSON.stringify(parsed);
+        } catch (e) {}
+        throw new Error(errMsg || `Failed to reorder heroes (status ${response.status})`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text().catch(() => '');
+        throw new Error(`Expected JSON but got ${contentType}: ${txt.slice(0,200)}`);
       }
 
       const data = await response.json();

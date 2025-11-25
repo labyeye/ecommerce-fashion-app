@@ -19,7 +19,6 @@ const blogRoutes = require("./routes/blogs");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewsRoutes = require("./routes/reviews");
 const shippingRoutes = require("./routes/shipping");
-const analyticsRoutes = require("./routes/analytics");
 const activityRoutes = require("./routes/activity");
 
 const app = express();
@@ -234,7 +233,6 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/shipping", shippingRoutes);
-app.use("/api/analytics", analyticsRoutes);
 app.use("/api/activity", activityRoutes);
 const exchangeRoutes = require("./routes/exchange");
 app.use("/api/exchange", exchangeRoutes);
