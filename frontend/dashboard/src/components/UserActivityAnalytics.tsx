@@ -14,6 +14,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
+import MetricCard from './MetricCard';
 
 type PerItem = { _id: string | null; count: number };
 
@@ -35,6 +36,8 @@ const UserActivityAnalytics: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [chartView, setChartView] = useState<'total' | 'bar' | 'perPage'>('total');
   const [selectedPages, setSelectedPages] = useState<string[]>([]);
+  const [realtimeEvents, setRealtimeEvents] = useState<any[]>([]);
+  const [liveCount, setLiveCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +64,22 @@ const UserActivityAnalytics: React.FC = () => {
         const summary = summaryJson.data || {};
 
         // graphs is array of { _id: day, events, byType }
-        setTimeSeries((graphs || []).map((g: any) => ({ day: g._id, events: g.events, byType: g.byType })));
+        // Normalize to shape used by Overview's analytics chart: { day, events, pages, productViews }
+        const normalized = (graphs || []).map((g: any) => {
+          const byTypeArr: Array<{ k: string; v: number }> = Array.isArray(g.byType) ? g.byType : [];
+          const byType: Record<string, number> = {};
+          byTypeArr.forEach((it: any) => {
+            if (it && (it.k || it._id)) {
+              const key = it.k || it._id || String(it.eventType || '');
+              const val = Number(it.v || it.v === 0 ? it.v : it.count || 0) || 0;
+              byType[key] = (byType[key] || 0) + val;
+            }
+          });
+          const pages = byType['page_view'] || 0;
+          const productViews = byType['product_view'] || 0;
+          return { day: g._id, events: Number(g.events || 0), pages, productViews, byType };
+        });
+        setTimeSeries(normalized);
         // build rawSeries for per-page breakdown if available (compat)
         // older shape had timeSeries entries; we keep perEvent and perPage minimal
         setRawSeries([]);
@@ -77,6 +95,40 @@ const UserActivityAnalytics: React.FC = () => {
     };
     fetchData();
   }, [token, days]);
+
+  // SSE realtime listener (best-effort). Streams events from the server and
+  // maintains a short recent-events list for the live UI. The stream is public
+  // and does not require a bearer header (EventSource cannot send custom headers).
+  useEffect(() => {
+    const base = 'https://ecommerce-fashion-app-som7.vercel.app';
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`${base}/api/activity/stream`);
+      es.onmessage = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.data);
+          // keep most recent 100 events
+          setRealtimeEvents((prev) => [parsed].concat(prev).slice(0, 100));
+          // simple live count approximation (unique sessions in recent events)
+          setLiveCount((prev) => Math.min(9999, prev + 1));
+        } catch (e) {
+          // ignore parse errors
+        }
+      };
+      es.onerror = (err) => {
+        // If the connection fails, close and allow retry by recreating
+        console.warn('Activity SSE error', err);
+        try { es && es.close(); } catch (e) {}
+        es = null;
+      };
+    } catch (e) {
+      console.warn('Failed to open activity SSE', e);
+    }
+
+    return () => {
+      try { es && es.close(); } catch (e) {}
+    };
+  }, []);
 
   // derive per-day series and per-page series map
   const { perDaySeries, topPages } = useMemo(() => {
@@ -149,21 +201,64 @@ const UserActivityAnalytics: React.FC = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded shadow">
-              <div className="text-sm text-gray-500">Total Events</div>
-              <div className="text-2xl font-bold">{totals.totalEvents.toLocaleString()}</div>
+            <MetricCard
+              title="Total Events"
+              value={`${totals.totalEvents.toLocaleString()}`}
+              icon="TrendingUp"
+            />
+            <MetricCard
+              title="Pages Tracked"
+              value={`${totals.uniquePages}`}
+              icon="BarChart3"
+            />
+            <MetricCard
+              title="Event Types"
+              value={`${totals.uniqueEvents}`}
+              icon="Users"
+            />
+            <MetricCard
+              title="Avg / Day"
+              value={`${Math.round(totals.totalEvents / Math.max(1, (timeSeries || []).length))}`}
+              icon="Target"
+            />
+          </div>
+
+          {/* Realtime Panel */}
+          <div className="bg-neutral-card rounded-lg shadow-sm border border-neutral-border p-4 mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Live Activity</h3>
+              <div className="text-sm text-gray-600">Live events: <span className="font-medium">{realtimeEvents.length}</span></div>
             </div>
-            <div className="bg-white p-4 rounded shadow">
-              <div className="text-sm text-gray-500">Pages Tracked</div>
-              <div className="text-2xl font-bold">{totals.uniquePages}</div>
-            </div>
-            <div className="bg-white p-4 rounded shadow">
-              <div className="text-sm text-gray-500">Event Types</div>
-              <div className="text-2xl font-bold">{totals.uniqueEvents}</div>
-            </div>
-            <div className="bg-white p-4 rounded shadow">
-              <div className="text-sm text-gray-500">Avg / Day</div>
-              <div className="text-2xl font-bold">{Math.round(totals.totalEvents / Math.max(1, (timeSeries || []).length))}</div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-1 p-3 rounded">
+                <div className="text-sm text-gray-500">Approx Live Count</div>
+                <div className="text-2xl font-bold">{liveCount}</div>
+              </div>
+              <div className="md:col-span-3">
+                <div className="text-sm text-gray-600 mb-2">Recent Events (stream)</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm table-auto">
+                    <thead>
+                      <tr className="text-left text-gray-600">
+                        <th className="px-2">Time</th>
+                        <th className="px-2">Event</th>
+                        <th className="px-2">Page</th>
+                        <th className="px-2">Product</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {realtimeEvents.map((e, i) => (
+                        <tr key={i} className="border-t">
+                          <td className="px-2 py-1 text-xs text-gray-500">{new Date(e.data?.timestamp || Date.now()).toLocaleTimeString()}</td>
+                          <td className="px-2 py-1">{e.data?.eventType || e.type || 'activity'}</td>
+                          <td className="px-2 py-1">{e.data?.page || '-'}</td>
+                          <td className="px-2 py-1">{e.data?.productId || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -193,7 +288,12 @@ const UserActivityAnalytics: React.FC = () => {
             </div>
 
             <div style={{ width: '100%', height: 320 }}>
-              <ResponsiveContainer>
+              {((timeSeries || []).length === 0) ? (
+                <div className="flex items-center justify-center h-full text-gray-400 border-dashed border-2 border-neutral-border/40 rounded-md">
+                  No activity data for the selected range — no events to display.
+                </div>
+              ) : (
+                <ResponsiveContainer>
                 {(() => {
                   // total area chart
                   if (chartView === 'total') {
@@ -212,9 +312,10 @@ const UserActivityAnalytics: React.FC = () => {
                         <XAxis dataKey="day" tick={{ fontSize: 11 }} />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
-                        <Tooltip formatter={(value: any, name: any) => [value, name === 'events' ? 'Events' : 'Pages']} />
+                        <Tooltip formatter={(value: any, name: any) => [value, typeof name === 'string' && name === 'events' ? 'Events' : name]} />
                         <Area type="monotone" dataKey="events" stroke="#FB923C" fill="url(#colorEvents)" strokeWidth={2} dot={{ r: 3 }} />
-                        <Area type="monotone" dataKey="pages" stroke="#FBBD7E" fill="url(#colorPages)" strokeWidth={2} dot={false} />
+                        {/* productViews as a line to complement events */}
+                        <Line type="monotone" dataKey="productViews" stroke="#F97316" strokeWidth={2} dot={false} />
                         <Legend />
                       </AreaChart>
                     );
@@ -248,7 +349,8 @@ const UserActivityAnalytics: React.FC = () => {
                     </LineChart>
                   );
                 })()}
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              )}
             </div>
 
             {/* page selector for per-page view */}
@@ -276,13 +378,13 @@ const UserActivityAnalytics: React.FC = () => {
             )}
           </div>
 
-          <div className="bg-white p-4 rounded shadow">
+          <div className="bg-neutral-card rounded-lg shadow-sm border border-neutral-border p-4">
             <h3 className="font-semibold mb-2">Events Breakdown</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {(perEvent || []).map((e) => {
                   const pct = totals.maxEventCount > 0 ? Math.round(((e.count || 0) / totals.maxEventCount) * 100) : 0;
                   return (
-                    <div key={String(e._id)} className="p-2 border rounded">
+                    <div key={String(e._id)} className="p-2 border rounded bg-white">
                       <div className="flex items-center justify-between mb-1">
                         <div className="text-sm text-gray-600">{e._id}</div>
                         <div className="text-sm font-medium">{e.count}</div>

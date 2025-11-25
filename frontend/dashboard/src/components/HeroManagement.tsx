@@ -65,11 +65,34 @@ const HeroManagement: React.FC = () => {
   // Global error handler
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      console.error('Global error caught in HeroManagement:', event.error);
-      setComponentError(event.error?.message || 'An unexpected error occurred');
+      console.error('Global error caught in HeroManagement:', event.error, {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        message: event.message,
+        stack: event.error?.stack,
+      });
+
+      const details = [
+        event.message,
+        event.filename ? `at ${event.filename}:${event.lineno}:${event.colno}` : null,
+        event.error?.stack ? `stack: ${event.error.stack.split('\n').slice(0,3).join(' | ')}` : null,
+      ]
+        .filter(Boolean)
+        .join(' — ');
+
+      setComponentError(details || 'An unexpected error occurred');
     };
 
     window.addEventListener('error', handleError);
+    // capture unhandled promise rejections as well
+    const handleRejection = (ev: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection in HeroManagement:', ev.reason);
+      const reason = ev.reason;
+      const msg = reason && reason.message ? reason.message : String(reason);
+      setComponentError(`Unhandled Rejection: ${msg}`);
+    };
+    window.addEventListener('unhandledrejection', handleRejection as any);
     return () => window.removeEventListener('error', handleError);
   }, []);
 
