@@ -13,14 +13,19 @@ function sanitize(obj) {
   return out;
 }
 const ActivityLog = require('../models/ActivityLog');
-// load admin middleware if available (supports both function export or { isAdmin })
+// Use the auth middleware helpers to populate `req.user` (optionalAuth)
+// and then check admin role (isAdmin). This ensures requests with a
+// Bearer token will have req.user set before the admin check runs.
+let optionalAuth = (req, res, next) => next();
 let isAdmin = (req, res, next) => next();
 try {
-  const adminMod = require('../middleware/adminAuth');
-  if (typeof adminMod === 'function') isAdmin = adminMod;
-  else if (adminMod && typeof adminMod.isAdmin === 'function') isAdmin = adminMod.isAdmin;
+  const authMod = require('../middleware/auth');
+  if (authMod) {
+    optionalAuth = authMod.optionalAuth || optionalAuth;
+    isAdmin = authMod.isAdmin || isAdmin;
+  }
 } catch (e) {
-  // no admin middleware available, fallback to no-op
+  // fallback to no-op if auth helpers are not present
 }
 
 // helper to safely read client info
@@ -107,7 +112,7 @@ router.get('/stream', (req, res) => {
 });
 
 // GET /api/activity/summary - basic KPIs
-router.get('/summary', isAdmin, async (req, res) => {
+router.get('/summary', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -143,7 +148,7 @@ router.get('/summary', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/graphs - returns time series aggregated by day
-router.get('/graphs', isAdmin, async (req, res) => {
+router.get('/graphs', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -179,7 +184,7 @@ router.get('/graphs', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/funnel - approximate funnel counts per stage
-router.get('/funnel', isAdmin, async (req, res) => {
+router.get('/funnel', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -200,7 +205,7 @@ router.get('/funnel', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/heatmap - hour x weekday heatmap
-router.get('/heatmap', isAdmin, async (req, res) => {
+router.get('/heatmap', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -226,7 +231,7 @@ router.get('/heatmap', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/product-interactions - top product interactions
-router.get('/product-interactions', isAdmin, async (req, res) => {
+router.get('/product-interactions', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -248,7 +253,7 @@ router.get('/product-interactions', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/cart-abandonment - sessions with add_to_cart but no order_placed
-router.get('/cart-abandonment', isAdmin, async (req, res) => {
+router.get('/cart-abandonment', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 7);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -268,7 +273,7 @@ router.get('/cart-abandonment', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/device - device usage breakdown
-router.get('/device', isAdmin, async (req, res) => {
+router.get('/device', optionalAuth, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -288,7 +293,7 @@ router.get('/device', isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/realtime - last N events
-router.get('/realtime', isAdmin, async (req, res) => {
+router.get('/realtime', optionalAuth, isAdmin, async (req, res) => {
   try {
     const limit = Math.min(100, Number(req.query.limit || 50));
     const docs = await ActivityLog.find({}).sort({ timestamp: -1 }).limit(limit).lean();
