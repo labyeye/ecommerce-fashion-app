@@ -123,15 +123,26 @@ export const getProducts = async (): Promise<Product[]> => {
         return [];
       })(),
       colors: Array.isArray(product.colors)
-        ? product.colors.map((color: any) => ({
-            ...color,
-            images: Array.isArray(color.images)
-              ? color.images.map((img: any) => ({
-                  ...img,
-                  url: toAbsoluteUrl(img.url),
-                }))
-              : [],
-          }))
+        ? product.colors.map((color: any) => {
+            // Support new striped format and legacy hexCode
+            const type = color.type || (color.hexCode ? 'solid' : 'solid');
+            const color1 = color.color1 || color.hexCode || '#000000';
+            const color2 = color.color2 || '';
+            return {
+              ...color,
+              type,
+              color1,
+              color2,
+              // Keep hexCode for backward compat
+              hexCode: color.hexCode || color1,
+              images: Array.isArray(color.images)
+                ? color.images.map((img: any) => ({
+                    ...img,
+                    url: toAbsoluteUrl(img.url),
+                  }))
+                : [],
+            };
+          })
         : [],
       // Top-level images intentionally left empty — images come from colors[].images
       images: [],
@@ -197,24 +208,32 @@ export const getProductById = async (id: string): Promise<Product> => {
         price: Number(size.price) || 0
       })) : [],
       colors: Array.isArray(productData.colors)
-        ? productData.colors.map((color: any) => ({
-            name: color.name || '',
-            hexCode: color.hexCode || '#000000',
-            stock: Number(color.stock) || 0,
-            sizes: Array.isArray(color.sizes)
-              ? color.sizes.map((s: any) => ({
-                  size: s.size || '',
-                  stock: Number(s.stock) || 0,
-                  price: Number(s.price) || 0,
-                }))
-              : [],
-            images: Array.isArray(color.images)
-              ? color.images.map((img: any) => ({
-                  url: toAbsoluteUrl(img.url || ''),
-                  alt: img.alt || '',
-                }))
-              : [],
-          }))
+        ? productData.colors.map((color: any) => {
+            const type = color.type || (color.hexCode ? 'solid' : 'solid');
+            const color1 = color.color1 || color.hexCode || '#000000';
+            const color2 = color.color2 || '';
+            return {
+              name: color.name || '',
+              type,
+              color1,
+              color2,
+              hexCode: color.hexCode || color1,
+              stock: Number(color.stock) || 0,
+              sizes: Array.isArray(color.sizes)
+                ? color.sizes.map((s: any) => ({
+                    size: s.size || '',
+                    stock: Number(s.stock) || 0,
+                    price: Number(s.price) || 0,
+                  }))
+                : [],
+              images: Array.isArray(color.images)
+                ? color.images.map((img: any) => ({
+                    url: toAbsoluteUrl(img.url || ''),
+                    alt: img.alt || '',
+                  }))
+                : [],
+            };
+          })
         : [],
       // Top-level images intentionally left empty — use color-specific images instead
       images: [],

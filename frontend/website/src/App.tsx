@@ -31,6 +31,7 @@ import ProductPage from "./components/pages/ProductsPage";
 import ContactPage from "./components/pages/ContactPage";
 import UpdatesPage from "./components/pages/UpdatesPage";
 import BlogsPage from "./components/pages/BlogsPage";
+import BlogDetailsPage from "./components/pages/BlogDetailsPage";
 import ProfilePage from "./components/pages/ProfilePage";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -81,6 +82,7 @@ function App() {
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/updates" element={<UpdatesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/blog/:slug" element={<BlogDetailsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/login" element={<Login />} />

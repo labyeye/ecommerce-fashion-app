@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Clock,
-  ArrowRight,
-  Tag,
-  BookOpen,
-  Share2,
-  Loader2,
-} from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Tag, BookOpen, Loader2 } from "lucide-react";
 import {
   blogService,
   Blog,
@@ -23,13 +16,6 @@ const BlogsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    fetchBlogs();
-    fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, currentPage, searchQuery]);
-
   const fetchBlogs = async () => {
     try {
       setLoading(true);
@@ -60,6 +46,11 @@ const BlogsPage: React.FC = () => {
       // ignore category load failure silently
     }
   };
+  useEffect(() => {
+    fetchBlogs();
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, currentPage, searchQuery]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -76,7 +67,12 @@ const BlogsPage: React.FC = () => {
     setCurrentPage((p) => Math.min(p + 1, totalPages));
 
   const formatDate = (dateString: string) => {
+    // Accept null/undefined and invalid values gracefully.
+    if (!dateString) return "Unknown Date";
+
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Unknown Date";
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -126,7 +122,7 @@ const BlogsPage: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FFF2E1" }}>
       <section
-        className="py-8"
+        className="py-28"
         style={{ backgroundColor: "rgba(255,242,225,0.8)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -154,12 +150,12 @@ const BlogsPage: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300 border ${
                 selectedCategory === "all"
                   ? "bg-[#95522C] text-white"
-                  : "bg-white text-[#95522C] hover:bg-[#95522C] hover:text-white"
+                  : "bg-background text-[#95522C] hover:bg-[#95522C] hover:text-white"
               }`}
             >
               <BookOpen className="w-4 h-4" />
               <span className="text-sm font-medium">All</span>
-              <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
+              <span className="text-xs bg-background/20 text-white px-2 py-1 rounded-full">
                 {blogs.length}
               </span>
             </button>
@@ -171,7 +167,7 @@ const BlogsPage: React.FC = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300 border ${
                   selectedCategory === category
                     ? "bg-[#95522C] text-white"
-                    : "bg-white text-[#95522C] hover:bg-[#95522C] hover:text-white"
+                    : "bg-background text-[#95522C] hover:bg-[#95522C] hover:text-white"
                 }`}
               >
                 <Tag className="w-4 h-4" />
@@ -183,98 +179,76 @@ const BlogsPage: React.FC = () => {
       </section>
 
       {featuredBlog && (
-        <section className="py-12">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-1">
+          <div className="w-full mx-auto ">
             <span
-              className="block text-2xl sm:text-3xl font-bold mb-8 text-center"
+              className="block text-2xl sm:text-5xl font-bold mb-8 text-center"
               style={{ color: "#95522C" }}
             >
               Featured Article
             </span>
-            <article className="bg-white rounded-xl shadow-lg overflow-hidden group max-w-4xl mx-auto">
-              <div className="relative overflow-hidden">
-                <img
-                  src={featuredBlog.featuredImage.url}
-                  alt={featuredBlog.featuredImage.alt}
-                  className="w-full h-64 sm:h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-[#95522C] text-white text-xs px-3 py-1 rounded-full font-medium">
-                    {featuredBlog.category}
-                  </span>
-                </div>
-              </div>
+            <article className="w-full">
+              <Link to={`/blog/${featuredBlog.slug}`} className="w-full">
+                <div className="flex flex-col md:flex-row w-full  overflow-hidden shadow-lg">
+                  <div className="md:w-3/5 relative">
+                    <img
+                      src={featuredBlog.featuredImage.url}
+                      alt={featuredBlog.featuredImage.alt}
+                      className="w-full h-[500px] md:h-[740px] object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/20"></div>
+                  </div>
 
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
+                  <div className="md:w-full bg-background p-12 flex flex-col justify-center">
+                    <span className="text-xs text-gray-500">
                       {formatDate(
                         featuredBlog.publishedAt || featuredBlog.createdAt
-                      )}
+                      )}{" "}
+                      • {formatReadTime(featuredBlog.readTime)}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{formatReadTime(featuredBlog.readTime)}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="w-4 h-4" />
-                    <span>{featuredBlog.views} views</span>
-                  </div>
-                </div>
-
-                <span
-                  className="block text-2xl sm:text-3xl font-bold mb-4 transition-colors duration-300"
-                  style={{ color: "#95522C" }}
-                >
-                  {featuredBlog.title}
-                </span>
-
-                <span className="block text-gray-600 mb-6 text-lg leading-relaxed">
-                  {featuredBlog.excerpt}
-                </span>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10"
-                      style={{
-                        backgroundColor: "#95522C",
-                        borderRadius: "9999px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                    <h2
+                      className="text-3xl md:text-4xl font-bold mt-4"
+                      style={{ color: "#95522C" }}
                     >
-                      <span className="text-white font-semibold text-sm">
-                        {(featuredBlog.author?.name || "Unknown")
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-semibold text-[#2B463C]">
-                        {featuredBlog.author?.name || "Unknown"}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {featuredBlog.views} views
-                      </span>
+                      {featuredBlog.title}
+                    </h2>
+                    <p className="mt-4 text-gray-600 text-lg leading-relaxed">
+                      {featuredBlog.excerpt}
+                    </p>
+
+                    <div className="mt-8 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: "#95522C" }}
+                        >
+                          <span className="text-white font-semibold text-sm">
+                            {(featuredBlog.author?.name || "Flaunt By Nishi")
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-tertiary">
+                            {featuredBlog.author?.name || "Flaunt By Nishi"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {featuredBlog.views || 0} views
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="inline-flex items-center text-sm text-[#95522C] font-medium">
+                          READ MORE
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    className="flex items-center gap-2"
-                    style={{ color: "#95522C" }}
-                  >
-                    <span className="text-sm font-medium">
-                      Read Full Article
-                    </span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
                 </div>
-              </div>
+              </Link>
             </article>
           </div>
         </section>
@@ -282,9 +256,9 @@ const BlogsPage: React.FC = () => {
 
       {/* Blogs Grid */}
       <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-1/2 mx-auto px-4 sm:px-6 lg:px-8">
           <span
-            className="block font-bold mb-8 text-center"
+            className="block text-5xl font-bold mb-8 text-center"
             style={{ color: "#95522C" }}
           >
             Latest Articles
@@ -293,106 +267,51 @@ const BlogsPage: React.FC = () => {
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-[#A79277] mx-auto mb-4" />
-              <span className="text-[#2B463C] block">Loading more articles...</span>
+              <span className="text-tertiary block">
+                Loading more articles...
+              </span>
             </div>
           ) : regularBlogs.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-gray-500 text-lg block">No articles found.</span>
+              <span className="text-gray-500 text-lg block">
+                No articles found.
+              </span>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {regularBlogs.map((blog) => (
-                  <article
+                  <Link
                     key={blog._id}
-                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden group"
+                    to={`/blog/${blog.slug}`}
+                    className="block"
                   >
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={blog.featuredImage.url}
-                        alt={blog.featuredImage.alt}
-                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="bg-[#95522C] text-white text-xs px-3 py-1 rounded-full font-medium">
-                          {blog.category}
+                    <article className="bg-background shadow-lg overflow-hidden group">
+                      {/* Image on top */}
+                      <div className="w-full">
+                        <img
+                          src={blog.featuredImage.url}
+                          alt={blog.featuredImage.alt}
+                          className="w-full h-[400px] object-cover"
+                        />
+                      </div>
+
+                      {/* Title + Read more */}
+                      <div className="p-4">
+                        <span className="text-4xl font-semibold mb-10 text-tertiary">
+                          {blog.title}
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDate(blog.publishedAt || blog.createdAt)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{formatReadTime(blog.readTime)}</span>
-                        </div>
-                      </div>
-
-                      <span
-                        className="block text-xl font-bold mb-3 transition-colors duration-300"
-                        style={{ color: "#95522C" }}
-                      >
-                        {blog.title}
-                      </span>
-
-                      <span className="block text-gray-600 mb-4 line-clamp-3">
-                        {blog.excerpt}
-                      </span>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-8 h-8"
-                            style={{
-                              backgroundColor: "#95522C",
-                              borderRadius: "9999px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <span className="text-white font-semibold text-xs">
-                              {(blog.author?.name || "Unknown")
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
+                        <div>
                           <span
-                            className="text-sm font-medium"
-                            style={{ color: "#95522C" }}
+                            className="text-sm font-medium text-[#95522C]
+                          "
                           >
-                            {blog.author?.name || "Unknown"}
+                            Read more
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <BookOpen className="w-4 h-4" />
-                            <span>{blog.views}</span>
-                          </div>
-                        </div>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <button
-                          className="flex items-center gap-2"
-                          style={{ color: "#95522C" }}
-                        >
-                          <span className="text-sm font-medium">Read More</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-[#A79277] transition-colors duration-300">
-                          <Share2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </article>
+                    </article>
+                  </Link>
                 ))}
               </div>
 
@@ -403,7 +322,7 @@ const BlogsPage: React.FC = () => {
                     <button
                       onClick={handlePrevPage}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                      className="px-4 py-2 bg-background border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                       style={{ borderColor: "rgba(149,82,44,0.15)" }}
                     >
                       Previous
@@ -416,7 +335,7 @@ const BlogsPage: React.FC = () => {
                     <button
                       onClick={handleNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                      className="px-4 py-2 bg-background border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                       style={{ borderColor: "rgba(149,82,44,0.15)" }}
                     >
                       Next

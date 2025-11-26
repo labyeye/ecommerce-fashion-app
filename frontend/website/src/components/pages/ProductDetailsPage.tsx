@@ -940,9 +940,30 @@ const ProductDetailsPage: React.FC = () => {
                           ? "border-fashion-accent-brown scale-110"
                           : "border-tertiary/20 hover:border-tertiary/40"
                       }`}
-                      style={{ backgroundColor: color.hexCode }}
                       title={color.name}
-                    />
+                    >
+                      {/* Render solid or striped preview. For striped, use a repeating linear-gradient
+                          to create multiple narrow vertical stripes (more rows/lines) */}
+                      {((color as any).type || 'solid') === 'solid' ? (
+                        <span
+                          className="block w-full h-full"
+                          style={{ backgroundColor: (color as any).color1 || (color as any).hexCode || '#000000' }}
+                        />
+                      ) : (
+                        (() => {
+                          const c1 = (color as any).color1 || '#000000';
+                          const c2 = (color as any).color2 || '#ffffff';
+                          const stripeWidth = 6; // px width of each stripe segment
+                          const bg = `repeating-linear-gradient(90deg, ${c1} 0 ${stripeWidth}px, ${c2} ${stripeWidth}px ${stripeWidth * 2}px)`;
+                          return (
+                            <span
+                              className="block w-full h-full"
+                              style={{ backgroundImage: bg, backgroundSize: 'auto', display: 'block' }}
+                            />
+                          );
+                        })()
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1013,7 +1034,7 @@ const ProductDetailsPage: React.FC = () => {
 
                       {size.stock > 0 &&
                         (size.stock < 3 ? (
-                          <span className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-sm px-1 py-0.5 rounded-full">
+                          <span className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full">
                             {size.stock} left
                           </span>
                         ) : size.stock <= 5 ? (

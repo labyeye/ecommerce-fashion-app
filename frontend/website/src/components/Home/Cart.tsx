@@ -176,7 +176,11 @@ const Cart: React.FC<CartProps> = ({
             items.map((item) => (
               <div
                 key={`${item.id}-${item.size}-${item.color}`}
-                className="bg-background backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+                className="bg-background backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => {
+                  onClose();
+                  navigate(`/product/${item.id}`);
+                }}
               >
                 <div className="flex items-center space-x-4">
                   <img
@@ -203,12 +207,13 @@ const Cart: React.FC<CartProps> = ({
 
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onUpdateQuantity(
                           `${item.id}-${item.size}-${item.color}`,
                           Math.max(0, item.quantity - 1)
-                        )
-                      }
+                        );
+                      }}
                       className="w-5 h-5 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
                       <Minus className="w-3 h-3 text-[#914D26]" />
@@ -224,12 +229,13 @@ const Cart: React.FC<CartProps> = ({
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onUpdateQuantity(
                           `${item.id}-${item.size}-${item.color}`,
                           item.quantity + 1
-                        )
-                      }
+                        );
+                      }}
                       className="w-5 h-5 rounded-full border-2 border-tertiary hover:border-[#914D26] flex items-center justify-center transition-colors duration-200"
                     >
                       <Plus className="w-3 h-3 text-[#914D26]" />
@@ -237,9 +243,10 @@ const Cart: React.FC<CartProps> = ({
                   </div>
 
                   <button
-                    onClick={() =>
-                      onRemoveItem(`${item.id}-${item.size}-${item.color}`)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveItem(`${item.id}-${item.size}-${item.color}`);
+                    }}
                     className="p-2 text-tertiary hover:bg-red-50 rounded-full transition-colors duration-200"
                   >
                     <Trash2 className="w-5 h-5" />

@@ -15,7 +15,12 @@ interface Size {
 
 interface Color {
   name: string;
-  hexCode: string;
+  // New color model: either a solid color or a striped combination
+  type?: 'solid' | 'striped';
+  color1?: string; // primary color (hex)
+  color2?: string; // secondary color (hex) - used when type === 'striped'
+  // legacy hexCode supported for backward compatibility
+  hexCode?: string;
   stock: number;
   images: { url: string; alt: string }[];
   sizes?: Size[];
@@ -89,6 +94,9 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
   const [colors, setColors] = useState<Color[]>([
     {
       name: "Black",
+      type: 'solid',
+      color1: "#000000",
+      color2: "",
       hexCode: "#000000",
       stock: 0,
       images: [{ url: "", alt: "" }],
@@ -198,9 +206,13 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         salePrice: Number.isFinite(salePriceValue) ? salePriceValue : undefined,
         // keyFeatures
         keyFeatures: (formData as any).keyFeatures || [],
-        // Colors include their own sizes
+        // Colors include their own sizes. Normalize to the new color shape
         colors: colors.map((color) => ({
-          ...color,
+          name: color.name,
+          type: (color.type as any) || (color.hexCode ? 'solid' : 'solid'),
+          color1: color.color1 || color.hexCode || '#000000',
+          color2: color.color2 || '',
+          hexCode: color.hexCode || (color.color1 || '#000000'),
           stock: color.stock || 0,
           sizes: (color.sizes || []).map((s) => ({
             size: s.size,
@@ -210,6 +222,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 ? Number(s.price)
                 : priceValue,
           })),
+          images: color.images || [],
         })),
         seo: {
           title: formData.seoTitle,
@@ -393,7 +406,10 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
       ...prev,
       {
         name: "",
-        hexCode: "#000000",
+        type: 'solid',
+        color1: '#000000',
+        color2: '',
+        hexCode: '#000000',
         stock: 0,
         images: [{ url: "", alt: "" }],
         sizes: defaultSizes,
@@ -785,26 +801,80 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Hex Code
+                        Color Type
                       </label>
-                      <div className="flex space-x-2">
-                        <input
-                          type="color"
-                          value={color.hexCode}
-                          onChange={(e) =>
-                            updateColor(index, "hexCode", e.target.value)
-                          }
-                          className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={color.hexCode}
-                          onChange={(e) =>
-                            updateColor(index, "hexCode", e.target.value)
-                          }
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                          placeholder="#000000"
-                        />
+                      <div className="flex items-center space-x-3 mb-2">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            name={`color-type-${index}`}
+                            checked={(color.type || 'solid') === 'solid'}
+                            onChange={() => updateColor(index, 'type', 'solid')}
+                          />
+                          <span className="text-sm">Solid</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            name={`color-type-${index}`}
+                            checked={(color.type || 'solid') === 'striped'}
+                            onChange={() => updateColor(index, 'type', 'striped')}
+                          />
+                          <span className="text-sm">Striped</span>
+                        </label>
+                      </div>
+
+                      {/* Color pickers */}
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={color.color1 || color.hexCode || '#000000'}
+                            onChange={(e) => updateColor(index, 'color1', e.target.value)}
+                            className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={color.color1 || color.hexCode || '#000000'}
+                            onChange={(e) => updateColor(index, 'color1', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                            placeholder="#000000"
+                          />
+                        </div>
+
+                        {/* Secondary color for striped option */}
+                        { (color.type || 'solid') === 'striped' && (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="color"
+                              value={color.color2 || '#ffffff'}
+                              onChange={(e) => updateColor(index, 'color2', e.target.value)}
+                              className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              value={color.color2 || ''}
+                              onChange={(e) => updateColor(index, 'color2', e.target.value)}
+                              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                              placeholder="#ffffff"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Preview box */}
+                      <div className="mt-3 w-12 h-12 border rounded">
+                        { (color.type || 'solid') === 'solid' ? (
+                          <div
+                            className="w-full h-full"
+                            style={{ backgroundColor: color.color1 || color.hexCode || '#000000' }}
+                          />
+                        ) : (
+                          <div className="w-full h-full">
+                            <div style={{ backgroundColor: color.color1 || '#000000', height: '50%' }} />
+                            <div style={{ backgroundColor: color.color2 || '#ffffff', height: '50%' }} />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div>

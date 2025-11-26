@@ -55,9 +55,27 @@ const productSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    // Color representation: support both legacy `hexCode` (single color)
+    // and the new `type`/`color1`/`color2` structure to allow striped colors.
+    // New shape:
+    // { type: 'solid' | 'striped', color1: '#xxxxxx', color2: '#xxxxxx' }
+    type: {
+      type: String,
+      enum: ['solid', 'striped'],
+      default: 'solid'
+    },
+    color1: {
+      type: String,
+      default: ''
+    },
+    color2: {
+      type: String,
+      default: ''
+    },
+    // Keep hexCode for backward compatibility; prefer color1 when present
     hexCode: {
       type: String,
-      required: true
+      default: ''
     },
     images: [{
       url: String,

@@ -29,7 +29,7 @@ interface EditProductFormData {
   isComingSoon: boolean;
   keyFeatures: string[];
   sizes: Array<{ size: string; stock: number; price?: number }>;
-  colors: Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> ; sizes?: Array<{ size: string; stock: number; price?: number }> }>;
+  colors: Array<{ name: string; type?: 'solid' | 'striped'; color1?: string; color2?: string; hexCode?: string; stock: number; images?: Array<{ url: string; alt: string }> ; sizes?: Array<{ size: string; stock: number; price?: number }> }>;
 }
 
 interface EditProductProps {
@@ -68,7 +68,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     isComingSoon: false,
       keyFeatures: [] as string[],
     sizes: [] as Array<{ size: string; stock: number; price?: number }>,
-      colors: [] as Array<{ name: string; hexCode: string; stock: number; images?: Array<{ url: string; alt: string }> }>
+      colors: [] as Array<{ name: string; type?: 'solid' | 'striped'; color1?: string; color2?: string; hexCode?: string; stock: number; images?: Array<{ url: string; alt: string }> }>
   });
 
   const [newTag, setNewTag] = useState('');
@@ -109,9 +109,16 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
       // If productData has colors with sizes, use them. Otherwise if legacy top-level sizes exist, create a default color
       sizes: productData.sizes || [],
       colors: (productData.colors && productData.colors.length > 0)
-        ? // ensure each color has sizes; if missing, prefill defaultSizes
-          productData.colors.map((c: any) => ({ ...c, sizes: Array.isArray(c.sizes) && c.sizes.length > 0 ? c.sizes : defaultSizes }))
-        : [{ name: 'Default', hexCode: '#000000', stock: 0, images: [], sizes: Array.isArray(productData.sizes) && productData.sizes.length > 0 ? productData.sizes : defaultSizes }],
+        ? // ensure each color has sizes; if missing, prefill defaultSizes and normalize new color fields
+          productData.colors.map((c: any) => ({
+            ...c,
+            type: c.type || (c.hexCode ? 'solid' : 'solid'),
+            color1: c.color1 || c.hexCode || '#000000',
+            color2: c.color2 || '',
+            hexCode: c.hexCode || (c.color1 || '#000000'),
+            sizes: Array.isArray(c.sizes) && c.sizes.length > 0 ? c.sizes : defaultSizes
+          }))
+        : [{ name: 'Default', type: 'solid', color1: '#000000', color2: '', hexCode: '#000000', stock: 0, images: [], sizes: Array.isArray(productData.sizes) && productData.sizes.length > 0 ? productData.sizes : defaultSizes }],
       // top-level images removed; images live under colors[].images
     };
   };
@@ -347,6 +354,17 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         isBestSeller: Boolean(formData.isBestSeller),
         isComingSoon: Boolean(formData.isComingSoon)
       };
+      // Normalize colors to the new shape before sending to backend
+      processedFormData.colors = (processedFormData.colors || []).map((c: any) => ({
+        name: c.name,
+        type: c.type || (c.hexCode ? 'solid' : 'solid'),
+        color1: c.color1 || c.hexCode || '#000000',
+        color2: c.color2 || '',
+        hexCode: c.hexCode || (c.color1 || '#000000'),
+        stock: c.stock || 0,
+        sizes: c.sizes || [],
+        images: c.images || []
+      }));
 
       const response = await fetch(`https://ecommerce-fashion-app-som7.vercel.app/api/admin/products/${productId}`, {
         method: 'PUT',
@@ -697,12 +715,55 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                         placeholder="Color name"
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       />
-                      <input
-                        type="color"
-                        value={color.hexCode}
-                        onChange={(e) => updateColor(index, 'hexCode', e.target.value)}
-                        className="w-12 h-10 border border-gray-300 rounded-lg"
-                      />
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <label className="text-sm mr-2">Type</label>
+                          <select value={color.type || 'solid'} onChange={(e) => updateColor(index, 'type', e.target.value)} className="px-2 py-1 border rounded">
+                            <option value="solid">Solid</option>
+                            <option value="striped">Striped</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={color.color1 || color.hexCode || '#000000'}
+                            onChange={(e) => updateColor(index, 'color1', e.target.value)}
+                            className="w-12 h-10 border border-gray-300 rounded-lg"
+                          />
+                          <input
+                            type="text"
+                            value={color.color1 || color.hexCode || '#000000'}
+                            onChange={(e) => updateColor(index, 'color1', e.target.value)}
+                            className="px-3 py-2 border rounded"
+                          />
+                        </div>
+                        { (color.type || 'solid') === 'striped' && (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="color"
+                              value={color.color2 || '#ffffff'}
+                              onChange={(e) => updateColor(index, 'color2', e.target.value)}
+                              className="w-12 h-10 border border-gray-300 rounded-lg"
+                            />
+                            <input
+                              type="text"
+                              value={color.color2 || ''}
+                              onChange={(e) => updateColor(index, 'color2', e.target.value)}
+                              className="px-3 py-2 border rounded"
+                            />
+                          </div>
+                        )}
+                        <div className="w-12 h-12 border rounded">
+                          { (color.type || 'solid') === 'solid' ? (
+                            <div style={{ backgroundColor: color.color1 || color.hexCode || '#000000', width: '100%', height: '100%' }} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%' }}>
+                              <div style={{ backgroundColor: color.color1 || '#000000', height: '50%' }} />
+                              <div style={{ backgroundColor: color.color2 || '#ffffff', height: '50%' }} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <input
                         type="number"
                         value={color.stock}
