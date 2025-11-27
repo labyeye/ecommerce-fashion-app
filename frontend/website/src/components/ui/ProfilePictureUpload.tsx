@@ -18,10 +18,10 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   const [imageSrc, setImageSrc] = useState<string>('');
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 90,
-    height: 90,
-    x: 5,
-    y: 5
+    width: 80,
+    height: 80,
+    x: 10,
+    y: 10
   });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
@@ -44,10 +44,10 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     const { width, height } = e.currentTarget;
     setCrop({
       unit: 'px',
-      width: Math.min(width, height) * 0.8,
-      height: Math.min(width, height) * 0.8,
-      x: (width - Math.min(width, height) * 0.8) / 2,
-      y: (height - Math.min(width, height) * 0.8) / 2
+      width: Math.min(width, height) * 0.6,
+      height: Math.min(width, height) * 0.6,
+      x: (width - Math.min(width, height) * 0.6) / 2,
+      y: (height - Math.min(width, height) * 0.6) / 2
     });
   }, []);
 
@@ -114,7 +114,9 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     fileInputRef.current?.click();
   };
 
-  const baseURL = 'https://ecommerce-fashion-app-som7.vercel.app';
+  // Respect Vite environment variable VITE_API_URL for deployed backend
+  // Fallback to empty string which will use the current origin
+  const baseURL = (import.meta as any).env?.VITE_API_URL || '';
 
   return (
     <div className="relative">
@@ -154,10 +156,10 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       {/* Crop Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Crop Profile Picture</h3>
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-auto">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-base font-semibold">Crop Profile Picture</h3>
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -167,7 +169,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
               </div>
 
               {/* Crop Area */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <ReactCrop
                   crop={crop}
                   onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -181,7 +183,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                     src={imageSrc}
                     style={{ transform: `scale(1) rotate(0deg)` }}
                     onLoad={onImageLoad}
-                    className="max-h-96 max-w-full"
+                    className="max-h-80 max-w-full rounded"
                   />
                 </ReactCrop>
               </div>

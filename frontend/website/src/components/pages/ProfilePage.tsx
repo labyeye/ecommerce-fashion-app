@@ -85,16 +85,15 @@ const ProfilePage: React.FC = () => {
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile-picture",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const apiBase = (import.meta as any).env?.VITE_API_URL || "";
+      const url = `${apiBase}/api/customer/profile-picture`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (response.ok) {
         // Refresh the page to show the new profile picture
@@ -371,7 +370,7 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen pt-24" style={{ backgroundColor: "#FFF2E1" }}>
+    <div className="min-h-screen pt-24 pb-16" style={{ backgroundColor: "#FFF2E1" }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {isMobile && (
           <div className="bg-beige rounded-lg shadow-sm p-4 mb-6">
@@ -736,7 +735,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {}
-            <div className="p-6">
+            <div className="pt-2 pb-6 px-6">
               {activeTab === "overview" && (
                 <div className="space-y-6">
                   {}
