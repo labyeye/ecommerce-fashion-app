@@ -20,6 +20,8 @@ import HeroManagement from "./components/HeroManagement";
 import BlogManagement from "./components/BlogManagement";
 import Newsletter from "./components/Newsletter";
 import ExchangeRequests from "./components/ExchangeRequests";
+import ContactSubmissions from "./components/ContactSubmissions";
+import Jobs from "./components/Jobs";
 
 import { Menu } from "lucide-react";
 
@@ -59,6 +61,8 @@ function DashboardApp() {
         "marketing",
         "promo-codes",
         "heroes",
+        "contact-submissions",
+        "jobs",
         "blogs",
         "navigation",
         "analytics",
@@ -235,6 +239,10 @@ function DashboardApp() {
         return <UserActivityAnalytics />;
       case "newsletter":
         return <Newsletter />;
+      case "contact-submissions":
+        return <ContactSubmissions />;
+      case "jobs":
+        return <Jobs />;
       case "exchanges":
         return <ExchangeRequests />;
       case "alerts":

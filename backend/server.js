@@ -20,6 +20,8 @@ const wishlistRoutes = require("./routes/wishlist");
 const reviewsRoutes = require("./routes/reviews");
 const shippingRoutes = require("./routes/shipping");
 const activityRoutes = require("./routes/activity");
+const contactRoutes = require("./routes/contact");
+const jobRoutes = require("./routes/jobs");
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -236,6 +238,8 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/shipping", shippingRoutes);
 app.use("/api/activity", activityRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/jobs", jobRoutes);
 const exchangeRoutes = require("./routes/exchange");
 app.use("/api/exchange", exchangeRoutes);
 app.get("/api/health", (req, res) => {

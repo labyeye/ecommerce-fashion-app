@@ -55,6 +55,8 @@ import ChangeEmail from "./components/pages/ChangeEmail";
 import ChangePhone from "./components/pages/ChangePhone";
 import ForgotPassword from "./components/pages/ForgotPassword";
 import ResetPassword from "./components/pages/ResetPassword";
+import CareersPage from "./components/pages/CareersPage";
+import JobDetailsPage from "./components/pages/JobDetailsPage";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -83,6 +85,8 @@ function App() {
                 <Route path="/updates" element={<UpdatesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
                 <Route path="/blog/:slug" element={<BlogDetailsPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/careers/:id" element={<JobDetailsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/login" element={<Login />} />

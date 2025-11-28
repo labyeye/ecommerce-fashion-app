@@ -1002,7 +1002,7 @@ const ProductDetailsPage: React.FC = () => {
                         size.stock > 0 && setSelectedSize(size.size)
                       }
                       aria-disabled={size.stock === 0}
-                      className={`py-1 text-xl font-medium border transition-all duration-300 relative group overflow-visible ${
+                      className={`h-[44px] text-xl font-medium border transition-all duration-300 relative group overflow-visible ${
                         selectedSize === size.size
                           ? "border-fashion-accent-brown bg-[#E4A95D] text-white shadow-md scale-105"
                           : size.stock > 0
@@ -1055,17 +1055,17 @@ const ProductDetailsPage: React.FC = () => {
             <div className="space-y-3">
               <h6 className="font-medium text-tertiary">Quantity</h6>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center border border-tertiary">
+                <div className="flex items-center border border-tertiary h-[44px]">
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     aria-label="Decrease quantity"
-                    className="flex items-center justify-center w-12 h-12 text-2xl hover:bg-fashion-cream transition-colors"
+                    className="flex items-center justify-center w-12 h-full text-2xl hover:bg-fashion-cream transition-colors"
                   >
                     <span aria-hidden="true">−</span>
                   </button>
 
-                  <p className="px-4 border-x border-tertiary/20 min-w-[60px] text-center poppins-numeric">
+                  <p className="px-4 border-x border-tertiary/20 min-w-[60px] h-full flex items-center justify-center text-center poppins-numeric">
                     {quantity}
                   </p>
 
@@ -1073,7 +1073,7 @@ const ProductDetailsPage: React.FC = () => {
                     type="button"
                     onClick={() => setQuantity(quantity + 1)}
                     aria-label="Increase quantity"
-                    className="flex items-center justify-center w-12 h-12 text-2xl hover:bg-fashion-cream transition-colors"
+                    className="flex items-center justify-center w-12 h-full text-2xl hover:bg-fashion-cream transition-colors"
                   >
                     <span aria-hidden="true">+</span>
                   </button>
@@ -1090,12 +1090,12 @@ const ProductDetailsPage: React.FC = () => {
                   onChange={(e) => setPincode(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
                   placeholder="Enter Pincode"
-                  className="border placeholder-tertiary/30 px-3 py-1 rounded w-40 text-lg font-medium text-tertiary poppins-numeric"
+                  className="border placeholder-tertiary/30 px-3 h-[44px] rounded w-40 text-lg font-medium text-tertiary poppins-numeric"
                 />
                 <button
                   onClick={checkDelivery}
                   disabled={checkingDelivery}
-                  className="px-4 py-1 bg-background border border-tertiary  text-white rounded text-lg"
+                  className="px-4 h-[44px] bg-background border border-tertiary text-white rounded text-lg"
                 >
                   {checkingDelivery ? "Checking..." : "Check Delivery"}
                 </button>

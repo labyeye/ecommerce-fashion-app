@@ -13,11 +13,13 @@ import {
   LogOut,
   X,
   User,
+  Mail,
   Percent,
   Image,
   Navigation,
   FileText,
   Folder,
+  Briefcase,
 } from "lucide-react";
 import logo from "../../../website/src/assets/images/logoblack.png";
 interface SidebarProps {
@@ -37,10 +39,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { user, logout } = useAuth();
 
   const menuItems = [
-    
     { id: "overview", icon: Home, label: "Overview" },
     { id: "analytics", icon: BarChart3, label: "Analytics" },
     { id: "customers", icon: Users, label: "Customers" },
+    { id: "contact-submissions", icon: Mail, label: "Contact Submissions" },
+    { id: "jobs", icon: Briefcase, label: "Jobs / Careers" },
     { id: "orders", icon: ShoppingCart, label: "Orders" },
     { id: "products", icon: Package, label: "Products" },
     { id: "categories", icon: Folder, label: "Categories" },
@@ -153,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
         {!mobileOpen && (
           <div className="p-4 mx-auto">
-            <img src={logo} alt="Flaunt By Nishi Logo" className="w-28 h-28"/>
+            <img src={logo} alt="Flaunt By Nishi Logo" className="w-28 h-28" />
           </div>
         )}
 

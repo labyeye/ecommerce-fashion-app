@@ -21,7 +21,6 @@ const Footer: React.FC = () => {
   }, []);
 
   return (
-    // subtle SVG sand texture applied via data URL
 
     <footer
       className="bg-[#f2e0cb] text-dark w-full"
@@ -49,16 +48,16 @@ const Footer: React.FC = () => {
               role="navigation"
               aria-label="Social links"
             >
-              <a
+              {/* <a
                 href="#"
                 aria-label="Facebook"
                 className="w-10 h-10 flex-row items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
               >
                 <Facebook className="w-6 h-6" />
-              </a>
+              </a> */}
 
               <a
-                href="#"
+                href="https://www.instagram.com/flauntbynishi"
                 aria-label="Instagram"
                 className="w-10 h-10 flex-row items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
               >
@@ -66,7 +65,7 @@ const Footer: React.FC = () => {
               </a>
 
               <a
-                href="https://wa.me/"
+                href="https://wa.me/+918678040000"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat on WhatsApp"
@@ -118,7 +117,7 @@ const Footer: React.FC = () => {
                   </a>
                 </p>
               </li>
-              <li>
+              {/* <li>
                 <p>
                   <a
                     href="/blogs"
@@ -127,8 +126,8 @@ const Footer: React.FC = () => {
                     Blog
                   </a>
                 </p>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <p>
                   <a
                     href="#"
@@ -137,11 +136,11 @@ const Footer: React.FC = () => {
                     Quality Promise
                   </a>
                 </p>
-              </li>
+              </li> */}
               <li>
                 <p>
                   <a
-                    href="#"
+                    href="/careers"
                     className="text-xl text-dark/80 hover:text-dark transition-colors duration-200 max-w-[200px] block"
                   >
                     Careers
