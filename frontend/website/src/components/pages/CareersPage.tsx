@@ -132,12 +132,12 @@ const CareersPage: React.FC = () => {
           <div className="max-w-6xl mx-auto">
             {loading ? (
               <div className="text-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary mx-auto mb-4"></div>
                 <p className="text-tertiary">Loading opportunities...</p>
               </div>
             ) : error ? (
               <div className="text-center py-16">
-                <div className="text-red-500 mb-4">
+                <div className="text-tertiary mb-4">
                   <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-medium">{error}</p>
                 </div>
