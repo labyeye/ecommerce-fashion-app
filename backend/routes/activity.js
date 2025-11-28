@@ -14,15 +14,15 @@ function sanitize(obj) {
   return out;
 }
 const ActivityLog = require("../models/ActivityLog");
-// Use the auth middleware helpers to populate `req.user` (optionalAuth)
+// Use the auth middleware helpers to populate `req.user` (protect)
 // and then check admin role (isAdmin). This ensures requests with a
 // Bearer token will have req.user set before the admin check runs.
-let optionalAuth = (req, res, next) => next();
+let protect = (req, res, next) => next();
 let isAdmin = (req, res, next) => next();
 try {
   const authMod = require("../middleware/auth");
   if (authMod) {
-    optionalAuth = authMod.optionalAuth || optionalAuth;
+    protect = authMod.protect || protect;
     isAdmin = authMod.isAdmin || isAdmin;
   }
 } catch (e) {
@@ -132,7 +132,7 @@ router.get("/stream", (req, res) => {
 });
 
 // GET /api/activity/summary - basic KPIs
-router.get("/summary", optionalAuth, isAdmin, async (req, res) => {
+router.get("/summary", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -185,7 +185,7 @@ router.get("/summary", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/graphs - returns time series aggregated by day
-router.get("/graphs", optionalAuth, isAdmin, async (req, res) => {
+router.get("/graphs", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -221,7 +221,7 @@ router.get("/graphs", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/funnel - approximate funnel counts per stage
-router.get("/funnel", optionalAuth, isAdmin, async (req, res) => {
+router.get("/funnel", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -254,7 +254,7 @@ router.get("/funnel", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/heatmap - hour x weekday heatmap
-router.get("/heatmap", optionalAuth, isAdmin, async (req, res) => {
+router.get("/heatmap", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -287,7 +287,7 @@ router.get("/heatmap", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/product-interactions - top product interactions
-router.get("/product-interactions", optionalAuth, isAdmin, async (req, res) => {
+router.get("/product-interactions", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -325,7 +325,7 @@ router.get("/product-interactions", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/cart-abandonment - sessions with add_to_cart but no order_placed
-router.get("/cart-abandonment", optionalAuth, isAdmin, async (req, res) => {
+router.get("/cart-abandonment", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 7);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -363,7 +363,7 @@ router.get("/cart-abandonment", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/device - device usage breakdown
-router.get("/device", optionalAuth, isAdmin, async (req, res) => {
+router.get("/device", protect, isAdmin, async (req, res) => {
   try {
     const days = Number(req.query.days || 30);
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -385,7 +385,7 @@ router.get("/device", optionalAuth, isAdmin, async (req, res) => {
 });
 
 // GET /api/activity/realtime - last N events
-router.get("/realtime", optionalAuth, isAdmin, async (req, res) => {
+router.get("/realtime", protect, isAdmin, async (req, res) => {
   try {
     const limit = Math.min(100, Number(req.query.limit || 50));
     const docs = await ActivityLog.find({})

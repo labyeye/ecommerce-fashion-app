@@ -43,22 +43,40 @@ const UserActivityAnalytics: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) return;
+      if (!token) {
+        setError("Authentication required");
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError("");
       try {
         // fetch graphs and summary from new activity API
         const base = "https://ecommerce-fashion-app-som7.vercel.app";
-        const headers: Record<string, string> = {};
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
         if (token) headers["Authorization"] = `Bearer ${token}`;
 
         const [graphsRes, summaryRes] = await Promise.all([
-          fetch(`${base}/api/activity/graphs?days=${days}`, { headers }),
-          fetch(`${base}/api/activity/summary?days=${days}`, { headers }),
+          fetch(`${base}/api/activity/graphs?days=${days}`, { 
+            headers,
+            credentials: 'include',
+          }),
+          fetch(`${base}/api/activity/summary?days=${days}`, { 
+            headers,
+            credentials: 'include',
+          }),
         ]);
 
-        if (!graphsRes.ok) throw new Error("Failed to fetch graphs");
-        if (!summaryRes.ok) throw new Error("Failed to fetch summary");
+        if (!graphsRes.ok) {
+          const errorData = await graphsRes.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to fetch graphs (${graphsRes.status})`);
+        }
+        if (!summaryRes.ok) {
+          const errorData = await summaryRes.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to fetch summary (${summaryRes.status})`);
+        }
 
         const graphsJson = await graphsRes.json();
         const summaryJson = await summaryRes.json();
@@ -108,7 +126,8 @@ const UserActivityAnalytics: React.FC = () => {
 
         // timeSeries already mapped above from /api/activity/graphs
       } catch (err: any) {
-        setError(err.message || "Failed to load");
+        console.error('Activity fetch error:', err);
+        setError(err.message || "Failed to load activity data. Please check your permissions.");
       } finally {
         setLoading(false);
       }
@@ -249,9 +268,28 @@ const UserActivityAnalytics: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center">Loading...</div>
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-12 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading activity data...</p>
+        </div>
       ) : error ? (
-        <div className="py-6 text-red-600">{error}</div>
+        <div className="bg-white rounded-xl shadow-lg border border-red-200 p-8">
+          <div className="flex items-start gap-4">
+            <svg className="w-8 h-8 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Activity Data</h3>
+              <p className="text-red-600 mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
