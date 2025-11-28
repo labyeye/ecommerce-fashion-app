@@ -5,6 +5,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+const ImageKit = require('imagekit');
 
 const Product = require('../models/Product');
 const Order = require('../models/Order');
@@ -13,6 +14,34 @@ const PromoCode = require('../models/PromoCode');
 const { sendOrderCancellationEmail, sendVerificationEmail } = require('../utils/emailService');
 
 const router = express.Router();
+
+// Initialize ImageKit
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+});
+
+// @desc    Get ImageKit authentication parameters
+// @route   GET /api/customer/imagekit-auth
+// @access  Customer only
+router.get('/imagekit-auth', protect, isCustomer, async (req, res) => {
+  try {
+    const authenticationParameters = imagekit.getAuthenticationParameters();
+    console.log('Generated ImageKit auth params:', authenticationParameters);
+    
+    res.json({
+      success: true,
+      ...authenticationParameters
+    });
+  } catch (error) {
+    console.error('ImageKit auth error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get ImageKit authentication parameters'
+    });
+  }
+});
 
 // // Helper function to get loyalty details
 // const getLoyaltyDetails = async (userId) => {
@@ -123,6 +152,25 @@ router.get('/dashboard', async (req, res) => {
     });
   }
 });
+// @desc    Get ImageKit authentication parameters
+// @route   GET /api/customer/imagekit-auth
+// @access  Customer only
+router.get('/imagekit-auth', protect, isCustomer, async (req, res) => {
+  try {
+    const authenticationParameters = imagekit.getAuthenticationParameters();
+    res.status(200).json({
+      success: true,
+      ...authenticationParameters
+    });
+  } catch (error) {
+    console.error('ImageKit auth error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate ImageKit authentication parameters'
+    });
+  }
+});
+
 // @desc    Get customer profile
 // @route   GET /api/customer/profile
 // @access  Customer only
@@ -1459,6 +1507,72 @@ router.put('/profile', protect, isCustomer, [
     res.status(500).json({
       success: false,
       message: 'Error updating profile'
+    });
+  }
+});
+
+// @desc    Update profile photo URL (for ImageKit integration)
+// @route   POST /api/customer/update-profile-photo
+// @access  Customer only
+router.post('/update-profile-photo', protect, isCustomer, [
+  body('userId').notEmpty().withMessage('User ID is required'),
+  body('profilePhotoUrl').notEmpty().withMessage('Profile photo URL is required')
+], async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { userId, profilePhotoUrl } = req.body;
+
+    // Verify the user is updating their own profile
+    if (userId !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized: Can only update your own profile'
+      });
+    }
+
+    // Validate URL format
+    try {
+      new URL(profilePhotoUrl);
+    } catch (urlError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid profile photo URL format'
+      });
+    }
+
+    // Update user profile image in database
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profileImage: profilePhotoUrl },
+      { new: true, runValidators: true }
+    ).select('-password -emailVerificationToken -passwordResetToken');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      profilePhoto: profilePhotoUrl,
+      message: 'Profile photo updated successfully'
+    });
+  } catch (error) {
+    console.error('Update profile photo error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error while updating profile photo'
     });
   }
 });

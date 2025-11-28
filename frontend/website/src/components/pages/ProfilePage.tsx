@@ -77,38 +77,49 @@ const ProfilePage: React.FC = () => {
     // run only once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const handleProfilePictureUpload = async (file: File) => {
-    if (!token) return;
+  const handleProfilePictureUpload = async (imageUrl: string) => {
+    if (!token || !user) return;
 
     setProfilePictureUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-
-      const apiBase = (import.meta as any).env?.VITE_API_URL || "";
-      const url = `${apiBase}/api/customer/profile-picture`;
-      const response = await fetch(url, {
+      const apiBase = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/customer/update-profile-photo`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData,
+        body: JSON.stringify({
+          userId: user._id,
+          profilePhotoUrl: imageUrl,
+        }),
       });
 
-      if (response.ok) {
-        // Refresh the page to show the new profile picture
-        window.location.reload();
+      // Always try to parse JSON response
+      let data;
+      const responseText = await response.text();
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', responseText);
+        throw new Error('Server returned invalid response');
+      }
+
+      if (response.ok && data.success) {
+        // Update user context with new profile image
+        if (user && typeof user === 'object') {
+          const updatedUser = { ...user, profileImage: imageUrl };
+          // Trigger re-fetch of user data or update context
+          window.location.reload(); // For now, reload to get fresh data
+        }
       } else {
-        const data = await response.json();
-        alert(
-          "Error uploading profile picture: " +
-            (data.message || "Unknown error")
-        );
+        throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (err: unknown) {
-      const text = err instanceof Error ? err.message : String(err);
-      console.error("Error uploading profile picture:", text);
-      alert(text || "Error uploading profile picture. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error("Error updating profile picture:", err);
+      alert(`Failed to update profile picture: ${errorMessage}`);
     } finally {
       setProfilePictureUploading(false);
     }
@@ -169,34 +180,42 @@ const ProfilePage: React.FC = () => {
 
     setSaving(true);
     try {
-      const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            firstName: editForm.firstName,
-            lastName: editForm.lastName,
-            phone: editForm.phone,
-            address: editForm.address,
-          }),
-        }
-      );
+      const apiBase = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/customer/profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: editForm.firstName,
+          lastName: editForm.lastName,
+          phone: editForm.phone,
+          address: editForm.address,
+        }),
+      });
 
-      if (response.ok) {
+      // Handle response parsing carefully
+      let data;
+      const responseText = await response.text();
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', responseText);
+        throw new Error('Server returned invalid response');
+      }
+
+      if (response.ok && data.success) {
         setShowEditModal(false);
         window.location.reload();
       } else {
-        const data = await response.json();
-        alert("Error updating profile: " + (data.message || "Unknown error"));
+        throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (err: unknown) {
-      const text = err instanceof Error ? err.message : String(err);
-      console.error("Error updating profile:", text);
-      alert(text || "Error updating profile. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error("Error updating profile:", err);
+      alert(`Failed to update profile: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
@@ -275,7 +294,6 @@ const ProfilePage: React.FC = () => {
             }
           );
           const data = await response.json();
-          console.log("Fetched customer orders:", data); // Debug log
           if (!response.ok) {
             if (response.status === 401) {
               console.warn("Orders fetch returned 401 - logging out user");
@@ -551,6 +569,7 @@ const ProfilePage: React.FC = () => {
                   currentImage={userData.profileImage}
                   onUpload={handleProfilePictureUpload}
                   loading={profilePictureUploading}
+                  authToken={token || ''}
                 />
               </div>
               <div className="flex-1 text-center md:text-left">

@@ -40,20 +40,14 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
-// OTP support: send and verify (Email-based)
+// OTP support: send and verify (Email-based only)
 const Otp = require("../models/Otp");
 
 // POST /api/auth/send-otp
-// Supports email-based OTP (existing) and phone-based OTP via Twilio Verify.
+// Supports email-based OTP only.
 router.post(
   "/send-otp",
-  [
-    body("email").optional().isEmail().withMessage("Valid email is required"),
-    body("phone")
-      .optional()
-      .matches(/^[\+]?[1-9][\d]{0,15}$/)
-      .withMessage("Please provide a valid phone number"),
-  ],
+  [body("email").isEmail().withMessage("Valid email is required")],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -61,83 +55,7 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { email, phone } = req.body;
-
-      // Phone-based OTP via Twilio Verify
-      if (phone) {
-        // Require Twilio config
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
-        if (!accountSid || !authToken || !serviceSid) {
-          return res
-            .status(500)
-            .json({ success: false, message: "Twilio not configured" });
-        }
-
-        const url = `https://verify.twilio.com/v2/Services/${serviceSid}/Verifications`;
-        try {
-          const params = new URLSearchParams();
-          params.append("To", phone);
-          params.append("Channel", "sms");
-
-          await axios.post(url, params.toString(), {
-            auth: { username: accountSid, password: authToken },
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          });
-
-          return res.json({ success: true, message: "OTP sent to phone" });
-        } catch (twErr) {
-          console.error(
-            "Twilio send error:",
-            twErr.response?.data || twErr.message || twErr
-          );
-
-          // If Twilio trial account blocks unverified numbers (21608) and
-          // developer fallback is enabled, create a dev OTP record so testing
-          // can proceed without sending SMS. Controlled via env var.
-          const twCode = twErr.response?.data?.code;
-          const allowFallback =
-            process.env.TWILIO_DEV_FALLBACK === "true" ||
-            process.env.NODE_ENV !== "production";
-          if (twCode === 21608 && allowFallback) {
-            try {
-              // create a 6-digit code and store it for phone
-              const code = Math.floor(
-                100000 + Math.random() * 900000
-              ).toString();
-              const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-              await Otp.updateMany({ phone, used: false }, { used: true });
-              await Otp.create({ phone, code, expiresAt, type: "phone-login" });
-              // Return the code in the response only in dev mode (for local testing)
-              const payload = {
-                success: true,
-                message: "OTP (dev) generated for phone",
-              };
-              if (process.env.NODE_ENV !== "production") payload.code = code;
-              return res.json(payload);
-            } catch (err2) {
-              console.error("Fallback OTP generation failed:", err2);
-              return res.status(500).json({
-                success: false,
-                message: "Failed to generate dev OTP",
-              });
-            }
-          }
-
-          return res
-            .status(500)
-            .json({ success: false, message: "Failed to send OTP via SMS" });
-        }
-      }
-
-      // Fallback to email-based OTP (existing behavior)
-      if (!email) {
-        return res
-          .status(400)
-          .json({ success: false, message: "email or phone is required" });
-      }
-
+      const { email } = req.body;
       const normalizedEmail = email.toLowerCase().trim();
 
       // Generate 6-digit OTP
@@ -180,17 +98,10 @@ router.post(
 );
 
 // POST /api/auth/verify-otp
-// Supports email-based OTP and phone-based OTP via Twilio Verify
+// Supports email-based OTP only
 router.post(
   "/verify-otp",
-  [
-    body("email").optional().isEmail().withMessage("Valid email is required"),
-    body("phone")
-      .optional()
-      .matches(/^[\+]?[1-9][\d]{0,15}$/)
-      .withMessage("Please provide a valid phone number"),
-    body("code").notEmpty().withMessage("OTP code is required"),
-  ],
+  [body("email").isEmail().withMessage("Valid email is required"), body("code").notEmpty().withMessage("OTP code is required")],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -198,110 +109,7 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { email, phone, code } = req.body;
-
-      // Phone-based verification using Twilio
-      if (phone) {
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
-        if (!accountSid || !authToken || !serviceSid) {
-          return res
-            .status(500)
-            .json({ success: false, message: "Twilio not configured" });
-        }
-
-        const url = `https://verify.twilio.com/v2/Services/${serviceSid}/VerificationCheck`;
-        try {
-          const params = new URLSearchParams();
-          params.append("To", phone);
-          params.append("Code", code);
-
-          const resp = await axios.post(url, params.toString(), {
-            auth: { username: accountSid, password: authToken },
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          });
-
-          const status = resp.data?.status;
-          if (status !== "approved") {
-            return res
-              .status(400)
-              .json({ success: false, message: "Invalid or expired OTP" });
-          }
-
-          // Find user by phone
-          let user = await User.findOne({ phone });
-          if (user) {
-            return sendTokenResponse(user, 200, res);
-          }
-
-          // Do NOT auto-create user for phone sign-in. If the phone is not
-          // registered, inform the frontend so it can offer registration.
-          return res.json({
-            success: true,
-            userExists: false,
-            message: "Phone not registered, Create Account using Email Address",
-          });
-        } catch (twErr) {
-          console.error(
-            "Twilio verify error:",
-            twErr.response?.data || twErr.message || twErr
-          );
-
-          const twCode = twErr.response?.data?.code;
-          const allowFallback =
-            process.env.TWILIO_DEV_FALLBACK === "true" ||
-            process.env.NODE_ENV !== "production";
-          if (twCode === 21608 && allowFallback) {
-            // Trial account blocked sending/verification; try DB fallback
-            try {
-              const otpRec = await Otp.findOne({
-                phone,
-                code,
-                used: false,
-                expiresAt: { $gt: new Date() },
-              }).sort({ createdAt: -1 });
-              if (!otpRec) {
-                return res.status(400).json({
-                  success: false,
-                  message: "Invalid or expired OTP (dev fallback)",
-                });
-              }
-              otpRec.used = true;
-              await otpRec.save();
-
-              let user = await User.findOne({ phone });
-              if (user) {
-                return sendTokenResponse(user, 200, res);
-              }
-              // Do not auto-create user in dev fallback either; inform frontend
-              return res.json({
-                success: true,
-                userExists: false,
-                message: "Phone not registered",
-              });
-            } catch (fbErr) {
-              console.error("Dev fallback verify error:", fbErr);
-              return res.status(500).json({
-                success: false,
-                message: "Failed to verify OTP (dev fallback)",
-              });
-            }
-          }
-
-          return res
-            .status(500)
-            .json({ success: false, message: "Failed to verify OTP" });
-        }
-      }
-
-      // Fallback to email-based OTP (existing behavior)
-      if (!email) {
-        return res
-          .status(400)
-          .json({ success: false, message: "email or phone is required" });
-      }
-
+      const { email, code } = req.body;
       const normalizedEmail = email.toLowerCase().trim();
 
       const otp = await Otp.findOne({
