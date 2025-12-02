@@ -5,47 +5,60 @@ const Order = require('../models/Order');
 const ExchangeRequest = require('../models/ExchangeRequest');
 const ExchangeStatusLog = require('../models/ExchangeStatusLog');
 const delhiveryService = require('../services/delhiveryService');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, '..', 'uploads', 'exchange');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const safe = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
+    cb(null, safe);
+  }
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
-// Customer creates an exchange request
-router.post('/request', protect, isCustomer, [
-  body('orderId').notEmpty().withMessage('orderId is required'),
-  body('reason').notEmpty().withMessage('Reason is required')
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
-
+// Customer creates an exchange request (supports image uploads)
+router.post('/request', protect, isCustomer, upload.array('images', 5), async (req, res) => {
   try {
     const { orderId, reason, items } = req.body;
     const userId = req.user._id;
 
+    if (!orderId) return res.status(400).json({ success: false, message: 'orderId is required' });
+    if (!reason) return res.status(400).json({ success: false, message: 'Reason is required' });
+
     const order = await Order.findById(orderId).populate('items.product');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
-    // Only delivered orders allowed
-    if (order.status !== 'delivered' && order.status !== 'delivered') {
-      return res.status(400).json({ success: false, message: 'Only delivered orders can be exchanged' });
-    }
-
-    // Check deliveredAt exists and within 7 days
-    const deliveredAt = order.deliveredAt || order.estimatedDelivery || order.updatedAt;
-    if (!deliveredAt) return res.status(400).json({ success: false, message: 'Delivery date not available' });
-
+    // Allow exchanges for 7 days from order creation date
+    const orderDate = order.createdAt || order._id.getTimestamp ? order._id.getTimestamp() : null;
+    if (!orderDate && !order.createdAt) return res.status(400).json({ success: false, message: 'Order date not available' });
+    const createdAt = order.createdAt || orderDate;
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    if ((new Date() - new Date(deliveredAt)) > sevenDays) {
-      return res.status(400).json({ success: false, message: 'Exchange window (7 days) has passed' });
+    if ((new Date() - new Date(createdAt)) > sevenDays) {
+      return res.status(400).json({ success: false, message: 'Exchange window (7 days from order date) has passed' });
     }
 
     // Only one exchange per order
     const existing = await ExchangeRequest.findOne({ order: orderId });
     if (existing) return res.status(400).json({ success: false, message: 'An exchange request already exists for this order' });
 
+    const images = (req.files || []).map(f => `/uploads/exchange/${f.filename}`);
+
     const reqDoc = new ExchangeRequest({
       order: order._id,
       customer: userId,
-      items: items || order.items.map(i => ({ product: i.product._id, quantity: i.quantity, price: i.price })),
-      reason
+      items: items ? JSON.parse(items) : order.items.map(i => ({ product: i.product._id, quantity: i.quantity, price: i.price })),
+      reason,
+      images
     });
 
     await reqDoc.save();
@@ -78,25 +91,23 @@ router.get('/user/:id', protect, async (req, res) => {
 });
 
 // Check eligibility for an order (used by frontend to show/hide Exchange button)
+// Eligibility is 7 days from order creation date
 router.get('/eligibility/:orderId', protect, async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-
-    if (order.status !== 'delivered') return res.status(200).json({ success: true, eligible: false, reason: 'Order not delivered' });
-
-    const deliveredAt = order.deliveredAt;
-    if (!deliveredAt) return res.status(200).json({ success: true, eligible: false, reason: 'Delivery date not available' });
+    const createdAt = order.createdAt || (order._id && order._id.getTimestamp ? order._id.getTimestamp() : null);
+    if (!createdAt) return res.status(200).json({ success: true, eligible: false, reason: 'Order date not available' });
 
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    const eligible = (new Date() - new Date(deliveredAt)) <= sevenDays;
+    const eligible = (new Date() - new Date(createdAt)) <= sevenDays;
 
     // Check if an exchange already exists
     const existing = await ExchangeRequest.findOne({ order: order._id });
     if (existing) return res.status(200).json({ success: true, eligible: false, reason: 'Exchange request already submitted' });
 
-    return res.status(200).json({ success: true, eligible, deliveredAt });
+    return res.status(200).json({ success: true, eligible, createdAt });
   } catch (err) {
     console.error('Eligibility check error:', err);
     return res.status(500).json({ success: false, message: 'Error checking eligibility' });

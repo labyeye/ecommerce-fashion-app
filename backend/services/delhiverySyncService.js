@@ -52,10 +52,10 @@ async function syncOnce() {
         order.shipment.rawResponse = data;
         order.shipment.lastSyncedAt = new Date();
 
-        const previousStatus = order.status;
         if (mapped && mapped !== order.status) {
-          order.status = mapped;
-          await order.addTimelineEntry(mapped, `Status updated from Delhivery: ${latestStatus || 'unknown'}`);
+          const message = `Status updated from Delhivery: ${latestStatus || 'unknown'}`;
+          // Use model helper to update status and push timeline (this sets deliveredAt/cancelledAt as needed)
+          await order.updateStatus(mapped, message);
 
           // If newly marked as 'picked', send email to customer
           if (mapped === 'picked') {
@@ -66,6 +66,19 @@ async function syncOnce() {
               }
             } catch (emailErr) {
               console.error('Error sending picked email for order', order._id, emailErr);
+            }
+          }
+
+          // If newly marked as 'cancelled', notify customer with cancellation email
+          if (mapped === 'cancelled') {
+            try {
+              const customer = await User.findById(order.customer).select('email firstName');
+              if (customer && customer.email) {
+                const { sendOrderCancellationEmail } = require('../utils/emailService');
+                await sendOrderCancellationEmail(customer.email, customer.firstName || '', order);
+              }
+            } catch (emailErr) {
+              console.error('Error sending cancellation email for order', order._id, emailErr);
             }
           }
         } else if (lastEvent) {

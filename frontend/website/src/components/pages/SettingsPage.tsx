@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, MapPin, Key } from "lucide-react";
+import { User, MapPin, Key, ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
+
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const [active, setActive] = useState<
     "none" | "password" | "email" | "phone" | "delete"
@@ -118,6 +127,15 @@ const SettingsPage: React.FC = () => {
     <div className="min-h-screen pt-24 bg-[#FFF2E1]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm p-6">
+          {isMobile && (
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1 rounded-full border border-tertiary bg-background mb-4"
+              aria-label="Go back"
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
           <h4 className="font-semibold text-tertiary mb-4">
             Account Settings
           </h4>

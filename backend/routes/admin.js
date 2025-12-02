@@ -7,7 +7,7 @@ const Order = require("../models/Order");
 const PromoCode = require("../models/PromoCode");
 const Category = require("../models/Category");
 const Newsletter = require("../models/Newsletter");
-const { createTransporter } = require("../utils/emailService");
+const { createTransporter, sendOrderStatusUpdateEmail, sendOrderCancellationEmail } = require("../utils/emailService");
 const mongoose = require("mongoose");
 
 const router = express.Router();
@@ -819,6 +819,31 @@ router.put(
             $inc: { "stock.quantity": item.quantity },
           });
         }
+      }
+
+      // Send email notification to customer about the status change
+      try {
+        if (order.customer && order.customer.email) {
+          const email = order.customer.email;
+          const firstName = order.customer.firstName || "";
+
+          if (status === "cancelled") {
+            // Use cancellation-specific template
+            sendOrderCancellationEmail(email, firstName, order).catch((e) =>
+              console.error("Order cancellation email error:", e)
+            );
+          } else {
+            // Generic status update email (includes tracking info when available)
+            const trackingInfo = order.shipment
+              ? { awb: order.shipment.awb, courier: order.shipment.courier, trackingUrl: order.shipment.trackingUrl }
+              : null;
+            sendOrderStatusUpdateEmail(email, firstName, order, status, trackingInfo).catch((e) =>
+              console.error("Order status update email error:", e)
+            );
+          }
+        }
+      } catch (e) {
+        console.error("Error while attempting to send order status email:", e);
       }
 
       // Get updated order with populated data

@@ -27,6 +27,8 @@ const exchangeRequestSchema = new mongoose.Schema({
     forwardRaw: mongoose.Schema.Types.Mixed,
     pickupScheduledAt: Date
   }
+  ,
+  images: [String]
 }, { timestamps: true });
 
 exchangeRequestSchema.index({ order: 1 }, { unique: true });

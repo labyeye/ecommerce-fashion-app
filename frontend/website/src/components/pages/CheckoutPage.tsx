@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useCartContext } from "../../context/CartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   Check,
@@ -54,6 +54,7 @@ const CheckoutPage: React.FC = () => {
   const [orderData, setOrderData] = useState<any>(null);
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Fetch user profile when component mounts
   useEffect(() => {
@@ -201,7 +202,8 @@ const CheckoutPage: React.FC = () => {
         "You must be logged in to place an order. Please log in and try again."
       );
       setLoading(false);
-      navigate("/login");
+      // preserve current location so user returns to checkout after login
+      navigate("/login", { state: { from: location.pathname + location.search } });
       return;
     }
 

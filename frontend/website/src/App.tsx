@@ -33,6 +33,7 @@ import UpdatesPage from "./components/pages/UpdatesPage";
 import BlogsPage from "./components/pages/BlogsPage";
 import BlogDetailsPage from "./components/pages/BlogDetailsPage";
 import ProfilePage from "./components/pages/ProfilePage";
+import OrdersPage from "./components/pages/OrdersPage";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import ProductDetailsPage from "./components/pages/ProductDetailsPage";
@@ -88,6 +89,7 @@ function App() {
                 <Route path="/careers" element={<CareersPage />} />
                 <Route path="/careers/:id" element={<JobDetailsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

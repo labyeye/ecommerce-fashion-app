@@ -4,13 +4,15 @@ import { useAuth } from "../../context/AuthContext";
 import ProductCard from "../Home/ProductCard";
 import { useWishlist } from "../../context/WishlistContext";
 import { trackEvent } from "../../services/analyticsService";
-
-
+import { ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Wishlist: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { wishlistProducts, fetchWishlist, removeFromWishlist } = useWishlist();
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   useEffect(() => {
     const init = async () => {
@@ -30,13 +32,25 @@ const Wishlist: React.FC = () => {
     init();
     // track wishlist page view
     try {
-      if (user) trackEvent('page_view', 'wishlist');
+      if (user) trackEvent("page_view", "wishlist");
     } catch (e) {}
     // subscribe to refresh events so page updates when wishlist is changed elsewhere
     const onRefresh = () => fetchWishlist();
     window.addEventListener("wishlist:refresh", onRefresh as EventListener);
-    return () => window.removeEventListener("wishlist:refresh", onRefresh as EventListener);
+    return () =>
+      window.removeEventListener(
+        "wishlist:refresh",
+        onRefresh as EventListener
+      );
   }, [user, fetchWishlist]);
+
+  // detect mobile viewport
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   // Removal handled by `removeFromWishlist` from context
 
@@ -55,6 +69,14 @@ const Wishlist: React.FC = () => {
 
   return (
     <div className="p-6 mt-20 bg-background">
+      {isMobile && (
+        <button
+          onClick={() => navigate(-1)}
+          className="p-1 rounded-full border border-tertiary bg-background"
+        >
+          <ChevronRight className="w-5 h-5 rotate-180" />
+        </button>
+      )}
       <h1 className="text-3xl text-center font-bold mb-4">My Wishlist</h1>
       {wishlistProducts.length === 0 ? (
         <div className="text-center text-gray-500 mt-8">

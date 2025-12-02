@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
+import { ChevronRight } from "lucide-react";
 interface Address {
   id: string;
   label?: string;
@@ -22,6 +22,8 @@ const AddressesPage: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
   const [editing, setEditing] = useState<Address | null>(null);
   const [form, setForm] = useState<Address>({
     id: "",
@@ -115,14 +117,17 @@ const AddressesPage: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ address }),
-      });
+      const res = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ address }),
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save to profile");
       alert("Address saved to your profile (main address)");
@@ -131,6 +136,12 @@ const AddressesPage: React.FC = () => {
       alert(text || "Failed to save address");
     }
   };
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const handleBackToCheckout = () => navigate("/checkout");
 
@@ -158,6 +169,14 @@ const AddressesPage: React.FC = () => {
     <div className="min-h-screen bg-background pt-20">
       <div className="container mx-auto px-4 py-8">
         <div className="flex-column  items-center justify-between mb-6 ">
+          {isMobile && (
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1 rounded-full border border-tertiary bg-background"
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
           <span className="text-5xl sm:text-6xl md:text-4xl lg:text-5xl font-semibold">
             My Addresses
           </span>

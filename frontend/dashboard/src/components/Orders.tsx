@@ -384,54 +384,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                           return <span className="text-ds-500">-</span>;
                         })()}
                       </td>
-                      <td className="px-4 py-2 text-sm text-ds-700">
-                        {(() => {
-                          const awbVal =
-                            order.awb ||
-                            order.trackingNumber ||
-                            order.shipment?.awb ||
-                            order.shipment?.shipmentId;
-                          const trackUrl =
-                            order.shipment?.trackingUrl ||
-                            (awbVal
-                              ? `https://track.delhivery.com/?waybill=${awbVal}`
-                              : null);
-                          if (
-                            awbVal ||
-                            (order.shipment &&
-                              Object.keys(order.shipment || {}).length > 0)
-                          ) {
-                            return (
-                              <div className="flex flex-col">
-                                <div className="flex items-center space-x-2">
-                                  <span className="font-medium">
-                                    {awbVal || "-"}
-                                  </span>
-                                  {trackUrl && (
-                                    <a
-                                      href={trackUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-ds-700 hover:underline text-xs"
-                                    >
-                                      Track
-                                    </a>
-                                  )}
-                                </div>
-                                {order.shipment?.status && (
-                                  <div className="text-xs text-ds-500 mt-1">
-                                    Status:{" "}
-                                    <span className="font-medium">
-                                      {order.shipment.status}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
-                          return <span className="text-ds-500">-</span>;
-                        })()}
-                      </td>
+                      
                       <td className="px-4 py-2">
                         <div className="flex items-center space-x-2">
                           <StatusIcon className="w-4 h-4 text-primary-900" />

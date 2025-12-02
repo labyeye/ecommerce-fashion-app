@@ -198,15 +198,18 @@ mongoose
     // Start periodic Delhivery sync job
     try {
       const { syncOnce } = require("./services/delhiverySyncService");
-      const syncIntervalMinutes = Number(
-        process.env.DELHIVERY_SYNC_MINUTES || 5
-      );
-      console.log(
-        `Starting Delhivery sync job every ${syncIntervalMinutes} minutes`
-      );
-      // initial run after startup
-      setTimeout(() => syncOnce(), 10 * 1000);
-      setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
+      const syncIntervalSeconds = Number(process.env.DELHIVERY_SYNC_SECONDS || 0);
+      const syncIntervalMinutes = Number(process.env.DELHIVERY_SYNC_MINUTES || 5);
+      if (syncIntervalSeconds && syncIntervalSeconds > 0) {
+        console.log(`Starting Delhivery sync job every ${syncIntervalSeconds} seconds`);
+        // initial run shortly after startup
+        setTimeout(() => syncOnce(), 5 * 1000);
+        setInterval(() => syncOnce(), syncIntervalSeconds * 1000);
+      } else {
+        console.log(`Starting Delhivery sync job every ${syncIntervalMinutes} minutes`);
+        setTimeout(() => syncOnce(), 10 * 1000);
+        setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
+      }
     } catch (err) {
       console.error("Failed to start Delhivery sync job:", err);
     }
@@ -237,6 +240,13 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/shipping", shippingRoutes);
+// Delhivery webhook endpoint for instant carrier updates (cancellations, etc.)
+try {
+  const delhiveryWebhookRoutes = require('./routes/delhiveryWebhook');
+  app.use('/api/shipping/delhivery', delhiveryWebhookRoutes);
+} catch (err) {
+  console.warn('Delhivery webhook route not mounted:', err.message || err);
+}
 app.use("/api/activity", activityRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/jobs", jobRoutes);

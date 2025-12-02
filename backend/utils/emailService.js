@@ -1,642 +1,343 @@
+// Clean, single implementation of email helpers
 const nodemailer = require("nodemailer");
 
-// Create transporter
 const createTransporter = () => {
   if (process.env.NODE_ENV === "production") {
     return nodemailer.createTransport({
       service: process.env.EMAIL_SERVICE || "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
-  } else {
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      return nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-    } else {
-      console.log("⚠️ No email credentials found, using console transport");
-      return nodemailer.createTransport({
-        streamTransport: true,
-        newline: "unix",
-        buffer: true,
-      });
-    }
   }
+
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    return nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE || "gmail",
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    });
+  }
+
+  console.log("⚠️ No email credentials found, using console transport");
+  return nodemailer.createTransport({
+    streamTransport: true,
+    newline: "unix",
+    buffer: true,
+  });
 };
+
+const safeFormatPrice = (v) => {
+  if (v == null) return "0.00";
+  const n = typeof v === "number" ? v : Number(v) || 0;
+  return n.toFixed(2);
+};
+
+const sendMail = async (mailOptions) => {
+  const transporter = createTransporter();
+  return transporter.sendMail(mailOptions);
+};
+
 const sendVerificationEmail = async (email, firstName, verificationToken) => {
+  const verificationUrl = `${
+    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+  }/verify-email?token=${verificationToken}`;
+  const mailOptions = {
+    from: `"Flaunt by Nishi" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: "Verify Your Email Address - Flaunt by Nishi",
+    html: `<!doctype html><html><body><h2>Hi ${
+      firstName || ""
+    }!</h2><p>Please verify your email: <a href="${verificationUrl}">Verify Email</a></p></body></html>`,
+    text: `Hi ${firstName || ""},\n\nVerify your email: ${verificationUrl}`,
+  };
   try {
-    const transporter = createTransporter();
-
-    const verificationUrl = `${
-      process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
-    }/verify-email?token=${verificationToken}`;
-
-    const mailOptions = {
-      from: `"Flaunt by Nishi" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: "Verify Your Email Address - Flaunt by Nishi",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Email Verification</title>
-          <style>
-            body {
-              font-family: 'Inter', 'Arial', sans-serif;
-              background: #FFF8FA;
-              color: #111827;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 0;
-            }
-            .header {
-              background: linear-gradient(135deg, #914D26, #FFF2E1);
-              color: #fff;
-              text-align: center;
-              padding: 32px 24px 24px 24px;
-              border-radius: 18px 18px 0 0;
-            }
-            .logo {
-              width: 60px;
-              height: 60px;
-              margin-bottom: 12px;
-              border-radius: 50%;
-              background: #fff;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            }
-            .content {
-              background: #fff;
-              padding: 32px 24px;
-              border-radius: 0 0 18px 18px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            }
-            .button {
-              display: inline-block;
-              background: linear-gradient(90deg, #914D26, #FFF2E1);
-              color: #fff;
-              padding: 12px 28px;
-              text-decoration: none;
-              border-radius: 24px;
-              font-weight: 700;
-              font-size: 15px;
-              margin: 20px 0;
-              box-shadow: 0 4px 14px rgba(219,39,119,0.12);
-              letter-spacing: 0.3px;
-            }
-            .footer {
-              text-align: center;
-              margin-top: 28px;
-              padding-top: 16px;
-              border-top: 1px solid #f1e6ea;
-              color: #9CA3AF;
-              font-size: 13px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="logo">
-              <img src="https://ecommerce-fashion-app-som7.vercel.app/logo.png" alt="Flaunt by Nishi" style="width:44px;height:44px;object-fit:contain;" />
-            </div>
-            <h1 style="font-size:2rem; font-weight:700; margin-bottom:8px;">Welcome to Flaunt by Nishi</h1>
-            <p style="font-size:1rem; font-weight:400;">Thanks for joining our style community</p>
-          </div>
-          <div class="content">
-            <h2 style="font-size:1.25rem; font-weight:600; color:#111827;">Hi ${firstName}!</h2>
-            <p style="margin:16px 0 8px 0;">We're excited to welcome you to Flaunt by Nishi — where style meets confidence.</p>
-            <p style="margin-bottom:16px;">To activate your account and unlock member benefits, please verify your email by clicking the button below:</p>
-            <div style="text-align: center;">
-              <a href="${verificationUrl}" class="button">Verify Email Address</a>
-            </div>
-            <p style="margin:24px 0 8px 0; color:#9CA3AF;">This verification link will expire in 24 hours for security reasons.</p>
-            <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #914D26;">${verificationUrl}</p>
-            <p>If you didn't create an account with Flaunt by Nishi, you can safely ignore this email.</p>
-            <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
-          </div>
-          <div class="footer">
-            <p>&copy; 2025 Flaunt by Nishi. All rights reserved.</p>
-            <p>This is an automated email, please do not reply.</p>
-          </div>
-        </body>
-        </html>
-      `,
-      text: `
-        Hi ${firstName}!
-        
-        Welcome to Flaunt by Nishi! We're excited to have you as part of our style-forward family.
-        
-        To complete your registration, please verify your email address by visiting this link:
-        ${verificationUrl}
-        
-        This verification link will expire in 24 hours for security reasons.
-        
-        If you didn't create an account with Flaunt by Nishi, you can safely ignore this email.
-        
-        Best regards,
-        The Flaunt by Nishi Team
-      `,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("Verification email sent:", info.messageId);
-
-    // For development, log the email content
-    if (process.env.NODE_ENV !== "production") {
-      console.log("=== DEVELOPMENT EMAIL LOG ===");
-      console.log("To:", email);
-      console.log("Subject:", mailOptions.subject);
-      console.log("Verification URL:", verificationUrl);
-      console.log("Email content logged instead of sent");
-      console.log("=== END EMAIL LOG ===");
-    }
-
-    return {
-      success: true,
-      messageId: info.messageId || "dev-message-id",
-      previewUrl: null,
-    };
-  } catch (error) {
-    console.error("Email sending error:", error);
-    throw new Error("Failed to send verification email");
+    const info = await sendMail(mailOptions);
+    if (process.env.NODE_ENV !== "production")
+      console.log("DEV EMAIL - verification sent to", email);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendVerificationEmail error", err);
+    throw err;
   }
 };
 
-// Send welcome email after verification
 const sendWelcomeEmail = async (email, firstName) => {
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: "🎉 Welcome to Flaunt By Nishi",
+    html: `<div><h2>Hi ${
+      firstName || ""
+    }!</h2><p>Welcome to Flaunt By Nishi.</p></div>`,
+  };
   try {
-    const transporter = createTransporter();
-
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: "🎉 Welcome to Flaunt By Nishi - Your Journey Begins Now!",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to Flaunt By Nishi</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height:1.6; color:#111827; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA }
-            .header { background: linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; text-align:center; padding:28px; border-radius:10px 10px 0 0 }
-            .content { background:#fff; padding:24px; border-radius:0 0 10px 10px }
-            .button { display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:12px 26px; text-decoration:none; border-radius:22px; font-weight:700 }
-            .feature { background:#fff; padding:16px; margin:12px 0; border-radius:8px; border-left:4px solid #FCA5D1 }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>🎉 Welcome to Flaunt By Nishi!</h1>
-            <p>Your email has been verified successfully</p>
-          </div>
-          
-          <div class="content">
-            <h2>Hi ${firstName}!</h2>
-            
-            <p>Congratulations! Your email has been verified and your Flaunt By Nishi account is now active.</p>
-            
-            <div class="feature">
-              <h3>✨ New Arrivals & Editor Picks</h3>
-              <p>Discover curated pieces and seasonal favorites handpicked for you.</p>
-            </div>
-
-            <div class="feature">
-              <h3>⚡ Evolv Points Rewards</h3>
-              <p>Earn points with every purchase and redeem them for exclusive discounts.</p>
-            </div>
-
-            <div class="feature">
-              <h3>🔁 Easy Returns & Exchanges</h3>
-              <p>Hassle-free returns within 15 days — because we want you to love every order.</p>
-            </div>
-
-            <div style="text-align: center;">
-              <a href="${
-                process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
-              }" class="button">Start Shopping</a>
-            </div>
-
-            <p>Explore the latest collections and enjoy member benefits on your first order.</p>
-            
-            <p>Best regards,<br>The Flaunt By Nishi Team</p>
-          </div>
-        </body>
-        </html>
-      `,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Welcome email sent:", info.messageId);
-
-    return {
-      success: true,
-      messageId: info.messageId,
-    };
-  } catch (error) {
-    console.error("Welcome email sending error:", error);
-    // Don't throw error for welcome email as it's not critical
-    return { success: false, error: error.message };
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendWelcomeEmail error", err);
+    return { success: false, error: err && err.message };
   }
 };
 
-// Send password reset email
 const sendPasswordResetEmail = async (email, firstName, resetToken) => {
+  const resetUrl = `${
+    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+  }/reset-password?token=${resetToken}`;
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: "Reset your Flaunt By Nishi password",
+    html: `<div><p>Hi ${
+      firstName || ""
+    },</p><p>Reset your password: <a href="${resetUrl}">Reset</a></p></div>`,
+    text: `Reset your password: ${resetUrl}`,
+  };
   try {
-    const transporter = createTransporter();
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendPasswordResetEmail error", err);
+    throw err;
+  }
+};
 
-    const resetUrl = `${
-      process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
-    }/reset-password?token=${resetToken}`;
+const sendOrderPickedEmail = async (email, firstName, order) => {
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: `Your order ${
+      order && order.orderNumber ? order.orderNumber : ""
+    } has been picked up`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+        <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+          <h2 style="margin:0">Order Picked Up</h2>
+        </div>
+        <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+          <p>Hi ${firstName || ""},</p>
+          <p>Your order <strong>${
+            order && order.orderNumber ? order.orderNumber : ""
+          }</strong> has been picked up and is on its way.</p>
+          <p>You can track your shipment using the AWB number available in your order details.</p>
+          <p>Best regards,<br/>Flaunt By Nishi Team</p>
+        </div>
+      </div>
+    `,
+    text: `Hi ${firstName || ""},\n\nYour order ${
+      order && order.orderNumber ? order.orderNumber : ""
+    } has been picked up and is on its way.`,
+  };
+  try {
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendOrderPickedEmail error", err);
+    return { success: false, error: err && err.message };
+  }
+};
 
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: "Reset your Flaunt By Nishi password",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Password Reset</title>
-          <style>
-            body { font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827 }
-            .button { display:inline-block; padding:12px 20px; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; border-radius:8px; text-decoration:none }
-          </style>
-        </head>
-        <body>
-          <h2>Hi ${firstName || ""},</h2>
-          <p>We received a request to reset your password. Click the button below to set a new password. This link will expire in 10 minutes.</p>
-          <p style="text-align:center;"><a href="${resetUrl}" class="button">Reset your password</a></p>
-          <p>If the button doesn't work, copy and paste the link below into your browser:</p>
-          <p style="word-break:break-all;">${resetUrl}</p>
-          <p>If you didn't request a password reset, you can safely ignore this email.</p>
-          <p>— The Flaunt By Nishi Team</p>
-        </body>
-        </html>
-      `,
-      text: `Hi ${
-        firstName || ""
-      },\n\nUse the following link to reset your password (expires in 10 minutes):\n\n${resetUrl}\n\nIf you didn't request this, ignore this message.`,
-    };
+const sendOrderPlacedEmail = async (email, firstName, order) => {
+  const orderUrl = `${
+    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+  }/orders/${order && (order._id || order.id) ? order._id || order.id : ""}`;
+  const itemsHtml =
+    order && order.items && order.items.length
+      ? order.items
+          .map(
+            (i) =>
+              `<li>${i.quantity} × ${
+                (i.product && i.product.name) || i.name || "Item"
+              } — ₹${safeFormatPrice(i.price)}</li>`
+          )
+          .join("")
+      : "<li>No items</li>";
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: `Order Confirmation — ${
+      order && order.orderNumber ? order.orderNumber : ""
+    }`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+        <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+          <h2 style="margin:0">Order Confirmed</h2>
+        </div>
+        <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+          <p>Hi ${firstName || ""},</p>
+          <p>Thanks for your order! Order #: <strong>${
+            order && order.orderNumber ? order.orderNumber : ""
+          }</strong></p>
+          <h4>Items</h4>
+          <ul>${itemsHtml}</ul>
+          <p><strong>Total:</strong> ₹${safeFormatPrice(
+            order && order.total
+          )}</p>
+          <div style="text-align:center; margin:18px 0;"><a href="${orderUrl}" style="display:inline-block;padding:10px 16px;background:linear-gradient(90deg,#C17237,#FFF2E1);color:#fff;border-radius:8px;text-decoration:none">View Your Order</a></div>
+        </div>
+      </div>
+    `,
+    text: `Hi ${firstName || ""},\n\nThanks for your order ${
+      order && order.orderNumber ? order.orderNumber : ""
+    }. View: ${orderUrl}`,
+  };
+  try {
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendOrderPlacedEmail error", err);
+    return { success: false, error: err && err.message };
+  }
+};
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log(
-      "Password reset email sent:",
-      info.messageId || "dev-message-id"
-    );
+const sendOrderStatusUpdateEmail = async (
+  email,
+  firstName,
+  order,
+  status,
+  trackingInfo = null
+) => {
+  const trackingHtml =
+    trackingInfo && (trackingInfo.awb || trackingInfo.trackingUrl)
+      ? `<p><strong>AWB / Tracking:</strong> ${trackingInfo.awb || ""} ${
+          trackingInfo.trackingUrl
+            ? ` — <a href="${trackingInfo.trackingUrl}">Track shipment</a>`
+            : ""
+        }</p>`
+      : "";
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: `Update on your order ${
+      order && order.orderNumber ? order.orderNumber : ""
+    }: ${status}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+        <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;"><h2 style="margin:0">Order Update</h2></div>
+        <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;"><p>Hi ${
+          firstName || ""
+        },</p><p>Your order <strong>${
+      order && order.orderNumber ? order.orderNumber : ""
+    }</strong> status is now <strong>${status}</strong>.</p>${trackingHtml}</div>
+      </div>
+    `,
+    text: `Hi ${firstName || ""},\n\nYour order ${
+      order && order.orderNumber ? order.orderNumber : ""
+    } status is now: ${status}${
+      trackingInfo && trackingInfo.trackingUrl
+        ? "\nTrack: " + trackingInfo.trackingUrl
+        : ""
+    }`,
+  };
+  try {
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendOrderStatusUpdateEmail error", err);
+    return { success: false, error: err && err.message };
+  }
+};
 
-    if (process.env.NODE_ENV !== "production") {
-      console.log("=== PASSWORD RESET EMAIL LOG ===");
-      console.log("To:", email);
-      console.log("Reset URL:", resetUrl);
-      console.log("=== END EMAIL LOG ===");
-    }
+const sendOrderCancellationEmail = async (email, firstName, order) => {
+  const isPrepaid =
+    order &&
+    order.payment &&
+    (String(order.payment.status || "").toLowerCase() === "paid" ||
+      (order.payment.method &&
+        String(order.payment.method).toLowerCase() !== "cod"));
+  const itemsHtml =
+    order && order.items && order.items.length
+      ? order.items
+          .map(
+            (i) =>
+              `<li>${i.quantity} × ${
+                (i.product && i.product.name) || i.name || "Item"
+              } — ₹${safeFormatPrice(i.price)}</li>`
+          )
+          .join("")
+      : "<li>No items</li>";
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: `Your Order Has Been Cancelled`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+        <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;"><h2 style="margin:0">Aapka order cancel kar diya gaya hai</h2></div>
+        <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;"><p>Hi ${
+          firstName || ""
+        },</p><p>Your order <strong>${
+      order && order.orderNumber ? order.orderNumber : ""
+    }</strong> has been cancelled.</p>${
+      order && order.cancellationReason
+        ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>`
+        : ""
+    }${
+      isPrepaid
+        ? `<p>Aapko refund 5-7 working days ke andar mil jayega.</p>`
+        : ""
+    }<h4>Order Summary</h4><ul>${itemsHtml}</ul>${
+      isPrepaid
+        ? `<p><strong>Total refunded (if applicable):</strong> ₹${safeFormatPrice(
+            order && order.total
+          )}</p>`
+        : ""
+    }<p>If you have any questions, reply to this email or contact our support.</p></div>
+      </div>
+    `,
+    text: `Aapka order cancel kar diya gaya hai.${
+      isPrepaid ? " Refund will be processed in 5-7 working days." : ""
+    }\n\nOrder: ${order && order.orderNumber ? order.orderNumber : ""}`,
+  };
+  try {
+    const info = await sendMail(mailOptions);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendOrderCancellationEmail error", err);
+    return { success: false, error: err && err.message };
+  }
+};
 
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("Password reset email error:", error);
-    throw new Error("Failed to send password reset email");
+const sendOTPEmail = async (email, otp, firstName = "") => {
+  const mailOptions = {
+    from: `"Flaunt by Nishi" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: "Your Verification Code - Flaunt by Nishi",
+    html: `<!doctype html><html><body><h2>${
+      firstName ? `Hi ${firstName}!` : "Hi!"
+    }</h2><p>Your verification code is <strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p></body></html>`,
+    text: `Your verification code is: ${otp}`,
+  };
+  try {
+    const info = await sendMail(mailOptions);
+    if (process.env.NODE_ENV !== "production") console.log("DEV OTP:", otp);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendOTPEmail error", err);
+    throw err;
   }
 };
 
 module.exports = {
+  createTransporter,
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendOrderPickedEmail,
+  sendOrderPlacedEmail,
+  sendOrderStatusUpdateEmail,
+  sendOrderCancellationEmail,
+  sendOTPEmail,
 };
-
-// Send picked up notification to customer (used when carrier marks pickup)
-const sendOrderPickedEmail = async (email, firstName, order) => {
-  try {
-    const transporter = createTransporter();
-
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: `Your order ${order.orderNumber || ""} has been picked up`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
-          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
-            <h2 style="margin:0">Order Picked Up</h2>
-          </div>
-          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ""},</p>
-            <p>Your order <strong>${
-              order.orderNumber || ""
-            }</strong> has been picked up and is now on its way to you.</p>
-            <p>You can track your shipment using the AWB number available in your order details.</p>
-            <p>Thanks for shopping with Flaunt By Nishi.</p>
-            <p>Best regards,<br/>Flaunt By Nishi Team</p>
-          </div>
-        </div>
-      `,
-      text: `Hi ${firstName || ""},\n\nYour order ${
-        order.orderNumber || ""
-      } has been picked up and is on its way to you.\n\nTrack using your AWB in order details.\n\nThanks,\nFlaunt By Nishi Team`,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Order picked email sent:", info.messageId || "dev-message-id");
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error("Error sending order picked email:", err);
-    return {
-      success: false,
-      error: err && err.message ? err.message : String(err),
-    };
-  }
-};
-
-// Order placed confirmation email
-const sendOrderPlacedEmail = async (email, firstName, order) => {
-  try {
-    const transporter = createTransporter();
-
-    const orderUrl = `${process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"}/orders/${order._id || order.id || ""}`;
-
-    const itemsHtml = order.items && order.items.length > 0
-      ? order.items
-          .map(item => `<li>${item.quantity} × ${item.product?.name || item.name || 'Item'} — ₹${(item.price || 0).toFixed ? (item.price || 0).toFixed(2) : (item.price || 0)}</li>`)
-          .join("")
-      : '<li>No items</li>';
-
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
-      to: email,
-      subject: `Order Confirmation — ${order.orderNumber || ''}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
-          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
-            <h2 style="margin:0">Order Confirmed</h2>
-          </div>
-          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ''},</p>
-            <p>Thanks for your order! We've received it and are getting it ready to ship. Below are the details for your reference.</p>
-
-            <h4>Order # ${order.orderNumber || ''}</h4>
-            <p><strong>Placed:</strong> ${new Date(order.createdAt || Date.now()).toLocaleString()}</p>
-
-            <h4>Items</h4>
-            <ul>
-              ${itemsHtml}
-            </ul>
-
-            <p><strong>Subtotal:</strong> ₹${(order.subtotal || order.total || 0).toFixed ? (order.subtotal || order.total || 0).toFixed(2) : (order.subtotal || order.total || 0)}</p>
-            ${order.shippingCost ? `<p><strong>Shipping:</strong> ₹${order.shippingCost.toFixed ? order.shippingCost.toFixed(2) : order.shippingCost}</p>` : ''}
-            <p><strong>Total:</strong> ₹${(order.total || 0).toFixed ? (order.total || 0).toFixed(2) : (order.total || 0)}</p>
-
-            <div style="text-align:center; margin:18px 0;">
-              <a href="${orderUrl}" style="display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:12px 22px; text-decoration:none; border-radius:22px; font-weight:700;">View Your Order</a>
-            </div>
-
-            <p>If you have any questions, reply to this email or contact our support.</p>
-
-            <p>Best regards,<br/>Flaunt By Nishi Team</p>
-          </div>
-        </div>
-      `,
-      text: `Hi ${firstName || ''},\n\nThanks for your order ${order.orderNumber || ''}. View it here: ${orderUrl}\n\nIf you have questions, contact support.\n\n— Flaunt By Nishi Team`,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Order placed email sent:', info.messageId || 'dev-message-id');
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('Error sending order placed email:', err);
-    return { success: false, error: err && err.message ? err.message : String(err) };
-  }
-};
-
-// Generic order status update (shipping, delivered, etc.)
-const sendOrderStatusUpdateEmail = async (email, firstName, order, status, trackingInfo = null) => {
-  try {
-    const transporter = createTransporter();
-
-    const trackingHtml = trackingInfo && (trackingInfo.awb || trackingInfo.trackingUrl)
-      ? `<p><strong>AWB / Tracking:</strong> ${trackingInfo.awb || ''} ${trackingInfo.trackingUrl ? ` — <a href="${trackingInfo.trackingUrl}">Track shipment</a>` : ''}</p>`
-      : '';
-
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
-      to: email,
-      subject: `Update on your order ${order.orderNumber || ''}: ${status}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
-          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
-            <h2 style="margin:0">Order Update</h2>
-          </div>
-          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ''},</p>
-            <p>We're writing to let you know that the status of your order <strong>${order.orderNumber || ''}</strong> has changed to <strong>${status}</strong>.</p>
-            ${trackingHtml}
-            ${order.items && order.items.length > 0 ? `<h4>Items</h4><ul>${order.items.map(i=>`<li>${i.quantity} × ${i.product?.name || i.name || 'Item'}</li>`).join('')}</ul>` : ''}
-            <p>If you need help, reply to this email or contact our support.</p>
-            <p>Best regards,<br/>Flaunt By Nishi Team</p>
-          </div>
-        </div>
-      `,
-      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} status is now: ${status}. ${trackingInfo && trackingInfo.trackingUrl ? `Track it here: ${trackingInfo.trackingUrl}` : ''}\n\n— Flaunt By Nishi Team`,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Order status update email sent:', info.messageId || 'dev-message-id');
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('Error sending order status update email:', err);
-    return { success: false, error: err && err.message ? err.message : String(err) };
-  }
-};
-
-// export new functions
-module.exports.sendOrderPlacedEmail = sendOrderPlacedEmail;
-module.exports.sendOrderStatusUpdateEmail = sendOrderStatusUpdateEmail;
-
-// export previously added function
-module.exports.sendOrderPickedEmail = sendOrderPickedEmail;
-
-// Send order cancellation email
-const sendOrderCancellationEmail = async (email, firstName, order) => {
-  try {
-    const transporter = createTransporter();
-
-    const mailOptions = {
-      from: `"Flaunt By Nishi Team" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: `Your order ${order.orderNumber || ""} has been cancelled`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
-          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
-            <h2 style="margin:0">Order Cancelled</h2>
-          </div>
-          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
-            <p>Hi ${firstName || ""},</p>
-            <p>We're writing to confirm that your order <strong>${
-              order.orderNumber || ""
-            }</strong> has been cancelled.</p>
-            ${
-              order.cancellationReason
-                ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>`
-                : ""
-            }
-            <h4>Order Summary</h4>
-            <ul>
-              ${
-                order.items && order.items.length > 0
-                  ? order.items
-                      .map(
-                        (item) =>
-                          `<li>${item.quantity} × ${
-                            item.product?.name || item.name || "Item"
-                          } — ₹${
-                            (item.price || 0).toFixed
-                              ? item.price.toFixed(2)
-                              : item.price
-                          }</li>`
-                      )
-                      .join("")
-                  : "<li>No items</li>"
-              }
-            </ul>
-            <p><strong>Total refunded (if applicable):</strong> ₹${
-              (order.total || 0).toFixed ? order.total.toFixed(2) : order.total
-            }</p>
-            <p>If you have any questions, reply to this email or contact our support.</p>
-            <p>Best regards,<br/>Flaunt By Nishi Team</p>
-          </div>
-        </div>
-      `,
-      text: `Hi ${firstName || ""},\n\nYour order ${
-        order.orderNumber || ""
-      } has been cancelled.\n\nIf you have questions, contact support.`,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(
-      "Order cancellation email sent:",
-      info.messageId || "dev-message-id"
-    );
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("Error sending order cancellation email:", error);
-    return { success: false, error: error.message };
-  }
-};
-
-// Send OTP Email
-const sendOTPEmail = async (email, otp, firstName = "") => {
-  try {
-    const transporter = createTransporter();
-
-    const mailOptions = {
-      from: `"Flaunt by Nishi" <${
-        process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
-      }>`,
-      to: email,
-      subject: "Your Verification Code - Flaunt by Nishi",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>OTP Verification</title>
-          <style>
-            body { font-family: 'Inter', 'Arial', sans-serif; background:#FFF8FA; color:#111827; max-width:600px; margin:0 auto; padding:0 }
-            .header { background: linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; text-align:center; padding:32px 24px; border-radius:18px 18px 0 0 }
-            .content { background:#fff; padding:28px 24px; border-radius:0 0 18px 18px; box-shadow:0 2px 8px rgba(0,0,0,0.04) }
-            .otp-code { display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:18px 36px; font-size:28px; font-weight:700; letter-spacing:6px; border-radius:10px; margin:18px 0; box-shadow:0 6px 18px rgba(219,39,119,0.12) }
-            .footer { text-align:center; margin-top:28px; padding-top:16px; border-top:1px solid #f1e6ea; color:#9CA3AF; font-size:13px }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1 style="font-size:1.8rem; font-weight:700; margin-bottom:8px;">Verification Code</h1>
-            <p style="font-size:1rem; font-weight:400;">Your One-Time Password</p>
-          </div>
-          <div class="content">
-            ${
-              firstName
-                ? `<h2 style="font-size:1.25rem; font-weight:600; color:#111827;">Hi ${firstName}!</h2>`
-                : ""
-            }
-            <p style="margin:16px 0 8px 0;">Please use the following verification code to complete your action:</p>
-            <div style="text-align: center;">
-              <div class="otp-code">${otp}</div>
-            </div>
-            <p style="margin:24px 0 8px 0; color:#9CA3AF; font-weight:600;">This code will expire in 5 minutes.</p>
-            <p style="margin-top:16px;">For your security, do not share this code with anyone.</p>
-            <p style="margin-top:24px;">If you didn't request this code, please ignore this email or contact our support team.</p>
-            <p style="margin-top:24px;">Best regards,<br>The Flaunt by Nishi Team</p>
-          </div>
-          <div class="footer">
-            <p>&copy; 2025 Flaunt by Nishi. All rights reserved.</p>
-            <p>This is an automated email, please do not reply.</p>
-          </div>
-        </body>
-        </html>
-      `,
-      text: `
-        ${
-          firstName ? `Hi ${firstName}!\n\n` : ""
-        }Your verification code is: ${otp}
-        
-        This code will expire in 5 minutes.
-        
-        For your security, do not share this code with anyone.
-        
-        If you didn't request this code, please ignore this email.
-        
-        Best regards,
-        The Flaunt by Nishi Team
-      `,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log("OTP email sent:", info.messageId || "dev-message-id");
-
-    // For development, log the OTP
-    if (process.env.NODE_ENV !== "production") {
-      console.log("=== DEVELOPMENT OTP LOG ===");
-      console.log("To:", email);
-      console.log("OTP:", otp);
-      console.log("=== END OTP LOG ===");
-    }
-
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("Error sending OTP email:", error);
-    throw new Error("Failed to send OTP email");
-  }
-};
-
-// Export the new function
-module.exports.sendOrderCancellationEmail = sendOrderCancellationEmail;
-module.exports.sendOTPEmail = sendOTPEmail;
-
-// Export transporter creator for other modules that may want to send custom emails
-module.exports.createTransporter = createTransporter;

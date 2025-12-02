@@ -101,6 +101,7 @@ const OrderDetailsPage: React.FC = () => {
   const [exchangeReason, setExchangeReason] = useState('');
   const [submittingExchange, setSubmittingExchange] = useState(false);
   const [exchangeSubmitted, setExchangeSubmitted] = useState(false);
+  const [exchangeFiles, setExchangeFiles] = useState<File[]>([]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -280,7 +281,7 @@ const OrderDetailsPage: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7B3F00] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
-        {/* Exchange Modal */}
+                {/* Exchange Modal */}
         {showExchangeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
@@ -292,6 +293,18 @@ const OrderDetailsPage: React.FC = () => {
                 className="w-full border rounded p-2 mb-4 h-28"
                 placeholder="Reason for exchange"
               />
+                      <div className="mb-3">
+                        <label className="block text-sm text-gray-700 mb-1">Upload images (optional)</label>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (!e.target.files) return;
+                            setExchangeFiles(Array.from(e.target.files));
+                          }}
+                        />
+                      </div>
               <div className="flex justify-end space-x-2">
                 <button onClick={() => { setShowExchangeModal(false); setExchangeReason(''); }} className="px-4 py-2 rounded bg-gray-200">Cancel</button>
                 <button
@@ -299,11 +312,17 @@ const OrderDetailsPage: React.FC = () => {
                     if (!exchangeReason.trim()) { alert('Please provide a reason'); return; }
                     try {
                       setSubmittingExchange(true);
-                      const resp = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/exchange/request', {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderId: orderId, reason: exchangeReason })
-                      });
+                              const form = new FormData();
+                              form.append('orderId', orderId || '');
+                              form.append('reason', exchangeReason);
+                              // Attach files
+                              exchangeFiles.forEach((f, idx) => form.append('images', f, f.name));
+
+                              const resp = await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/exchange/request', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${token}` },
+                                body: form
+                              });
                       if (!resp.ok) {
                         const err = await resp.json();
                         throw new Error(err.message || 'Failed to submit exchange request');
@@ -316,7 +335,8 @@ const OrderDetailsPage: React.FC = () => {
                       alert('Error: ' + (err.message || err));
                     } finally {
                       setSubmittingExchange(false);
-                      setExchangeReason('');
+                              setExchangeReason('');
+                              setExchangeFiles([]);
                     }
                   }}
                   disabled={submittingExchange}

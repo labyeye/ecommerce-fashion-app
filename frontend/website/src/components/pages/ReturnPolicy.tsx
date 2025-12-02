@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import logo from "../../assets/images/logoblack.png";
 import { Plus } from "lucide-react";
 
@@ -231,12 +233,30 @@ const list: QA[] = [
 
 const ReturnPolicy: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-background rounded-xl shadow-sm p-8 sm:p-12">
           
+          {isMobile && (
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1 rounded-full border border-tertiary bg-background mb-4"
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
+
           <span className="block text-2xl sm:text-3xl md:text-5xl font-semibold text-[#95522C] mb-12 text-center">
             Return & Exchange Policy
           </span>

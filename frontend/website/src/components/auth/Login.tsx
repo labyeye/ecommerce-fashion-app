@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 // Google Sign-In Script Loader
@@ -29,6 +29,7 @@ const Login: React.FC = () => {
   const { login, isLoading, error, clearError } = useAuth();
   const { setCredentials } = useAuth() as any;
   const navigate = useNavigate();
+  const location = useLocation() as any;
 
   // Google Sign-In
   const [googleLoaded, setGoogleLoaded] = useState(false);
@@ -83,7 +84,9 @@ const Login: React.FC = () => {
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
         }
-        navigate("/");
+        // After successful login, redirect back to where user came from (if present)
+        const from = (location && location.state && location.state.from) || "/";
+        navigate(from);
       } else {
         alert(data.message || "Google sign-in failed");
       }
@@ -100,7 +103,8 @@ const Login: React.FC = () => {
     try {
       const ok = await login(email, password);
       if (ok) {
-        navigate("/");
+        const from = (location && location.state && location.state.from) || "/";
+        navigate(from);
       }
     } catch (error) {
       // Error handled by auth context

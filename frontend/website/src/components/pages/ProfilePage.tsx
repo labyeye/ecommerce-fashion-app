@@ -83,41 +83,49 @@ const ProfilePage: React.FC = () => {
     setProfilePictureUploading(true);
     try {
       const apiBase = import.meta.env.VITE_API_URL || "";
-      const response = await fetch(`${apiBase}/api/customer/update-profile-photo`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user._id,
-          profilePhotoUrl: imageUrl,
-        }),
-      });
+      const response = await fetch(
+        `${apiBase}/api/customer/update-profile-photo`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user._id,
+            profilePhotoUrl: imageUrl,
+          }),
+        }
+      );
 
       // Always try to parse JSON response
       let data;
       const responseText = await response.text();
-      
+
       try {
         data = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('Failed to parse response as JSON:', responseText);
-        throw new Error('Server returned invalid response');
+        console.error("Failed to parse response as JSON:", responseText);
+        throw new Error("Server returned invalid response");
       }
 
       if (response.ok && data.success) {
         // Update user context with new profile image
-        if (user && typeof user === 'object') {
+        if (user && typeof user === "object") {
           const updatedUser = { ...user, profileImage: imageUrl };
           // Trigger re-fetch of user data or update context
           window.location.reload(); // For now, reload to get fresh data
         }
       } else {
-        throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(
+          data.error ||
+            data.message ||
+            `HTTP ${response.status}: ${response.statusText}`
+        );
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
       console.error("Error updating profile picture:", err);
       alert(`Failed to update profile picture: ${errorMessage}`);
     } finally {
@@ -198,22 +206,27 @@ const ProfilePage: React.FC = () => {
       // Handle response parsing carefully
       let data;
       const responseText = await response.text();
-      
+
       try {
         data = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('Failed to parse response as JSON:', responseText);
-        throw new Error('Server returned invalid response');
+        console.error("Failed to parse response as JSON:", responseText);
+        throw new Error("Server returned invalid response");
       }
 
       if (response.ok && data.success) {
         setShowEditModal(false);
         window.location.reload();
       } else {
-        throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(
+          data.error ||
+            data.message ||
+            `HTTP ${response.status}: ${response.statusText}`
+        );
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
       console.error("Error updating profile:", err);
       alert(`Failed to update profile: ${errorMessage}`);
     } finally {
@@ -388,7 +401,10 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen pt-24 pb-16" style={{ backgroundColor: "#FFF2E1" }}>
+    <div
+      className="min-h-screen pt-24 pb-16"
+      style={{ backgroundColor: "#FFF2E1" }}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {isMobile && (
           <div className="bg-beige rounded-lg shadow-sm p-4 mb-6">
@@ -430,7 +446,7 @@ const ProfilePage: React.FC = () => {
 
             <div className="mt-4 grid gap-3">
               <button
-                onClick={() => navigate("/profile?tab=orders")}
+                onClick={() => navigate("/orders")}
                 className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
               >
                 <div className="flex items-center gap-3">
@@ -459,7 +475,7 @@ const ProfilePage: React.FC = () => {
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400" />
             </button> */}
-              <button
+              {/* <button
                 onClick={() => navigate("/settings")}
                 className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
               >
@@ -468,7 +484,7 @@ const ProfilePage: React.FC = () => {
                   <div className="text-xl text-white">Payments</div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
-              </button>
+              </button> */}
               <button
                 onClick={() => navigate("/addresses")}
                 className="flex items-center justify-between bg-tertiary/80 px-4 py-3 rounded-md border"
@@ -569,7 +585,7 @@ const ProfilePage: React.FC = () => {
                   currentImage={userData.profileImage}
                   onUpload={handleProfilePictureUpload}
                   loading={profilePictureUploading}
-                  authToken={token || ''}
+                  authToken={token || ""}
                 />
               </div>
               <div className="flex-1 text-center md:text-left">
@@ -766,7 +782,7 @@ const ProfilePage: React.FC = () => {
                       <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                         <Mail className="w-5 h-5 " />
                         <div>
-                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                          <span className="block text-xl sm:text-lg text-tertiary font-semibold">
                             Email
                           </span>
                           <span className="block text-tertiary font-medium mt-1">
@@ -777,7 +793,7 @@ const ProfilePage: React.FC = () => {
                       <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft transition-all duration-300 hover:shadow-gentle">
                         <Phone className="w-5 h-5 " />
                         <div>
-                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                          <span className="block text-xl sm:text-lg text-tertiary font-semibold">
                             Phone
                           </span>
                           <span className="block text-tertiary federo-numeric mt-1">
@@ -788,7 +804,7 @@ const ProfilePage: React.FC = () => {
                       <div className="flex items-center gap-4 p-5 bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft md:col-span-2 transition-all duration-300 hover:shadow-gentle">
                         <MapPin className="w-5 h-5 " />
                         <div>
-                          <span className="block text-xl sm:text-lg text-tertiary/60">
+                          <span className="block text-xl sm:text-lg text-tertiary font-semibold">
                             Address
                           </span>
                           <span className="block text-tertiary font-medium mt-1">

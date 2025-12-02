@@ -1045,7 +1045,7 @@ const ProductDetailsPage: React.FC = () => {
                           </p>
                           {/* Mobile-only strike line across the size box to indicate out-of-stock */}
                           <span className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none z-30 opacity-95 overflow-visible">
-                            <span className="block w-[120%] h-[2px] bg-background rounded-full shadow-sm transform -rotate-12" />
+                            <span className="block w-[120%] h-[2px] bg-tertiary rounded-full shadow-sm transform -rotate-12" />
                           </span>
                         </>
                       )}
