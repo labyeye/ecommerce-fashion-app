@@ -415,11 +415,11 @@ const OrderDetailsPage: React.FC = () => {
                     })()}
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
-                      <p className="text-sm text-gray-600">Quantity: <span className="poppins-numeric">{item.quantity}</span></p>
-                      <p className="text-sm text-gray-600 poppins-numeric">₹{item.price} each</p>
+                      <p className="text-sm text-gray-600">Quantity: <span className="federo-numeric">{item.quantity}</span></p>
+                      <p className="text-sm text-gray-600 federo-numeric">₹{item.price} each</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-[#7B3F00] poppins-numeric">₹{item.total}</p>
+                      <p className="font-semibold text-[#7B3F00] federo-numeric">₹{item.total}</p>
                     </div>
                   </div>
                 ))}
@@ -490,20 +490,20 @@ const OrderDetailsPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="poppins-numeric">₹{order.subtotal}</span>
+                  <span className="federo-numeric">₹{order.subtotal}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="poppins-numeric">{order.shipping.cost === 0 ? 'Free' : `₹${order.shipping.cost}`}</span>
+                  <span className="federo-numeric">{order.shipping.cost === 0 ? 'Free' : `₹${order.shipping.cost}`}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span className="poppins-numeric">₹{order.tax}</span>
+                  <span className="federo-numeric">₹{order.tax}</span>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="poppins-numeric">₹{order.total}</span>
+                    <span className="federo-numeric">₹{order.total}</span>
                   </div>
                 </div>
               </div>
@@ -523,7 +523,7 @@ const OrderDetailsPage: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Current Points</span>
-                    <span className="font-medium poppins-numeric">{loyaltyInfo.currentPoints}</span>
+                    <span className="font-medium federo-numeric">{loyaltyInfo.currentPoints}</span>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
@@ -542,12 +542,12 @@ const OrderDetailsPage: React.FC = () => {
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Points earned from this order</span>
-                      <span className="text-[#7B3F00] font-medium poppins-numeric">{pointsEarned}</span>
+                      <span className="text-[#7B3F00] font-medium federo-numeric">{pointsEarned}</span>
                     </div>
                     {order.status === 'delivered' && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Delivery bonus points</span>
-                        <span className="text-[#7B3F00] font-medium poppins-numeric">+{deliveryBonusPoints}</span>
+                        <span className="text-[#7B3F00] font-medium federo-numeric">+{deliveryBonusPoints}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-medium">

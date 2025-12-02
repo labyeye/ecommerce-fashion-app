@@ -370,7 +370,111 @@ const sendOrderPickedEmail = async (email, firstName, order) => {
   }
 };
 
-// export new function
+// Order placed confirmation email
+const sendOrderPlacedEmail = async (email, firstName, order) => {
+  try {
+    const transporter = createTransporter();
+
+    const orderUrl = `${process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"}/orders/${order._id || order.id || ""}`;
+
+    const itemsHtml = order.items && order.items.length > 0
+      ? order.items
+          .map(item => `<li>${item.quantity} × ${item.product?.name || item.name || 'Item'} — ₹${(item.price || 0).toFixed ? (item.price || 0).toFixed(2) : (item.price || 0)}</li>`)
+          .join("")
+      : '<li>No items</li>';
+
+    const mailOptions = {
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
+      to: email,
+      subject: `Order Confirmation — ${order.orderNumber || ''}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+            <h2 style="margin:0">Order Confirmed</h2>
+          </div>
+          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+            <p>Hi ${firstName || ''},</p>
+            <p>Thanks for your order! We've received it and are getting it ready to ship. Below are the details for your reference.</p>
+
+            <h4>Order # ${order.orderNumber || ''}</h4>
+            <p><strong>Placed:</strong> ${new Date(order.createdAt || Date.now()).toLocaleString()}</p>
+
+            <h4>Items</h4>
+            <ul>
+              ${itemsHtml}
+            </ul>
+
+            <p><strong>Subtotal:</strong> ₹${(order.subtotal || order.total || 0).toFixed ? (order.subtotal || order.total || 0).toFixed(2) : (order.subtotal || order.total || 0)}</p>
+            ${order.shippingCost ? `<p><strong>Shipping:</strong> ₹${order.shippingCost.toFixed ? order.shippingCost.toFixed(2) : order.shippingCost}</p>` : ''}
+            <p><strong>Total:</strong> ₹${(order.total || 0).toFixed ? (order.total || 0).toFixed(2) : (order.total || 0)}</p>
+
+            <div style="text-align:center; margin:18px 0;">
+              <a href="${orderUrl}" style="display:inline-block; background:linear-gradient(90deg,#C17237,#FFF2E1); color:#fff; padding:12px 22px; text-decoration:none; border-radius:22px; font-weight:700;">View Your Order</a>
+            </div>
+
+            <p>If you have any questions, reply to this email or contact our support.</p>
+
+            <p>Best regards,<br/>Flaunt By Nishi Team</p>
+          </div>
+        </div>
+      `,
+      text: `Hi ${firstName || ''},\n\nThanks for your order ${order.orderNumber || ''}. View it here: ${orderUrl}\n\nIf you have questions, contact support.\n\n— Flaunt By Nishi Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Order placed email sent:', info.messageId || 'dev-message-id');
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('Error sending order placed email:', err);
+    return { success: false, error: err && err.message ? err.message : String(err) };
+  }
+};
+
+// Generic order status update (shipping, delivered, etc.)
+const sendOrderStatusUpdateEmail = async (email, firstName, order, status, trackingInfo = null) => {
+  try {
+    const transporter = createTransporter();
+
+    const trackingHtml = trackingInfo && (trackingInfo.awb || trackingInfo.trackingUrl)
+      ? `<p><strong>AWB / Tracking:</strong> ${trackingInfo.awb || ''} ${trackingInfo.trackingUrl ? ` — <a href="${trackingInfo.trackingUrl}">Track shipment</a>` : ''}</p>`
+      : '';
+
+    const mailOptions = {
+      from: `"Flaunt By Nishi Team" <${process.env.EMAIL_FROM || "noreply@flauntbynishi.com"}>`,
+      to: email,
+      subject: `Update on your order ${order.orderNumber || ''}: ${status}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width:680px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+          <div style="background:linear-gradient(135deg,#C17237,#FFF2E1); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+            <h2 style="margin:0">Order Update</h2>
+          </div>
+          <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+            <p>Hi ${firstName || ''},</p>
+            <p>We're writing to let you know that the status of your order <strong>${order.orderNumber || ''}</strong> has changed to <strong>${status}</strong>.</p>
+            ${trackingHtml}
+            ${order.items && order.items.length > 0 ? `<h4>Items</h4><ul>${order.items.map(i=>`<li>${i.quantity} × ${i.product?.name || i.name || 'Item'}</li>`).join('')}</ul>` : ''}
+            <p>If you need help, reply to this email or contact our support.</p>
+            <p>Best regards,<br/>Flaunt By Nishi Team</p>
+          </div>
+        </div>
+      `,
+      text: `Hi ${firstName || ''},\n\nYour order ${order.orderNumber || ''} status is now: ${status}. ${trackingInfo && trackingInfo.trackingUrl ? `Track it here: ${trackingInfo.trackingUrl}` : ''}\n\n— Flaunt By Nishi Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Order status update email sent:', info.messageId || 'dev-message-id');
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('Error sending order status update email:', err);
+    return { success: false, error: err && err.message ? err.message : String(err) };
+  }
+};
+
+// export new functions
+module.exports.sendOrderPlacedEmail = sendOrderPlacedEmail;
+module.exports.sendOrderStatusUpdateEmail = sendOrderStatusUpdateEmail;
+
+// export previously added function
 module.exports.sendOrderPickedEmail = sendOrderPickedEmail;
 
 // Send order cancellation email

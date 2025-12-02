@@ -28,11 +28,11 @@ const OrderCompletePage: React.FC = () => {
           {orderData?.order ? (
             <div className="inline-block text-left bg-white/60 p-4 rounded-lg border border-[#F0E6E0] mb-6">
               <div className="text-sm text-[#6C584F]">Order Number</div>
-              <div className="font-semibold poppins-numeric text-tertiary mb-1">
+              <div className="font-semibold federo-numeric text-tertiary mb-1">
                 {orderData.order.orderNumber || orderData.orderNumber}
               </div>
               <div className="text-sm text-[#6C584F]">Amount Paid</div>
-              <div className="font-semibold poppins-numeric text-tertiary">
+              <div className="font-semibold federo-numeric text-tertiary">
                 ₹{orderData.order.total || orderData.total}
               </div>
             </div>

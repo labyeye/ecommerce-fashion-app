@@ -299,7 +299,7 @@ const AddressesPage: React.FC = () => {
                     }}
                   />
                   <input
-                    className="p-2 poppins-numeric bg-background border border-tertiary rounded-lg placeholder-tertiary"
+                    className="p-2 federo-numeric bg-background border border-tertiary rounded-lg placeholder-tertiary"
                     placeholder="ZIP code"
                     value={form.zipCode}
                     maxLength={6}

@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       },
       {
         _id: "2",
-        name: "About",
+        name: "About Us",
         slug: "about",
         url: "/about",
         type: "page",
@@ -173,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       },
       {
         _id: "3",
-        name: "Products",
+        name: "Shop",
         slug: "products",
         url: "/products",
         type: "category",
@@ -195,7 +195,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       },
       {
         _id: "5",
-        name: "Contact",
+        name: "Contact Us",
         slug: "contact",
         url: "/contact",
         type: "page",
@@ -890,7 +890,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
               >
                 <HandbagIcon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 text-fashion-dark-gray" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 rounded-full poppins-numeric bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
+                  <span className="absolute -top-1 -right-1 rounded-full federo-numeric bg-fashion-accent-brown text-white text-xs w-6 h-6 flex items-center justify-center animate-soft-pulse font-medium m-0">
                     {cartCount}
                   </span>
                 )}

@@ -585,7 +585,7 @@ const ProfilePage: React.FC = () => {
                 <div className="flex items-center justify-center md:justify-start gap-4">
                   <div className="flex items-center gap-2 text-tertiary">
                     <Package className="w-5 h-5" />
-                    <span className="font-medium poppins-numeric">
+                    <span className="font-medium federo-numeric">
                       {userData.totalOrders} Orders
                     </span>
                   </div>
@@ -780,7 +780,7 @@ const ProfilePage: React.FC = () => {
                           <span className="block text-xl sm:text-lg text-tertiary/60">
                             Phone
                           </span>
-                          <span className="block text-tertiary poppins-numeric mt-1">
+                          <span className="block text-tertiary federo-numeric mt-1">
                             {userData.phone}
                           </span>
                         </div>
@@ -833,7 +833,7 @@ const ProfilePage: React.FC = () => {
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span
-                              className="block font-semibold poppins-numeric"
+                              className="block font-semibold federo-numeric"
                               style={{ color: "#95522C" }}
                             >
                               {order.orderNumber}
@@ -851,7 +851,7 @@ const ProfilePage: React.FC = () => {
                             </span>
                           </div>
 
-                          <span className="block text-sm sm:text-sm text-tertiary poppins-numeric mb-2">
+                          <span className="block text-sm sm:text-sm text-tertiary federo-numeric mb-2">
                             {new Date(order.createdAt).toLocaleDateString()}
                           </span>
                           <span className="block text-sm sm:text-sm text-tertiary mb-2">
@@ -859,7 +859,7 @@ const ProfilePage: React.FC = () => {
                               .map((item: any) => item.product?.name)
                               .join(", ")}
                           </span>
-                          <span className="block text-sm sm:text-sm text-tertiary poppins-numeric">
+                          <span className="block text-sm sm:text-sm text-tertiary federo-numeric">
                             ₹{order.total}
                           </span>
                           {order.shipment && (
@@ -868,7 +868,7 @@ const ProfilePage: React.FC = () => {
                                 order.shipment.awb) && (
                                 <span className="block text-tertiary font-semibold">
                                   Delhivery ID:{" "}
-                                  <span className="font-medium text-tertiary poppins-numeric">
+                                  <span className="font-medium text-tertiary federo-numeric">
                                     {order.shipment.shipmentId ||
                                       order.shipment.awb}
                                   </span>
@@ -1094,7 +1094,7 @@ const ProfilePage: React.FC = () => {
                       onChange={(e) =>
                         setEditForm({ ...editForm, phone: e.target.value })
                       }
-                      className="w-full border text-lg poppins-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg federo-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -1179,7 +1179,7 @@ const ProfilePage: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full border text-lg poppins-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
+                      className="w-full border text-lg federo-numeric border-tertiary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent"
                     />
                   </div>
                   <div>

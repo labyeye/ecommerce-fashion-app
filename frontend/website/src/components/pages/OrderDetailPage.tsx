@@ -300,7 +300,7 @@ const OrderDetailPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
-                  <h4 className="text-3xl poppins-numeric text-[#95522C]">
+                  <h4 className="text-3xl federo-numeric text-[#95522C]">
                     Order #{order.order.orderNumber}
                   </h4>
                   <p className="text-[#95522C] mt-1">
@@ -375,7 +375,7 @@ const OrderDetailPage: React.FC = () => {
                         </div>
                         <div className="flex-1">
                           
-                          <p className="text-[#95522C] poppins-numeric text-sm">
+                          <p className="text-[#95522C] federo-numeric text-sm">
                             {entry.message}
                           </p>
                           <p className="text-gray-500 text-xs mt-1">
@@ -472,10 +472,10 @@ const OrderDetailPage: React.FC = () => {
                           <span className="mx-2">•</span>
                           <span>Quantity: {item.quantity}</span>
                           <span className="mx-2">•</span>
-                          <span className="text-lg poppins-numeric">₹{item.price?.toFixed(2)}</span>
+                          <span className="text-lg federo-numeric">₹{item.price?.toFixed(2)}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-[#95522C] poppins-numeric">
+                          <p className="font-semibold text-[#95522C] federo-numeric">
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
@@ -615,19 +615,19 @@ const OrderDetailPage: React.FC = () => {
                     <>
                       <div className="flex justify-between py-2 border-b border-gray-200">
                         <span className="text-[#95522C]">Subtotal:</span>
-                        <span className="poppins-numeric font-medium">{fmt(subtotal)}</span>
+                        <span className="federo-numeric font-medium">{fmt(subtotal)}</span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-gray-200">
                         <span className="text-[#95522C]">Shipping:</span>
-                        <span className="poppins-numeric font-medium">{fmt(shippingCost)}</span>
+                        <span className="federo-numeric font-medium">{fmt(shippingCost)}</span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-gray-200">
                         <span className="text-[#95522C]">Tax:</span>
-                        <span className="poppins-numeric font-medium">{fmt(tax)}</span>
+                        <span className="federo-numeric font-medium">{fmt(tax)}</span>
                       </div>
                       <div className="flex justify-between py-3 text-lg text-[#95522C]">
                         <span>Total:</span>
-                        <span className="poppins-numeric">{fmt(total)}</span>
+                        <span className="federo-numeric">{fmt(total)}</span>
                       </div>
                     </>
                   );

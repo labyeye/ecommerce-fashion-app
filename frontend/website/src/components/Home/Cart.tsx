@@ -127,7 +127,7 @@ const Cart: React.FC<CartProps> = ({
               Your Bag
             </span>
             <span
-              className="text-[#914D26] text-lg px-0 py-0 rounded-full poppins-numeric"
+              className="text-[#914D26] text-lg px-0 py-0 rounded-full federo-numeric"
               style={{
                 fontVariantNumeric: "lining-nums",
                 fontFeatureSettings: '"tnum"',
@@ -200,7 +200,7 @@ const Cart: React.FC<CartProps> = ({
                     <span className="block text-xl md:text-lg sm:text-sm text-[#914D26]">
                       Size: {item.size}
                     </span>
-                    <span className="block text-md sm:text-base md:text-lg text-[#914D26] poppins-numeric">
+                    <span className="block text-md sm:text-base md:text-lg text-[#914D26] federo-numeric">
                       ₹{item.price}
                     </span>
                   </div>
@@ -219,7 +219,7 @@ const Cart: React.FC<CartProps> = ({
                       <Minus className="w-3 h-3 text-[#914D26]" />
                     </button>
                     <span
-                      className="w-5 text-center font-semibold text-[#914D26] poppins-numeric"
+                      className="w-5 text-center font-semibold text-[#914D26] federo-numeric"
                       style={{
                         fontVariantNumeric: "lining-nums",
                         fontFeatureSettings: '"tnum"',
@@ -426,13 +426,13 @@ const Cart: React.FC<CartProps> = ({
             <div className="space-y-2">
               <div className="flex justify-between text-[914D26">
                 <span>Subtotal</span>
-                <span className="poppins-numeric">₹{subtotal.toFixed(0)}</span>
+                <span className="federo-numeric">₹{subtotal.toFixed(0)}</span>
               </div>
 
               {promoCode && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount ({promoCode.code})</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     -₹{promoDiscount.toFixed(0)}
                   </span>
                 </div>
@@ -441,7 +441,7 @@ const Cart: React.FC<CartProps> = ({
               {evolvPointsRedemption && (
                 <div className="flex justify-between text-blue-600">
                   <span>Flaunt By Nishi Points Discount</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     -₹{evolvDiscount.toFixed(0)}
                   </span>
                 </div>
@@ -457,14 +457,14 @@ const Cart: React.FC<CartProps> = ({
               {subtotal < 3000 && (
                 <p className="text-sm text-[#914D26] pt-2">
                   Add{" "}
-                  <span className="poppins-numeric">₹{3000 - subtotal}</span>{" "}
+                  <span className="federo-numeric">₹{3000 - subtotal}</span>{" "}
                   more for free shipping!
                 </p>
               )}
 
               <div className="flex justify-between text-lg font-semibold text-[#914D26] pt-2 border-t border-tertiary">
                 <span>Total</span>
-                <span className="poppins-numeric">
+                <span className="federo-numeric">
                   ₹{Math.max(0, total).toFixed(0)}
                 </span>
               </div>

@@ -57,7 +57,7 @@ const ChangePhone: React.FC = () => {
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full border poppins-numeric rounded px-3 py-2 h-10 md:h-12 focus:outline-none focus:ring-2 focus:ring-[#c89a7a]"
+                className="w-full border federo-numeric rounded px-3 py-2 h-10 md:h-12 focus:outline-none focus:ring-2 focus:ring-[#c89a7a]"
               />
             </div>
             <div>

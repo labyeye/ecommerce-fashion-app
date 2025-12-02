@@ -76,11 +76,16 @@ const ProductDetailsPage: React.FC = () => {
 
         // Track product page view (best-effort)
         try {
-          trackEvent('page_view', 'product', { productId: fetchedProduct._id || fetchedProduct.id });
+          trackEvent("page_view", "product", {
+            productId: fetchedProduct._id || fetchedProduct.id,
+          });
         } catch (e) {}
         try {
           // activity log
-          logEvent('product_view', { productId: fetchedProduct._id || fetchedProduct.id, page: `/product/${fetchedProduct._id || fetchedProduct.id}` });
+          logEvent("product_view", {
+            productId: fetchedProduct._id || fetchedProduct.id,
+            page: `/product/${fetchedProduct._id || fetchedProduct.id}`,
+          });
         } catch (e) {}
 
         // Set initial color if available
@@ -410,7 +415,7 @@ const ProductDetailsPage: React.FC = () => {
     addToCart(cartItem);
     setAddedToCart(true);
     try {
-      logEvent('add_to_cart', { productId: product?._id, quantity });
+      logEvent("add_to_cart", { productId: product?._id, quantity });
     } catch (e) {}
 
     // Reduce local displayed stock so the button becomes disabled when stock is exhausted
@@ -629,7 +634,9 @@ const ProductDetailsPage: React.FC = () => {
                     setModalOpen(true);
                     return;
                   }
-                  const delta = Math.abs((touchCurrentX || 0) - (touchStartX || 0));
+                  const delta = Math.abs(
+                    (touchCurrentX || 0) - (touchStartX || 0)
+                  );
                   const tapThreshold = 10;
                   if (delta <= tapThreshold) setModalOpen(true);
                   onTouchEnd();
@@ -777,30 +784,30 @@ const ProductDetailsPage: React.FC = () => {
                   </button>
 
                   <div className="mx-auto flex flex-col items-center">
-                      <div
-                        className="group relative bg-white rounded"
-                        onTouchStart={onTouchStart}
-                        onTouchMove={onTouchMove}
-                        onTouchEnd={() => {
-                          onTouchEnd();
-                        }}
-                      >
-                        <img
-                          src={displayImages[selectedImageIndex]?.url || ""}
-                          alt={
-                            displayImages[selectedImageIndex]?.alt || product.name
+                    <div
+                      className="group relative bg-white rounded"
+                      onTouchStart={onTouchStart}
+                      onTouchMove={onTouchMove}
+                      onTouchEnd={() => {
+                        onTouchEnd();
+                      }}
+                    >
+                      <img
+                        src={displayImages[selectedImageIndex]?.url || ""}
+                        alt={
+                          displayImages[selectedImageIndex]?.alt || product.name
+                        }
+                        className="max-h-[75vh] w-auto object-contain block"
+                        onError={(e) => {
+                          const t = e.target as HTMLImageElement;
+                          if (
+                            t.src !== "/assets/img-placeholder-800x1000.png"
+                          ) {
+                            t.src = "/assets/img-placeholder-800x1000.png";
                           }
-                          className="max-h-[75vh] w-auto object-contain block"
-                          onError={(e) => {
-                            const t = e.target as HTMLImageElement;
-                            if (
-                              t.src !== "/assets/img-placeholder-800x1000.png"
-                            ) {
-                              t.src = "/assets/img-placeholder-800x1000.png";
-                            }
-                          }}
-                        />
-                      </div>
+                        }}
+                      />
+                    </div>
 
                     <div className="flex items-center space-x-2 mt-4 overflow-x-auto">
                       {displayImages.map((img, i) => (
@@ -859,7 +866,7 @@ const ProductDetailsPage: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 poppins-numeric ${
+                      className={`w-4 h-4 federo-numeric ${
                         i < Math.floor(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
                           : "text-tertiary/20"
@@ -876,12 +883,12 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Price */}
             <div className="flex items-center space-x-3">
-              <span className="text-2xl font-medium text-tertiary poppins-numeric">
+              <span className="text-2xl font-medium text-tertiary federo-numeric">
                 ₹{currentPrice.toLocaleString()}
               </span>
               {hasDiscount && product.comparePrice && (
                 <>
-                  <p className="text-lg text-tertiary/50 line-through poppins-numeric">
+                  <p className="text-lg text-tertiary/50 line-through federo-numeric">
                     ₹{product.comparePrice.toLocaleString()}
                   </p>
                   <p className="text-sm text-red-600 font-medium">
@@ -897,7 +904,7 @@ const ProductDetailsPage: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 poppins-numeric ${
+                      className={`w-4 h-4 federo-numeric ${
                         i < Math.round(product.ratings?.average || 0)
                           ? "fill-fashion-accent-brown text-fashion-accent-brown"
                           : "text-tertiary/20"
@@ -944,21 +951,32 @@ const ProductDetailsPage: React.FC = () => {
                     >
                       {/* Render solid or striped preview. For striped, use a repeating linear-gradient
                           to create multiple narrow vertical stripes (more rows/lines) */}
-                      {((color as any).type || 'solid') === 'solid' ? (
+                      {((color as any).type || "solid") === "solid" ? (
                         <span
                           className="block w-full h-full"
-                          style={{ backgroundColor: (color as any).color1 || (color as any).hexCode || '#000000' }}
+                          style={{
+                            backgroundColor:
+                              (color as any).color1 ||
+                              (color as any).hexCode ||
+                              "#000000",
+                          }}
                         />
                       ) : (
                         (() => {
-                          const c1 = (color as any).color1 || '#000000';
-                          const c2 = (color as any).color2 || '#ffffff';
+                          const c1 = (color as any).color1 || "#000000";
+                          const c2 = (color as any).color2 || "#ffffff";
                           const stripeWidth = 6; // px width of each stripe segment
-                          const bg = `repeating-linear-gradient(90deg, ${c1} 0 ${stripeWidth}px, ${c2} ${stripeWidth}px ${stripeWidth * 2}px)`;
+                          const bg = `repeating-linear-gradient(90deg, ${c1} 0 ${stripeWidth}px, ${c2} ${stripeWidth}px ${
+                            stripeWidth * 2
+                          }px)`;
                           return (
                             <span
                               className="block w-full h-full"
-                              style={{ backgroundImage: bg, backgroundSize: 'auto', display: 'block' }}
+                              style={{
+                                backgroundImage: bg,
+                                backgroundSize: "auto",
+                                display: "block",
+                              }}
                             />
                           );
                         })()
@@ -1034,7 +1052,7 @@ const ProductDetailsPage: React.FC = () => {
 
                       {size.stock > 0 &&
                         (size.stock < 3 ? (
-                          <span className="absolute poppins-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full">
+                          <span className="absolute federo-numeric -top-2 -right-2 bg-tertiary text-[#ffffff] text-xs px-2 py-0.5 rounded-full">
                             {size.stock} left
                           </span>
                         ) : size.stock <= 5 ? (
@@ -1065,7 +1083,7 @@ const ProductDetailsPage: React.FC = () => {
                     <span aria-hidden="true">−</span>
                   </button>
 
-                  <p className="px-4 border-x border-tertiary/20 min-w-[60px] h-full flex items-center justify-center text-center poppins-numeric">
+                  <p className="px-4 border-x border-tertiary/20 min-w-[60px] h-full flex items-center justify-center text-center federo-numeric">
                     {quantity}
                   </p>
 
@@ -1090,7 +1108,7 @@ const ProductDetailsPage: React.FC = () => {
                   onChange={(e) => setPincode(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
                   placeholder="Enter Pincode"
-                  className="border placeholder-tertiary/30 px-3 h-[44px] rounded w-40 text-lg font-medium text-tertiary poppins-numeric"
+                  className="border placeholder-tertiary/30 px-3 h-[44px] rounded w-40 text-lg font-medium text-tertiary federo-numeric"
                 />
                 <button
                   onClick={checkDelivery}
@@ -1163,7 +1181,7 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || isOutOfStock}
-                    className={`w-full py-1 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border-2 ${
+                    className={`w-full py-1 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border ${
                       !selectedSize
                         ? "border-tertiary/10 text-tertiary/30 cursor-not-allowed bg-transparent"
                         : isOutOfStock
@@ -1182,7 +1200,7 @@ const ProductDetailsPage: React.FC = () => {
                     ) : (
                       <p className="flex items-center justify-center space-x-2 text-xl">
                         <p>ADD TO BAG</p>
-                        <p className="text-xl opacity-80 poppins-numeric">
+                        <p className="text-xl opacity-80 federo-numeric">
                           ₹{currentPrice.toLocaleString()}
                         </p>
                       </p>
@@ -1246,7 +1264,7 @@ const ProductDetailsPage: React.FC = () => {
                     console.warn("Wishlist action failed", e);
                   }
                 }}
-                className={`w-full py-1 border-2 font-medium tracking-wide transition-all duration-300 text-lg ${
+                className={`w-full py-1 border font-medium tracking-wide transition-all duration-300 text-lg ${
                   isWishlisted
                     ? "border-red-500 bg-red-50 text-red-600"
                     : "border-fashion-accent-brown text-fashion-accent-brown hover:bg-fashion-accent-brown hover:text-white"
@@ -1340,7 +1358,7 @@ const ProductDetailsPage: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 poppins-numeric ${
+                              className={`w-4 h-4 federo-numeric ${
                                 i < r.rating
                                   ? "fill-fashion-accent-brown text-fashion-accent-brown"
                                   : "text-tertiary/20"

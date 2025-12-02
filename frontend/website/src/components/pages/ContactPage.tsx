@@ -273,7 +273,7 @@ const ContactPage: React.FC = () => {
                         >
                           Phone
                         </h3>
-                        <p style={{ color: "#95522C" }} className="poppins-numeric">+91 8678040000</p>
+                        <p style={{ color: "#95522C" }} className="federo-numeric">+91 8678040000</p>
                         <p style={{ color: "#95522C" }}>Mon-Fri: 9AM - 6PM</p>
                       </div>
                     </div>
@@ -301,7 +301,7 @@ const ContactPage: React.FC = () => {
                           {" "}
                           Brc compound, Udhana, Surat,
                         </p>
-                        <p style={{ color: "#95522C" }} className="poppins-numeric">394210</p>
+                        <p style={{ color: "#95522C" }} className="federo-numeric">394210</p>
                       </div>
                     </div>
                   </div>

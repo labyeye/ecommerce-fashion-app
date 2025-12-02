@@ -610,7 +610,7 @@ const CheckoutPage: React.FC = () => {
                         inputMode="numeric"
                         pattern="\d{10}"
                         maxLength={10}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
+                        className="w-full border border-gray-300 federo-numeric rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#95522C] focus:border-transparent"
                         value={shipping.phone}
                         onChange={(e) => handleInput(e, "shipping")}
                       />
@@ -960,7 +960,7 @@ const CheckoutPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#95522C] shadow-sm shadow-tertiary text-white py-4 rounded-lg font-semibold hover:bg-[#2B463C] transition-colors disabled:bg-gray-400 flex items-center justify-center space-x-2"
+                  className="w-full bg-[#95522C] shadow-sm shadow-tertiary text-white py-4 rounded-lg font-semibold hover:bg-primary transition-colors disabled:bg-gray-400 flex items-center justify-center space-x-2"
                   disabled={loading}
                 >
                   {loading ? (
@@ -999,9 +999,9 @@ const CheckoutPage: React.FC = () => {
                     <div className="flex-1">
                       <span className="block font-medium">{item.name}</span>
                       <span className="block">
-                        Size: {item.size} || Qty: <span className="poppins-numeric">{item.quantity}</span>
+                        Size: {item.size} || Qty: <span className="federo-numeric">{item.quantity}</span>
                       </span>
-                      <span className="block poppins-numeric">₹{(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="block federo-numeric">₹{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   </div>
                 ))}
@@ -1011,7 +1011,7 @@ const CheckoutPage: React.FC = () => {
               <div className="border-t border-gray-200 pt-4 space-y-2">
                 <div className="flex justify-between text-[#95522C]">
                   <span>Subtotal</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     ₹{subtotalExclTax.toFixed(0)}
                   </span>
                 </div>
@@ -1019,7 +1019,7 @@ const CheckoutPage: React.FC = () => {
                 {promoCode && promoDiscountAmount > 0 && (
                   <div className="flex justify-between TEXT-[#95522C]">
                     <span>Discount ({promoCode.code})</span>
-                    <span className="poppins-numeric">
+                    <span className="federo-numeric">
                       -₹{promoDiscountAmount.toFixed(0)}
                     </span>
                   </div>
@@ -1031,7 +1031,7 @@ const CheckoutPage: React.FC = () => {
                       Flaunt By Nishi Points (
                       {evolvPointsRedemption.pointsToRedeem} pts)
                     </span>
-                    <span className="poppins-numeric">
+                    <span className="federo-numeric">
                       -₹{evolvDiscountAmount.toFixed(0)}
                     </span>
                   </div>
@@ -1039,24 +1039,24 @@ const CheckoutPage: React.FC = () => {
 
                 <div className="flex justify-between text-[#95522C]">
                   <span>Shipping</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     {shippingCost === 0 ? "Free Shipping" : `₹${shippingCost}`}
                   </span>
                 </div>
                 {subtotalInclTax < 3000 && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-md text-priamry federo-numeric">
                     Free shipping on orders ₹3000 and above
                   </div>
                 )}
                 <div className="flex justify-between text-[#95522C]">
                   <span>Tax</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     ₹{taxDisplay.toFixed(0)}
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                   <span>Total</span>
-                  <span className="poppins-numeric">
+                  <span className="federo-numeric">
                     ₹
                     {(
                       subtotalExclTax +
@@ -1071,12 +1071,12 @@ const CheckoutPage: React.FC = () => {
               {/* Security Badge */}
               <div className="mt-6 p-4 bg-[#FFF2E1] rounded-lg">
                 <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-5 h-5 TEXT-[#95522C]" />
-                  <span className="text-sm TEXT-[#95522C] font-medium">
+                  <ShieldCheck className="w-5 h-5 text-[#95522C]" />
+                  <span className="text-xl text-[#95522C] font-medium">
                     Secure Checkout
                   </span>
                 </div>
-                <span className="block text-xs TEXT-[#95522C] mt-1">Your payment information is encrypted and secure.</span>
+                <span className="block text-lg text-[#95522C] mt-1">Your payment information is encrypted and secure.</span>
               </div>
             </div>
           </div>

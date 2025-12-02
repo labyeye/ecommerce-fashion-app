@@ -686,7 +686,7 @@ const Register: React.FC = () => {
                     autoComplete="postal-code"
                     value={formData.zipCode}
                     onChange={handleChange}
-                    className="block w-full poppins-numeric px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
+                    className="block w-full federo-numeric px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-black placeholder-gray-400"
                     placeholder="ZIP Code"
                   />
                 </div>

@@ -269,7 +269,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           <div className="flex items-center space-x-2 mt-2">
-            <span className="text-[#95522C] font-['Sans-Serif'] poppins-numeric text-2xl sm:text-lg md:text-xl">
+            <span className="text-[#95522C] font-['Sans-Serif'] federo-numeric text-2xl sm:text-lg md:text-xl">
               ₹{currentPrice.toLocaleString()}
             </span>
           </div>
@@ -289,7 +289,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               );
             })}
           </div>
-          <div className="text-md poppins-numeric text-tertiary">
+          <div className="text-md federo-numeric text-tertiary">
             ({product.ratings?.count || 0})
           </div>
         </div>
