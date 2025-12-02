@@ -261,9 +261,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
   const renderAddress = (addr: any, title: string) => {
     if (!addr || Object.keys(addr).length === 0) {
       return (
-        <div
-          style={{ fontSize: 12, color: "#666", fontFamily: "federo-numeric" }}
-        >
+        <div style={{ fontSize: 12, fontFamily: "federo-numeric" }}>
           No {title} address provided
         </div>
       );
@@ -284,7 +282,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
         <div
           style={{
             fontSize: 14,
-            color: "#333",
+
             marginBottom: 4,
             fontFamily: "federo-numeric",
             fontWeight: 600,
@@ -296,7 +294,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -307,7 +305,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -318,7 +316,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -329,7 +327,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -340,7 +338,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -351,7 +349,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div
             style={{
               fontSize: 12,
-              color: "#333",
+
               fontFamily: "federo-numeric",
             }}
           >
@@ -388,6 +386,53 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     return 0;
   }, [o]);
 
+  // Determine tax breakdown to display
+  const shippingStateRaw = o?.shippingAddress?.state || "";
+  const shippingState = String(shippingStateRaw).trim().toLowerCase();
+  const isGujrat = shippingState === "gujrat" || shippingState === "gujarat";
+
+  const cgstAmount = Number(o?.cgst ?? 0);
+  const sgstAmount = Number(o?.sgst ?? 0);
+  const igstAmount = Number(o?.igst ?? 0);
+  // Match OrderDetailPage fallbacks for shipping/tax/total so invoice matches order details
+  const taxTotalAmount = Number(
+    o?.taxTotal ?? o?.tax ?? cgstAmount + sgstAmount + igstAmount
+  );
+
+  // Shipping cost fallbacks (many possible shapes in DB)
+  let shippingCost =
+    o && o.shipping && typeof o.shipping.cost === "number"
+      ? o.shipping.cost
+      : typeof o.shippingCost === "number"
+      ? o.shippingCost
+      : typeof o.shippingCostCalculated === "number"
+      ? o.shippingCostCalculated
+      : typeof o.shipping_cost === "number"
+      ? o.shipping_cost
+      : 0;
+
+  // Fallback to server flat shipping if not present, matching OrderDetailPage behaviour
+  if (!shippingCost) shippingCost = 100;
+
+  // Tax fallback (order details shows `order.order.tax` or taxAmount)
+  const taxFromOrder = typeof o?.tax === "number" ? o.tax : o?.taxAmount ?? 0;
+
+  // Compute displayed IGST: prefer explicit igst, otherwise prefer order tax (total tax), otherwise compute 5% of subtotal
+  const igstDisplayed =
+    typeof o?.igst === "number" && o.igst > 0
+      ? o.igst
+      : taxFromOrder > 0
+      ? taxFromOrder
+      : Math.round((subtotal * 0.05 + Number.EPSILON) * 100) / 100;
+
+  // Compute displayed total same way as OrderDetailPage: prefer order.total if present, otherwise subtotal + tax + shipping
+  const totalFromOrder =
+    typeof o?.total === "number"
+      ? o.total
+      : Math.round(
+          (subtotal + taxFromOrder + shippingCost + Number.EPSILON) * 100
+        ) / 100;
+
   return (
     <div
       ref={ref}
@@ -395,6 +440,9 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
         width: 800,
         fontFamily: "Arial, Helvetica, sans-serif",
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 1120,
       }}
       className="invoice-root bg-white"
     >
@@ -417,6 +465,9 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           paddingBottom: 24,
           paddingLeft: 24,
           paddingRight: 24,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
         }}
       >
         {/* Header Section */}
@@ -432,8 +483,8 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div
               style={{
-                width: 90,
-                height: 60,
+                width: 140,
+                height: 100,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -446,7 +497,14 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 style={{ maxWidth: "100%", maxHeight: "100%" }}
               />
             </div>
-            <div>
+
+            <div
+              style={{
+                marginLeft: 24,
+                fontSize: 12,
+                fontFamily: "federo-numeric",
+              }}
+            >
               <div
                 style={{
                   fontSize: 16,
@@ -459,33 +517,23 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
               </div>
               <div
                 style={{
-                  fontSize: 11,
-                  color: "#333",
+                  marginBottom: 4,
                   fontFamily: "federo-numeric",
-                  lineHeight: 1.6,
                 }}
               >
-                <div
-                  style={{
-                    fontWeight: 600,
-                    marginBottom: 4,
-                    fontFamily: "federo-numeric",
-                  }}
-                >
-                  {company.address.split(",")[0]}
-                </div>
-                <div style={{ marginBottom: 4, fontFamily: "federo-numeric" }}>
-                  {company.address.split(",").slice(1).join(",").trim()}
-                </div>
-                <div style={{ fontFamily: "federo-numeric" }}>
-                  GST No: {company.gstno}
-                </div>
-                <div style={{ fontFamily: "federo-numeric" }}>
-                  {company.email}
-                </div>
-                <div style={{ fontFamily: "federo-numeric" }}>
-                  {company.phone}
-                </div>
+                {company.address.split(",")[0]}
+              </div>
+              <div style={{ marginBottom: 4, fontFamily: "federo-numeric" }}>
+                {company.address.split(",").slice(1).join(",").trim()}
+              </div>
+              <div style={{ fontFamily: "federo-numeric" }}>
+                GST No: {company.gstno}
+              </div>
+              <div style={{ fontFamily: "federo-numeric" }}>
+                {company.email}
+              </div>
+              <div style={{ fontFamily: "federo-numeric" }}>
+                {company.phone}
               </div>
             </div>
           </div>
@@ -505,7 +553,6 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
             <div
               style={{
                 fontSize: 12,
-                color: "#666",
                 fontFamily: "federo-numeric",
               }}
             >
@@ -514,8 +561,6 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
             <div
               style={{
                 fontSize: 12,
-                color: "#666",
-                marginTop: 6,
                 fontFamily: "federo-numeric",
               }}
             >
@@ -559,65 +604,63 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
               Customer Details
             </div>
             <div style={{ display: "flex", gap: 40 }}>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, color: "#8B4B2A" }}>
                 {renderAddress(
                   o?.billingAddress || o?.shippingAddress,
                   "Billing"
                 )}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, color: "#8B4B2A" }}>
                 {renderAddress(
                   o?.shippingAddress || o?.billingAddress,
                   "Shipping"
                 )}
               </div>
+              <div style={{ width: 240 }}>
+                <div
+                  style={{
+                    color: "#8B4B2A",
+                    fontFamily: "federo-numeric",
+                    marginBottom: 8,
+                  }}
+                >
+                  Payment
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+
+                    marginBottom: 4,
+                    fontFamily: "federo-numeric",
+                  }}
+                >
+                  <strong>Method:</strong>{" "}
+                  {formatPaymentMethod(o?.payment || o?.payment?.method)}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+
+                    marginBottom: 4,
+                    fontFamily: "federo-numeric",
+                  }}
+                >
+                  <strong>Status:</strong> {o?.payment?.status || "N/A"}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+
+                    fontFamily: "federo-numeric",
+                  }}
+                >
+                  <strong>Order Status:</strong> {o?.status || "N/A"}
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Payment Details - Right side */}
-          <div style={{ width: 240 }}>
-            <div
-              style={{
-                fontSize: 12,
-                color: "#8B4B2A",
-                fontWeight: 700,
-                fontFamily: "federo-numeric",
-                marginBottom: 8,
-              }}
-            >
-              Payment
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                color: "#333",
-                marginBottom: 4,
-                fontFamily: "federo-numeric",
-              }}
-            >
-              <strong>Method:</strong>{" "}
-              {formatPaymentMethod(o?.payment || o?.payment?.method)}
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                color: "#333",
-                marginBottom: 4,
-                fontFamily: "federo-numeric",
-              }}
-            >
-              <strong>Status:</strong> {o?.payment?.status || "N/A"}
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                color: "#333",
-                fontFamily: "federo-numeric",
-              }}
-            >
-              <strong>Order Status:</strong> {o?.status || "N/A"}
-            </div>
-          </div>
         </div>
 
         {/* Items Table */}
@@ -662,7 +705,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                     fontSize: 14,
                   }}
                 >
-                  Price
+                  MRP
                 </th>
                 <th
                   style={{
@@ -693,7 +736,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                       }}
                     >
                       {loadingProducts ? (
-                        <div style={{ color: "#999", fontStyle: "italic" }}>
+                        <div style={{ fontStyle: "italic" }}>
                           Loading product details...
                         </div>
                       ) : (
@@ -734,7 +777,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                         verticalAlign: "top",
                       }}
                     >
-                      {fmt((it.price || 0) * (it.quantity || 1))}
+                      {fmt((it.price / 1.05 || 0) * (it.quantity || 1))}
                     </td>
                   </tr>
                 ))
@@ -745,7 +788,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                     style={{
                       padding: 16,
                       textAlign: "center",
-                      color: "#666",
+
                       fontFamily: "federo-numeric",
                     }}
                   >
@@ -775,21 +818,9 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 fontSize: 14,
               }}
             >
-              <div style={{ color: "#666" }}>Subtotal</div>
-              <div style={{ fontWeight: 600 }}>{fmt(subtotal)}</div>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "8px 0",
-                fontFamily: "federo-numeric",
-                fontSize: 14,
-              }}
-            >
-              <div style={{ color: "#666" }}>Shipping</div>
-              <div style={{ fontWeight: 600 }}>
-                {fmt(o?.shipping?.cost || o?.shippingCost || 0)}
+              <div style={{ fontFamily: "federo-numeric" }}>Subtotal</div>
+              <div style={{ fontWeight: 600, fontFamily: "federo-numeric" }}>
+                {fmt(subtotal)}
               </div>
             </div>
             <div
@@ -801,12 +832,51 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 fontSize: 14,
               }}
             >
-              <div style={{ color: "#666" }}>Tax</div>
-              <div style={{ fontWeight: 600 }}>{fmt(o?.tax || 0)}</div>
+              <div style={{ fontFamily: "federo-numeric" }}>Shipping</div>
+              <div style={{ fontWeight: 600, fontFamily: "federo-numeric" }}>
+                {fmt(shippingCost)}
+              </div>
             </div>
-
-            {/* Discount if applicable */}
-            {(o?.discount?.amount || o?.discountAmount || o?.discount) && (
+            {isGujrat ? (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "8px 0",
+                    fontFamily: "federo-numeric",
+                    fontSize: 14,
+                  }}
+                >
+                  <div style={{ fontFamily: "federo-numeric" }}>
+                    CGST (2.5%)
+                  </div>
+                  <div
+                    style={{ fontWeight: 600, fontFamily: "federo-numeric" }}
+                  >
+                    {fmt(cgstAmount)}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "8px 0",
+                    fontFamily: "federo-numeric",
+                    fontSize: 14,
+                  }}
+                >
+                  <div style={{ fontFamily: "federo-numeric" }}>
+                    SGST (2.5%)
+                  </div>
+                  <div
+                    style={{ fontWeight: 600, fontFamily: "federo-numeric" }}
+                  >
+                    {fmt(sgstAmount)}
+                  </div>
+                </div>
+              </>
+            ) : (
               <div
                 style={{
                   display: "flex",
@@ -814,29 +884,24 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                   padding: "8px 0",
                   fontFamily: "federo-numeric",
                   fontSize: 14,
-                  color: "#27ae60",
                 }}
               >
-                <div>Discount</div>
-                <div style={{ fontWeight: 600 }}>
-                  -
-                  {fmt(
-                    Math.abs(
-                      o?.discount?.amount ||
-                        o?.discountAmount ||
-                        o?.discount ||
-                        0
-                    )
-                  )}
+                <div style={{ fontFamily: "federo-numeric" }}>
+                  IGST (5% of subtotal)
+                </div>
+                <div style={{ fontWeight: 600, fontFamily: "federo-numeric" }}>
+                  {fmt(igstDisplayed)}
                 </div>
               </div>
             )}
 
+            {/* Invoice aligns with Order Details page: discount is not shown here */}
+
             <div
               style={{
                 borderTop: "2px solid #8B4B2A",
-                marginTop: 12,
-                paddingTop: 16,
+                marginTop: 6,
+                paddingTop: 6,
                 display: "flex",
                 justifyContent: "space-between",
                 fontFamily: "federo-numeric",
@@ -847,6 +912,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 style={{
                   fontWeight: 800,
                   color: "#8B4B2A",
+                  fontFamily: "federo-numeric",
                 }}
               >
                 Total
@@ -855,65 +921,51 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 style={{
                   fontWeight: 800,
                   color: "#8B4B2A",
+                  fontFamily: "federo-numeric",
                 }}
               >
-                {fmt(o?.total || 0)}
+                {fmt(totalFromOrder)}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div
-          style={{
-            borderTop: "1px dashed #ddd",
-            paddingTop: 20,
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 12,
-              color: "#666",
-              fontFamily: "federo-numeric",
-              marginBottom: 8,
-            }}
-          >
-            This is a computer-generated invoice. No signature required.
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              color: "#333",
-              fontFamily: "federo-numeric",
-              marginBottom: 8,
-            }}
-          >
-            Thank you for your purchase!
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              color: "#666",
-              fontFamily: "federo-numeric",
-            }}
-          >
-            For any queries, contact {company.email} or call {company.phone}
-          </div>
-        </div>
+        {/* Footer - pushed to bottom so lines align at page end */}
       </div>
-
-      {/* Bottom Brown Bar */}
       <div
         style={{
-          background: "#8B4B2A",
-          height: 16,
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
+          borderTop: "1px dashed ",
+          textAlign: "center",
+          marginTop: "auto",
+          width: "100%",
         }}
-      />
+      >
+        <div
+          style={{
+            fontSize: 14,
+            fontFamily: "federo-numeric",
+            marginBottom: 8,
+          }}
+        >
+          Subject to Surat Jurisdiction
+        </div>
+        <div
+          style={{
+            fontSize: 14,
+            fontFamily: "federo-numeric",
+            marginBottom: 13,
+          }}
+        >
+          Thank you for your purchase!
+        </div>
+        <div
+          style={{
+            background: "#8B4B2A",
+            height: 16,
+            width: "100%",
+          }}
+        />
+      </div>
     </div>
   );
 });

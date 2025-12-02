@@ -54,10 +54,31 @@ items: [{
     required: true,
     min: [0, 'Subtotal cannot be negative']
   },
+  // Tax breakdown (stored separately for invoice clarity)
   tax: {
     type: Number,
     default: 0,
     min: [0, 'Tax cannot be negative']
+  },
+  cgst: {
+    type: Number,
+    default: 0,
+    min: [0, 'CGST cannot be negative']
+  },
+  sgst: {
+    type: Number,
+    default: 0,
+    min: [0, 'SGST cannot be negative']
+  },
+  igst: {
+    type: Number,
+    default: 0,
+    min: [0, 'IGST cannot be negative']
+  },
+  taxTotal: {
+    type: Number,
+    default: 0,
+    min: [0, 'Tax total cannot be negative']
   },
   shipping: {
     cost: {

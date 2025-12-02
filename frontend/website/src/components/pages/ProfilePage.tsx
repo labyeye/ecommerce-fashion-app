@@ -16,7 +16,6 @@ import {
   Phone,
   Mail,
   Key,
-  CreditCard,
   Shield,
   // TrendingUp,
   X,
@@ -112,7 +111,6 @@ const ProfilePage: React.FC = () => {
       if (response.ok && data.success) {
         // Update user context with new profile image
         if (user && typeof user === "object") {
-          const updatedUser = { ...user, profileImage: imageUrl };
           // Trigger re-fetch of user data or update context
           window.location.reload(); // For now, reload to get fresh data
         }
@@ -845,7 +843,7 @@ const ProfilePage: React.FC = () => {
                       {orders.map((order) => (
                         <div
                           key={order._id}
-                          className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                          className="border border-tertiary rounded-lg p-4 bg-background shadow-sm"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span

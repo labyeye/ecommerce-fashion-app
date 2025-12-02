@@ -127,7 +127,7 @@ const OrderDetailPage: React.FC = () => {
       case "cancelled":
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <Package className="w-5 h-5 text-gray-500" />;
+        return <Package className="w-5 h-5 text-tertiary" />;
     }
   };
 
@@ -221,7 +221,7 @@ const OrderDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white 10 pt-24">
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+          <div className="bg-background p-6 rounded-lg shadow-lg text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
             <p className="text-[#95522C] mb-6">{error}</p>
@@ -241,7 +241,7 @@ const OrderDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white 10 pt-24">
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+          <div className="bg-background p-6 rounded-lg shadow-lg text-center">
             <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-[#2D2D2D] mb-4">
               Order Not Found
@@ -297,7 +297,7 @@ const OrderDetailPage: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Header */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                   <h4 className="text-3xl federo-numeric text-[#95522C]">
@@ -333,7 +333,7 @@ const OrderDetailPage: React.FC = () => {
                           className={`w-10 h-10 rounded-full flex items-center justify-center ${
                             step.completed
                               ? "bg-[#95522C] text-white"
-                              : "bg-[#FFF2E1] text-gray-500"
+                              : "bg-[#FFF2E1] text-tertiary"
                           }`}
                         >
                           {step.completed ? (
@@ -378,7 +378,7 @@ const OrderDetailPage: React.FC = () => {
                           <p className="text-[#95522C] federo-numeric text-sm">
                             {entry.message}
                           </p>
-                          <p className="text-gray-500 text-xs mt-1">
+                          <p className="text-tertiary text-xs mt-1">
                             {formatDate(
                               entry.updatedAt || order.order.createdAt
                             )}
@@ -392,7 +392,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* Order Items */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <h4 className="text-3xl font-bold text-[##95522C] mb-4">
                 Order Items
               </h4>
@@ -400,7 +400,7 @@ const OrderDetailPage: React.FC = () => {
                 {order.order.items.map((item: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg"
+                    className="flex items-start gap-4 p-4 border border-tertiary rounded-lg"
                   >
                     {(() => {
                       const p: any = item.product || {};
@@ -487,7 +487,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* {order.loyaltyInfo && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="bg-background rounded-2xl shadow-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Gift className="w-6 h-6 text-[#95522C]" />
                   <h2 className="text-3xl font-bold text-[##95522C]">
@@ -571,7 +571,7 @@ const OrderDetailPage: React.FC = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Order Summary */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <h4 className="text-3xl font-semibold text-[##95522C] mb-4">
                 Order Summary
               </h4>
@@ -613,15 +613,15 @@ const OrderDetailPage: React.FC = () => {
 
                   return (
                     <>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
+                      <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Subtotal:</span>
                         <span className="federo-numeric font-medium">{fmt(subtotal)}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
+                      <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Shipping:</span>
                         <span className="federo-numeric font-medium">{fmt(shippingCost)}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
+                      <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Tax:</span>
                         <span className="federo-numeric font-medium">{fmt(tax)}</span>
                       </div>
@@ -636,7 +636,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* Shipping Information */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-5 h-5 text-[#95522C]" />
                 <h4 className="text-3xl font-semibold text-[##95522C]">
@@ -655,7 +655,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* Payment Information */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <CreditCard className="w-5 h-5 text-[#95522C]" />
                 <h4 className="text-3xl font-semibold text-[##95522C]">
@@ -692,7 +692,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* Order Actions */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-background rounded-2xl shadow-lg p-6">
               <h4 className="text-3xl font-semibold text-[##95522C] mb-4">
                 Order Actions
               </h4>
@@ -757,7 +757,7 @@ const OrderDetailPage: React.FC = () => {
                     Write Review
                   </button>
                 )}
-                <button className="w-full px-4 py-2 border border-gray-300 text-[#95522C] rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="w-full px-4 py-2 border border-tertiary text-[#95522C] rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-center gap-2">
                     <MessageCircle className="w-4 h-4" />
                     <span>Contact Support</span>

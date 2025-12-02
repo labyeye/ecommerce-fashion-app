@@ -44,33 +44,50 @@ router.post("/create-order", async (req, res) => {
       process.env.FREE_SHIPPING_THRESHOLD || 3000
     );
 
-    let subtotalCalculated = 0; // a
-    let taxCalculated = 0; // b
+    let subtotalCalculated = 0; // base amounts (price / 1.05 per item)
+    let cgstCalculated = 0;
+    let sgstCalculated = 0;
+    let igstCalculated = 0;
+
+    // Determine whether shipping is intra-state (Gujrat) or inter-state
+    const shippingStateRaw = (shippingAddress && shippingAddress.state) || "";
+    const shippingState = String(shippingStateRaw).trim().toLowerCase();
+    const isIntraState = shippingState === "gujrat" || shippingState === "gujarat";
+
+    // Tax rate allocation
+    const TOTAL_TAX_RATE = 0.05; // 5% total
+    const CGST_RATE = isIntraState ? 0.025 : 0; // 2.5% only for intra-state
+    const SGST_RATE = isIntraState ? 0.025 : 0; // 2.5% only for intra-state
+    const IGST_RATE = isIntraState ? 0 : 0.05; // 5% for inter-state
+
     // items expected to have { price, quantity }
     for (const item of items || []) {
       const qty = Number(item.quantity || 1);
       const price = Number(item.price || 0);
-      // base amount per unit
-      const basePerUnit = price / 1.05;
-      const taxPerUnit = basePerUnit * 0.05;
+      // base amount per unit (tax-exclusive base) using existing approach
+      const basePerUnit = price / (1 + TOTAL_TAX_RATE);
       subtotalCalculated += basePerUnit * qty;
-      taxCalculated += taxPerUnit * qty;
+
+      // tax portions per unit
+      const cgstPerUnit = basePerUnit * CGST_RATE;
+      const sgstPerUnit = basePerUnit * SGST_RATE;
+      const igstPerUnit = basePerUnit * IGST_RATE;
+
+      cgstCalculated += cgstPerUnit * qty;
+      sgstCalculated += sgstPerUnit * qty;
+      igstCalculated += igstPerUnit * qty;
     }
 
     // Round to 2 decimals
-    subtotalCalculated =
-      Math.round((subtotalCalculated + Number.EPSILON) * 100) / 100;
-    taxCalculated = Math.round((taxCalculated + Number.EPSILON) * 100) / 100;
-    const shippingCostCalculated =
-      subtotalCalculated >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
-    const totalCalculated =
-      Math.round(
-        (subtotalCalculated +
-          taxCalculated +
-          shippingCostCalculated +
-          Number.EPSILON) *
-          100
-      ) / 100;
+    subtotalCalculated = Math.round((subtotalCalculated + Number.EPSILON) * 100) / 100;
+    cgstCalculated = Math.round((cgstCalculated + Number.EPSILON) * 100) / 100;
+    sgstCalculated = Math.round((sgstCalculated + Number.EPSILON) * 100) / 100;
+    igstCalculated = Math.round((igstCalculated + Number.EPSILON) * 100) / 100;
+
+    const taxCalculated = Math.round(((cgstCalculated + sgstCalculated + igstCalculated) + Number.EPSILON) * 100) / 100;
+
+    const shippingCostCalculated = subtotalCalculated >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
+    const totalCalculated = Math.round((subtotalCalculated + taxCalculated + shippingCostCalculated + Number.EPSILON) * 100) / 100;
 
     // Validate required fields (use server-calculated total)
     if (!totalCalculated || totalCalculated <= 0) {
@@ -97,6 +114,12 @@ router.post("/create-order", async (req, res) => {
       subtotal: subtotalCalculated,
       shippingCost: shippingCostCalculated,
       tax: taxCalculated,
+      cgst: cgstCalculated,
+      sgst: sgstCalculated,
+      igst: igstCalculated,
+      taxTotal: (cgstCalculated + sgstCalculated + igstCalculated),
+      // Also set nested shipping cost for compatibility with schema
+      shipping: { cost: shippingCostCalculated },
       total: totalCalculated,
       payment: {
         method: "razorpay",
