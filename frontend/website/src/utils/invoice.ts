@@ -1,13 +1,16 @@
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
-export async function downloadRefAsPDF(ref: HTMLElement | null, filename = 'invoice.pdf') {
+export async function downloadRefAsPDF(
+  ref: HTMLElement | null,
+  filename = "invoice.pdf"
+) {
   if (!ref) return;
   // Use html2canvas to render
   const canvas = await html2canvas(ref, { scale: 2 });
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pdf = new jsPDF({ unit: "pt", format: "a4" });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -24,7 +27,7 @@ export async function downloadRefAsPDF(ref: HTMLElement | null, filename = 'invo
       const w = imgWidth * ratio;
       const h = imgHeight * ratio;
 
-      pdf.addImage(imgData, 'PNG', (pageWidth - w) / 2, 20, w, h);
+      pdf.addImage(imgData, "PNG", (pageWidth - w) / 2, 20, w, h);
       pdf.save(filename);
       resolve();
     };
@@ -33,9 +36,9 @@ export async function downloadRefAsPDF(ref: HTMLElement | null, filename = 'invo
 
 export function printRef(ref: HTMLElement | null) {
   if (!ref) return;
-  const newWin = window.open('', '_blank', 'width=900,height=700');
+  const newWin = window.open("", "_blank", "width=900,height=700");
   if (!newWin) {
-    alert('Please allow popups to print the invoice');
+    alert("Please allow popups to print the invoice");
     return;
   }
   const css = `
@@ -44,9 +47,11 @@ export function printRef(ref: HTMLElement | null) {
       .invoice-root { width: 100%; }
     </style>`;
 
-  newWin.document.write(`<!doctype html><html><head><meta charset="utf-8"/>${css}</head><body>`);
+  newWin.document.write(
+    `<!doctype html><html><head><meta charset="utf-8"/>${css}</head><body>`
+  );
   newWin.document.write(ref.outerHTML);
-  newWin.document.write('</body></html>');
+  newWin.document.write("</body></html>");
   newWin.document.close();
   newWin.focus();
   setTimeout(() => {

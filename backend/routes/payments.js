@@ -256,6 +256,7 @@ router.post("/verify", async (req, res) => {
     }
 
     // Atomically update order with payment details and mark as confirmed (payment success)
+    const rp = paymentDetails.data || {};
     const paymentUpdate = {
       $set: {
         "payment.status": "paid",
@@ -263,9 +264,40 @@ router.post("/verify", async (req, res) => {
         "payment.razorpay.paymentId": razorpay_payment_id,
         "payment.razorpay.signature": razorpay_signature,
         "payment.paidAt": new Date(),
+        // Keep gateway/method as razorpay but store the specific instrument used
+        "payment.gateway": "razorpay",
+        "payment.provider": "Razorpay",
+        "payment.method": "razorpay",
         status: "confirmed",
       },
     };
+
+    // Store method/instrument information if available from Razorpay
+    try {
+      if (rp.method) {
+        paymentUpdate.$set["payment.payment_method"] = rp.method; // e.g. 'card', 'upi', 'netbanking'
+        paymentUpdate.$set["payment.razorpay.method"] = rp.method;
+      }
+      // Card info
+      if (rp.card) {
+        paymentUpdate.$set["payment.razorpay.card"] = {
+          last4: rp.card.last4 || rp.card.last_4 || null,
+          network: rp.card.network || null,
+          issuer: rp.card.issuer || null,
+          type: rp.card.type || null
+        };
+      }
+      // UPI vpa
+      if (rp.vpa) {
+        paymentUpdate.$set["payment.razorpay.vpa"] = rp.vpa;
+      }
+      // Bank / netbanking details
+      if (rp.bank) {
+        paymentUpdate.$set["payment.razorpay.bank"] = rp.bank;
+      }
+    } catch (e) {
+      console.error('Error while extracting razorpay instrument details:', e);
+    }
 
     const updatedOrderAfterPayment = await Order.findByIdAndUpdate(
       order._id,

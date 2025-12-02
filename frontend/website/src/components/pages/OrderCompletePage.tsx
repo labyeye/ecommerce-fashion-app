@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Check, Gift, Download } from "lucide-react";
+import { Check, Download } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Invoice from "../Invoice";
 import { downloadRefAsPDF, printRef } from "../../utils/invoice";
@@ -56,25 +56,11 @@ const OrderCompletePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-lg bg-[#95522C]/10 flex items-center justify-center">
-              <Gift className="w-5 h-5 text-[#95522C]" />
-            </div>
-            <div>
-              <div className="text-sm font-medium text-[#2D2D2D]">
-                Earned Rewards
-              </div>
-              <div className="text-xs text-gray-500">
-                Points are credited after order confirmation.
-              </div>
-            </div>
-          </div>
-
+        <div className="p-6 flex items-center justify-center">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => navigate("/profile")}
-              className="text-sm text-[#95522C] hover:underline"
+              className="text-lg text-[#95522C] hover:underline"
             >
               Go to Profile
             </button>
