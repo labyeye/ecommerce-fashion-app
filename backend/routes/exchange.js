@@ -8,20 +8,41 @@ const delhiveryService = require('../services/delhiveryService');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, '..', 'uploads', 'exchange');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const safe = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
-    cb(null, safe);
+// Determine upload directory and ensure it exists. In some serverless/read-only
+// environments (e.g. /var/task) writing to the project folder is not allowed,
+// so attempt creation and fall back to OS temp directory if it fails.
+let uploadDir = path.join(__dirname, '..', 'uploads', 'exchange');
+let useMemoryStorage = false;
+try {
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch (err) {
+  console.warn('Could not create upload directory at', uploadDir, '- falling back to tmpdir. Error:', err && err.message);
+  // fallback to tmp dir
+  uploadDir = path.join(os.tmpdir(), 'ecommerce-app-uploads', 'exchange');
+  try {
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (err2) {
+    console.warn('Could not create tmp upload directory at', uploadDir, '- switching to memory storage. Error:', err2 && err2.message);
+    useMemoryStorage = true;
   }
-});
+}
+
+let storage;
+if (useMemoryStorage) {
+  storage = multer.memoryStorage();
+} else {
+  storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      const safe = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
+      cb(null, safe);
+    }
+  });
+}
 const upload = multer({ storage });
 
 const router = express.Router();
@@ -51,7 +72,33 @@ router.post('/request', protect, isCustomer, upload.array('images', 5), async (r
     const existing = await ExchangeRequest.findOne({ order: orderId });
     if (existing) return res.status(400).json({ success: false, message: 'An exchange request already exists for this order' });
 
-    const images = (req.files || []).map(f => `/uploads/exchange/${f.filename}`);
+    let images = [];
+    const files = req.files || [];
+    if (files.length) {
+      if (useMemoryStorage) {
+        // Try to persist memory-stored files to the fallback uploadDir (tmpdir when possible)
+        try {
+          if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+        } catch (err) {
+          console.warn('Could not create fallback upload dir for memory files:', err && err.message);
+        }
+
+        for (const f of files) {
+          const filename = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(f.originalname || '');
+          const dest = path.join(uploadDir, filename);
+          try {
+            if (f.buffer) fs.writeFileSync(dest, f.buffer);
+            images.push(`/uploads/exchange/${filename}`);
+          } catch (err) {
+            console.warn('Failed to write memory-uploaded file to disk:', err && err.message);
+            // fallback: store absolute path (may not be served), better than crashing
+            images.push(dest);
+          }
+        }
+      } else {
+        images = files.map(f => `/uploads/exchange/${f.filename}`);
+      }
+    }
 
     const reqDoc = new ExchangeRequest({
       order: order._id,
