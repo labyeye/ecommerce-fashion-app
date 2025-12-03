@@ -67,7 +67,7 @@ const Cart: React.FC<CartProps> = ({
     if (isOpen) {
       fetchUserEvolvPoints();
       try {
-        trackEvent('page_view', 'cart');
+        trackEvent("page_view", "cart");
       } catch (e) {}
     }
   }, [isOpen, fetchUserEvolvPoints]);
@@ -115,7 +115,7 @@ const Cart: React.FC<CartProps> = ({
         onClick={onClose}
       ></div>
 
-      <div className="fixed top-0 right-0 h-full w-full sm:w-[95%] md:w-[90%] max-w-md bg-background backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out">
+      <div className="fixed top-0 right-0 h-full w-full sm:w-[95%] md:w-[90%] max-w-md bg-background backdrop-blur-lg shadow-2xl transform transition-transform duration-300 ease-out flex flex-col">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-tertiary">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <ShoppingBag className="w-6 h-6 text-[#914D26]" />
@@ -456,8 +456,7 @@ const Cart: React.FC<CartProps> = ({
 
               {subtotal < 3000 && (
                 <p className="text-sm text-[#914D26] pt-2">
-                  Add{" "}
-                  <span className="federo-numeric">₹{3000 - subtotal}</span>{" "}
+                  Add <span className="federo-numeric">₹{3000 - subtotal}</span>{" "}
                   more for free shipping!
                 </p>
               )}

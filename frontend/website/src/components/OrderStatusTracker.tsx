@@ -24,7 +24,7 @@ const OrderStatusTracker: React.FC<Props> = ({ status }) => {
   const current = statusToIndex(status || '');
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div className="bg-background rounded-2xl shadow-lg p-6 mb-6">
       <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Order Status</h3>
       <div className="flex items-center w-full">
         {steps.map((s, i) => {
@@ -41,12 +41,13 @@ const OrderStatusTracker: React.FC<Props> = ({ status }) => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: done ? primary : '#E9ECEF'
+                  background: primary,
+                  color: 'white',
                 }}>
                   <Icon className={`w-5 h-5 ${done ? 'text-white' : 'text-[rgb(123 63 0)]'}`} />
                 </div>
               </div>
-              <div className={`mt-3 text-sm ${done ? 'font-semibold' : 'text-gray-500'}`} style={{ color: done ? primary : undefined }}>{s.label}</div>
+              <div className={`mt-3 text-sm ${done ? 'font-semibold' : 'text-gray-800'}`} style={{ color: done ? primary : undefined }}>{s.label}</div>
             </div>
           );
         })}

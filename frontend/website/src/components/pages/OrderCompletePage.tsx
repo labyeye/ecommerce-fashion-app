@@ -2,12 +2,11 @@ import React, { useRef } from "react";
 import { Check, Download } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Invoice from "../Invoice";
-import { downloadRefAsPDF, printRef } from "../../utils/invoice";
+import { downloadRefAsPDF } from "../../utils/invoice";
 
 const OrderCompletePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Expect order data passed via state from Checkout (optional)
   const orderData = (location.state as any)?.orderData;
   const invoiceRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,22 +84,6 @@ const OrderCompletePage: React.FC = () => {
                 >
                   <Download className="w-4 h-4 text-[#95522C]" />
                   Download Invoice
-                </button>
-
-                <button
-                  onClick={() => {
-                    try {
-                      if (!invoiceRef.current) return;
-                      printRef(invoiceRef.current);
-                    } catch (err) {
-                      console.error("Print invoice error", err);
-                      alert("Failed to print invoice");
-                    }
-                  }}
-                  className="px-3 py-2 bg-[#F7F0EB] rounded-md flex items-center gap-2 text-sm"
-                >
-                  <Download className="w-4 h-4 text-[#95522C]" />
-                  Print Receipt
                 </button>
               </>
             )}

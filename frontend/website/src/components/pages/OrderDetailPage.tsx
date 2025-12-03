@@ -22,12 +22,13 @@ import {
   MessageCircle,
   // Zap,
 } from "lucide-react";
-import Invoice from '../Invoice';
-import { downloadRefAsPDF, printRef } from '../../utils/invoice';
+import Invoice from "../Invoice";
+import { downloadRefAsPDF, printRef } from "../../utils/invoice";
+import OrderStatusTracker from "../OrderStatusTracker";
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const {  token } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -40,12 +41,14 @@ const OrderDetailPage: React.FC = () => {
       if (!invoiceRef.current) return;
       await downloadRefAsPDF(
         invoiceRef.current,
-        `invoice-${order?.order?.orderNumber || order?.order?._id || 'order'}.pdf`
+        `invoice-${
+          order?.order?.orderNumber || order?.order?._id || "order"
+        }.pdf`
       );
     } catch (err: unknown) {
       const text = err instanceof Error ? err.message : String(err);
-      console.warn('Invoice download error', text);
-      alert('Failed to download invoice');
+      console.warn("Invoice download error", text);
+      alert("Failed to download invoice");
     }
   };
 
@@ -55,8 +58,8 @@ const OrderDetailPage: React.FC = () => {
       printRef(invoiceRef.current);
     } catch (err: unknown) {
       const text = err instanceof Error ? err.message : String(err);
-      console.warn('Invoice print error', text);
-      alert('Failed to print invoice');
+      console.warn("Invoice print error", text);
+      alert("Failed to print invoice");
     }
   };
 
@@ -262,7 +265,10 @@ const OrderDetailPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#F4F1E9] via-white 10 pt-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hidden off-screen invoice used for PDF/print generation */}
-        <div style={{ position: 'absolute', left: -9999, top: 0, width: 800 }} aria-hidden>
+        <div
+          style={{ position: "absolute", left: -9999, top: 0, width: 800 }}
+          aria-hidden
+        >
           <Invoice order={order} ref={invoiceRef} />
         </div>
         {/* Header */}
@@ -307,6 +313,7 @@ const OrderDetailPage: React.FC = () => {
                     Placed on {formatDate(order.order.createdAt)}
                   </p>
                 </div>
+
                 <div className="flex items-center gap-3">
                   <span
                     className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(
@@ -318,6 +325,8 @@ const OrderDetailPage: React.FC = () => {
                   </span>
                 </div>
               </div>
+                              <OrderStatusTracker status={(order.status || "").toString()} />
+
               {/* <div className="mb-6">
                 <h2 className="text-3xl font-semibold text-[##95522C] mb-4">
                   Order Status
@@ -374,7 +383,6 @@ const OrderDetailPage: React.FC = () => {
                           {getStatusIcon(entry.status)}
                         </div>
                         <div className="flex-1">
-                          
                           <p className="text-[#95522C] federo-numeric text-sm">
                             {entry.message}
                           </p>
@@ -412,7 +420,10 @@ const OrderDetailPage: React.FC = () => {
                           const c = p.colors[0];
                           if (c && c.images && c.images.length > 0) {
                             const first = c.images[0];
-                            img = typeof first === 'string' ? first : first?.url || null;
+                            img =
+                              typeof first === "string"
+                                ? first
+                                : first?.url || null;
                           }
                         }
                       } catch (err) {
@@ -420,9 +431,17 @@ const OrderDetailPage: React.FC = () => {
                       }
 
                       // Fallback to top-level `images` (some records use this shape)
-                      if (!img && p.images && Array.isArray(p.images) && p.images.length > 0) {
+                      if (
+                        !img &&
+                        p.images &&
+                        Array.isArray(p.images) &&
+                        p.images.length > 0
+                      ) {
                         const first = p.images[0];
-                        img = typeof first === 'string' ? first : first?.url || null;
+                        img =
+                          typeof first === "string"
+                            ? first
+                            : first?.url || null;
                       }
 
                       // Fallback to single `image` field
@@ -436,9 +455,15 @@ const OrderDetailPage: React.FC = () => {
                         try {
                           // If it's already an absolute URL, return as-is
                           const lc = u.toLowerCase();
-                          if (lc.startsWith('http://') || lc.startsWith('https://') || lc.startsWith('//')) return u;
+                          if (
+                            lc.startsWith("http://") ||
+                            lc.startsWith("https://") ||
+                            lc.startsWith("//")
+                          )
+                            return u;
                           // If it starts with a leading slash, prefix with origin
-                          if (u.startsWith('/')) return `${window.location.origin}${u}`;
+                          if (u.startsWith("/"))
+                            return `${window.location.origin}${u}`;
                           // Otherwise also prefix with origin
                           return `${window.location.origin}/${u}`;
                         } catch (e) {
@@ -446,7 +471,8 @@ const OrderDetailPage: React.FC = () => {
                         }
                       };
 
-                      const finalImg = resolveImage(img) || '/assets/img-placeholder-80.png';
+                      const finalImg =
+                        resolveImage(img) || "/assets/img-placeholder-80.png";
                       return (
                         <img
                           src={finalImg}
@@ -455,8 +481,8 @@ const OrderDetailPage: React.FC = () => {
                           onError={(e) => {
                             const t = e.target as HTMLImageElement;
                             if (!t.dataset.errored) {
-                              t.dataset.errored = '1';
-                              t.src = '/assets/img-placeholder-80.png';
+                              t.dataset.errored = "1";
+                              t.src = "/assets/img-placeholder-80.png";
                             }
                           }}
                         />
@@ -472,7 +498,9 @@ const OrderDetailPage: React.FC = () => {
                           <span className="mx-2">•</span>
                           <span>Quantity: {item.quantity}</span>
                           <span className="mx-2">•</span>
-                          <span className="text-lg federo-numeric">₹{item.price?.toFixed(2)}</span>
+                          <span className="text-lg federo-numeric">
+                            ₹{item.price?.toFixed(2)}
+                          </span>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-[#95522C] federo-numeric">
@@ -580,18 +608,19 @@ const OrderDetailPage: React.FC = () => {
                   // Some code paths store shipping cost as top-level `shippingCost` (older code)
                   // while schema uses `shipping.cost`. Provide fallbacks so the UI always shows values.
                   const subtotal =
-                    typeof order.order.subtotal === 'number'
+                    typeof order.order.subtotal === "number"
                       ? order.order.subtotal
                       : order.order.subTotal || 0;
 
                   let shippingCost =
-                    (order.order.shipping && typeof order.order.shipping.cost === 'number')
+                    order.order.shipping &&
+                    typeof order.order.shipping.cost === "number"
                       ? order.order.shipping.cost
-                      : typeof order.order.shippingCost === 'number'
+                      : typeof order.order.shippingCost === "number"
                       ? order.order.shippingCost
-                      : typeof order.order.shippingCostCalculated === 'number'
+                      : typeof order.order.shippingCostCalculated === "number"
                       ? order.order.shippingCostCalculated
-                      : typeof order.order.shipping_cost === 'number'
+                      : typeof order.order.shipping_cost === "number"
                       ? order.order.shipping_cost
                       : 0;
 
@@ -600,14 +629,16 @@ const OrderDetailPage: React.FC = () => {
                   if (!shippingCost) shippingCost = 100;
 
                   const tax =
-                    typeof order.order.tax === 'number'
+                    typeof order.order.tax === "number"
                       ? order.order.tax
                       : order.order.taxAmount || 0;
 
                   const total =
-                    typeof order.order.total === 'number'
+                    typeof order.order.total === "number"
                       ? order.order.total
-                      : Math.round((subtotal + tax + shippingCost + Number.EPSILON) * 100) / 100;
+                      : Math.round(
+                          (subtotal + tax + shippingCost + Number.EPSILON) * 100
+                        ) / 100;
 
                   const fmt = (n: number) => `₹${(n || 0).toFixed(2)}`;
 
@@ -615,15 +646,21 @@ const OrderDetailPage: React.FC = () => {
                     <>
                       <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Subtotal:</span>
-                        <span className="federo-numeric font-medium">{fmt(subtotal)}</span>
+                        <span className="federo-numeric font-medium">
+                          {fmt(subtotal)}
+                        </span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Shipping:</span>
-                        <span className="federo-numeric font-medium">{fmt(shippingCost)}</span>
+                        <span className="federo-numeric font-medium">
+                          {fmt(shippingCost)}
+                        </span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-tertiary">
                         <span className="text-[#95522C]">Tax:</span>
-                        <span className="federo-numeric font-medium">{fmt(tax)}</span>
+                        <span className="federo-numeric font-medium">
+                          {fmt(tax)}
+                        </span>
                       </div>
                       <div className="flex justify-between py-3 text-lg text-[#95522C]">
                         <span>Total:</span>
@@ -683,9 +720,7 @@ const OrderDetailPage: React.FC = () => {
                 </div>
                 {order.order.payment?.transactionId && (
                   <div className="text-sm text-[#95522C]">
-                    <p>
-                      Transaction ID: {order.order.payment.transactionId}
-                    </p>
+                    <p>Transaction ID: {order.order.payment.transactionId}</p>
                   </div>
                 )}
               </div>
