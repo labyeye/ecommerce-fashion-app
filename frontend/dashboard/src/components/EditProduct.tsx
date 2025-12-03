@@ -13,6 +13,7 @@ interface EditProductFormData {
   description: string;
   shortDescription: string;
   sku: string;
+  hsn?: string;
   price: number;
   comparePrice: number;
   salePrice: number;
@@ -52,6 +53,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     description: '',
     shortDescription: '',
     sku: '',
+    hsn: '',
     price: 0,
     comparePrice: 0,
     salePrice: 0,
@@ -91,6 +93,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
       description: productData.description || '',
       shortDescription: productData.shortDescription || '',
       sku: productData.sku || '',
+      hsn: productData.hsn || '',
       price: productData.price || 0,
       comparePrice: productData.comparePrice || 0,
       salePrice: productData.salePrice || 0,
@@ -563,6 +566,21 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
                         </option>
                       ))}
                     </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      HSN Code
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.hsn || ''}
+                      onChange={(e) => handleInputChange('hsn' as any, e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      placeholder="HSN code"
+                    />
                   </div>
                 </div>
 

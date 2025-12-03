@@ -662,6 +662,28 @@ router.get("/orders/:id/details", async (req, res) => {
   }
 });
 
+// @desc    Update invoice number for an order
+// @route   PUT /api/admin/orders/:id/invoice
+// @access  Admin only
+router.put('/orders/:id/invoice', async (req, res) => {
+  try {
+    const { invoiceNo } = req.body;
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    order.invoiceNo = invoiceNo || '';
+    await order.save();
+
+    res.status(200).json({ success: true, message: 'Invoice number updated', data: order });
+  } catch (error) {
+    console.error('Update invoice number error:', error);
+    res.status(500).json({ success: false, message: 'Error updating invoice number' });
+  }
+});
+
 // @desc    Get order by ID
 // @route   GET /api/admin/orders/:id
 // @access  Admin only

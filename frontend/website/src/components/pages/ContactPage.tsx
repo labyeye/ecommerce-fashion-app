@@ -299,7 +299,7 @@ const ContactPage: React.FC = () => {
                         </p>
                         <p style={{ color: "#95522C" }}>
                           {" "}
-                          Brc compound, Udhana, Surat,
+                          Brc compound, Udhna, Surat,
                         </p>
                         <p style={{ color: "#95522C" }} className="federo-numeric">394210</p>
                       </div>

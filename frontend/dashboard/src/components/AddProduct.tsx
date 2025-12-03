@@ -35,6 +35,7 @@ interface ProductFormData {
   comparePrice: string;
   salePrice: string;
   category: string;
+  hsn: string;
   brand: string;
   material: string;
   careInstructions: string;
@@ -68,6 +69,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     sku: "",
+    hsn: "",
     description: "",
     shortDescription: "",
     price: "",
@@ -543,7 +545,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     SKU *
@@ -567,6 +569,18 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
                     onChange={(e) => handleInputChange("brand", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="Brand name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    HSN Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.hsn}
+                    onChange={(e) => handleInputChange("hsn", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    placeholder="HSN code"
                   />
                 </div>
               </div>

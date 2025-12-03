@@ -35,6 +35,11 @@ const productSchema = new mongoose.Schema({
     trim: true,
     uppercase: true
   },
+  hsn: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',

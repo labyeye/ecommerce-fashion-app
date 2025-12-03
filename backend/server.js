@@ -25,12 +25,6 @@ const jobRoutes = require("./routes/jobs");
 
 const app = express();
 const PORT = process.env.PORT || 3500;
-
-// Respect proxy headers when the app is running behind a proxy/reverse-proxy
-// (Vercel, Heroku, nginx, Cloudflare, etc.). express-rate-limit will throw
-// if X-Forwarded-For is present but `trust proxy` is not enabled. Make this
-// behavior configurable via the `TRUST_PROXY` env var. In many hosted
-// environments it's safe to set to `1` or `true`.
 const trustProxyEnabled =
   process.env.TRUST_PROXY === "true" ||
   process.env.TRUST_PROXY === "1" ||
@@ -44,11 +38,6 @@ if (trustProxyEnabled) {
   console.log("Express trust proxy disabled");
 }
 
-// Security middleware
-// Configure Helmet to avoid a strict Cross-Origin-Opener-Policy which
-// can block cross-origin `window.postMessage` calls from the frontend.
-// Default Helmet COOP is `same-origin` which is restrictive; allow
-// popups or override via env var `COOP_POLICY` if needed.
 app.use(
   helmet({
     crossOriginOpenerPolicy: {
@@ -192,21 +181,29 @@ mongoose
     try {
       require("./models/ActivityLog");
     } catch (err) {
-      console.warn('ActivityLog model not loaded:', err.message || err);
+      console.warn("ActivityLog model not loaded:", err.message || err);
     }
 
     // Start periodic Delhivery sync job
     try {
       const { syncOnce } = require("./services/delhiverySyncService");
-      const syncIntervalSeconds = Number(process.env.DELHIVERY_SYNC_SECONDS || 0);
-      const syncIntervalMinutes = Number(process.env.DELHIVERY_SYNC_MINUTES || 5);
+      const syncIntervalSeconds = Number(
+        process.env.DELHIVERY_SYNC_SECONDS || 0
+      );
+      const syncIntervalMinutes = Number(
+        process.env.DELHIVERY_SYNC_MINUTES || 5
+      );
       if (syncIntervalSeconds && syncIntervalSeconds > 0) {
-        console.log(`Starting Delhivery sync job every ${syncIntervalSeconds} seconds`);
+        console.log(
+          `Starting Delhivery sync job every ${syncIntervalSeconds} seconds`
+        );
         // initial run shortly after startup
         setTimeout(() => syncOnce(), 5 * 1000);
         setInterval(() => syncOnce(), syncIntervalSeconds * 1000);
       } else {
-        console.log(`Starting Delhivery sync job every ${syncIntervalMinutes} minutes`);
+        console.log(
+          `Starting Delhivery sync job every ${syncIntervalMinutes} minutes`
+        );
         setTimeout(() => syncOnce(), 10 * 1000);
         setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
       }
@@ -242,10 +239,10 @@ app.use("/api/reviews", reviewsRoutes);
 app.use("/api/shipping", shippingRoutes);
 // Delhivery webhook endpoint for instant carrier updates (cancellations, etc.)
 try {
-  const delhiveryWebhookRoutes = require('./routes/delhiveryWebhook');
-  app.use('/api/shipping/delhivery', delhiveryWebhookRoutes);
+  const delhiveryWebhookRoutes = require("./routes/delhiveryWebhook");
+  app.use("/api/shipping/delhivery", delhiveryWebhookRoutes);
 } catch (err) {
-  console.warn('Delhivery webhook route not mounted:', err.message || err);
+  console.warn("Delhivery webhook route not mounted:", err.message || err);
 }
 app.use("/api/activity", activityRoutes);
 app.use("/api/contact", contactRoutes);

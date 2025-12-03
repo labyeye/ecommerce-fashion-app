@@ -95,6 +95,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [invoiceNo, setInvoiceNo] = useState<string>("");
+  const [savingInvoice, setSavingInvoice] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -122,6 +124,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         const data = await response.json();
         setOrder(data.data.order);
         setLoyaltyInfo(data.data.loyaltyInfo);
+        setInvoiceNo(data.data.order?.invoiceNo || "");
       } catch (err: any) {
         console.error("Order details fetch error:", err);
         setError(err.message || "Failed to fetch order details");
@@ -419,6 +422,56 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                               : "text-blue-600"
                           }`}
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Invoice No
+                        </label>
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={invoiceNo}
+                            onChange={(e) => setInvoiceNo(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter invoice number"
+                          />
+                          <button
+                            onClick={async () => {
+                              if (!token || !order)
+                                return alert("Not authenticated");
+                              try {
+                                setSavingInvoice(true);
+                                const resp = await fetch(
+                                  `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/invoice`,
+                                  {
+                                    method: "PUT",
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({ invoiceNo }),
+                                  }
+                                );
+                                const json = await resp.json();
+                                if (!resp.ok)
+                                  throw new Error(
+                                    json.message ||
+                                      "Failed to save invoice number"
+                                  );
+                                setOrder(json.data);
+                                alert("Invoice number saved");
+                              } catch (e: any) {
+                                console.error("Save invoice error:", e);
+                                alert(e.message || "Failed to save invoice");
+                              } finally {
+                                setSavingInvoice(false);
+                              }
+                            }}
+                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                          >
+                            {savingInvoice ? "Saving..." : "Save"}
+                          </button>
+                        </div>
                       </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">

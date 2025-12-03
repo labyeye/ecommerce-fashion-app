@@ -8,10 +8,23 @@ type InvoiceProps = {
 const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
   const o = order?.order || order;
 
+  // Debug: log resolved order object and invoice number when rendering
+  // This helps verify whether `invoiceNo` is present on the order passed to this component.
+  try {
+    // eslint-disable-next-line no-console
+    console.debug(
+      "Invoice component - resolved order:",
+      o,
+      "invoiceNo:",
+      o?.invoiceNo
+    );
+  } catch (e) {
+    // ignore
+  }
   const company = {
     name: "NS Designs",
     email: "flauntbynishi@gmail.com",
-    address: "W 12 Laxminarayan Estate, BRC compound, Udhana, Surat, 394210",
+    address: "W 12 Laxminarayan Estate, BRC compound, Udhna, Surat, 394210",
     gstno: "24BLAPT4549M1ZN",
     phone: "+91 86780 40000",
   };
@@ -101,42 +114,6 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       console.log("Item for name:", it); // Debug log
       console.log("Fetched products:", fetchedProducts); // Debug log
 
-      const p = it.product;
-
-      // Case 1: Product is a complete object with name
-      if (p && typeof p === "object") {
-        console.log("Product object found:", p); // Debug log
-
-        // If product object has name, title or productName directly
-        if (p.name || p.title || p.productName) {
-          const name = p.name || p.title || p.productName;
-          console.log("Found name in product object:", name); // Debug log
-          return name;
-        }
-
-        // Case 2: Product object has only _id, try fetched products
-        if (p._id) {
-          const id = String(p._id);
-          const fetched = fetchedProducts[id];
-          if (fetched) {
-            const name = fetched.name || fetched.title || fetched.productName;
-            console.log("Found name in fetched products:", name); // Debug log
-            return name;
-          }
-        }
-      }
-
-      // Case 3: Product is just an ID string
-      if (typeof p === "string" && p) {
-        console.log("Product ID string:", p); // Debug log
-        const fetched = fetchedProducts[p];
-        if (fetched) {
-          const name = fetched.name || fetched.title || fetched.productName;
-          console.log("Found name by ID:", name); // Debug log
-          return name;
-        }
-      }
-
       // Case 4: Try item's name field
       if (it.name) {
         console.log("Using item name:", it.name); // Debug log
@@ -157,13 +134,62 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       if (it.color && it.color.trim() !== "") variants.push(it.color);
       if (it.size && it.size.trim() !== "") variants.push(it.size);
 
+      // Try to find HSN: first on the item, then on the product object, then fetched products
+
       if (variants.length > 0) {
         return `${base} — ${variants.join(" / ")}`;
       }
 
       return base;
     },
-    [getItemName]
+    [getItemName, fetchedProducts]
+  );
+
+  const getItemHSN = useCallback(
+    (it: any): string => {
+      try {
+        // Prefer explicit HSN stored on the order item
+        if (it && it.hsn && String(it.hsn).trim() !== "") {
+          return String(it.hsn).trim();
+        }
+
+        // If item.product is an object with hsn
+        if (
+          it &&
+          it.product &&
+          typeof it.product === "object" &&
+          it.product.hsn
+        ) {
+          return String(it.product.hsn).trim();
+        }
+
+        // If product ID string and we fetched product info
+        if (
+          it &&
+          typeof it.product === "string" &&
+          fetchedProducts[it.product] &&
+          fetchedProducts[it.product].hsn
+        ) {
+          return String(fetchedProducts[it.product].hsn).trim();
+        }
+
+        // If product is object with _id and we fetched it
+        if (
+          it &&
+          it.product &&
+          it.product._id &&
+          fetchedProducts[String(it.product._id)] &&
+          fetchedProducts[String(it.product._id)].hsn
+        ) {
+          return String(fetchedProducts[String(it.product._id)].hsn).trim();
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      return "";
+    },
+    [fetchedProducts]
   );
 
   const formatPaymentMethod = (payment: any) => {
@@ -268,6 +294,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     }
 
     const name = addr.firstName || addr.firstname || addr.name || "";
+    const lastName = addr.lastName || addr.lastname || "";
     const email = addr.email || "";
     const phone = addr.phone || "";
     const street = addr.street || addr.address || "";
@@ -298,7 +325,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
               fontFamily: "federo-numeric",
             }}
           >
-            {name}
+            {name} {lastName}
           </div>
         )}
         {email && (
@@ -386,20 +413,19 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     return 0;
   }, [o]);
 
-  // Determine tax breakdown to display
-  const shippingStateRaw = o?.shippingAddress?.state || "";
-  const shippingState = String(shippingStateRaw).trim().toLowerCase();
-  const isGujrat = shippingState === "gujrat" || shippingState === "gujarat";
+  // Determine tax breakdown to display — use billing address state ONLY (do not use shipping address)
+  const billingStateRaw = o?.billingAddress?.state || "";
+  const billingState = String(billingStateRaw).trim().toLowerCase();
+  const isGujrat = billingState === "gujrat" || billingState === "gujarat";
 
   const cgstAmount = Number(o?.cgst ?? 0);
   const sgstAmount = Number(o?.sgst ?? 0);
   const igstAmount = Number(o?.igst ?? 0);
-  // Match OrderDetailPage fallbacks for shipping/tax/total so invoice matches order details
+
   const taxTotalAmount = Number(
     o?.taxTotal ?? o?.tax ?? cgstAmount + sgstAmount + igstAmount
   );
 
-  // Shipping cost fallbacks (many possible shapes in DB)
   let shippingCost =
     o && o.shipping && typeof o.shipping.cost === "number"
       ? o.shipping.cost
@@ -411,13 +437,10 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       ? o.shipping_cost
       : 0;
 
-  // Fallback to server flat shipping if not present, matching OrderDetailPage behaviour
   if (!shippingCost) shippingCost = 100;
 
-  // Tax fallback (order details shows `order.order.tax` or taxAmount)
   const taxFromOrder = typeof o?.tax === "number" ? o.tax : o?.taxAmount ?? 0;
 
-  // Compute displayed IGST: prefer explicit igst, otherwise prefer order tax (total tax), otherwise compute 5% of subtotal
   const igstDisplayed =
     typeof o?.igst === "number" && o.igst > 0
       ? o.igst
@@ -425,7 +448,6 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       ? taxFromOrder
       : Math.round((subtotal * 0.05 + Number.EPSILON) * 100) / 100;
 
-  // Compute displayed total same way as OrderDetailPage: prefer order.total if present, otherwise subtotal + tax + shipping
   const totalFromOrder =
     typeof o?.total === "number"
       ? o.total
@@ -564,6 +586,14 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 fontFamily: "federo-numeric",
               }}
             >
+              Invoice No: {o?.invoiceNo || "-"}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                fontFamily: "federo-numeric",
+              }}
+            >
               Date:{" "}
               {o?.createdAt
                 ? formatDate(o.createdAt)
@@ -647,6 +677,23 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                 >
                   <strong>Status:</strong> {o?.payment?.status || "N/A"}
                 </div>
+                {/* Show transaction id when available (Razorpay or generic) */}
+                {(
+                  o?.payment?.transactionId ||
+                  o?.payment?.paymentId ||
+                  (o?.payment && o.payment.razorpay && (o.payment.razorpay.paymentId || o.payment.razorpay.payment_id))
+                ) && (
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "federo-numeric",
+                      marginTop: 2,
+                    }}
+                  >
+                    <strong>Transaction ID:</strong>{" "}
+                    {o?.payment?.transactionId || o?.payment?.paymentId || o?.payment?.razorpay?.paymentId || o?.payment?.razorpay?.payment_id}
+                  </div>
+                )}
                 <div
                   style={{
                     fontSize: 12,
@@ -680,6 +727,19 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                   }}
                 >
                   Item
+                </th>
+                <th
+                  style={{
+                    textAlign: "center",
+                    padding: "12px 8px",
+                    borderBottom: "2px solid #8B4B2A",
+                    color: "#8B4B2A",
+                    fontFamily: "federo-numeric",
+                    fontWeight: 700,
+                    fontSize: 14,
+                  }}
+                >
+                  HSN
                 </th>
                 <th
                   style={{
@@ -742,6 +802,18 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                       ) : (
                         getItemDisplay(it)
                       )}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px 8px",
+                        textAlign: "center",
+                        borderBottom: "1px solid #f3f3f3",
+                        fontFamily: "federo-numeric",
+                        fontSize: 14,
+                        verticalAlign: "top",
+                      }}
+                    >
+                      {getItemHSN(it) || "-"}
                     </td>
                     <td
                       style={{
