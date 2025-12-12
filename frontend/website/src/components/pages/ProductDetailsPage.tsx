@@ -130,9 +130,7 @@ const ProductDetailsPage: React.FC = () => {
   const fetchOtherProducts = async () => {
     try {
       // Try a simple products endpoint; backend can provide better related-product API
-      const res = await axios.get(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`
-      );
+      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`);
       const data = res?.data?.data || res?.data || [];
       // Filter out current product
       const filtered = Array.isArray(data)
@@ -570,12 +568,11 @@ const ProductDetailsPage: React.FC = () => {
           background-color: transparent !important;
         }
 
-        /* Ensure SVG icons use the primary color */
-        .product-detail-page svg, .product-detail-page svg * {
-          color: #95522C !important;
-          fill: #FFF2E1 !important;
-          stroke: #95522C !important;
-        }
+        /* Ensure SVG icons use the primary color for strokes. Do not force fill here
+           so individual icons can control fill (e.g., filled stars use currentColor). */
+          .product-detail-page svg, .product-detail-page svg * {
+            stroke: #FFF2E1 !important;
+          }
 
         /* Buttons: background -> primary, text -> bg color for contrast, but keep only two colors */
         .product-detail-page button, .product-detail-page .btn-primary {
@@ -860,28 +857,7 @@ const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Rating */}
-            {product.ratings && product.ratings.count > 0 && (
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 federo-numeric ${
-                        i < Math.floor(product.ratings?.average || 0)
-                          ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                          : "text-tertiary/20"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-tertiary/70">
-                  {product.ratings.average.toFixed(1)} ({product.ratings.count}{" "}
-                  reviews)
-                </span>
-              </div>
-            )}
 
-            {/* Price */}
             <div className="flex items-center space-x-3">
               <span className="text-2xl font-medium text-tertiary federo-numeric">
                 ₹{currentPrice.toLocaleString()}
@@ -898,26 +874,7 @@ const ProductDetailsPage: React.FC = () => {
               )}
             </div>
             {/* Compact rating summary next to price */}
-            {product.ratings && (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 federo-numeric ${
-                        i < Math.round(product.ratings?.average || 0)
-                          ? "fill-fashion-accent-brown text-fashion-accent-brown"
-                          : "text-tertiary/20"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-xl text-tertiary/70">
-                  {product.ratings.average?.toFixed(1) || "0.0"} (
-                  {product.ratings.count || 0})
-                </p>
-              </div>
-            )}
+            
 
             {/* Short Description */}
             {product.shortDescription && (
@@ -1138,7 +1095,7 @@ const ProductDetailsPage: React.FC = () => {
                         // If transit is known, show full ETA (processing + transit)
                         if (transit !== null) {
                           return (
-                            <span className="text-green-600 text-lg font-bold federo-numeric">
+                            <span className="text-tertiary text-lg  federo-numeric">
                               Deliverable
                               {transit ? ` · ${transit} day(s) transit` : ""}
                               {processing
@@ -1155,7 +1112,7 @@ const ProductDetailsPage: React.FC = () => {
 
                         // If transit is unknown, avoid implying final delivery date — show processing note and clarify transit unavailable
                         return (
-                          <p className="text-green-600">
+                          <p className="text-tertiary">
                             Deliverable · {processing} day(s) processing
                             <span className="block text-sm text-tertiary/80">
                               Transit estimate unavailable from carrier for this
@@ -1184,7 +1141,7 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || isOutOfStock}
-                  className={`px-4 h-[44px] w-full bg-background border border-tertiary text-white rounded text-lg ${
+                    className={`px-4 h-[44px] w-full bg-background border border-tertiary text-white rounded text-lg ${
                       !selectedSize
                         ? "border-tertiary/10 text-tertiary/30 cursor-not-allowed bg-transparent"
                         : isOutOfStock
@@ -1324,7 +1281,9 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <span className="text-5xl font-semibold mb-4">Care Instructions</span>
+            <span className="text-5xl font-semibold mb-4">
+              Care Instructions
+            </span>
             <div className="prose prose-fashion max-w-none mt-10">
               <span className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
@@ -1343,13 +1302,16 @@ const ProductDetailsPage: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {productReviews.map((r: any) => (
-                    <div key={r._id} className="p-4 bg-white rounded shadow-sm">
+                    <div
+                      key={r._id}
+                      className="p-4 bg-background rounded shadow-lg"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <p className="font-semibold text-sm">
                             {r.userName || r.user?.name || r.name || "Customer"}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-tertiary">
                             {new Date(r.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -1360,16 +1322,17 @@ const ProductDetailsPage: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
+                              fill={i < r.rating ? "currentColor" : "none"}
                               className={`w-4 h-4 federo-numeric ${
                                 i < r.rating
-                                  ? "fill-fashion-accent-brown text-fashion-accent-brown"
+                                  ? "text-tertiary"
                                   : "text-tertiary/20"
                               }`}
                             />
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-700">{r.message}</p>
+                      <p className="text-sm text-tertiary">{r.message}</p>
                     </div>
                   ))}
                 </div>
@@ -1393,7 +1356,7 @@ const ProductDetailsPage: React.FC = () => {
                     review.
                   </span>
                 ) : (
-                  <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+                  <div className="max-w-2xl mx-auto bg-background p-6 rounded-lg shadow-lg">
                     <h3 className="text-lg font-semibold mb-3">
                       Write a review
                     </h3>
@@ -1443,7 +1406,19 @@ const ProductDetailsPage: React.FC = () => {
                               );
                               setReviewMessage("");
                               setReviewRating(5);
+                              // Refresh reviews list and product metadata (ratings/count)
                               await fetchProductReviews();
+                              try {
+                                const updated = await getProductById(
+                                  id as string
+                                );
+                                if (updated) setProduct(updated as Product);
+                              } catch (e) {
+                                console.warn(
+                                  "Failed to refresh product after review",
+                                  e
+                                );
+                              }
                             } catch (err: any) {
                               console.error("Failed to submit review", err);
                               const msg =
@@ -1470,7 +1445,9 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Related / recommended products */}
         <div className="mt-12">
-          <span className="text-6xl font-semibold mb-6">You might also like</span>
+          <span className="text-6xl font-semibold mb-6">
+            You might also like
+          </span>
           {otherProducts.length === 0 ? (
             <p className="">No recommendations available.</p>
           ) : (

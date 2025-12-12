@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { createPortal } from "react-dom";
 import { Heart, Lock, Star } from "lucide-react";
 import { useWishlist } from "../../context/WishlistContext";
@@ -74,9 +75,61 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [localWishlisted, setLocalWishlisted] = useState(false);
+  const [reviewsCount, setReviewsCount] = useState<number | null>(null);
+  const [reviewsAvg, setReviewsAvg] = useState<number | null>(null);
   useEffect(() => {
     setLocalWishlisted(!!product._id && wishlist.includes(product._id));
   }, [wishlist, product._id]);
+
+  // Fetch a small set of reviews to compute average/count when product.ratings is missing
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+    const fetchReviews = async () => {
+      if (!product._id) return;
+
+      // If product already has ratings metadata, prefer that and avoid extra fetch
+      if (product.ratings && product.ratings.count > 0) {
+        setReviewsCount(product.ratings.count);
+        setReviewsAvg(product.ratings.average);
+        return;
+      }
+
+      try {
+        // Fetch recent reviews (limit small to reduce payload). Use absolute backend URL
+        // to match other pages which use `https://ecommerce-fashion-app-som7.vercel.app`.
+        const res = await axios.get(
+          `https://ecommerce-fashion-app-som7.vercel.app/api/reviews?productId=${product._id}&limit=20`,
+          { timeout: 8000 }
+        );
+        const data = res?.data || {};
+        if (!mounted) return;
+        const arr = Array.isArray(data.data) ? data.data : [];
+        if (arr.length === 0) {
+          setReviewsCount(0);
+          setReviewsAvg(null);
+          return;
+        }
+
+        // Compute average rating from fetched reviews
+        const sum = arr.reduce((s: number, r: any) => s + (Number(r.rating) || 0), 0);
+        const avg = sum / arr.length;
+        setReviewsCount(arr.length);
+        setReviewsAvg(Number((avg || 0).toFixed(2)));
+      } catch (e) {
+        if ((e as any).name === 'AbortError') return;
+        console.error('Failed to fetch reviews for product card', e);
+        setReviewsCount(0);
+        setReviewsAvg(null);
+      }
+    };
+
+    fetchReviews();
+    return () => {
+      mounted = false;
+      controller.abort();
+    };
+  }, [product._id, product.ratings]);
 
   const [toast, setToast] = useState<string | null>(null);
   const handleWishlist = async (e: React.MouseEvent) => {
@@ -275,20 +328,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex space-x-2">
           <div className="flex space-x-1 mt-[2px]">
             {Array.from({ length: 5 }).map((_, i) => {
-              const avg = product.ratings?.average || 0;
-              const filled = Math.round(avg) >= i + 1;
+              // Prefer authoritative product.ratings when available, otherwise use fetched reviewsAvg
+              const avgValue = (product.ratings && product.ratings.count > 0)
+                ? product.ratings.average
+                : (reviewsAvg ?? 0);
+              const filled = Math.round(avgValue) >= i + 1;
+              const hasReviews = (product.ratings && product.ratings.count > 0) || (reviewsCount && reviewsCount > 0);
               return (
                 <Star
                   key={i}
+                  fill={filled && hasReviews ? 'currentColor' : 'none'}
                   className={`w-4 h-4 ${
-                    filled ? "text-[#914D26]" : "text-[#C17237]"
+                    filled
+                      ? hasReviews
+                        ? 'text-tertiary'
+                        : 'text-[#914D26]'
+                      : 'text-[#C17237]'
                   }`}
                 />
               );
             })}
           </div>
           <div className="text-md federo-numeric text-tertiary">
-            ({product.ratings?.count || 0})
+            ({(product.ratings && product.ratings.count) || reviewsCount || 0})
           </div>
         </div>
       </div>

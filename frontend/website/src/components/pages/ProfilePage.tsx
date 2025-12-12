@@ -971,23 +971,6 @@ const ProfilePage: React.FC = () => {
                 </div>
               )}
 
-              {activeTab === "wishlist" && (
-                <div>
-                  <span className="block text-xl sm:text-lg md:text-xl font-bold text-tertiary mb-4">
-                    My Wishlist
-                  </span>
-                  <div className="text-center py-8">
-                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <span className="block text-gray-600">
-                      Your wishlist is empty
-                    </span>
-                    <button className="mt-4 px-6 py-2 bg-tertiary text-white rounded-lg hover:bg-[#7a3f20] transition-colors">
-                      Start Shopping
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {activeTab === "settings" && (
                 <div className="w-full bg-background rounded-lg border border-fashion-charcoal/10 p-4 shadow-sm">
                   <div className="space-y-2">

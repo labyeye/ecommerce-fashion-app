@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { XCircle, Clock, RefreshCw, Home, Package } from "lucide-react";
+import { XCircle, Clock, RefreshCw, Package } from "lucide-react";
 import razorpayService, { RazorpayResponse } from "../../services/razorpayService";
 
 const PaymentCancelledPage: React.FC = () => {

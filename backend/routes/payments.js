@@ -702,18 +702,13 @@ router.post("/retry-payment", async (req, res) => {
       });
     }
 
-    // Create new Razorpay order using the existing order amount
-    const razorpayOrderData = {
-      amount: Math.round(order.total * 100), // Convert to paise
-      currency: "INR",
-      receipt: `receipt_${order.orderNumber}`,
-      notes: {
-        order_id: order._id.toString(),
-        order_number: order.orderNumber,
-      },
-    };
-
-    const razorpayOrder = await createRazorpayOrder(razorpayOrderData);
+    // Create new Razorpay order using the existing order amount (pass amount in INR)
+    // Note: `createRazorpayOrder` expects amount in rupees (it converts to paise internally)
+    const razorpayOrder = await createRazorpayOrder(
+      Number(order.total) || 0,
+      "INR",
+      `receipt_${order.orderNumber}`
+    );
 
     if (!razorpayOrder.success) {
       return res.status(500).json({
