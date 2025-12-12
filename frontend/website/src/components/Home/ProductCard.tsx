@@ -208,10 +208,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <Heart
-          className={`w-6 h-6 transition-colors duration-300
+          className={`w-5 h-5 transition-colors duration-300
             ${
               localWishlisted || isHovered
-                ? "fill-[#FFF2E1] text-background"
+                ? "text-background"
                 : "text-[#FFF2E1]"
             }
           `}

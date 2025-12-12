@@ -58,8 +58,25 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     if (productIds.length === 0) return;
 
     const fetchProducts = async () => {
-      // Filter out already fetched products
-      const idsToFetch = productIds.filter((id) => !fetchedProducts[id]);
+      // Build map of any products already embedded in the order items
+      const embeddedMap: Record<string, any> = {};
+      try {
+        (o?.items || []).forEach((it: any) => {
+          if (it && it.product && typeof it.product === "object" && it.product._id) {
+            embeddedMap[String(it.product._id)] = it.product;
+          }
+        });
+      } catch (e) {}
+
+      // Merge embedded products into fetchedProducts so UI can show names immediately
+      if (Object.keys(embeddedMap).length > 0) {
+        setFetchedProducts((prev) => ({ ...embeddedMap, ...prev }));
+      }
+
+      // Filter out already fetched products (including embedded ones)
+      const idsToFetch = productIds.filter((id) => !fetchedProducts[id] && !embeddedMap[id]);
+
+      // If nothing to fetch, avoid flipping loading state
       if (idsToFetch.length === 0) return;
 
       setLoadingProducts(true);
@@ -82,9 +99,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
               const body = await res.json();
               if (body?.success && body.data) {
                 // Handle both single product and array responses
-                const prod = Array.isArray(body.data)
-                  ? body.data[0]
-                  : body.data;
+                const prod = Array.isArray(body.data) ? body.data[0] : body.data;
                 if (prod) {
                   map[id] = prod;
                 }
@@ -111,16 +126,31 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     (it: any): string => {
       if (!it) return "Product";
 
-      console.log("Item for name:", it); // Debug log
-      console.log("Fetched products:", fetchedProducts); // Debug log
+      // If item already has a name/title use it
+      if (it.name && String(it.name).trim() !== "") return String(it.name).trim();
 
-      // Case 4: Try item's name field
-      if (it.name) {
-        console.log("Using item name:", it.name); // Debug log
-        return it.name;
+      // If item.product is an object, prefer its readable fields
+      if (it.product && typeof it.product === "object") {
+        const prod = it.product;
+        const candidate = prod.name || prod.title || prod.productName || prod.displayName;
+        if (candidate && String(candidate).trim() !== "") return String(candidate).trim();
+        // fallback to _id if present
+        if (prod._id) return `Product (${String(prod._id).slice(0, 8)})`;
       }
 
-      console.log("No name found, returning 'Product'"); // Debug log
+      // If item.product is an id string, try fetchedProducts map
+      if (it.product && typeof it.product === "string") {
+        const p = fetchedProducts[it.product];
+        if (p) {
+          const candidate = p.name || p.title || p.productName || p.displayName;
+          if (candidate && String(candidate).trim() !== "") return String(candidate).trim();
+        }
+        // fallback to short id
+        return `Product (${String(it.product).slice(0, 8)})`;
+      }
+
+      // Final fallback: use item's id or generic label
+      if (it._id) return `Product (${String(it._id).slice(0, 8)})`;
       return "Product";
     },
     [fetchedProducts]

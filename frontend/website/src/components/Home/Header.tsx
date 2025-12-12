@@ -9,6 +9,7 @@ import {
   Medal,
   ChevronDown,
   Heart,
+  X,
 } from "lucide-react";
 // Handler for wishlist navigation with auth check
 
@@ -653,18 +654,39 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                             ref={searchInputRef}
                             type="text"
                             className="flex-1 text-md border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
+                            style={{ fontSize: 16 }}
                             placeholder="Search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             autoFocus
                             aria-label="Search products"
                           />
+
+                          {/* Clear button: visible only when there's text */}
+                          {searchTerm.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSearchTerm("");
+                                // keep focus so user can type immediately
+                                setTimeout(
+                                  () => searchInputRef.current?.focus(),
+                                  0
+                                );
+                              }}
+                              className="ml-3 text-tertiary hover:text-fashion-accent-brown font-bold"
+                              aria-label="Clear search"
+                            >
+                              Clear{" "}
+                            </button>
+                          )}
+
                           <button
                             onClick={() => setIsSearchOpen(false)}
-                            className="ml-3 text-tertiary hover:text-tertiary text-xl"
+                            className="ml-3 text-tertiary hover:text-fashion-accent-brown"
                             aria-label="Close search"
                           >
-                            ×
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -1039,18 +1061,34 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                       ref={searchInputRef}
                       type="text"
                       className="flex-1 text-md border-0 focus:outline-none placeholder-gray-400 bg-transparent text-fashion-dark-gray"
+                      style={{ fontSize: 16 }}
                       placeholder="Search"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       autoFocus
                       aria-label="Search products"
                     />
+
+                    {searchTerm.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchTerm("");
+                          setTimeout(() => searchInputRef.current?.focus(), 0);
+                        }}
+                        className="ml-3 text-tertiary hover:text-fashion-accent-brown text-xl"
+                        aria-label="Clear search"
+                      >
+                        Clear{" "}
+                      </button>
+                    )}
+
                     <button
                       onClick={() => setIsSearchOpen(false)}
-                      className="ml-3 text-tertiary hover:text-tertiary text-xl"
+                      className="ml-3 text-tertiary font-bold hover:text-fashion-accent-brown"
                       aria-label="Close search"
                     >
-                      ×
+                      <X className="w-5 h-5" />
                     </button>
                   </div>
                 </div>

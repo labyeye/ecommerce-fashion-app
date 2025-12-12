@@ -77,7 +77,7 @@ const Wishlist: React.FC = () => {
           <ChevronRight className="w-5 h-5 rotate-180" />
         </button>
       )}
-      <h1 className="text-3xl text-center font-bold mb-4">My Wishlist</h1>
+      <span className="block text-5xl sm:text-6xl md:text-6xl lg:text-6xl text-center font-bold mb-4">My Wishlist</span>
       {wishlistProducts.length === 0 ? (
         <div className="text-center text-gray-500 mt-8">
           No products in your wishlist.

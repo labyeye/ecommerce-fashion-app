@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
 
@@ -298,6 +299,84 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setCredentials,
     authInitializing,
   };
+
+  // Auto-logout / inactivity tracking
+  useEffect(() => {
+    const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000; // 2 hours
+    const LAST_ACTIVITY_KEY = "lastActivity";
+
+    // Only set up timers/listeners when user is logged in (token exists)
+    if (!token) return;
+
+    const inactivityTimerRef = useRef<number | null>(null);
+
+    const scheduleLogout = () => {
+      // Clear existing
+      if (inactivityTimerRef.current !== null) {
+        window.clearTimeout(inactivityTimerRef.current);
+      }
+      inactivityTimerRef.current = window.setTimeout(() => {
+        try {
+          logout();
+        } catch (e) {
+          console.warn("Auto-logout failed:", e);
+        }
+      }, INACTIVITY_LIMIT);
+    };
+
+    const recordActivity = () => {
+      try {
+        localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+      } catch (e) {}
+      scheduleLogout();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        try {
+          localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+        } catch (e) {}
+      }
+    };
+
+    const onBeforeUnload = () => {
+      try {
+        localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+      } catch (e) {}
+    };
+
+    // Attach activity listeners
+    const events = ["click", "mousemove", "keydown", "scroll", "touchstart"];
+    events.forEach((ev) => window.addEventListener(ev, recordActivity, { passive: true }));
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    // On mount, check stored lastActivity (useful if tab was closed)
+    try {
+      const last = Number(localStorage.getItem(LAST_ACTIVITY_KEY) || Date.now().toString());
+      const elapsed = Date.now() - last;
+      if (elapsed >= INACTIVITY_LIMIT) {
+        // Last activity was too long ago — force logout
+        logout();
+      } else {
+        // Start timer for remaining time
+        const remaining = INACTIVITY_LIMIT - elapsed;
+        if (inactivityTimerRef.current !== null) window.clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = window.setTimeout(() => logout(), remaining);
+      }
+    } catch (e) {
+      // fallback: schedule full timeout
+      scheduleLogout();
+    }
+
+    return () => {
+      // cleanup
+      events.forEach((ev) => window.removeEventListener(ev, recordActivity as EventListener));
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      if (inactivityTimerRef.current !== null) window.clearTimeout(inactivityTimerRef.current);
+    };
+  }, [token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
