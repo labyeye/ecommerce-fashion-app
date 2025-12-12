@@ -56,6 +56,7 @@ const ProfilePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [orderStats, setOrderStats] = useState<any>(null);
   const [profilePictureUploading, setProfilePictureUploading] = useState(false);
+  const [showAvatarUploader, setShowAvatarUploader] = useState(false);
   const [isMobile, setMobile] = useState<boolean>(false);
   const _initialTabApplied = useRef(false);
 
@@ -139,6 +140,12 @@ const ProfilePage: React.FC = () => {
       alert(`Failed to update profile picture: ${errorMessage}`);
     } finally {
       setProfilePictureUploading(false);
+      // Close avatar uploader modal if open (mobile)
+      try {
+        setShowAvatarUploader(false);
+      } catch (e) {
+        // ignore
+      }
     }
   };
 
@@ -461,12 +468,20 @@ const ProfilePage: React.FC = () => {
                   Member since {userData.joinDate}
                 </div>
               </div>
-              <button
-                onClick={handleEditProfile}
-                className="text-xl font-semibold text-tertiary px-6 py-2 border border-tertiary rounded-md"
-              >
-                Edit
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleEditProfile}
+                  className="text-xl font-semibold text-tertiary px-6 py-2 border border-tertiary rounded-md"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowAvatarUploader(true)}
+                  className="text-sm font-semibold text-tertiary px-4 py-1 border border-tertiary rounded-md"
+                >
+                  Change Avatar
+                </button>
+              </div>
             </div>
 
             <div className="mt-4 grid gap-3">
@@ -1251,6 +1266,39 @@ const ProfilePage: React.FC = () => {
                     <span>Save Changes</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showAvatarUploader && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <span className="block text-xl font-bold text-tertiary">Change Avatar</span>
+              <button
+                onClick={() => setShowAvatarUploader(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4">
+              <ProfilePictureUpload
+                currentImage={userData.profileImage}
+                onUpload={handleProfilePictureUpload}
+                loading={profilePictureUploading}
+                authToken={token || ""}
+              />
+            </div>
+
+            <div className="p-4 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={() => setShowAvatarUploader(false)}
+                className="px-4 py-2 border rounded-md text-tertiary"
+              >
+                Close
               </button>
             </div>
           </div>
