@@ -502,7 +502,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       <div className="bg-white rounded-xl shadow-xl p-8 max-w-xs w-full flex flex-col items-center">
         <User className="w-10 h-10 text-fashion-accent-brown mb-2" />
         <h3 className="text-4xl font-semibold mb-2">Login Required</h3>
-        <p className="text-gray-600 mb-4 text-center">
+        <p className="text-tertiary mb-4 text-center">
           Please login to view this page or use wishlist features.
         </p>
         <div className="flex space-x-3">
@@ -520,7 +520,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
           </a>
         </div>
         <button
-          className="mt-4 text-sm text-gray-400 hover:text-red-500"
+          className="mt-4 text-sm text-tertiary hover:text-red-500"
           onClick={() => setShowLoginModal(false)}
         >
           Cancel
@@ -661,7 +661,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                           />
                           <button
                             onClick={() => setIsSearchOpen(false)}
-                            className="ml-3 text-gray-500 hover:text-gray-700 text-xl"
+                            className="ml-3 text-tertiary hover:text-tertiary text-xl"
                             aria-label="Close search"
                           >
                             ×
@@ -674,14 +674,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         {searchLoading && (
                           <div className="flex items-center justify-center py-4">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                            <p className="ml-2 text-gray-500 m-0">
+                            <p className="ml-2 text-tertiary m-0">
                               Searching...
                             </p>
                           </div>
                         )}
 
                         {!searchLoading && searchTerm.length <= 1 && (
-                          <div className="text-center py-8 text-gray-500">
+                          <div className="text-center py-8 text-tertiary">
                             <p>Start typing to search</p>
                           </div>
                         )}
@@ -690,7 +690,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                           <div className="space-y-4">
                             {pageResults.length === 0 &&
                             searchResults.length === 0 ? (
-                              <div className="text-center py-4 text-gray-500">
+                              <div className="text-center py-4 text-tertiary">
                                 <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                                 <p>No results found for "{searchTerm}"</p>
                               </div>
@@ -698,9 +698,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                               <>
                                 {pageResults.length > 0 && (
                                   <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                    <span className="text-lg font-semibold text-tertiary mb-2">
                                       Categories & Pages
-                                    </h3>
+                                    </span>
                                     <div className="space-y-1">
                                       {pageResults.map((link) => (
                                         <a
@@ -708,9 +708,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           href={link.url}
                                           className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                         >
-                                          <p className="font-medium text-blue-700 m-0">
+                                          <span className="font-medium text-xl text-tertiary m-0">
                                             {link.name}
-                                          </p>
+                                          </span>
                                         </a>
                                       ))}
                                     </div>
@@ -719,9 +719,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                                 {searchResults.length > 0 && (
                                   <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                                    <span className="text-lg font-semibold text-tertiary mb-2">
                                       Products
-                                    </h3>
+                                    </span>
                                     <div className="space-y-2">
                                       {searchResults.map((product) => (
                                         <a
@@ -731,7 +731,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                           }`}
                                           className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                         >
-                                          <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                          <div className="w-10 h-18 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                                             {(() => {
                                               const p: any = product;
                                               const imgSrc =
@@ -745,22 +745,22 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                                 <img
                                                   src={imgSrc}
                                                   alt={p.name}
-                                                  className="w-full h-full object-cover"
+                                                  className="w-full h-full object-contain"
                                                 />
                                               ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <div className="w-full h-full flex items-center justify-center text-tertiary">
                                                   <ShoppingCart className="w-4 h-4" />
                                                 </div>
                                               );
                                             })()}
                                           </div>
                                           <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 truncate text-sm m-0">
+                                            <span className="font-semibold text-tertiary truncate text-xl m-0">
                                               {product.name}
-                                            </p>
-                                            <p className="text-fashion-accent-brown font-semibold text-sm m-0">
+                                            </span>
+                                            <span className="text-tertiary federo-numeric text-lg ml-1">
                                               ₹{product.price}
-                                            </p>
+                                            </span>
                                           </div>
                                         </a>
                                       ))}
@@ -1005,9 +1005,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                             .filter((item) => item.isActive)
                             .sort((a, b) => a.sortOrder - b.sortOrder)
                             .map((item, dropdownIndex) => (
-                              <h6
-                                key={item.url || item.name || dropdownIndex}
-                              >
+                              <h6 key={item.url || item.name || dropdownIndex}>
                                 <a
                                   href={item.url}
                                   className="block text-xl text-tertiary hover:text-fashion-accent-brown transition-all duration-300 transform"
@@ -1070,7 +1068,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     />
                     <button
                       onClick={() => setIsSearchOpen(false)}
-                      className="ml-3 text-gray-500 hover:text-gray-700 text-xl"
+                      className="ml-3 text-tertiary hover:text-tertiary text-xl"
                       aria-label="Close search"
                     >
                       ×
@@ -1083,12 +1081,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   {searchLoading && (
                     <div className="flex items-center justify-center py-4">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fashion-accent-brown"></div>
-                      <p className="ml-2 text-gray-500 m-0">Searching...</p>
+                      <p className="ml-2 text-tertiary m-0">Searching...</p>
                     </div>
                   )}
 
                   {!searchLoading && searchTerm.length <= 1 && (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-tertiary">
                       <p>Start typing to search</p>
                     </div>
                   )}
@@ -1097,7 +1095,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <div className="space-y-4">
                       {pageResults.length === 0 &&
                       searchResults.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500">
+                        <div className="text-center py-4 text-tertiary">
                           <Search className="w-8 h-8 mx-auto mb-2 text-fashion-dark-gray" />
                           <p>No results found for "{searchTerm}"</p>
                         </div>
@@ -1105,9 +1103,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         <>
                           {pageResults.length > 0 && (
                             <div>
-                              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                              <span className="text-lg font-semibold text-tertiary mb-2">
                                 Categories & Pages
-                              </h3>
+                              </span>
                               <div className="space-y-1">
                                 {pageResults.map((link) => (
                                   <a
@@ -1115,7 +1113,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                     href={link.url}
                                     className="block px-2 py-2 hover:bg-gray-50 rounded transition-colors"
                                   >
-                                    <p className="font-medium text-blue-700 m-0">
+                                    <p className="font-medium text-tertiary m-0">
                                       {link.name}
                                     </p>
                                   </a>
@@ -1126,9 +1124,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
                           {searchResults.length > 0 && (
                             <div>
-                              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                              <span className="text-sm font-semibold text-primary mb-2">
                                 Products
-                              </h3>
+                              </span>
                               <div className="space-y-2">
                                 {searchResults.map((product) => (
                                   <a
@@ -1155,14 +1153,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                                             className="w-full h-full object-cover"
                                           />
                                         ) : (
-                                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                          <div className="w-full h-full flex items-center justify-center text-tertiary">
                                             <ShoppingCart className="w-4 h-4" />
                                           </div>
                                         );
                                       })()}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-gray-900 truncate text-sm m-0">
+                                      <p className="font-medium text-tertiary truncate text-sm m-0">
                                         {product.name}
                                       </p>
                                       <p className="text-fashion-accent-brown font-semibold text-sm m-0">

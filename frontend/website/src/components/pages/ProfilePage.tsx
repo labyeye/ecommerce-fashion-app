@@ -576,7 +576,7 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
         {!isMobile && (
-          <div className="bg-background rounded-3xl border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
+          <div className="bg-background rounded-xl border border-fashion-charcoal/10 shadow-soft p-8 mb-8">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="relative">
                 <ProfilePictureUpload
@@ -735,7 +735,7 @@ const ProfilePage: React.FC = () => {
 
         {}
         {!isMobile && (
-          <div className="bg-background rounded-fashion border border-fashion-charcoal/10 shadow-soft mb-8">
+          <div className="bg-background rounded-xl border border-fashion-charcoal/10 shadow-soft mb-8">
             <div className="flex flex-wrap border-b border-fashion-charcoal/10">
               {[
                 { id: "overview", label: "Overview", icon: User },
