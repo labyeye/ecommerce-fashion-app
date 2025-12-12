@@ -82,7 +82,7 @@ const ProfilePage: React.FC = () => {
 
     setProfilePictureUploading(true);
     try {
-      const apiBase = "https://ecommerce-fashion-app-som7.vercel.app"; // Replace with your actual API base URL
+      const apiBase = import.meta.env.VITE_API_URL || "https://ecommerce-fashion-app-som7.vercel.app/api";
       const response = await fetch(
         `${apiBase}/customer/update-profile-photo`,
         {

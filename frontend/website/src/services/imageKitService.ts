@@ -7,8 +7,8 @@ let imageKitInitError: string | null = null;
 
 const initImageKit = () => {
   if (imagekit || imageKitInitError) return;
-  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || '';
-  const urlEndpoint = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || '';
+  const publicKey = "public_1FDxGrZwnxDNjOUemV3t7bmpFVU=";
+  const urlEndpoint = "private_XYENeT+M2UL1Uy/PWG6x55ixUsE=";
 
   if (!publicKey || !urlEndpoint) {
     imageKitInitError = 'Missing ImageKit configuration: VITE_IMAGEKIT_PUBLIC_KEY and/or VITE_IMAGEKIT_URL_ENDPOINT';
@@ -31,18 +31,6 @@ interface UploadResponse {
   error?: string;
 }
 
-interface ImageKitUploadResult {
-  url: string;
-  fileId: string;
-  filePath: string;
-  name: string;
-  size: number;
-  versionInfo?: {
-    id: string;
-    name: string;
-  };
-}
-
 interface AuthParams {
   signature: string;
   expire: number;
@@ -53,7 +41,7 @@ interface AuthParams {
  * Get authentication parameters from backend
  */
 const getAuthParams = async (authToken: string): Promise<AuthParams> => {
-  const apiBase = import.meta.env.VITE_API_URL || '';
+  const apiBase = 'https://ecommerce-fashion-app-som7.vercel.app'; // Replace with your backend API base URL
   const response = await fetch(`${apiBase}/api/customer/imagekit-auth`, {
     method: 'GET',
     headers: {
@@ -95,13 +83,7 @@ export const uploadImageToImageKit = async (
   fileName?: string
 ): Promise<UploadResponse> => {
   try {
-    // Validate environment variables
-    const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
-
-    if (!publicKey) {
-      throw new Error('ImageKit public key is not configured');
-    }
-
+    // Ensure auth token is present
     if (!authToken) {
       throw new Error('Authentication token is required');
     }

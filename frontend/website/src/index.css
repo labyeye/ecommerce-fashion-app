@@ -628,3 +628,18 @@ html {
     transition-delay: 0s !important;
   }
 }
+/* iOS-style slide up animation for profile picture action sheet */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}

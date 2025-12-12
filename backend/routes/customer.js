@@ -1539,10 +1539,31 @@ router.post('/update-profile-photo', protect, isCustomer, [
       });
     }
 
-    // Validate URL format
+    // Validate URL format.
+    // Accept:
+    // - Absolute URLs (http(s)://...)
+    // - Relative paths (starting with '/') used for server-hosted uploads
+    // - Data URLs (data:...) and blob URLs (blob:...)
+    let isValidProfileUrl = false;
     try {
+      // Try parsing as absolute URL
       new URL(profilePhotoUrl);
+      isValidProfileUrl = true;
     } catch (urlError) {
+      // Not an absolute URL. Accept relative paths and data/blob URLs.
+      if (typeof profilePhotoUrl === 'string') {
+        const trimmed = profilePhotoUrl.trim();
+        if (
+          trimmed.startsWith('/') ||
+          trimmed.startsWith('data:') ||
+          trimmed.startsWith('blob:')
+        ) {
+          isValidProfileUrl = true;
+        }
+      }
+    }
+
+    if (!isValidProfileUrl) {
       return res.status(400).json({
         success: false,
         error: 'Invalid profile photo URL format'
