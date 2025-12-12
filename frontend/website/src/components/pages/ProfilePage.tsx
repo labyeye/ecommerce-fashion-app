@@ -952,7 +952,7 @@ const ProfilePage: React.FC = () => {
                               order.payment?.method === "razorpay" &&
                               order.payment?.status !== "paid" && (
                                 <button
-                                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                                  className="px-4 py-2 bg-tertiary text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
                                   onClick={() =>
                                     alert(
                                       "Redirect to payment gateway for order " +

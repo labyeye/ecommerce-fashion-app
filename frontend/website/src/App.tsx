@@ -45,6 +45,7 @@ import VerifyEmailPage from "./components/pages/VerifyEmailPage";
 import Wishlist from "./components/pages/Wishlist";
 import AddressesPage from "./components/pages/AddressesPage";
 import OrderCompletePage from "./components/pages/OrderCompletePage";
+import PaymentCancelledPage from "./components/pages/PaymentCancelledPage";
 import TermsPage from "./components/pages/TermsPage";
 import PrivacyPage from "./components/pages/PrivacyPage";
 import FaqPage from "./components/pages/FaqPage";
@@ -119,6 +120,7 @@ function App() {
                 <Route path="/shipping" element={<ShippingInfoPage />} />
                 <Route path="/return-policy" element={<ReturnPolicy />} />
                 <Route path="/order-complete" element={<OrderCompletePage />} />
+                <Route path="/payment-cancelled" element={<PaymentCancelledPage />} />
                 <Route path="/addresses" element={<AddressesPage />} />
                 <Route path="/wishlist" element={<Wishlist />} />
               </Routes>

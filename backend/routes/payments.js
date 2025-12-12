@@ -16,10 +16,6 @@ const router = express.Router();
 
 // Apply authentication to all routes
 router.use(protect);
-
-// @desc    Create order and Razorpay payment order
-// @route   POST /api/payments/create-order
-// @access  Private (Customer)
 router.post("/create-order", async (req, res) => {
   let savedOrder = null;
 
@@ -654,6 +650,98 @@ router.get("/status/:orderId", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error while fetching payment status",
+    });
+  }
+});
+
+// @desc    Retry payment for a pending order
+// @route   POST /api/payments/retry-payment
+// @access  Private (Customer)
+router.post("/retry-payment", async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID is required",
+      });
+    }
+
+    // Find the order
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // Check if order belongs to the current user
+    if (order.customer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    // Check if order is pending
+    if (order.status !== "pending" || order.payment.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: "Order is not pending payment",
+      });
+    }
+
+    // Check if order is within 12 hours
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    if (order.createdAt < twelveHoursAgo) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment window has expired",
+      });
+    }
+
+    // Create new Razorpay order using the existing order amount
+    const razorpayOrderData = {
+      amount: Math.round(order.total * 100), // Convert to paise
+      currency: "INR",
+      receipt: `receipt_${order.orderNumber}`,
+      notes: {
+        order_id: order._id.toString(),
+        order_number: order.orderNumber,
+      },
+    };
+
+    const razorpayOrder = await createRazorpayOrder(razorpayOrderData);
+
+    if (!razorpayOrder.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create Razorpay order for retry",
+        error: razorpayOrder.error,
+      });
+    }
+
+    // Update order with new Razorpay order ID
+    order.payment.razorpay.orderId = razorpayOrder.data.id;
+    await order.save();
+
+    res.json({
+      success: true,
+      data: {
+        id: razorpayOrder.data.id,
+        amount: razorpayOrder.data.amount,
+        currency: razorpayOrder.data.currency,
+        razorpay_key_id: process.env.RAZORPAY_KEY_ID,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrying payment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while retrying payment",
+      error: error.message,
     });
   }
 });

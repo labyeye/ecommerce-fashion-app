@@ -211,6 +211,28 @@ mongoose
       console.error("Failed to start Delhivery sync job:", err);
     }
 
+    // Start automatic order cancellation job (runs every hour)
+    try {
+      const { cancelPendingOrders } = require("./jobs/cancelPendingOrders");
+      console.log("Starting automatic order cancellation job (runs hourly)");
+      
+      // Initial run after 2 minutes of startup
+      setTimeout(async () => {
+        console.log("Running initial order cancellation check...");
+        const result = await cancelPendingOrders();
+        console.log("Order cancellation result:", result);
+      }, 2 * 60 * 1000);
+      
+      // Then run every hour
+      setInterval(async () => {
+        console.log("Running scheduled order cancellation check...");
+        const result = await cancelPendingOrders();
+        console.log("Order cancellation result:", result);
+      }, 60 * 60 * 1000); // Every hour
+    } catch (err) {
+      console.error("Failed to start order cancellation job:", err);
+    }
+
     // Start Express server only after DB connection is established
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

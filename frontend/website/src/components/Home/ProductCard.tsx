@@ -207,14 +207,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Heart: fill when wishlisted, outline otherwise. Use currentColor for fill. */}
         <Heart
-          className={`w-5 h-5 transition-colors duration-300
-            ${
-              localWishlisted || isHovered
-                ? "text-background"
-                : "text-[#FFF2E1]"
-            }
-          `}
+          className={`w-5 h-5 transition-colors duration-300 ${
+            localWishlisted ? "text-[#FFF2E1]" : isHovered ? "text-white" : "text-[#FFF2E1]"
+          }`}
+          fill={localWishlisted ? "currentColor" : "none"}
         />
       </button>
       <div

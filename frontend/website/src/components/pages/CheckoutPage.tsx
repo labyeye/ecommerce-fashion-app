@@ -371,7 +371,12 @@ const CheckoutPage: React.FC = () => {
         modal: {
           ondismiss: () => {
             setLoading(false);
-            setError("Payment cancelled by user");
+            // Navigate to payment cancelled page with order ID
+            if (razorpayOrder?.order_id) {
+              navigate(`/payment-cancelled?orderId=${razorpayOrder.order_id}`);
+            } else {
+              setError("Payment cancelled by user");
+            }
           },
         },
       };
@@ -1019,26 +1024,7 @@ const CheckoutPage: React.FC = () => {
                       error.includes("International cards")) &&
                       paymentMethod === "razorpay" && (
                         <div className="text-sm mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
-                          <div className="font-medium text-blue-800 mb-2">
-                            For Razorpay Test Mode (Indian Cards Only):
-                          </div>
-                          <div className="text-blue-700 space-y-1">
-                            <div>
-                              <strong>Recommended:</strong> Use UPI -
-                              success@razorpay
-                            </div>
-                            <div>
-                              <strong>Cards:</strong> Visa: 4111 1111 1111 1111,
-                              Rupay: 6076 6200 0000 0007
-                            </div>
-                            <div>
-                              <strong>Exp:</strong> 12/25, <strong>CVV:</strong>{" "}
-                              123
-                            </div>
-                            <div>
-                              <strong>NetBanking:</strong> Select any test bank
-                            </div>
-                          </div>
+                          
                         </div>
                       )}
                   </div>

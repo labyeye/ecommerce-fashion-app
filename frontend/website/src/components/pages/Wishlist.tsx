@@ -77,13 +77,13 @@ const Wishlist: React.FC = () => {
           <ChevronRight className="w-5 h-5 rotate-180" />
         </button>
       )}
-      <span className="block text-5xl sm:text-6xl md:text-6xl lg:text-6xl text-center font-bold mb-4">My Wishlist</span>
+      <span className="block text-5xl sm:text-5xl md:text-5xl lg:text-5xl text-center font-bold mb-4">My Wishlist</span>
       {wishlistProducts.length === 0 ? (
         <div className="text-center text-gray-500 mt-8">
           No products in your wishlist.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-3">
           {wishlistProducts.map((product) => {
             // Add safe defaults for missing fields
             const safeProduct = {
