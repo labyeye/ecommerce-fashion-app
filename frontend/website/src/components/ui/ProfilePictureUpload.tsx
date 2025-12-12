@@ -3,6 +3,7 @@ import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import { Camera, X, Check, User, Loader } from 'lucide-react';
 import 'react-image-crop/dist/ReactCrop.css';
 import { uploadImageToImageKit } from '../../services/imageKitService';
+import { AVATAR_LIST } from '../../utils/avatars';
 
 interface ProfilePictureUploadProps {
   currentImage?: string | null;
@@ -33,6 +34,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -170,6 +172,23 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     fileInputRef.current?.click();
   };
 
+  const handlePickAvatar = async (url: string) => {
+    try {
+      setUploading(true);
+      setUploadError('');
+      setUploadSuccess(false);
+      await onUpload(url);
+      setUploadSuccess(true);
+      setShowAvatarPicker(false);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to set avatar';
+      setUploadError(errorMessage);
+      console.error('Avatar pick error', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleCloseModal = () => {
     if (!uploading) {
       setShowModal(false);
@@ -181,19 +200,6 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
   return (
     <div className="relative">
-      {/* Success Message */}
-      {uploadSuccess && (
-        <div className="absolute -top-12 left-0 right-0 bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm text-center mb-2">
-          Profile picture updated successfully!
-        </div>
-      )}
-
-      {/* Error Message */}
-      {uploadError && (
-        <div className="absolute -top-12 left-0 right-0 bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm text-center mb-2">
-          {uploadError}
-        </div>
-      )}
 
       {/* Profile Picture Display */}
       <div className="relative group">
@@ -232,6 +238,17 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         className="hidden"
         disabled={loading || uploading}
       />
+
+      {/* Choose Avatar Button */}
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={() => setShowAvatarPicker(true)}
+          className="px-7 py-1 text-md bg-background border border-tertiary rounded hover:bg-gray-50"
+          disabled={loading || uploading}
+        >
+          Choose avatar
+        </button>
+      </div>
 
       {/* Crop Modal */}
       {showModal && (
@@ -308,6 +325,55 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                       Upload & Save
                     </>
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Avatar Picker Modal */}
+      {showAvatarPicker && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[80vh] overflow-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl font-semibold">Choose an avatar</span>
+                <button
+                  onClick={() => setShowAvatarPicker(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                  disabled={uploading}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {uploadError && (
+                <div className="mb-3 bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                  {uploadError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {AVATAR_LIST.map((p, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handlePickAvatar(p)}
+                    className="border rounded overflow-hidden focus:outline-none"
+                    disabled={uploading}
+                  >
+                    <img src={p} alt={`avatar-${idx}`} className="w-full h-24 object-contain" />
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowAvatarPicker(false)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  disabled={uploading}
+                >
+                  Close
                 </button>
               </div>
             </div>

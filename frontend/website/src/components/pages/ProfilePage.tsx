@@ -1,9 +1,10 @@
 import LoadingMountainSunsetBeach from "../ui/LoadingMountainSunsetBeach";
 import React, { useState, useEffect, useRef } from "react";
 import Invoice from "../Invoice";
-import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../ui/ProfilePictureUpload";
+import { useAuth } from "../../context/AuthContext";
+import { AVATAR_LIST } from "../../utils/avatars";
 import {
   User,
   Package,
@@ -30,7 +31,7 @@ import {
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, setCredentials } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [orders, setOrders] = useState<any[]>([]);
@@ -81,9 +82,9 @@ const ProfilePage: React.FC = () => {
 
     setProfilePictureUploading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_URL || "";
+      const apiBase = "https://ecommerce-fashion-app-som7.vercel.app"; // Replace with your actual API base URL
       const response = await fetch(
-        `${apiBase}/api/customer/update-profile-photo`,
+        `${apiBase}/customer/update-profile-photo`,
         {
           method: "POST",
           headers: {
@@ -110,9 +111,19 @@ const ProfilePage: React.FC = () => {
 
       if (response.ok && data.success) {
         // Update user context with new profile image
-        if (user && typeof user === "object") {
-          // Trigger re-fetch of user data or update context
-          window.location.reload(); // For now, reload to get fresh data
+        try {
+          if (setCredentials && token) {
+            // Re-fetch authoritative user data using existing token
+            // Pass undefined as second param to satisfy TS signature
+            // (implementation treats second param as optional)
+            await setCredentials(token, undefined as any);
+          } else {
+            // Fallback to reload if setCredentials is not available
+            window.location.reload();
+          }
+        } catch (err) {
+          console.warn('Failed to refresh user after profile update', err);
+          window.location.reload();
         }
       } else {
         throw new Error(
@@ -135,14 +146,30 @@ const ProfilePage: React.FC = () => {
   // and effects declared above to avoid changing hook order between renders.
   const isUserLoading = !user;
 
+  const pickDefaultAvatar = (uid?: string | null) => {
+    if (!AVATAR_LIST || AVATAR_LIST.length === 0) return '';
+    if (!uid) {
+      const idx = Math.floor(Math.random() * AVATAR_LIST.length);
+      return AVATAR_LIST[idx];
+    }
+    // deterministic pick based on user id hash so avatar is stable
+    let h = 0;
+    for (let i = 0; i < uid.length; i++) {
+      h = (h << 5) - h + uid.charCodeAt(i);
+      h |= 0;
+    }
+    const idx = Math.abs(h) % AVATAR_LIST.length;
+    return AVATAR_LIST[idx];
+  };
+
   const userData = {
     name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "User",
     email: user?.email || "",
     phone: user?.phone || "Not provided",
     address: user?.address
       ? `${user.address.street || ""}, ${user.address.city || ""}, ${
-          user.address.state || ""
-        } ${user.address.zipCode || ""}`
+          user.address.state || ""}
+          ${user.address.zipCode || ""}`
           .replace(/^,\s*/, "")
           .replace(/,\s*,/g, ",")
       : "Not provided",
@@ -152,7 +179,7 @@ const ProfilePage: React.FC = () => {
           year: "numeric",
         })
       : "",
-    profileImage: user?.profileImage || null,
+    profileImage: user?.profileImage || pickDefaultAvatar(user?._id),
     totalOrders: orderStats?.total || 0,
     totalSpent: orderStats?.totalSpent || 0,
   };
