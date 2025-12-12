@@ -6,12 +6,8 @@ type InvoiceProps = {
 };
 
 const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
-  const o = order?.order || order;
-
-  // Debug: log resolved order object and invoice number when rendering
-  // This helps verify whether `invoiceNo` is present on the order passed to this component.
+  const o = order?.order || order
   try {
-    // eslint-disable-next-line no-console
     console.debug(
       "Invoice component - resolved order:",
       o,
@@ -19,7 +15,6 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       o?.invoiceNo
     );
   } catch (e) {
-    // ignore
   }
   const company = {
     name: "NS Designs",
@@ -30,14 +25,10 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
   };
 
   const fmt = (n: number) => `₹${(n || 0).toFixed(2)}`;
-
-  // Keep a map of productId -> product info fetched from server
   const [fetchedProducts, setFetchedProducts] = useState<Record<string, any>>(
     {}
   );
   const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
-
-  // Extract all product IDs from order items
   const productIds = useMemo(() => {
     if (!o?.items) return [];
 

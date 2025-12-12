@@ -90,6 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [authInitializing, setAuthInitializing] = useState<boolean>(true);
   // const navigate = useNavigate();
+  const inactivityTimerRef = useRef<number | null>(null);
 
   // Check if user is authenticated on app load
   useEffect(() => {
@@ -307,8 +308,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Only set up timers/listeners when user is logged in (token exists)
     if (!token) return;
-
-    const inactivityTimerRef = useRef<number | null>(null);
 
     const scheduleLogout = () => {
       // Clear existing
