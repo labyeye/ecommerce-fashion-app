@@ -53,7 +53,7 @@ const Cart: React.FC<CartProps> = ({
     // removeEvolvPoints,
     // evolvPointsLoading,
     // evolvPointsError,
-    userEvolvPoints,
+    // userEvolvPoints,
     fetchUserEvolvPoints,
   } = useCartContext();
 
@@ -122,12 +122,12 @@ const Cart: React.FC<CartProps> = ({
             <span
               role="heading"
               aria-level={2}
-              className="text-lg sm:text-xl md:text-2xl text-[#914D26] font-semibold"
+              className="text-2xl sm:text-xl md:text-2xl text-[#914D26] font-semibold"
             >
               Your Bag
             </span>
             <span
-              className="text-[#914D26] text-lg px-0 py-0 rounded-full federo-numeric"
+              className="text-[#914D26] text-2xl px-0 py-0 rounded-full federo-numeric"
               style={{
                 fontVariantNumeric: "lining-nums",
                 fontFeatureSettings: '"tnum"',
@@ -193,14 +193,14 @@ const Cart: React.FC<CartProps> = ({
                     <span
                       role="heading"
                       aria-level={4}
-                      className="block font-semibold text-[#914D26] truncate text-sm sm:text-base md:text-xl"
+                      className="block font-semibold text-[#914D26] truncate text-xl sm:text-base md:text-xl"
                     >
                       {item.name}
                     </span>
                     <span className="block text-xl md:text-lg sm:text-sm text-[#914D26]">
                       Size: {item.size}
                     </span>
-                    <span className="block text-md sm:text-base md:text-lg text-[#914D26] federo-numeric">
+                    <span className="block text-xl sm:text-base md:text-lg text-[#914D26] federo-numeric">
                       ₹{item.price}
                     </span>
                   </div>
@@ -270,10 +270,12 @@ const Cart: React.FC<CartProps> = ({
                       className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
                     >
                       <Tag className="w-4 h-4" />
-                      <p className="text-sm font-medium">Have a promo code?</p>
+                      <span className="text-xl sm:text-md font-medium">
+                        Have a promo code?
+                      </span>
                     </button>
 
-                    {userEvolvPoints > 0 && (
+                    {/* {userEvolvPoints > 0 && (
                       <button
                         onClick={() => setShowEvolvPointsInput(true)}
                         className="flex items-center space-x-2 text-[#914D26] hover:text-[#2B463C] transition-colors duration-200"
@@ -284,7 +286,7 @@ const Cart: React.FC<CartProps> = ({
                           available)
                         </p>
                       </button>
-                    )}
+                    )} */}
                   </div>
                 )}
 
@@ -424,15 +426,19 @@ const Cart: React.FC<CartProps> = ({
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between text-[914D26">
-                <span>Subtotal</span>
-                <span className="federo-numeric">₹{subtotal.toFixed(0)}</span>
+              <div className="flex justify-between text-[#914D26]">
+                <span className="text-2xl sm:text-xl">Subtotal</span>
+                <span className="federo-numeric text-2xl sm:text-xl">
+                  ₹{subtotal.toFixed(0)}
+                </span>
               </div>
 
               {promoCode && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount ({promoCode.code})</span>
-                  <span className="federo-numeric">
+                  <span className="text-2xl sm:text-xl">
+                    Discount ({promoCode.code})
+                  </span>
+                  <span className="federo-numeric text-2xl sm:text-xl">
                     -₹{promoDiscount.toFixed(0)}
                   </span>
                 </div>
@@ -440,30 +446,32 @@ const Cart: React.FC<CartProps> = ({
 
               {evolvPointsRedemption && (
                 <div className="flex justify-between text-blue-600">
-                  <span>Flaunt By Nishi Points Discount</span>
-                  <span className="federo-numeric">
+                  <span className="text-2xl sm:text-xl">
+                    Flaunt By Nishi Points Discount
+                  </span>
+                  <span className="federo-numeric text-2xl sm:text-xl">
                     -₹{evolvDiscount.toFixed(0)}
                   </span>
                 </div>
               )}
 
-              <div className="flex justify-between text-[914D26">
-                <span>Shipping</span>
-                <span className="">
+              <div className="flex justify-between text-[#914D26]">
+                <span className="text-2xl sm:text-xl">Shipping</span>
+                <span className="text-2xl sm:text-xl federo-numeric">
                   {shipping === 0 ? "To be Calculated" : `₹${shipping}`}
                 </span>
               </div>
 
               {subtotal < 3000 && (
-                <p className="text-sm text-[#914D26] pt-2">
+                <span className="text-xl sm:text-lg text-[#914D26]">
                   Add <span className="federo-numeric">₹{3000 - subtotal}</span>{" "}
                   more for free shipping!
-                </p>
+                </span>
               )}
 
-              <div className="flex justify-between text-lg font-semibold text-[#914D26] pt-2 border-t border-tertiary">
-                <span>Total</span>
-                <span className="federo-numeric">
+              <div className="flex justify-between text-lg sm:text-base font-semibold text-[#914D26] pt-2 border-t border-tertiary">
+                <span className="text-2xl sm:text-xl">Total</span>
+                <span className="federo-numeric text-2xl sm:text-xl font-bold">
                   ₹{Math.max(0, total).toFixed(0)}
                 </span>
               </div>
@@ -481,7 +489,7 @@ const Cart: React.FC<CartProps> = ({
               }}
               disabled={items.length === 0}
             >
-              <span>Proceed to Checkout</span>
+              <span className="text-2xl sm:text-xl">Proceed to Checkout</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
             </button>
 
@@ -491,7 +499,7 @@ const Cart: React.FC<CartProps> = ({
                   onClose();
                   navigate("/products");
                 }}
-                className="text-[#914D26] hover:text-[#2B463C] font-medium transition-colors duration-200"
+                className="text-[#914D26] hover:text-[#2B463C] text-2xl sm:text-xl font-medium transition-colors duration-200"
               >
                 Continue Shopping
               </button>

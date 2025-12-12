@@ -1102,23 +1102,26 @@ const ProductDetailsPage: React.FC = () => {
             {/* Add to Cart */}
             <div className="space-y-4">
               {/* Delivery check widget */}
-              <div className="flex items-center space-x-3">
-                <input
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
-                  placeholder="Enter Pincode"
-                  className="border placeholder-tertiary/30 px-3 h-[44px] rounded w-40 text-lg font-medium text-tertiary federo-numeric"
-                />
-                <button
-                  onClick={checkDelivery}
-                  disabled={checkingDelivery}
-                  className="px-4 h-[44px] bg-background border border-tertiary text-white rounded text-lg"
-                >
-                  {checkingDelivery ? "Checking..." : "Check Delivery"}
-                </button>
+              <div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && checkDelivery()}
+                    placeholder="Enter Pincode"
+                    className="border placeholder-tertiary/30 px-3 h-[44px] rounded w-40 text-lg font-medium text-tertiary federo-numeric"
+                  />
+                  <button
+                    onClick={checkDelivery}
+                    disabled={checkingDelivery}
+                    className="px-4 h-[44px] w-full bg-background border border-tertiary text-white rounded text-lg"
+                  >
+                    {checkingDelivery ? "Checking..." : "Check Delivery"}
+                  </button>
+                </div>
+
                 {deliveryInfo && (
-                  <div className="text-xl text-tertiary/80">
+                  <div className="mt-3 text-xl text-tertiary/80">
                     {deliveryInfo.deliverable ? (
                       (() => {
                         const pickup = (deliveryInfo as any).pickup || null;
@@ -1135,18 +1138,18 @@ const ProductDetailsPage: React.FC = () => {
                         // If transit is known, show full ETA (processing + transit)
                         if (transit !== null) {
                           return (
-                            <p className="text-green-600">
+                            <span className="text-green-600 text-lg font-bold federo-numeric">
                               Deliverable
                               {transit ? ` · ${transit} day(s) transit` : ""}
                               {processing
                                 ? ` · ${processing} day(s) processing`
                                 : ""}
                               {totalDays > 0 && (
-                                <span className="block text-xl text-tertiary">
+                                <span className="block text-lg text-tertiary federo-numeric">
                                   Est. delivery: {getEstimatedDate(totalDays)}
                                 </span>
                               )}
-                            </p>
+                            </span>
                           );
                         }
 
@@ -1181,7 +1184,7 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || isOutOfStock}
-                    className={`w-full py-1 text-lg font-medium tracking-wide transition-all duration-300 relative overflow-hidden border ${
+                  className={`px-4 h-[44px] w-full bg-background border border-tertiary text-white rounded text-lg ${
                       !selectedSize
                         ? "border-tertiary/10 text-tertiary/30 cursor-not-allowed bg-transparent"
                         : isOutOfStock
@@ -1190,13 +1193,13 @@ const ProductDetailsPage: React.FC = () => {
                     }`}
                   >
                     {!selectedSize ? (
-                      <p className="flex items-center justify-center space-x-2 text-xl">
-                        <p>SELECT SIZE TO ADD TO BAG</p>
-                      </p>
+                      <span className="flex items-center justify-center space-x-2 text-xl font-bold">
+                        <span>SELECT SIZE TO ADD TO BAG</span>
+                      </span>
                     ) : isOutOfStock ? (
-                      <p className="flex items-center justify-center space-x-2 text-xl">
-                        <p>OUT OF STOCK</p>
-                      </p>
+                      <span className="flex items-center justify-center space-x-2 text-xl">
+                        <span>OUT OF STOCK</span>
+                      </span>
                     ) : (
                       <p className="flex items-center justify-center space-x-2 text-xl">
                         <p>ADD TO BAG</p>
@@ -1296,24 +1299,23 @@ const ProductDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Sequential product sections: Description -> Key Features -> Care -> Reviews */}
         <div className="mt-16 space-y-10">
           {/* Description */}
           <section>
-            <h2 className="text-5xl font-semibold mb-4">Description</h2>
+            <span className="text-5xl font-semibold mb-4">Description</span>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-tertiary/80 leading-relaxed text-2xl">
+              <span className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.description || "No description available."}
-              </p>
+              </span>
             </div>
           </section>
           {product.keyFeatures && product.keyFeatures.length > 0 && (
             <section>
-              <h2 className="text-5xl font-semibold mb-4">Key Features</h2>
+              <span className="text-5xl font-semibold mb-4">Key Features</span>
               <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mt-10">
                 {product.keyFeatures.map((kf, i) => (
                   <div key={i} className="  rounded shadow-sm">
-                    <p className="text-2xl text-tertiary">• {kf}</p>
+                    <span className="text-2xl text-tertiary">• {kf}</span>
                   </div>
                 ))}
               </div>
@@ -1322,22 +1324,22 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Care Instructions */}
           <section>
-            <h2 className="text-5xl font-semibold mb-4">Care Instructions</h2>
+            <span className="text-5xl font-semibold mb-4">Care Instructions</span>
             <div className="prose prose-fashion max-w-none mt-10">
-              <p className="text-tertiary/80 leading-relaxed text-2xl">
+              <span className="text-tertiary/80 leading-relaxed text-2xl">
                 {product.careInstructions || "Care instructions not available."}
-              </p>
+              </span>
             </div>
           </section>
 
           {/* Reviews */}
           <section>
-            <h2 className="font-semibold mb-4">Reviews</h2>
+            <span className="text-5xl font-semibold mb-4">Reviews</span>
             <div className="py-6">
               {productReviews.length === 0 ? (
-                <p className="text-tertiary/60 text-center text-2xl">
+                <span className="text-tertiary/60 text-center text-2xl">
                   No reviews yet. Be the first to review this product!
-                </p>
+                </span>
               ) : (
                 <div className="space-y-4">
                   {productReviews.map((r: any) => (
@@ -1386,10 +1388,10 @@ const ProductDetailsPage: React.FC = () => {
                     to leave a review.
                   </p>
                 ) : !hasPurchased ? (
-                  <p className="text-center text-sm">
+                  <span className="text-center text-xl ">
                     Only customers who purchased this product can leave a
                     review.
-                  </p>
+                  </span>
                 ) : (
                   <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold mb-3">
@@ -1468,7 +1470,7 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Related / recommended products */}
         <div className="mt-12">
-          <h4 className="text-6xl font-semibold mb-6">You might also like</h4>
+          <span className="text-6xl font-semibold mb-6">You might also like</span>
           {otherProducts.length === 0 ? (
             <p className="">No recommendations available.</p>
           ) : (

@@ -1,10 +1,29 @@
 import ImageKit from 'imagekit-javascript';
 
-// ImageKit configuration
-const imagekit = new ImageKit({
-  publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || '',
-  urlEndpoint: import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || '',
-});
+// Lazy ImageKit initialization to avoid throwing during module load when
+// environment variables are missing (e.g. local dev without secrets).
+let imagekit: any | null = null;
+let imageKitInitError: string | null = null;
+
+const initImageKit = () => {
+  if (imagekit || imageKitInitError) return;
+  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || '';
+  const urlEndpoint = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || '';
+
+  if (!publicKey || !urlEndpoint) {
+    imageKitInitError = 'Missing ImageKit configuration: VITE_IMAGEKIT_PUBLIC_KEY and/or VITE_IMAGEKIT_URL_ENDPOINT';
+    console.warn(imageKitInitError);
+    return;
+  }
+
+  try {
+    imagekit = new ImageKit({ publicKey, urlEndpoint });
+  } catch (err: any) {
+    imageKitInitError = err?.message || String(err);
+    console.warn('Failed to initialize ImageKit SDK:', imageKitInitError);
+    imagekit = null;
+  }
+};
 
 interface UploadResponse {
   success: boolean;
@@ -99,11 +118,16 @@ export const uploadImageToImageKit = async (
       throw new Error('Image size must be less than 5MB');
     }
 
+    // Initialize ImageKit if possible
+    initImageKit();
+    if (!imagekit) {
+      throw new Error(imageKitInitError || 'ImageKit is not configured');
+    }
+
     // Get authentication parameters from backend
     const authParams = await getAuthParams(authToken);
 
-    // Remove folder parameter entirely to eliminate folder errors
-    // Upload to root directory and let user organize later if needed
+    // Upload to ImageKit (no folder specified)
     const uploadResponse = await imagekit.upload({
       file: file,
       fileName: fileName || `profile-${Date.now()}`,
@@ -172,12 +196,13 @@ export const getTransformedImageUrl = (
     
     const transformString = transformParams.join(',');
     
-    // Insert transformations into ImageKit URL
+    // Insert transformations into ImageKit URL if it matches the ImageKit pattern.
     // ImageKit URL format: https://ik.imagekit.io/your_imagekit_id/tr:transformations/path/to/image
-    return imageUrl.replace(
-      /(https:\/\/ik\.imagekit\.io\/[^\/]+)(\/.*)/,
-      `$1/tr:${transformString}$2`
-    );
+    const match = imageUrl.match(/(https:\/\/ik\.imagekit\.io\/[^\/]+)(\/.*)/);
+    if (match) {
+      return imageUrl.replace(match[0], `${match[1]}/tr:${transformString}${match[2]}`);
+    }
+    return imageUrl;
   } catch (error) {
     console.warn('Failed to generate transformed URL:', error);
     return imageUrl;

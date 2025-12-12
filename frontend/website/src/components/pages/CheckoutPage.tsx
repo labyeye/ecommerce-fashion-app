@@ -384,6 +384,85 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  // Order summary renderer reused for mobile (inside main column) and desktop sidebar
+  const OrderSummary: React.FC<{ className?: string }> = ({ className = '' }) => (
+    <div className={className}>
+      <div className="bg-background rounded-2xl shadow-sm p-6">
+        <span className="block text-3xl text-[#95522C] mb-6">Order Summary</span>
+
+        {/* Cart Items */}
+        <div className="space-y-4 mb-6">
+          {cartItems.map((item) => (
+            <div
+              key={`${item.id}-${item.size}-${item.color}`}
+              className="flex items-center space-x-4"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-16 h-16 object-cover rounded-lg"
+              />
+              <div className="flex-1">
+                <span className="block font-medium">{item.name}</span>
+                <span className="block">
+                  Size: {item.size} || Qty: <span className="federo-numeric">{item.quantity}</span>
+                </span>
+                <span className="block federo-numeric">₹{(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Price Breakdown */}
+        <div className="border-t border-gray-200 pt-4 space-y-2">
+          <div className="flex justify-between text-[#95522C]">
+            <span>Subtotal</span>
+            <span className="federo-numeric">₹{subtotalExclTax.toFixed(0)}</span>
+          </div>
+
+          {promoCode && promoDiscountAmount > 0 && (
+            <div className="flex justify-between TEXT-[#95522C]">
+              <span>Discount ({promoCode.code})</span>
+              <span className="federo-numeric">-₹{promoDiscountAmount.toFixed(0)}</span>
+            </div>
+          )}
+
+          {evolvPointsRedemption && evolvDiscountAmount > 0 && (
+            <div className="flex justify-between text-blue-600">
+              <span>Flaunt By Nishi Points ({evolvPointsRedemption.pointsToRedeem} pts)</span>
+              <span className="federo-numeric">-₹{evolvDiscountAmount.toFixed(0)}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between text-[#95522C]">
+            <span>Shipping</span>
+            <span className="federo-numeric">{shippingCost === 0 ? "Free Shipping" : `₹${shippingCost}`}</span>
+          </div>
+          {subtotalInclTax < 3000 && (
+            <div className="text-md text-priamry federo-numeric">Free shipping on orders ₹3000 and above</div>
+          )}
+          <div className="flex justify-between text-[#95522C]">
+            <span>Tax</span>
+            <span className="federo-numeric">₹{taxDisplay.toFixed(0)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
+            <span>Total</span>
+            <span className="federo-numeric">₹{(subtotalExclTax + taxDisplay + shippingCost - totalDiscountAmount).toFixed(0)}</span>
+          </div>
+        </div>
+
+        {/* Security Badge */}
+        <div className="mt-6 p-4 bg-[#FFF2E1] rounded-lg">
+          <div className="flex items-center space-x-2">
+            <ShieldCheck className="w-5 h-5 text-[#95522C]" />
+            <span className="text-xl text-[#95522C] font-medium">Secure Checkout</span>
+          </div>
+          <span className="block text-lg text-[#95522C] mt-1">Your payment information is encrypted and secure.</span>
+        </div>
+      </div>
+    </div>
+  );
+
   // Show loading state while cart is being initialized
   if (isLoading) {
     return (
@@ -462,7 +541,7 @@ const CheckoutPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-8 mt-20">
           <div className="flex items-center justify-center space-x-4">
             <div
               className={`flex items-center ${
@@ -877,6 +956,11 @@ const CheckoutPage: React.FC = () => {
                   )}
                 </div>
 
+                {/* On mobile: show Order Summary before Payment Method */}
+                <div className="lg:hidden">
+                  <OrderSummary />
+                </div>
+
                 {/* Payment Method */}
                 <div className="bg-background rounded-2xl shadow-md p-6">
                   <div className="flex items-center mb-6">
@@ -981,105 +1065,10 @@ const CheckoutPage: React.FC = () => {
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-background rounded-2xl shadow-sm p-6 sticky top-8">
-              <span className="block text-3xl text-[#95522C] mb-6">Order Summary</span>
-
-              {/* Cart Items */}
-              <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <div
-                    key={`${item.id}-${item.size}-${item.color}`}
-                    className="flex items-center space-x-4"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <span className="block font-medium">{item.name}</span>
-                      <span className="block">
-                        Size: {item.size} || Qty: <span className="federo-numeric">{item.quantity}</span>
-                      </span>
-                      <span className="block federo-numeric">₹{(item.price * item.quantity).toFixed(2)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Price Breakdown */}
-              <div className="border-t border-gray-200 pt-4 space-y-2">
-                <div className="flex justify-between text-[#95522C]">
-                  <span>Subtotal</span>
-                  <span className="federo-numeric">
-                    ₹{subtotalExclTax.toFixed(0)}
-                  </span>
-                </div>
-
-                {promoCode && promoDiscountAmount > 0 && (
-                  <div className="flex justify-between TEXT-[#95522C]">
-                    <span>Discount ({promoCode.code})</span>
-                    <span className="federo-numeric">
-                      -₹{promoDiscountAmount.toFixed(0)}
-                    </span>
-                  </div>
-                )}
-
-                {evolvPointsRedemption && evolvDiscountAmount > 0 && (
-                  <div className="flex justify-between text-blue-600">
-                    <span>
-                      Flaunt By Nishi Points (
-                      {evolvPointsRedemption.pointsToRedeem} pts)
-                    </span>
-                    <span className="federo-numeric">
-                      -₹{evolvDiscountAmount.toFixed(0)}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-[#95522C]">
-                  <span>Shipping</span>
-                  <span className="federo-numeric">
-                    {shippingCost === 0 ? "Free Shipping" : `₹${shippingCost}`}
-                  </span>
-                </div>
-                {subtotalInclTax < 3000 && (
-                  <div className="text-md text-priamry federo-numeric">
-                    Free shipping on orders ₹3000 and above
-                  </div>
-                )}
-                <div className="flex justify-between text-[#95522C]">
-                  <span>Tax</span>
-                  <span className="federo-numeric">
-                    ₹{taxDisplay.toFixed(0)}
-                  </span>
-                </div>
-                <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
-                  <span>Total</span>
-                  <span className="federo-numeric">
-                    ₹
-                    {(
-                      subtotalExclTax +
-                      taxDisplay +
-                      shippingCost -
-                      totalDiscountAmount
-                    ).toFixed(0)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Security Badge */}
-              <div className="mt-6 p-4 bg-[#FFF2E1] rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-5 h-5 text-[#95522C]" />
-                  <span className="text-xl text-[#95522C] font-medium">
-                    Secure Checkout
-                  </span>
-                </div>
-                <span className="block text-lg text-[#95522C] mt-1">Your payment information is encrypted and secure.</span>
-              </div>
+          {/* Order Summary Sidebar (desktop only) */}
+          <div className="lg:col-span-1 hidden lg:block">
+            <div className="sticky top-8">
+              <OrderSummary />
             </div>
           </div>
         </div>

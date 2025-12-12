@@ -46,13 +46,19 @@ const ChangeEmail: React.FC = () => {
     <div className="min-h-screen pt-20 pb-16 bg-[#FFF2E1]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <div className="bg-background rounded-xl shadow-lg p-6 sm:p-8 md:p-10 max-w-md sm:max-w-lg lg:max-w-xl mx-auto mb-12">
-          <span className="block text-2xl md:text-3xl font-semibold mb-4">Change Email</span>
+          <span className="block text-2xl md:text-3xl font-semibold mb-4">
+            Change Email
+          </span>
           {message && (
-            <span className="block mb-4 text-sm md:text-base text-red-700">{message}</span>
+            <span className="block mb-4 text-sm md:text-base text-red-700">
+              {message}
+            </span>
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm md:text-base mb-1">New Email</label>
+              <label className="block text-sm md:text-base mb-1">
+                New Email
+              </label>
               <input
                 type="email"
                 value={newEmail}

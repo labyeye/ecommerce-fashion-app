@@ -188,7 +188,7 @@ const HeroComponent: React.FC = () => {
 
             {currentHero?.description && (
               <span
-                className="block text-xs sm:text-sm md:text-base opacity-80 leading-relaxed mt-2"
+                className="block text-xl sm:text-sm md:text-base font-bold mt-2"
                 style={{ color: currentHero?.textColor || "#ffffff" }}
               >
                 {currentHero.description}
@@ -199,10 +199,10 @@ const HeroComponent: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <a
                   href={currentHero.ctaButton.link}
-                  className="w-68 sm:w-auto mx-auto flex items-center justify-center text-sm px-3 py-1 sm:px-4 sm:py-2 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-beige transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="w-36 h-14 lg:h-10 lg:w-68 mx-auto flex items-center justify-center text-2xl sm:text-sm md:text-md lg:text-lg px-3 py-1 sm:px-4 sm:py-2 bg-[#FFF2E1] text-[#914D26] font-semibold rounded-full hover:bg-beige transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   {currentHero.ctaButton.text}
-                  <ArrowRight className="ml-2 w-2 h-2 sm:w-3 sm:h-3 group-hover:translate-x-1 transition-transform text-[#914D26]" />
+                  <ArrowRight className="ml-2 mt-1 w-5 h-5 sm:w-3 sm:h-3 group-hover:translate-x-1 transition-transform text-[#914D26]" />
                 </a>
               </div>
             )}
