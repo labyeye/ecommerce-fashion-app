@@ -79,65 +79,120 @@ const ProfilePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const handleProfilePictureUpload = async (imageUrl: string) => {
-    if (!token || !user) return;
+    if (!token || !user) {
+      alert("Please log in to update your profile picture");
+      return;
+    }
 
     setProfilePictureUploading(true);
+    
     try {
-      const apiBase = import.meta.env.VITE_API_URL || "https://ecommerce-fashion-app-som7.vercel.app/api";
-      const response = await fetch(
-        `${apiBase}/customer/update-profile-photo`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            profilePhotoUrl: imageUrl,
-          }),
-        }
-      );
-
-      // Always try to parse JSON response
-      let data;
-      const responseText = await response.text();
-
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Failed to parse response as JSON:", responseText);
-        throw new Error("Server returned invalid response");
+      // Validate image URL
+      if (!imageUrl || !imageUrl.trim()) {
+        throw new Error("Invalid image URL provided");
       }
 
-      if (response.ok && data.success) {
-        // Update user context with new profile image
-        try {
-          if (setCredentials && token) {
-            // Re-fetch authoritative user data using existing token
-            // Pass undefined as second param to satisfy TS signature
-            // (implementation treats second param as optional)
-            await setCredentials(token, undefined as any);
-          } else {
-            // Fallback to reload if setCredentials is not available
-            window.location.reload();
+      const apiBase = import.meta.env.VITE_API_URL || "https://ecommerce-fashion-app-som7.vercel.app/api";
+      
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+      let response;
+      try {
+        response = await fetch(
+          `${apiBase}/customer/update-profile-photo`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include", // Include cookies for CORS
+            body: JSON.stringify({
+              userId: user._id,
+              profilePhotoUrl: imageUrl,
+            }),
+            signal: controller.signal,
           }
-        } catch (err) {
-          console.warn('Failed to refresh user after profile update', err);
-          window.location.reload();
+        );
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        // Handle specific fetch errors
+        if (fetchError.name === 'AbortError') {
+          throw new Error("Request timed out. Please check your internet connection and try again.");
+        }
+        
+        // Network errors
+        if (!navigator.onLine) {
+          throw new Error("No internet connection. Please check your network and try again.");
+        }
+        
+        // CORS or network issues
+        throw new Error("Network error: Unable to reach the server. Please try again.");
+      }
+
+      clearTimeout(timeoutId);
+
+      // Check if response is OK before parsing
+      if (!response) {
+        throw new Error("No response received from server");
+      }
+
+      // Try to parse response
+      let data;
+      const contentType = response.headers.get("content-type");
+      
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("Failed to parse JSON response:", parseError);
+          throw new Error("Server returned invalid response format");
         }
       } else {
-        throw new Error(
-          data.error ||
-            data.message ||
-            `HTTP ${response.status}: ${response.statusText}`
-        );
+        const responseText = await response.text();
+        console.error("Non-JSON response received:", responseText);
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
+
+      // Check for successful response
+      if (!response.ok) {
+        const errorMsg = data?.error || data?.message || `Server error: ${response.status}`;
+        throw new Error(errorMsg);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || data.message || "Profile update failed");
+      }
+
+      // Success! Update user context
+      try {
+        if (setCredentials && token) {
+          // Re-fetch authoritative user data using existing token
+          await setCredentials(token, undefined as any);
+        } else {
+          // Fallback to reload if setCredentials is not available
+          window.location.reload();
+        }
+        
+        // Show success message
+        alert("Profile picture updated successfully!");
+        
+      } catch (err) {
+        console.warn('Failed to refresh user after profile update', err);
+        // Still reload to show the update
+        window.location.reload();
+      }
+      
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
       console.error("Error updating profile picture:", err);
-      alert(`Failed to update profile picture: ${errorMessage}`);
+      
+      // Show user-friendly error
+      alert(`Failed to update profile picture:\n\n${errorMessage}\n\nPlease try again or contact support if the issue persists.`);
+      
     } finally {
       setProfilePictureUploading(false);
       // Close avatar uploader modal if open (mobile)

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Facebook, Instagram } from "lucide-react";
+import { Instagram } from "lucide-react";
 import axios from "axios";
 import photo from "../../assets/IMG_6285.jpg";
 

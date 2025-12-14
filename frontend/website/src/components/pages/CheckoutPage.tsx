@@ -207,8 +207,32 @@ const CheckoutPage: React.FC = () => {
       return;
     }
 
+    // Validate required fields
+    if (!shipping.street || !shipping.city || !shipping.state || !shipping.zipCode) {
+      setError("Please fill in all address fields before saving");
+      return;
+    }
+
     try {
       setSavingAddress(true);
+      setError(""); 
+
+      // Prepare the request body
+      const requestBody: any = {
+        address: {
+          street: shipping.street,
+          city: shipping.city,
+          state: shipping.state,
+          zipCode: shipping.zipCode,
+          country: shipping.country || "India",
+        },
+      };
+
+      // Only include phone if it's valid (10 digits)
+      if (shipping.phone && shipping.phone.length === 10) {
+        requestBody.phone = shipping.phone;
+      }
+
       const response = await fetch(
         "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
         {
@@ -218,16 +242,7 @@ const CheckoutPage: React.FC = () => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({
-            address: {
-              street: shipping.street,
-              city: shipping.city,
-              state: shipping.state,
-              zipCode: shipping.zipCode,
-              country: shipping.country,
-            },
-            phone: shipping.phone,
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 
@@ -240,7 +255,8 @@ const CheckoutPage: React.FC = () => {
         alert("Address saved successfully! It will be auto-filled next time.");
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Failed to save address");
+        console.error("Save address error:", errorData);
+        setError(errorData.message || errorData.errors?.[0]?.msg || "Failed to save address");
       }
     } catch (error) {
       console.error("Error saving address:", error);

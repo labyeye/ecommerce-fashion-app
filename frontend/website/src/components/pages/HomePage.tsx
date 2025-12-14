@@ -16,10 +16,28 @@ const HomePage: React.FC = () => {
   const featuresFade = useFadeOnScroll<HTMLElement>();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background lg:scroll-snap-type-none">
+      <style>{`
+        /* Mobile-only section scroll snap */
+        @media (max-width: 1023px) {
+          .home-container {
+            scroll-snap-type: y proximity;
+            scroll-behavior: smooth;
+          }
+          .snap-section {
+            scroll-snap-align: start;
+            scroll-snap-stop: normal;
+          }
+        }
+        
+        /* Smooth scroll for all */
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
       <section
         ref={heroFade[0]}
-        className={`w-full transition-all duration-700 ${
+        className={`w-full snap-section transition-all duration-700 ${
           heroFade[1] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}
       >
@@ -27,7 +45,7 @@ const HomePage: React.FC = () => {
       </section>
       <section
         ref={newArrivalsFade[0]}
-        className={`w-full transition-all duration-700 mt-10 ${
+        className={`w-full snap-section transition-all duration-700 mt-10 ${
           newArrivalsFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -37,7 +55,7 @@ const HomePage: React.FC = () => {
       </section>
       <section
         ref={categoryReveal[0]}
-        className={`w-full transition-all duration-700 ${
+        className={`w-full snap-section transition-all duration-700 ${
           categoryReveal[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -47,7 +65,7 @@ const HomePage: React.FC = () => {
       </section>
       <section
         ref={categoryFade[0]}
-        className={`w-full transition-all duration-700 ${
+        className={`w-full snap-section transition-all duration-700 ${
           categoryFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -57,7 +75,7 @@ const HomePage: React.FC = () => {
       </section>
       <section
         ref={bestSellersFade[0]}
-        className={`w-full  transition-all duration-700 ${
+        className={`w-full snap-section transition-all duration-700 ${
           bestSellersFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
@@ -68,7 +86,7 @@ const HomePage: React.FC = () => {
 
       <section
         ref={featuresFade[0]}
-        className={`w-full transition-all duration-700 ${
+        className={`w-full snap-section transition-all duration-700 ${
           featuresFade[1]
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-8"
