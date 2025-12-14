@@ -456,13 +456,13 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
       ? o.igst
       : taxFromOrder > 0
       ? taxFromOrder
-      : Math.round((subtotal * 0.05 + Number.EPSILON) * 100) / 100;
+      : Math.round((subtotal * 0.05 ) * 100) / 100;
 
   const totalFromOrder =
     typeof o?.total === "number"
       ? o.total
       : Math.round(
-          (subtotal + taxFromOrder + shippingCost + Number.EPSILON) * 100
+          (subtotal + taxFromOrder + shippingCost ) * 100
         ) / 100;
 
   return (
