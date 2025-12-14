@@ -108,13 +108,11 @@ router.post("/create-order", async (req, res) => {
       billingAddress,
       // Use server-calculated amounts
       subtotal: subtotalCalculated,
-      shippingCost: shippingCostCalculated,
       tax: taxCalculated,
       cgst: cgstCalculated,
       sgst: sgstCalculated,
       igst: igstCalculated,
       taxTotal: (cgstCalculated + sgstCalculated + igstCalculated),
-      // Also set nested shipping cost for compatibility with schema
       shipping: { cost: shippingCostCalculated },
       total: totalCalculated,
       payment: {
