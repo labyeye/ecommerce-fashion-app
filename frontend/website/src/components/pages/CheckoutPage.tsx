@@ -53,6 +53,9 @@ const CheckoutPage: React.FC = () => {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [saveAddress, setSaveAddress] = useState(false);
+  const [addressManuallyEntered, setAddressManuallyEntered] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -92,6 +95,13 @@ const CheckoutPage: React.FC = () => {
 
             setShipping(addressData);
             setBilling(addressData);
+            
+            // If address is already saved, don't show save option
+            if (userData.address?.street) {
+              setAddressManuallyEntered(false);
+            } else {
+              setAddressManuallyEntered(true);
+            }
           }
         }
       } catch (_error: unknown) {
@@ -182,10 +192,64 @@ const CheckoutPage: React.FC = () => {
       newValue = newValue.slice(0, 60);
     }
 
-    if (type === "shipping")
+    if (type === "shipping") {
       setShipping((prev) => ({ ...prev, [name]: newValue }));
+      // Mark address as manually entered when user types
+      if (!addressManuallyEntered && newValue !== "") {
+        setAddressManuallyEntered(true);
+      }
+    }
     else setBilling((prev) => ({ ...prev, [name]: newValue }));
   };
+  const handleSaveAddress = async () => {
+    if (!token) {
+      setError("Please login to save address");
+      return;
+    }
+
+    try {
+      setSavingAddress(true);
+      const response = await fetch(
+        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            address: {
+              street: shipping.street,
+              city: shipping.city,
+              state: shipping.state,
+              zipCode: shipping.zipCode,
+              country: shipping.country,
+            },
+            phone: shipping.phone,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserProfile(data.data);
+        setAddressManuallyEntered(false);
+        setSaveAddress(false);
+        // Show success message
+        alert("Address saved successfully! It will be auto-filled next time.");
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Failed to save address");
+      }
+    } catch (error) {
+      console.error("Error saving address:", error);
+      setError("Failed to save address. Please try again.");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -776,6 +840,53 @@ const CheckoutPage: React.FC = () => {
                       />
                     </div>
                   </div>
+
+                  {/* Save Address Option */}
+                  {addressManuallyEntered && !userProfile?.address?.street && (
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-start space-x-3">
+                        <input
+                          type="checkbox"
+                          id="saveAddress"
+                          checked={saveAddress}
+                          onChange={(e) => setSaveAddress(e.target.checked)}
+                          className="mt-1 rounded border-gray-300 focus:ring-2"
+                          style={{ accentColor: "#95522C" }}
+                        />
+                        <div className="flex-1">
+                          <label
+                            htmlFor="saveAddress"
+                            className="text-sm font-medium text-[#95522C] cursor-pointer"
+                          >
+                            Save this address to my profile
+                          </label>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Your address will be saved and automatically filled for future orders
+                          </p>
+                        </div>
+                      </div>
+                      {saveAddress && (
+                        <button
+                          type="button"
+                          onClick={handleSaveAddress}
+                          disabled={savingAddress || !shipping.street || !shipping.city}
+                          className="mt-3 w-full bg-[#95522C] text-white px-4 py-2 rounded-lg hover:bg-[#2B463C] transition-colors disabled:bg-gray-400 flex items-center justify-center space-x-2"
+                        >
+                          {savingAddress ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              <span>Saving...</span>
+                            </>
+                          ) : (
+                            <>
+                              <MapPin className="w-4 h-4" />
+                              <span>Save Address Now</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-background rounded-2xl shadow-sm p-6">
