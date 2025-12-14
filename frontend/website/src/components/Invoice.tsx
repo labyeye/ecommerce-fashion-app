@@ -447,18 +447,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     o?.taxTotal ?? o?.tax ?? cgstAmount + sgstAmount + igstAmount
   );
 
-  let shippingCost =
-    o && o.shipping && typeof o.shipping.cost === "number"
-      ? o.shipping.cost
-      : typeof o.shippingCost === "number"
-      ? o.shippingCost
-      : typeof o.shippingCostCalculated === "number"
-      ? o.shippingCostCalculated
-      : typeof o.shipping_cost === "number"
-      ? o.shipping_cost
-      : 0;
-
-  if (!shippingCost) shippingCost = 100;
+  let shippingCost = 100;
 
   const taxFromOrder = typeof o?.tax === "number" ? o.tax : o?.taxAmount ?? 0;
 
