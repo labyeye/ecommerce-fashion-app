@@ -421,13 +421,16 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     }
   };
 
-  // Calculate subtotal if not provided
+  // Use subtotal from order (tax-exclusive base amount calculated by backend)
   const subtotal = useMemo(() => {
     if (o?.subtotal || o?.subTotal) return o.subtotal || o.subTotal;
 
+    // Fallback: calculate from items if subtotal not provided
+    // Note: item.price includes tax, so we need to divide by 1.05 to get base
     if (Array.isArray(o?.items)) {
       return o.items.reduce((sum: number, item: any) => {
-        return sum + (item.price || 0) * (item.quantity || 1);
+        const basePrice = (item.price || 0) / 1.05;
+        return sum + basePrice * (item.quantity || 1);
       }, 0);
     }
 
@@ -447,7 +450,8 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
     o?.taxTotal ?? o?.tax ?? cgstAmount + sgstAmount + igstAmount
   );
 
-  let shippingCost = 100;
+  // Use shipping cost from order (nested in shipping.cost), fallback to 100
+  const shippingCost = Number(o?.shipping?.cost ?? 100);
 
   const taxFromOrder = typeof o?.tax === "number" ? o.tax : o?.taxAmount ?? 0;
 
