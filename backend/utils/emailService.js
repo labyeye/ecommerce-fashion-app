@@ -1,4 +1,3 @@
-// Clean, single implementation of email helpers
 const nodemailer = require("nodemailer");
 
 const createTransporter = () => {

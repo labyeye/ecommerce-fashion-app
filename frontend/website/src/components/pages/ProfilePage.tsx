@@ -27,7 +27,9 @@ import {
   Undo2,
   // Handshake,
 } from "lucide-react";
-import razorpayService, { RazorpayResponse } from "../../services/razorpayService";
+import razorpayService, {
+  RazorpayResponse,
+} from "../../services/razorpayService";
 // Inline compact settings for desktop (avoid importing full SettingsPage)
 
 const ProfilePage: React.FC = () => {
@@ -95,8 +97,7 @@ const ProfilePage: React.FC = () => {
       }
 
       const apiBase =
-        import.meta.env.VITE_API_URL ||
-        "https://backend.flauntbynishi.com/api";
+        import.meta.env.VITE_API_URL || "https://backend.flauntbynishi.com/api";
 
       // Add timeout to fetch request
       const controller = new AbortController();
@@ -508,7 +509,9 @@ const ProfilePage: React.FC = () => {
               verificationResult.paymentStatus === "paid"
             ) {
               navigate("/order-complete", {
-                state: { orderData: verificationResult.data || verificationResult },
+                state: {
+                  orderData: verificationResult.data || verificationResult,
+                },
               });
             } else {
               alert("Payment verification failed. Please contact support.");
@@ -529,7 +532,11 @@ const ProfilePage: React.FC = () => {
         },
         notes: {
           address: ord.shippingAddress
-            ? `${ord.shippingAddress.addressLine1 || ""}, ${ord.shippingAddress.city || ""}, ${ord.shippingAddress.state || ""} ${ord.shippingAddress.pinCode || ""}`
+            ? `${ord.shippingAddress.addressLine1 || ""}, ${
+                ord.shippingAddress.city || ""
+              }, ${ord.shippingAddress.state || ""} ${
+                ord.shippingAddress.pinCode || ""
+              }`
             : "Retry payment",
         },
         theme: { color: "#95522C" },
@@ -1150,12 +1157,7 @@ const ProfilePage: React.FC = () => {
                               order.payment?.status !== "paid" && (
                                 <button
                                   className="px-4 py-2 bg-tertiary text-white rounded hover:bg-[#7a3f20] transition-colors text-sm"
-                                  onClick={() =>
-                                    alert(
-                                      "Redirect to payment gateway for order " +
-                                        order.orderNumber
-                                    )
-                                  }
+                                  onClick={() => handleRetryOrderPayment(order)}
                                 >
                                   Pay Now
                                 </button>
