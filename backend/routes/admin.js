@@ -789,13 +789,11 @@ router.put(
               )}`,
               req.user._id
             );
-            return res
-              .status(500)
-              .json({
-                success: false,
-                message: "Shipment creation failed",
-                error: createRes.error || createRes.raw,
-              });
+            return res.status(500).json({
+              success: false,
+              message: "Shipment creation failed",
+              error: createRes.error || createRes.raw,
+            });
           }
         } catch (e) {
           console.error("Delhivery create error (admin):", e);
@@ -860,6 +858,39 @@ router.put(
           // }
         } catch (e) {
           // console.error("Error awarding loyalty on delivery:", e);
+        }
+      }
+
+      // Handle cancellation with refund processing
+      if (status === "cancelled" && order.status !== "cancelled") {
+        try {
+          const { processOrderRefund } = require("../services/paymentService");
+
+          // Determine if shipment was picked up
+          const hasShipment = order.shipment && order.shipment.awb;
+          const shipmentStatus = order.shipment?.status || "";
+          const cancelledBeforePickup =
+            !hasShipment ||
+            (!shipmentStatus.toLowerCase().includes("picked") &&
+              !shipmentStatus.toLowerCase().includes("dispatched") &&
+              !shipmentStatus.toLowerCase().includes("in transit"));
+
+          // Process refund
+          await processOrderRefund(order, {
+            reason: notes || "Cancelled by admin via status update",
+            deductShipping: cancelledBeforePickup ? false : true,
+            initiatedBy: "admin_status_update",
+          });
+
+          console.log(
+            `Refund processed for order ${order.orderNumber} via status update`
+          );
+        } catch (refundError) {
+          console.error(
+            "Error processing refund during status update:",
+            refundError
+          );
+          // Continue with status update even if refund fails
         }
       }
 
@@ -943,13 +974,11 @@ router.post("/orders/:id/create-shipment", async (req, res) => {
 
     // Prevent double-creation
     if (order.shipment && order.shipment.awb) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Shipment already exists for this order",
-          data: order.shipment,
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Shipment already exists for this order",
+        data: order.shipment,
+      });
     }
 
     const { createShipmentForOrder } = require("../services/delhiveryService");
@@ -968,13 +997,11 @@ router.post("/orders/:id/create-shipment", async (req, res) => {
           },
         },
       });
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Shipment creation failed",
-          error: result.error || result.raw,
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Shipment creation failed",
+        error: result.error || result.raw,
+      });
     }
 
     // Add successful timeline entry
@@ -991,13 +1018,11 @@ router.post("/orders/:id/create-shipment", async (req, res) => {
     });
 
     const updated = await Order.findById(order._id);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Shipment created",
-        data: { shipment: updated.shipment, raw: result.raw },
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Shipment created",
+      data: { shipment: updated.shipment, raw: result.raw },
+    });
   } catch (err) {
     console.error("Admin create-shipment error:", err);
     res
@@ -1011,7 +1036,7 @@ router.post("/orders/:id/create-shipment", async (req, res) => {
 // @access  Admin only
 router.post("/orders/:id/cancel", async (req, res) => {
   try {
-    const { reason, skipRefund } = req.body;
+    const { reason } = req.body;
 
     const order = await Order.findById(req.params.id).populate("customer");
     if (!order) {
@@ -1042,7 +1067,7 @@ router.post("/orders/:id/cancel", async (req, res) => {
         !shipmentStatus.toLowerCase().includes("dispatched") &&
         !shipmentStatus.toLowerCase().includes("in transit"));
 
-    // Handle cancellation with automatic refund
+    // Handle cancellation with automatic refund (always initiate refund for manual dashboard cancellations)
     const result = await handleShipmentCancellation(order, {
       reason: reason || "Cancelled by admin",
       source: "admin",
@@ -1050,7 +1075,7 @@ router.post("/orders/:id/cancel", async (req, res) => {
       carrierData: {
         timestamp: new Date(),
       },
-      skipRefund: skipRefund === true,
+      skipRefund: false, // Always process refund for manual cancellations
     });
 
     if (!result.success) {

@@ -166,7 +166,12 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
         setOrders(refreshData.data.orders);
       }
 
-      alert("Order status updated!");
+      // Show appropriate message based on status
+      if (newStatus === "cancelled") {
+        alert("Order cancelled successfully! Refund has been initiated automatically.");
+      } else {
+        alert("Order status updated!");
+      }
     } catch (err: any) {
       alert(err.message || "Failed to update status");
     }
