@@ -183,17 +183,17 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         isActive: true,
         sortOrder: 3,
       },
-      {
-        _id: "4",
-        name: "Blogs",
-        slug: "blogs",
-        url: "/blogs",
-        type: "page",
-        hasDropdown: false,
-        dropdownItems: [],
-        isActive: true,
-        sortOrder: 4,
-      },
+      // {
+      //   _id: "4",
+      //   name: "Blogs",
+      //   slug: "blogs",
+      //   url: "/blogs",
+      //   type: "page",
+      //   hasDropdown: false,
+      //   dropdownItems: [],
+      //   isActive: true,
+      //   sortOrder: 4,
+      // },
       {
         _id: "5",
         name: "Contact Us",
@@ -610,9 +610,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
           {/* Right Navigation (Desktop) */}
           <div className="hidden md:flex items-center justify-end space-x-2">
-            {/* Heart/Wishlist Icon */}
-
-            <div className="relative group flex flex-col items-center -mr-2">
+            <div className="relative group flex flex-col items-center">
               <button
                 onClick={() => {
                   setIsSearchOpen((s) => !s);
@@ -780,6 +778,15 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             </div>
 
             <div className="relative group flex flex-col items-center">
+              <button
+                onClick={handleWishlistNav}
+                className="w-10 h-10 bg-none text-tertiary hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-6 h-6 text-fashion-dark-gray" />
+              </button>
+            </div>
+            <div className="relative group flex flex-col items-center">
               {/* Loyalty badge hidden for now; kept code removed so User button remains */}
               <div className="flex items-center">
                 <button
@@ -873,17 +880,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center relative">
-              <button
-                onClick={handleWishlistNav}
-                className="w-50 h-10 bg-none text-tertiary hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
-                aria-label="Wishlist"
-              >
-                <Heart className="w-6 h-6 text-fashion-dark-gray" />
-              </button>
-            </div>
 
-            <div className="flex flex-col items-center relative">
+            <div className="relative group flex flex-col items-center">
               <button
                 onClick={onCartClick}
                 data-cart-button
@@ -901,14 +899,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-1 md:mt-0">
-            {/* Heart/Wishlist Icon Mobile */}
-            <button
-              onClick={handleWishlistNav}
-              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
-              aria-label="Wishlist"
-            >
-              <Heart className="w-7 h-7 text-fashion-dark-gray" />
-            </button>
             <button
               onClick={handleSearchOpen}
               className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
@@ -926,6 +916,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   {cartCount}
                 </span>
               )}
+            </button>
+            {/* Heart/Wishlist Icon Mobile */}
+            <button
+              onClick={handleWishlistNav}
+              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+              aria-label="Wishlist"
+            >
+              <Heart className="w-7 h-7 text-fashion-dark-gray" />
             </button>
             {/* Loyalty badge hidden for now; show only User button on mobile */}
             <div className="flex items-center">
