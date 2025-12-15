@@ -905,18 +905,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
             >
               <Search className="w-7 h-7 text-fashion-dark-gray" />
             </button>
-            <button
-              onClick={onCartClick}
-              data-cart-button
-              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
-            >
-              <HandbagIcon className="w-7 h-7 text-fashion-dark-gray" />
-              {cartCount > 0 && (
-                <span className="federo-numeric absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xl circle-element w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium m-0">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+            
             {/* Heart/Wishlist Icon Mobile */}
             <button
               onClick={handleWishlistNav}
@@ -934,6 +923,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                 <User className="w-7 h-7 text-fashion-dark-gray" />
               </button>
             </div>
+            <button
+              onClick={onCartClick}
+              data-cart-button
+              className="relative circle-element w-9 h-9 text-fashion-dark-gray hover:text-fashion-accent-brown transition-all duration-300 flex items-center justify-center"
+            >
+              <HandbagIcon className="w-7 h-7 text-fashion-dark-gray" />
+              {cartCount > 0 && (
+                <span className="federo-numeric absolute -top-1 -right-1 bg-fashion-accent-brown text-white text-xl circle-element w-5 h-5 flex items-center justify-center animate-soft-pulse font-medium m-0">
+                  {cartCount}
+                </span>
+              )}
+            </button>
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
