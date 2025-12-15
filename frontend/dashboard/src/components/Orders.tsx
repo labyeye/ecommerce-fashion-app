@@ -24,12 +24,15 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch("https://backend.flauntbynishi.com/api/admin/orders", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          "https://backend.flauntbynishi.com/api/admin/orders",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         const data = await response.json();
         if (!response.ok)
           throw new Error(data.message || "Failed to fetch orders");
@@ -168,7 +171,9 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
 
       // Show appropriate message based on status
       if (newStatus === "cancelled") {
-        alert("Order cancelled successfully! Refund has been initiated automatically.");
+        alert(
+          "Order cancelled successfully! Refund has been initiated automatically."
+        );
       } else {
         alert("Order status updated!");
       }
@@ -389,7 +394,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
                           return <span className="text-ds-500">-</span>;
                         })()}
                       </td>
-                      
+
                       <td className="px-4 py-2">
                         <div className="flex items-center space-x-2">
                           <StatusIcon className="w-4 h-4 text-primary-900" />
