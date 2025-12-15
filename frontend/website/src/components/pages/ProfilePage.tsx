@@ -85,52 +85,57 @@ const ProfilePage: React.FC = () => {
     }
 
     setProfilePictureUploading(true);
-    
+
     try {
       // Validate image URL
       if (!imageUrl || !imageUrl.trim()) {
         throw new Error("Invalid image URL provided");
       }
 
-      const apiBase = import.meta.env.VITE_API_URL || "https://ecommerce-fashion-app-som7.vercel.app/api";
-      
+      const apiBase =
+        import.meta.env.VITE_API_URL ||
+        "https://ecommerce-fashion-app-som7.vercel.app/api";
+
       // Add timeout to fetch request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       let response;
       try {
-        response = await fetch(
-          `${apiBase}/customer/update-profile-photo`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include", // Include cookies for CORS
-            body: JSON.stringify({
-              userId: user._id,
-              profilePhotoUrl: imageUrl,
-            }),
-            signal: controller.signal,
-          }
-        );
+        response = await fetch(`${apiBase}/customer/update-profile-photo`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Include cookies for CORS
+          body: JSON.stringify({
+            userId: user._id,
+            profilePhotoUrl: imageUrl,
+          }),
+          signal: controller.signal,
+        });
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
-        
+
         // Handle specific fetch errors
-        if (fetchError.name === 'AbortError') {
-          throw new Error("Request timed out. Please check your internet connection and try again.");
+        if (fetchError.name === "AbortError") {
+          throw new Error(
+            "Request timed out. Please check your internet connection and try again."
+          );
         }
-        
+
         // Network errors
         if (!navigator.onLine) {
-          throw new Error("No internet connection. Please check your network and try again.");
+          throw new Error(
+            "No internet connection. Please check your network and try again."
+          );
         }
-        
+
         // CORS or network issues
-        throw new Error("Network error: Unable to reach the server. Please try again.");
+        throw new Error(
+          "Network error: Unable to reach the server. Please try again."
+        );
       }
 
       clearTimeout(timeoutId);
@@ -143,7 +148,7 @@ const ProfilePage: React.FC = () => {
       // Try to parse response
       let data;
       const contentType = response.headers.get("content-type");
-      
+
       if (contentType && contentType.includes("application/json")) {
         try {
           data = await response.json();
@@ -154,12 +159,15 @@ const ProfilePage: React.FC = () => {
       } else {
         const responseText = await response.text();
         console.error("Non-JSON response received:", responseText);
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Server error: ${response.status} ${response.statusText}`
+        );
       }
 
       // Check for successful response
       if (!response.ok) {
-        const errorMsg = data?.error || data?.message || `Server error: ${response.status}`;
+        const errorMsg =
+          data?.error || data?.message || `Server error: ${response.status}`;
         throw new Error(errorMsg);
       }
 
@@ -176,23 +184,23 @@ const ProfilePage: React.FC = () => {
           // Fallback to reload if setCredentials is not available
           window.location.reload();
         }
-        
+
         // Show success message
         alert("Profile picture updated successfully!");
-        
       } catch (err) {
-        console.warn('Failed to refresh user after profile update', err);
+        console.warn("Failed to refresh user after profile update", err);
         // Still reload to show the update
         window.location.reload();
       }
-      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
       console.error("Error updating profile picture:", err);
-      
+
       // Show user-friendly error
-      alert(`Failed to update profile picture:\n\n${errorMessage}\n\nPlease try again or contact support if the issue persists.`);
-      
+      alert(
+        `Failed to update profile picture:\n\n${errorMessage}\n\nPlease try again or contact support if the issue persists.`
+      );
     } finally {
       setProfilePictureUploading(false);
       // Close avatar uploader modal if open (mobile)
@@ -209,7 +217,7 @@ const ProfilePage: React.FC = () => {
   const isUserLoading = !user;
 
   const pickDefaultAvatar = (uid?: string | null) => {
-    if (!AVATAR_LIST || AVATAR_LIST.length === 0) return '';
+    if (!AVATAR_LIST || AVATAR_LIST.length === 0) return "";
     if (!uid) {
       const idx = Math.floor(Math.random() * AVATAR_LIST.length);
       return AVATAR_LIST[idx];
@@ -230,7 +238,8 @@ const ProfilePage: React.FC = () => {
     phone: user?.phone || "Not provided",
     address: user?.address
       ? `${user.address.street || ""}, ${user.address.city || ""}, ${
-          user.address.state || ""}
+          user.address.state || ""
+        }
           ${user.address.zipCode || ""}`
           .replace(/^,\s*/, "")
           .replace(/,\s*,/g, ",")
@@ -703,7 +712,7 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <button
                   onClick={handleEditProfile}
-                  className="mt-4 bg-tertiary text-white px-5 py-3 rounded-lg hover:bg-[#7a3f20] transition-colors flex items-center gap-3 mx-auto md:mx-0 text-lg md:text-base"
+                  className="mt-4 bg-tertiary text-white px-5 py-2 rounded-lg hover:bg-[#7a3f20] transition-colors flex items-center gap-3 mx-auto md:mx-0 text-lg md:text-base"
                   style={{ boxShadow: "0 2px 6px rgba(149,82,44,0.08)" }}
                 >
                   <Settings className="w-5 h-5" />
@@ -837,7 +846,6 @@ const ProfilePage: React.FC = () => {
               {[
                 { id: "overview", label: "Overview", icon: User },
                 { id: "orders", label: "Orders", icon: Package },
-                { id: "wishlist", label: "Wishlist", icon: Heart },
                 { id: "settings", label: "Settings", icon: Settings },
               ].map((tab) => {
                 const Icon = tab.icon;
@@ -1096,19 +1104,6 @@ const ProfilePage: React.FC = () => {
                         </div>
                       </div>
                     </button>
-
-                    <button
-                      onClick={() => navigate("/settings/change-phone")}
-                      className="flex items-center gap-3 w-full p-3 bg-background rounded-lg hover:bg-background border border-tertiary transition-colors text-left"
-                    >
-                      <Phone className="w-5 h-5" />
-                      <div>
-                        <div className="font-medium">Change Phone</div>
-                        <div className="text-sm text-tertiary">
-                          Update phone number on your account
-                        </div>
-                      </div>
-                    </button>
                   </div>
 
                   <div className=" pt-4 mt-4 space-y-2">
@@ -1330,7 +1325,9 @@ const ProfilePage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full">
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <span className="block text-xl font-bold text-tertiary">Change Avatar</span>
+              <span className="block text-xl font-bold text-tertiary">
+                Change Avatar
+              </span>
               <button
                 onClick={() => setShowAvatarUploader(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"

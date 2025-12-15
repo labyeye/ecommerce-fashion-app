@@ -262,7 +262,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       <div className="mt-3 flex justify-center">
         <button
           onClick={() => setShowActionSheet(true)}
-          className="px-4 py-2 text-sm bg-tertiary text-white rounded-lg hover:bg-tertiary/90 transition-colors"
+          className="px-2 py-2 text-sm bg-tertiary text-white rounded-lg hover:bg-tertiary/90 transition-colors"
           disabled={loading || uploading}
         >
           Change Profile Picture
