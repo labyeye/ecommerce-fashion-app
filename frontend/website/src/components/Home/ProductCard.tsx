@@ -276,7 +276,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           !isProductPage &&
           (product.isNewArrival || (product as any).category?.isNewArrival) && (
             <div className="absolute top-3 left-3 z-20 bg-[#934E27] text-[#FFF2E1] text-xs font-semibold uppercase px-2 py-1 rounded shadow">
-              <p>New</p>
+              <span>New</span>
             </div>
           )}
         <img
@@ -295,9 +295,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {/* Rating overlay - Bottom right corner, Myntra style */}
         {((product.ratings && product.ratings.count > 0) || (reviewsCount && reviewsCount > 0)) && (
-          <div className="absolute bottom-3 right-3 z-20 bg-white/90 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 shadow-sm">
-            <Star fill="currentColor" className="w-4 h-4 text-tertiary" />
-            <span className="text-md font-semibold text-gray-800 federo-numeric">
+          <div className="absolute bottom-3 right-2 z-20 bg-tertiary backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 shadow-sm">
+            <Star fill="currentColor" className="w-3 h-3 md:w-3 md:h-3 text-background" />
+            <span className="text-xs md:text-md font-semibold text-background federo-numeric">
               {((product.ratings && product.ratings.count > 0)
                 ? product.ratings.average
                 : (reviewsAvg ?? 0)
