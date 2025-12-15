@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-import logo from "../../assets/images/logoblack.png";
 import { Plus } from "lucide-react";
 
 type QA = { question: string; answer: React.ReactNode };
@@ -174,8 +173,8 @@ const list: QA[] = [
     question: "Shipping & Delivery — Is there a shipping fee?",
     answer: (
       <span className="block text-base sm:text-lg md:text-xl text-justify">
-        We offer free standard shipping for orders over INR 4,000 across India.
-        A flat fee of INR 100 is charged on all orders below INR 4,000.
+        We offer free standard shipping for orders over INR 3,000 across India.
+        A flat fee of INR 100 is charged on all orders below INR 3,000.
       </span>
     ),
   },

@@ -245,12 +245,12 @@ const ContactPage: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <h3
-                          className="font-semibold"
+                        <span
+                          className="font-semibold text-3xl"
                           style={{ color: "#95522C" }}
                         >
                           Email
-                        </h3>
+                        </span>
                         <p style={{ color: "#95522C" }}>
                           flauntbynishi@gmail.com
                         </p>
@@ -267,12 +267,12 @@ const ContactPage: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <h3
-                          className="font-semibold"
+                        <span
+                          className="font-semibold text-3xl"
                           style={{ color: "#95522C" }}
                         >
                           Phone
-                        </h3>
+                        </span>
                         <p style={{ color: "#95522C" }} className="federo-numeric">+91 8678040000</p>
                         <p style={{ color: "#95522C" }}>Mon-Fri: 9AM - 6PM</p>
                       </div>
@@ -288,12 +288,12 @@ const ContactPage: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <h3
-                          className="font-semibold"
+                        <span
+                          className="font-semibold text-3xl"
                           style={{ color: "#95522C" }}
                         >
                           Address
-                        </h3>
+                        </span>
                         <p style={{ color: "#95522C" }}>
                           W 12 Laxminarayan Estate ,
                         </p>
@@ -301,7 +301,7 @@ const ContactPage: React.FC = () => {
                           {" "}
                           Brc compound, Udhna, Surat,
                         </p>
-                        <p style={{ color: "#95522C" }} className="federo-numeric">394210</p>
+                        <span style={{ color: "#95522C" }} className="federo-numeric">394210</span>
                       </div>
                     </div>
                   </div>

@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../assets/images/logoblack.png";
 
 const ShippingInfoPage: React.FC = () => {
   return (
