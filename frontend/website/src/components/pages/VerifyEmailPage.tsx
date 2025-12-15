@@ -29,7 +29,7 @@ const VerifyEmailPage: React.FC = () => {
   const verifyEmail = async () => {
     try {
       const response = await fetch(
-        "https://backend.flauntbynishi.com/api/auth/verify-email",
+        "http://localhost:3500/api/auth/verify-email",
         {
           method: "POST",
           headers: {
@@ -83,7 +83,7 @@ const VerifyEmailPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://backend.flauntbynishi.com/api/auth/resend-verification",
+        "http://localhost:3500/api/auth/resend-verification",
         {
           method: "POST",
           headers: {

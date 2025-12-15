@@ -2,7 +2,7 @@ export async function trackEvent(event: string, page?: string, meta?: any) {
   try {
     // keep payload minimal, don't send sensitive info
     // legacy analytics endpoint
-    await fetch('https://backend.flauntbynishi.com/api/analytics/track', {
+    await fetch('http://localhost:3500/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event, page, meta }),

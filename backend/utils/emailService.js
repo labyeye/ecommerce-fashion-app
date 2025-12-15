@@ -154,7 +154,7 @@ const sendOrderPickedEmail = async (email, firstName, order) => {
 
 const sendOrderPlacedEmail = async (email, firstName, order) => {
   const orderUrl = `${
-    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
+    process.env.FRONTEND_URL || "http://localhost:3500"
   }/orders/${order && (order._id || order.id) ? order._id || order.id : ""}`;
   const itemsHtml =
     order && order.items && order.items.length

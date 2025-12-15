@@ -211,7 +211,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
     const fetchNavigation = async () => {
       try {
         const response = await fetch(
-          "https://backend.flauntbynishi.com/api/navigation/public"
+          "http://localhost:3500/api/navigation/public"
         );
         if (response.ok) {
           const data = await response.json();
@@ -220,7 +220,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
 
             try {
               const catResp = await fetch(
-                "https://backend.flauntbynishi.com/api/categories/navigation"
+                "http://localhost:3500/api/categories/navigation"
               );
               if (catResp.ok) {
                 const catData = await catResp.json();
@@ -384,7 +384,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
         if (!products || products.length === 0) {
           try {
             const altResponse = await fetch(
-              `https://backend.flauntbynishi.com/api/products?search=${encodeURIComponent(
+              `http://localhost:3500/api/products?search=${encodeURIComponent(
                 term
               )}&limit=10`
             );

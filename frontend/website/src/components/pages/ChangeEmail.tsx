@@ -18,7 +18,7 @@ const ChangeEmail: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://backend.flauntbynishi.com/api/customer/change-email",
+        "http://localhost:3500/api/customer/change-email",
         {
           method: "POST",
           headers: {

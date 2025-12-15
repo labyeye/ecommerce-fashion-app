@@ -130,7 +130,7 @@ const ProductDetailsPage: React.FC = () => {
   const fetchOtherProducts = async () => {
     try {
       // Try a simple products endpoint; backend can provide better related-product API
-      const res = await axios.get(`https://backend.flauntbynishi.com/api/products?limit=6`);
+      const res = await axios.get(`http://localhost:3500/api/products?limit=6`);
       const data = res?.data?.data || res?.data || [];
       // Filter out current product
       const filtered = Array.isArray(data)
@@ -160,7 +160,7 @@ const ProductDetailsPage: React.FC = () => {
       setDeliveryInfo(null);
       // Use relative path so this works in dev and production (proxy or same origin)
       const res = await axios.get(
-        `https://backend.flauntbynishi.com/api/shipping/check?pincode=${encodeURIComponent(
+        `http://localhost:3500/api/shipping/check?pincode=${encodeURIComponent(
           code
         )}`
       );
@@ -224,7 +224,7 @@ const ProductDetailsPage: React.FC = () => {
   const fetchProductReviews = async () => {
     try {
       const res = await axios.get(
-        `https://backend.flauntbynishi.com/api/reviews?productId=${id}&limit=50`
+        `http://localhost:3500/api/reviews?productId=${id}&limit=50`
       );
       const data = res.data && res.data.data ? res.data.data : [];
       setProductReviews(data);
@@ -238,7 +238,7 @@ const ProductDetailsPage: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://backend.flauntbynishi.com/api/orders/has-purchased/${id}`,
+        `http://localhost:3500/api/orders/has-purchased/${id}`,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
@@ -1392,7 +1392,7 @@ const ProductDetailsPage: React.FC = () => {
                             try {
                               const token = localStorage.getItem("token");
                               await axios.post(
-                                "https://backend.flauntbynishi.com/api/reviews",
+                                "http://localhost:3500/api/reviews",
                                 {
                                   productId: id,
                                   rating: reviewRating,

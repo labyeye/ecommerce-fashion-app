@@ -21,7 +21,7 @@ const ExchangeRequests: React.FC = () => {
     if (!token) return;
     try {
       setLoading(true);
-      const resp = await fetch('https://backend.flauntbynishi.com/api/exchange/admin/all', {
+      const resp = await fetch('http://localhost:3500/api/exchange/admin/all', {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
       if (!resp.ok) throw new Error('Failed to fetch');
@@ -42,7 +42,7 @@ const ExchangeRequests: React.FC = () => {
     if (!token) return;
     if (!confirm('Approve this exchange request?')) return;
     try {
-      const resp = await fetch(`https://backend.flauntbynishi.com/api/exchange/admin/approve/${id}`, {
+      const resp = await fetch(`http://localhost:3500/api/exchange/admin/approve/${id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
@@ -58,7 +58,7 @@ const ExchangeRequests: React.FC = () => {
     if (!token) return;
     const reason = prompt('Reason for rejection (optional)') || '';
     try {
-      const resp = await fetch(`https://backend.flauntbynishi.com/api/exchange/admin/reject/${id}`, {
+      const resp = await fetch(`http://localhost:3500/api/exchange/admin/reject/${id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason })

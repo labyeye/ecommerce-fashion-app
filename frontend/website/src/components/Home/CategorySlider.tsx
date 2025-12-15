@@ -50,7 +50,7 @@ const CategorySlider: React.FC = () => {
       try {
         setLoading(true);
         console.debug("CategorySlider: fetching categories from API");
-        const res = await fetch("https://backend.flauntbynishi.com/api/categories");
+        const res = await fetch("http://localhost:3500/api/categories");
         if (!res.ok) {
           setError(`API responded with status ${res.status}`);
           console.warn("CategorySlider: non-ok response", res.status);

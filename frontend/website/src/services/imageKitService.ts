@@ -41,7 +41,7 @@ interface AuthParams {
  * Get authentication parameters from backend
  */
 const getAuthParams = async (authToken: string): Promise<AuthParams> => {
-  const apiBase = 'https://backend.flauntbynishi.com'; // Replace with your backend API base URL
+  const apiBase = 'http://localhost:3500'; // Replace with your backend API base URL
   const response = await fetch(`${apiBase}/api/customer/imagekit-auth`, {
     method: 'GET',
     headers: {

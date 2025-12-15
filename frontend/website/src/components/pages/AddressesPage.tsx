@@ -118,7 +118,7 @@ const AddressesPage: React.FC = () => {
     }
     try {
       const res = await fetch(
-        "https://backend.flauntbynishi.com/api/customer/profile",
+        "http://localhost:3500/api/customer/profile",
         {
           method: "PUT",
           headers: {

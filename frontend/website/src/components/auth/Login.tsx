@@ -74,7 +74,7 @@ const Login: React.FC = () => {
       setIsAuthenticating(true);
 
       const res = await fetch(
-        "https://backend.flauntbynishi.com/api/auth/google",
+        "http://localhost:3500/api/auth/google",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

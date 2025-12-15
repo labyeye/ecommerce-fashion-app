@@ -26,7 +26,7 @@ const PaymentCancelledPage: React.FC = () => {
 
       try {
         const response = await fetch(
-          `https://backend.flauntbynishi.com/api/customer/orders/${orderId}/details`,
+          `http://localhost:3500/api/customer/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ const PaymentCancelledPage: React.FC = () => {
 
       // Request new Razorpay order for existing order
       const response = await fetch(
-        `https://backend.flauntbynishi.com/api/payments/retry-payment`,
+        `http://localhost:3500/api/payments/retry-payment`,
         {
           method: "POST",
           headers: {

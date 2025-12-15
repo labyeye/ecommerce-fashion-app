@@ -60,7 +60,7 @@ export interface CreateHeroData {
 }
 
 class HeroService {
-  private baseURL = 'https://backend.flauntbynishi.com/api/heroes';
+  private baseURL = 'http://localhost:3500/api/heroes';
 
   async getAllHeroes(token: string): Promise<Hero[]> {
     try {

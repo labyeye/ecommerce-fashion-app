@@ -84,7 +84,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       });
 
       const response = await fetch(
-        `https://backend.flauntbynishi.com/api/admin/products?${queryParams}`,
+        `http://localhost:3500/api/admin/products?${queryParams}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -127,7 +127,7 @@ const Products: React.FC<ProductsProps> = ({ onAddProduct, onViewDetails }) => {
       }
 
       const response = await fetch(
-        `https://backend.flauntbynishi.com/api/admin/products/${productId}`,
+        `http://localhost:3500/api/admin/products/${productId}`,
         {
           method: "DELETE",
           headers: {

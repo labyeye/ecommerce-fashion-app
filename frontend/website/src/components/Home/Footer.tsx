@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await axios.get("https://backend.flauntbynishi.com/api/categories");
+        const res = await axios.get("http://localhost:3500/api/categories");
         const data = res.data && res.data.data ? res.data.data : [];
         setCategories(data.slice(0, 10));
       } catch (err) {

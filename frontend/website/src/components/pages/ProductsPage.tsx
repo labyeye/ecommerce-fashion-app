@@ -45,7 +45,7 @@ const ProductPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      let url = "https://backend.flauntbynishi.com/api/products";
+      let url = "http://localhost:3500/api/products";
       const params = new URLSearchParams();
       let resolvedCategory = "";
 
@@ -115,7 +115,7 @@ const ProductPage: React.FC = () => {
           if (result.data.length === 0 && categoryParam) {
             try {
               const API_BASE =
-                "https://backend.flauntbynishi.com/api";
+                "http://localhost:3500/api";
               const decoded = decodeURIComponent(categoryParam);
               // Try to find a matching category by slug or name
               const catResp = await fetch(`${API_BASE}/categories`);
@@ -255,7 +255,7 @@ const ProductPage: React.FC = () => {
                 If the issue persists, please make sure:
                 <br />
                 1. The backend server is running at
-                https://backend.flauntbynishi.com
+                http://localhost:3500
                 <br />
                 2. You have an active internet connection
                 <br />

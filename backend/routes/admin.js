@@ -761,15 +761,6 @@ router.put(
         });
       }
 
-      // If order already has a carrier AWB (synced), prevent manual status updates
-      if (order.shipment && order.shipment.awb) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "This order is synced with Delhivery. Status will update automatically.",
-        });
-      }
-
       // Update order status
       await order.updateStatus(status, notes, req.user._id);
 

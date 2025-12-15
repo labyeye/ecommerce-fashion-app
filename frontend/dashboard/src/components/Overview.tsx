@@ -79,7 +79,7 @@ const Overview: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          "https://backend.flauntbynishi.com/api/admin/dashboard",
+          "http://localhost:3500/api/admin/dashboard",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -118,7 +118,7 @@ const Overview: React.FC = () => {
       setAnalyticsLoading(true);
       try {
         const res = await fetch(
-          `https://backend.flauntbynishi.com/api/admin/analytics?days=${analyticsDays}`,
+          `http://localhost:3500/api/admin/analytics?days=${analyticsDays}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -81,7 +81,7 @@ app.use(
         "https://ecommerce-fashion-app-dashboard.vercel.app",
         "https://www.flauntbynishi.com",
         "https://flauntbynishi.com",
-        "https://backend.flauntbynishi.com",
+        "http://localhost:3500",
       ];
 
       const allowedHosts = [

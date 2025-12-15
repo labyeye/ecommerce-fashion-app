@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://backend.flauntbynishi.com';
+const API_BASE_URL = 'http://localhost:3500';
 
 export async function logEvent(eventType: string, metadata: any = {}) {
   try {

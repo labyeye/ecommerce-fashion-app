@@ -32,7 +32,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       const res = await axios.get(
-        "https://backend.flauntbynishi.com/api/wishlist",
+        "http://localhost:3500/api/wishlist",
         config
       );
       const products = res.data.wishlist || [];
@@ -58,7 +58,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       // optimistic update of ids
       setWishlist((prev) => (prev.includes(productId) ? prev : [...prev, productId]));
       await axios.post(
-        "https://backend.flauntbynishi.com/api/wishlist/add",
+        "http://localhost:3500/api/wishlist/add",
         { productId },
         config
       );
@@ -81,7 +81,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       setWishlist((prev) => prev.filter((id) => id !== productId));
       setWishlistProducts((prev) => prev.filter((p) => p._id !== productId));
       await axios.post(
-        "https://backend.flauntbynishi.com/api/wishlist/remove",
+        "http://localhost:3500/api/wishlist/remove",
         { productId },
         config
       );
