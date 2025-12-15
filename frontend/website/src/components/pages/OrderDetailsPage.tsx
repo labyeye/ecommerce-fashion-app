@@ -43,6 +43,14 @@ interface Order {
   payment: {
     method: string;
     status: string;
+    refund?: {
+      status: string;
+      refundId?: string;
+      amount?: number;
+      reason?: string;
+      initiatedAt?: string;
+      completedAt?: string;
+    };
   };
   shippingAddress: {
     firstName: string;
@@ -803,6 +811,8 @@ const OrderDetailsPage: React.FC = () => {
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       order.payment.status === "paid"
                         ? "bg-green-100 text-green-800"
+                        : order.payment.status === "refunded"
+                        ? "bg-blue-100 text-blue-800"
                         : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
@@ -810,6 +820,73 @@ const OrderDetailsPage: React.FC = () => {
                       order.payment.status.slice(1)}
                   </span>
                 </div>
+
+                {/* Refund Information */}
+                {order.payment.refund && order.payment.refund.status !== 'none' && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 className="font-semibold text-blue-900 mb-2 flex items-center text-sm">
+                      <span className="mr-2">💰</span> Refund Information
+                    </h3>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Status:</span>
+                        <span className={`px-2 py-1 rounded-full font-medium capitalize ${
+                          order.payment.refund.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          order.payment.refund.status === 'failed' ? 'bg-red-100 text-red-800' :
+                          order.payment.refund.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {order.payment.refund.status}
+                        </span>
+                      </div>
+                      {order.payment.refund.amount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Amount:</span>
+                          <span className="font-semibold">₹{order.payment.refund.amount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {order.payment.refund.refundId && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Refund ID:</span>
+                          <span className="font-mono text-[10px]">{order.payment.refund.refundId}</span>
+                        </div>
+                      )}
+                      {order.payment.refund.reason && (
+                        <div className="mt-2 pt-2 border-t border-blue-200">
+                          <span className="text-gray-700 block mb-1">Reason:</span>
+                          <span className="text-gray-600 text-[11px]">{order.payment.refund.reason}</span>
+                        </div>
+                      )}
+                      {order.payment.refund.completedAt && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-green-700">
+                          <div className="flex items-start">
+                            <CheckCircle className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-medium text-xs">Refund Completed</p>
+                              <p className="text-[10px] mt-1">
+                                Your refund was processed on {new Date(order.payment.refund.completedAt).toLocaleDateString()}. 
+                                It should reflect in your account within 5-7 business days.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {order.payment.refund.status === 'initiated' || order.payment.refund.status === 'processing' ? (
+                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">
+                          <div className="flex items-start">
+                            <Clock className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-medium text-xs">Refund in Progress</p>
+                              <p className="text-[10px] mt-1">
+                                Your refund is being processed. It will be credited to your original payment method within 5-7 business days.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

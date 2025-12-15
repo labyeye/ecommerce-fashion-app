@@ -340,6 +340,104 @@ const sendOTPEmail = async (email, otp, firstName = "") => {
   }
 };
 
+/**
+ * Send refund notification email
+ * @param {String} email - Customer email
+ * @param {String} firstName - Customer first name
+ * @param {Object} order - Order document
+ * @param {Object} refundResult - Refund processing result
+ */
+const sendRefundNotificationEmail = async (email, firstName, order, refundResult) => {
+  const refundAmount = refundResult.amount || order.total || 0;
+  const refundId = refundResult.refundId || 'N/A';
+  const refundStatus = refundResult.status || 'initiated';
+  
+  const itemsHtml =
+    order && order.items && order.items.length
+      ? order.items
+          .map(
+            (i) =>
+              `<li>${i.quantity} × ${
+                (i.product && i.product.name) || i.name || "Item"
+              } — ₹${safeFormatPrice(i.price)}</li>`
+          )
+          .join("")
+      : "<li>No items</li>";
+
+  const mailOptions = {
+    from: `"Flaunt By Nishi Team" <${
+      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+    }>`,
+    to: email,
+    subject: `Refund ${refundStatus === 'processed' || refundStatus === 'completed' ? 'Processed' : 'Initiated'} for Order ${order.orderNumber}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
+        <div style="background:linear-gradient(135deg,#4CAF50,#81C784); color:#fff; padding:18px; border-radius:8px; text-align:center;">
+          <h2 style="margin:0">💰 Refund ${refundStatus === 'processed' || refundStatus === 'completed' ? 'Processed' : 'Initiated'}</h2>
+        </div>
+        
+        <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
+          <p>Hi ${firstName || "there"},</p>
+          
+          <p>Your refund for order <strong>${order.orderNumber}</strong> has been ${refundStatus === 'processed' || refundStatus === 'completed' ? 'processed successfully' : 'initiated'}.</p>
+          
+          <div style="background:#F3F4F6; padding:15px; border-radius:8px; margin:20px 0;">
+            <h3 style="margin:0 0 10px 0; color:#1F2937;">Refund Details</h3>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr>
+                <td style="padding:8px 0;"><strong>Refund Amount:</strong></td>
+                <td style="padding:8px 0; text-align:right;">₹${safeFormatPrice(refundAmount)}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;"><strong>Refund ID:</strong></td>
+                <td style="padding:8px 0; text-align:right;">${refundId}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;"><strong>Status:</strong></td>
+                <td style="padding:8px 0; text-align:right;">
+                  <span style="background:#4CAF50; color:white; padding:4px 12px; border-radius:4px; font-size:12px;">${refundStatus.toUpperCase()}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          ${refundStatus === 'processed' || refundStatus === 'completed' ? `
+            <p style="background:#E8F5E9; padding:12px; border-left:4px solid #4CAF50; margin:15px 0;">
+              ✅ Your refund has been processed and should reflect in your account within <strong>5-7 business days</strong>, depending on your bank.
+            </p>
+          ` : `
+            <p style="background:#FFF3CD; padding:12px; border-left:4px solid #FFC107; margin:15px 0;">
+              ⏳ Your refund is being processed and will be credited to your original payment method within <strong>5-7 business days</strong>.
+            </p>
+          `}
+
+          <h4 style="margin-top:25px;">Order Summary</h4>
+          <ul style="padding-left:20px;">${itemsHtml}</ul>
+          
+          <p style="margin-top:25px; font-size:14px; color:#6B7280;">
+            If you have any questions about your refund, please don't hesitate to contact our support team.
+          </p>
+        </div>
+
+        <div style="text-align:center; margin-top:20px; padding:15px; font-size:12px; color:#9CA3AF;">
+          <p>Thank you for shopping with Flaunt By Nishi!</p>
+          <p>© ${new Date().getFullYear()} Flaunt By Nishi. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+    text: `Hi ${firstName || "there"},\n\nYour refund for order ${order.orderNumber} has been ${refundStatus === 'processed' || refundStatus === 'completed' ? 'processed successfully' : 'initiated'}.\n\nRefund Amount: ₹${safeFormatPrice(refundAmount)}\nRefund ID: ${refundId}\nStatus: ${refundStatus.toUpperCase()}\n\n${refundStatus === 'processed' || refundStatus === 'completed' ? 'Your refund should reflect in your account within 5-7 business days.' : 'Your refund will be credited to your original payment method within 5-7 business days.'}\n\nThank you for shopping with Flaunt By Nishi!`,
+  };
+
+  try {
+    const info = await sendMail(mailOptions);
+    console.log(`Refund notification email sent to ${email}`);
+    return { success: true, messageId: info && info.messageId };
+  } catch (err) {
+    console.error("sendRefundNotificationEmail error", err);
+    return { success: false, error: err && err.message };
+  }
+};
+
 module.exports = {
   createTransporter,
   sendVerificationEmail,
@@ -349,5 +447,6 @@ module.exports = {
   sendOrderPlacedEmail,
   sendOrderStatusUpdateEmail,
   sendOrderCancellationEmail,
+  sendRefundNotificationEmail,
   sendOTPEmail,
 };

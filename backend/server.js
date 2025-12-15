@@ -241,6 +241,23 @@ mongoose
       console.error("Failed to start order cancellation job:", err);
     }
 
+    // Start Delhivery status sync cron job with automatic refund
+    try {
+      const { initializeDelhiverySync } = require("./jobs/delhiveryStatusSync");
+      initializeDelhiverySync();
+    } catch (err) {
+      console.error("Failed to start Delhivery status sync job:", err);
+    }
+
+    // Start Delhivery status sync with cancellation detection (runs every 6 hours)
+    try {
+      const { initializeDelhiverySync } = require("./jobs/delhiveryStatusSync");
+      initializeDelhiverySync();
+      console.log("Delhivery status sync job initialized");
+    } catch (err) {
+      console.error("Failed to start Delhivery status sync job:", err);
+    }
+
     // Start Express server only after DB connection is established
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

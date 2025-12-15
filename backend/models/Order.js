@@ -150,12 +150,12 @@ const orderSchema = new mongoose.Schema(
     payment: {
       method: {
         type: String,
-        enum: ["credit_card", "debit_card", "paypal", "stripe", "razorpay"],
+        enum: ["credit_card", "debit_card", "paypal", "stripe", "razorpay", "cod"],
         required: true,
       },
       status: {
         type: String,
-        enum: ["pending", "paid", "failed", "refunded"],
+        enum: ["pending", "paid", "failed", "refunded", "partially_refunded"],
         default: "pending",
       },
       transactionId: String,
@@ -168,7 +168,7 @@ const orderSchema = new mongoose.Schema(
       },
       gateway: {
         type: String,
-        enum: ["razorpay", "stripe", "paypal", "manual"],
+        enum: ["razorpay", "stripe", "paypal", "manual", "cod"],
         default: "razorpay",
       },
       amount: {
@@ -178,6 +178,30 @@ const orderSchema = new mongoose.Schema(
       currency: {
         type: String,
         default: "INR",
+      },
+      // Refund tracking
+      refund: {
+        status: {
+          type: String,
+          enum: ["none", "initiated", "processing", "completed", "failed", "partial"],
+          default: "none",
+        },
+        refundId: String, // Razorpay refund ID
+        amount: {
+          type: Number,
+          default: 0,
+          min: [0, "Refund amount cannot be negative"],
+        },
+        reason: String,
+        initiatedAt: Date,
+        completedAt: Date,
+        failedAt: Date,
+        errorMessage: String,
+        attempts: {
+          type: Number,
+          default: 0,
+        },
+        lastAttemptAt: Date,
       },
     },
     shippingAddress: {
@@ -308,12 +332,22 @@ const orderSchema = new mongoose.Schema(
     },
 
     cancellationReason: String,
+    // Cancellation source tracking
+    cancellationSource: {
+      type: String,
+      enum: ["admin", "customer", "delhivery_webhook", "delhivery_sync", "system", "payment_failure"],
+      default: "admin",
+    },
     shipment: {
       awb: { type: String },
       shipmentId: { type: String },
       trackingUrl: { type: String },
       carrier: { type: String },
       status: { type: String },
+      // Cancellation details from carrier
+      cancelledAt: Date,
+      cancellationReason: String,
+      cancelledBeforePickup: Boolean,
       name: String,
       address: String,
       pincode: String,

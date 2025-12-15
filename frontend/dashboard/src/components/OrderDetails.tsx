@@ -63,6 +63,15 @@ interface Order {
     method: string;
     status: string;
     transactionId?: string;
+    refund?: {
+      status: string;
+      refundId?: string;
+      amount?: number;
+      reason?: string;
+      initiatedAt?: string;
+      completedAt?: string;
+      errorMessage?: string;
+    };
   };
   shippingAddress: {
     street: string;
@@ -97,6 +106,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [invoiceNo, setInvoiceNo] = useState<string>("");
   const [savingInvoice, setSavingInvoice] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -208,6 +219,158 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleCancelOrder = async () => {
+    if (!token || !orderId) return;
+
+    const reason = prompt("Enter cancellation reason (optional):");
+    if (reason === null) return; // User cancelled the prompt
+
+    if (
+      !confirm(
+        "Are you sure you want to cancel this order? This will automatically process a refund if payment was made."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      const response = await fetch(
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/cancel`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason: reason || "Cancelled by admin" }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to cancel order");
+      }
+
+      const data = await response.json();
+      setOrder(data.data.order);
+
+      if (data.data.refundProcessed) {
+        alert("Order cancelled successfully! Refund has been processed.");
+      } else if (data.data.refundDetails?.isCOD) {
+        alert("Order cancelled successfully! (COD order - no refund needed)");
+      } else if (data.data.refundDetails?.notPaid) {
+        alert(
+          "Order cancelled successfully! (Payment not completed - no refund needed)"
+        );
+      } else {
+        alert("Order cancelled successfully!");
+      }
+    } catch (err: any) {
+      console.error("Cancel order error:", err);
+      alert(err.message || "Failed to cancel order");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const handleProcessRefund = async () => {
+    if (!token || !orderId) return;
+
+    const reason = prompt("Enter refund reason:");
+    if (!reason) return;
+
+    const amountStr = prompt(
+      `Enter refund amount (leave empty for full amount: ₹${order?.total}):`
+    );
+    const amount = amountStr ? parseFloat(amountStr) : null;
+
+    if (!confirm(`Process refund of ₹${amount || order?.total}?`)) {
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      const response = await fetch(
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/refund`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: amount,
+            reason: reason,
+            deductShipping: false,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to process refund");
+      }
+
+      const data = await response.json();
+      setOrder(data.data.order);
+
+      if (data.data.refund?.isCOD) {
+        alert("This is a COD order - no refund needed.");
+      } else if (data.data.refund?.notPaid) {
+        alert("Payment not completed - no refund needed.");
+      } else if (data.data.refund?.alreadyRefunded) {
+        alert("Refund already processed for this order.");
+      } else {
+        alert(
+          `Refund processed successfully! Refund ID: ${data.data.refund?.refundId}`
+        );
+      }
+    } catch (err: any) {
+      console.error("Process refund error:", err);
+      alert(err.message || "Failed to process refund");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleSyncDelhivery = async () => {
+    if (!token || !orderId) return;
+
+    try {
+      setProcessing(true);
+      const response = await fetch(
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/sync-delhivery`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to sync order status");
+      }
+
+      const data = await response.json();
+      setOrder(data.data.order);
+
+      if (data.data.cancellationDetected) {
+        alert("Order status synced! Cancellation detected and processed.");
+      } else {
+        alert("Order status synced successfully!");
+      }
+    } catch (err: any) {
+      console.error("Sync Delhivery error:", err);
+      alert(err.message || "Failed to sync order status");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
@@ -779,6 +942,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                       className={`capitalize ${
                         order.payment.status === "paid"
                           ? "text-green-600"
+                          : order.payment.status === "refunded"
+                          ? "text-blue-600"
                           : "text-yellow-600"
                       }`}
                     >
@@ -792,6 +957,84 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   <p>Transaction ID: {order.payment.transactionId}</p>
                 </div>
               )}
+
+              {/* Refund Information */}
+              {order.payment.refund &&
+                order.payment.refund.status !== "none" && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h5 className="font-semibold text-blue-900 mb-2 flex items-center">
+                      <span className="mr-2">💰</span> Refund Information
+                    </h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-700">Status:</span>
+                        <span
+                          className={`font-medium capitalize ${
+                            order.payment.refund.status === "completed"
+                              ? "text-green-600"
+                              : order.payment.refund.status === "failed"
+                              ? "text-red-600"
+                              : order.payment.refund.status === "processing"
+                              ? "text-blue-600"
+                              : "text-yellow-600"
+                          }`}
+                        >
+                          {order.payment.refund.status}
+                        </span>
+                      </div>
+                      {order.payment.refund.amount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Amount:</span>
+                          <span className="font-medium">
+                            ₹{order.payment.refund.amount.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {order.payment.refund.refundId && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Refund ID:</span>
+                          <span className="font-mono text-xs">
+                            {order.payment.refund.refundId}
+                          </span>
+                        </div>
+                      )}
+                      {order.payment.refund.reason && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Reason:</span>
+                          <span className="text-xs">
+                            {order.payment.refund.reason}
+                          </span>
+                        </div>
+                      )}
+                      {order.payment.refund.initiatedAt && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Initiated:</span>
+                          <span className="text-xs">
+                            {new Date(
+                              order.payment.refund.initiatedAt
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      {order.payment.refund.completedAt && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Completed:</span>
+                          <span className="text-xs">
+                            {new Date(
+                              order.payment.refund.completedAt
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      {order.payment.refund.errorMessage && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+                          <strong>Error:</strong>{" "}
+                          {order.payment.refund.errorMessage}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -884,11 +1127,48 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   </span>
                 </div>
               )}
+
+              {/* Sync Delhivery Status */}
+              {order && (order as any).shipment?.awb && (
+                <button
+                  onClick={handleSyncDelhivery}
+                  disabled={processing}
+                  className="w-full text-left px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                >
+                  <span>Sync Delhivery Status</span>
+                  {processing && <Loader2 className="w-4 h-4 animate-spin" />}
+                </button>
+              )}
+
+              {/* Cancel Order with Refund */}
+              {order.status !== "cancelled" && order.status !== "delivered" && (
+                <button
+                  onClick={handleCancelOrder}
+                  disabled={cancelling}
+                  className="w-full text-left px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                >
+                  <span>Cancel Order & Refund</span>
+                  {cancelling && <Loader2 className="w-4 h-4 animate-spin" />}
+                </button>
+              )}
+
+              {/* Process Refund */}
+              {order.payment.status === "paid" &&
+                (!order.payment.refund ||
+                  order.payment.refund.status === "none" ||
+                  order.payment.refund.status === "failed") && (
+                  <button
+                    onClick={handleProcessRefund}
+                    disabled={processing}
+                    className="w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                  >
+                    <span>Process Refund</span>
+                    {processing && <Loader2 className="w-4 h-4 animate-spin" />}
+                  </button>
+                )}
+
               <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
                 Send Update Email
-              </button>
-              <button className="w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors">
-                Process Refund
               </button>
               <button className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
                 Print Invoice

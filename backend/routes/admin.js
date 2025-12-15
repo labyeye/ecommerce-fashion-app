@@ -7,7 +7,11 @@ const Order = require("../models/Order");
 const PromoCode = require("../models/PromoCode");
 const Category = require("../models/Category");
 const Newsletter = require("../models/Newsletter");
-const { createTransporter, sendOrderStatusUpdateEmail, sendOrderCancellationEmail } = require("../utils/emailService");
+const {
+  createTransporter,
+  sendOrderStatusUpdateEmail,
+  sendOrderCancellationEmail,
+} = require("../utils/emailService");
 const mongoose = require("mongoose");
 
 const router = express.Router();
@@ -42,7 +46,7 @@ router.get("/dashboard", async (req, res) => {
               input: {
                 $ifNull: [
                   "$shippingAddress.country",
-                  { $ifNull: ["$billingAddress.country", null] }
+                  { $ifNull: ["$billingAddress.country", null] },
                 ],
               },
             },
@@ -147,7 +151,7 @@ router.get("/dashboard", async (req, res) => {
 // @desc    Get user activity analytics (page counts and time series)
 // @route   GET /api/admin/analytics/user-activity
 // @access  Admin only
-router.get('/analytics/user-activity', async (req, res) => {
+router.get("/analytics/user-activity", async (req, res) => {
   try {
     const days = Math.max(0, Number(req.query.days || 30));
     const since = new Date();
@@ -161,38 +165,40 @@ router.get('/analytics/user-activity', async (req, res) => {
     const match = { createdAt: { $gte: since } };
 
     // Total counts per page
-    const perPage = await require('../models/AnalyticsEvent').aggregate([
+    const perPage = await require("../models/AnalyticsEvent").aggregate([
       { $match: match },
-      { $group: { _id: '$page', count: { $sum: 1 } } },
+      { $group: { _id: "$page", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
     ]);
 
     // Total counts per event
-    const perEvent = await require('../models/AnalyticsEvent').aggregate([
+    const perEvent = await require("../models/AnalyticsEvent").aggregate([
       { $match: match },
-      { $group: { _id: '$event', count: { $sum: 1 } } },
+      { $group: { _id: "$event", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
     ]);
 
     // Time series (group by day)
-    const timeSeries = await require('../models/AnalyticsEvent').aggregate([
+    const timeSeries = await require("../models/AnalyticsEvent").aggregate([
       { $match: match },
       {
         $group: {
           _id: {
-            day: { $dateToString: { format: "%Y-%m-%d", date: '$createdAt' } },
-            page: '$page',
+            day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            page: "$page",
           },
           count: { $sum: 1 },
         },
       },
-      { $sort: { '_id.day': 1 } },
+      { $sort: { "_id.day": 1 } },
     ]);
 
     res.json({ success: true, data: { perPage, perEvent, timeSeries } });
   } catch (err) {
-    console.error('User activity analytics error', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch analytics' });
+    console.error("User activity analytics error", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch analytics" });
   }
 });
 
@@ -505,13 +511,11 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Validation failed",
-            errors: errors.array(),
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: errors.array(),
+        });
       }
 
       const { title, subject, message, bannerUrl } = req.body;
@@ -575,13 +579,11 @@ router.post(
       newsletter.recipientsCount = sent;
       await newsletter.save();
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: `Newsletter sent to ${sent} recipients`,
-          data: newsletter,
-        });
+      res.status(200).json({
+        success: true,
+        message: `Newsletter sent to ${sent} recipients`,
+        data: newsletter,
+      });
     } catch (error) {
       console.error("Create newsletter error:", error);
       res
@@ -665,22 +667,28 @@ router.get("/orders/:id/details", async (req, res) => {
 // @desc    Update invoice number for an order
 // @route   PUT /api/admin/orders/:id/invoice
 // @access  Admin only
-router.put('/orders/:id/invoice', async (req, res) => {
+router.put("/orders/:id/invoice", async (req, res) => {
   try {
     const { invoiceNo } = req.body;
 
     const order = await Order.findById(req.params.id);
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
-    order.invoiceNo = invoiceNo || '';
+    order.invoiceNo = invoiceNo || "";
     await order.save();
 
-    res.status(200).json({ success: true, message: 'Invoice number updated', data: order });
+    res
+      .status(200)
+      .json({ success: true, message: "Invoice number updated", data: order });
   } catch (error) {
-    console.error('Update invoice number error:', error);
-    res.status(500).json({ success: false, message: 'Error updating invoice number' });
+    console.error("Update invoice number error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating invoice number" });
   }
 });
 
@@ -757,7 +765,8 @@ router.put(
       if (order.shipment && order.shipment.awb) {
         return res.status(400).json({
           success: false,
-          message: 'This order is synced with Delhivery. Status will update automatically.'
+          message:
+            "This order is synced with Delhivery. Status will update automatically.",
         });
       }
 
@@ -765,19 +774,39 @@ router.put(
       await order.updateStatus(status, notes, req.user._id);
 
       // If status changed to confirmed, attempt to create Delhivery shipment
-      if (status === 'confirmed') {
+      if (status === "confirmed") {
         try {
-          const { createShipmentForOrder } = require('../services/delhiveryService');
+          const {
+            createShipmentForOrder,
+          } = require("../services/delhiveryService");
           const createRes = await createShipmentForOrder(order);
           if (!createRes.success) {
             // revert status and inform admin
-            await order.updateStatus('pending', `Delhivery creation failed: ${JSON.stringify(createRes.error || createRes.raw)}`, req.user._id);
-            return res.status(500).json({ success: false, message: 'Shipment creation failed', error: createRes.error || createRes.raw });
+            await order.updateStatus(
+              "pending",
+              `Delhivery creation failed: ${JSON.stringify(
+                createRes.error || createRes.raw
+              )}`,
+              req.user._id
+            );
+            return res
+              .status(500)
+              .json({
+                success: false,
+                message: "Shipment creation failed",
+                error: createRes.error || createRes.raw,
+              });
           }
         } catch (e) {
-          console.error('Delhivery create error (admin):', e);
-          await order.updateStatus('pending', `Delhivery creation error: ${e.message}`, req.user._id);
-          return res.status(500).json({ success: false, message: 'Shipment creation error' });
+          console.error("Delhivery create error (admin):", e);
+          await order.updateStatus(
+            "pending",
+            `Delhivery creation error: ${e.message}`,
+            req.user._id
+          );
+          return res
+            .status(500)
+            .json({ success: false, message: "Shipment creation error" });
         }
       }
 
@@ -786,48 +815,48 @@ router.put(
         try {
           // // Only award on delivery if loyalty wasn't already awarded during payment
           // if (!order.payment || !order.payment.loyaltyAwarded) {
-            const customer = await User.findById(order.customer._id);
-            // const tier =
-            //   customer && customer.loyaltyTier
-            //     ? customer.loyaltyTier
-            //     : "bronze";
-            const per50 = tier === "gold" ? 5 : tier === "silver" ? 3 : 1;
-            const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
-            const deliveryBonusPoints = Math.floor(order.total * 0.1);
-            const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
+          const customer = await User.findById(order.customer._id);
+          // const tier =
+          //   customer && customer.loyaltyTier
+          //     ? customer.loyaltyTier
+          //     : "bronze";
+          const per50 = tier === "gold" ? 5 : tier === "silver" ? 3 : 1;
+          const pointsEarnedOnDelivery = Math.floor(order.total / 50) * per50;
+          const deliveryBonusPoints = Math.floor(order.total * 0.1);
+          const totalPoints = pointsEarnedOnDelivery + deliveryBonusPoints;
 
-            // // Update customer's loyalty points (increment)
-            // await User.findByIdAndUpdate(order.customer._id, {
-            //   $inc: {
-            //     loyaltyPoints: totalPoints,
-            //     evolvPoints: pointsEarnedOnDelivery,
-            //   },
-            // });
+          // // Update customer's loyalty points (increment)
+          // await User.findByIdAndUpdate(order.customer._id, {
+          //   $inc: {
+          //     loyaltyPoints: totalPoints,
+          //     evolvPoints: pointsEarnedOnDelivery,
+          //   },
+          // });
 
-            // // Add to loyalty history
-            // await User.findByIdAndUpdate(order.customer._id, {
-            //   $push: {
-            //     loyaltyHistory: {
-            //       date: new Date(),
-            //       action: "order_completion",
-            //       points: totalPoints,
-            //       order: order._id,
-            //       orderNumber: order.orderNumber,
-            //       description: `Order ${order.orderNumber} completed - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`,
-            //     },
-            //   },
-            // });
+          // // Add to loyalty history
+          // await User.findByIdAndUpdate(order.customer._id, {
+          //   $push: {
+          //     loyaltyHistory: {
+          //       date: new Date(),
+          //       action: "order_completion",
+          //       points: totalPoints,
+          //       order: order._id,
+          //       orderNumber: order.orderNumber,
+          //       description: `Order ${order.orderNumber} completed - ${pointsEarnedOnDelivery} points + ${deliveryBonusPoints} bonus`,
+          //     },
+          //   },
+          // });
 
-            // Recalculate tier on the customer document
-            if (customer) {
-              customer.recalculateTier();
-              await customer.save();
-            }
+          // Recalculate tier on the customer document
+          if (customer) {
+            customer.recalculateTier();
+            await customer.save();
+          }
 
-            // // Mark order as loyaltyAwarded to prevent duplication
-            // order.payment = order.payment || {};
-            // order.payment.loyaltyAwarded = true;
-            // await order.save();
+          // // Mark order as loyaltyAwarded to prevent duplication
+          // order.payment = order.payment || {};
+          // order.payment.loyaltyAwarded = true;
+          // await order.save();
           // }
         } catch (e) {
           // console.error("Error awarding loyalty on delivery:", e);
@@ -857,9 +886,19 @@ router.put(
           } else {
             // Generic status update email (includes tracking info when available)
             const trackingInfo = order.shipment
-              ? { awb: order.shipment.awb, courier: order.shipment.courier, trackingUrl: order.shipment.trackingUrl }
+              ? {
+                  awb: order.shipment.awb,
+                  courier: order.shipment.courier,
+                  trackingUrl: order.shipment.trackingUrl,
+                }
               : null;
-            sendOrderStatusUpdateEmail(email, firstName, order, status, trackingInfo).catch((e) =>
+            sendOrderStatusUpdateEmail(
+              email,
+              firstName,
+              order,
+              status,
+              trackingInfo
+            ).catch((e) =>
               console.error("Order status update email error:", e)
             );
           }
@@ -891,38 +930,318 @@ router.put(
   }
 );
 
-  // @desc    Create Delhivery shipment for an order (admin)
-  // @route   POST /api/admin/orders/:id/create-shipment
-  // @access  Admin only
-  router.post('/orders/:id/create-shipment', async (req, res) => {
-    try {
-      const order = await Order.findById(req.params.id).populate('customer');
-      if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+// @desc    Create Delhivery shipment for an order (admin)
+// @route   POST /api/admin/orders/:id/create-shipment
+// @access  Admin only
+router.post("/orders/:id/create-shipment", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate("customer");
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
 
-      // Prevent double-creation
-      if (order.shipment && order.shipment.awb) {
-        return res.status(400).json({ success: false, message: 'Shipment already exists for this order', data: order.shipment });
-      }
-
-      const { createShipmentForOrder } = require('../services/delhiveryService');
-      const result = await createShipmentForOrder(order);
-
-      // If service returned error object, include it and add timeline entry
-      if (!result.success) {
-        await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_creation_failed', message: `Delhivery error: ${JSON.stringify(result.error || result.raw || {})}`, updatedBy: req.user._id } } });
-        return res.status(500).json({ success: false, message: 'Shipment creation failed', error: result.error || result.raw });
-      }
-
-      // Add successful timeline entry
-      await Order.findByIdAndUpdate(order._id, { $push: { timeline: { status: 'shipment_created', message: `Shipment created ${result.data && (result.data.awb || result.data.shipmentId)}`, updatedBy: req.user._id } } });
-
-      const updated = await Order.findById(order._id);
-      return res.status(200).json({ success: true, message: 'Shipment created', data: { shipment: updated.shipment, raw: result.raw } });
-    } catch (err) {
-      console.error('Admin create-shipment error:', err);
-      res.status(500).json({ success: false, message: 'Error creating shipment' });
+    // Prevent double-creation
+    if (order.shipment && order.shipment.awb) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Shipment already exists for this order",
+          data: order.shipment,
+        });
     }
-  });
+
+    const { createShipmentForOrder } = require("../services/delhiveryService");
+    const result = await createShipmentForOrder(order);
+
+    // If service returned error object, include it and add timeline entry
+    if (!result.success) {
+      await Order.findByIdAndUpdate(order._id, {
+        $push: {
+          timeline: {
+            status: "shipment_creation_failed",
+            message: `Delhivery error: ${JSON.stringify(
+              result.error || result.raw || {}
+            )}`,
+            updatedBy: req.user._id,
+          },
+        },
+      });
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Shipment creation failed",
+          error: result.error || result.raw,
+        });
+    }
+
+    // Add successful timeline entry
+    await Order.findByIdAndUpdate(order._id, {
+      $push: {
+        timeline: {
+          status: "shipment_created",
+          message: `Shipment created ${
+            result.data && (result.data.awb || result.data.shipmentId)
+          }`,
+          updatedBy: req.user._id,
+        },
+      },
+    });
+
+    const updated = await Order.findById(order._id);
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Shipment created",
+        data: { shipment: updated.shipment, raw: result.raw },
+      });
+  } catch (err) {
+    console.error("Admin create-shipment error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error creating shipment" });
+  }
+});
+
+// @desc    Cancel order with automatic refund
+// @route   POST /api/admin/orders/:id/cancel
+// @access  Admin only
+router.post("/orders/:id/cancel", async (req, res) => {
+  try {
+    const { reason, skipRefund } = req.body;
+
+    const order = await Order.findById(req.params.id).populate("customer");
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // Check if already cancelled
+    if (order.status === "cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "Order is already cancelled",
+      });
+    }
+
+    const {
+      handleShipmentCancellation,
+    } = require("../services/shipmentCancellationService");
+
+    // Determine if shipment was picked up
+    const hasShipment = order.shipment && order.shipment.awb;
+    const shipmentStatus = order.shipment?.status || "";
+    const cancelledBeforePickup =
+      !hasShipment ||
+      (!shipmentStatus.toLowerCase().includes("picked") &&
+        !shipmentStatus.toLowerCase().includes("dispatched") &&
+        !shipmentStatus.toLowerCase().includes("in transit"));
+
+    // Handle cancellation with automatic refund
+    const result = await handleShipmentCancellation(order, {
+      reason: reason || "Cancelled by admin",
+      source: "admin",
+      cancelledBeforePickup: cancelledBeforePickup,
+      carrierData: {
+        timestamp: new Date(),
+      },
+      skipRefund: skipRefund === true,
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Error processing cancellation",
+        error: result.error,
+      });
+    }
+
+    // Reload order to get updated data
+    const updatedOrder = await Order.findById(req.params.id)
+      .populate("customer", "firstName lastName email")
+      .populate("items.product", "name price images");
+
+    res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      data: {
+        order: updatedOrder,
+        refundProcessed: result.refundProcessed,
+        refundDetails: result.refundResult,
+      },
+    });
+  } catch (error) {
+    console.error("Admin cancel order error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error cancelling order",
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Process refund for an order
+// @route   POST /api/admin/orders/:id/refund
+// @access  Admin only
+router.post("/orders/:id/refund", async (req, res) => {
+  try {
+    const { amount, reason, deductShipping } = req.body;
+
+    const order = await Order.findById(req.params.id).populate("customer");
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const { processOrderRefund } = require("../services/paymentService");
+
+    const result = await processOrderRefund(order, {
+      amount: amount ? parseFloat(amount) : null,
+      reason: reason || "Manual refund by admin",
+      deductShipping: deductShipping === true,
+      initiatedBy: "admin",
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Refund processing failed",
+        error: result.error,
+        code: result.code,
+      });
+    }
+
+    // Reload order to get updated data
+    const updatedOrder = await Order.findById(req.params.id)
+      .populate("customer", "firstName lastName email")
+      .populate("items.product", "name price images");
+
+    res.status(200).json({
+      success: true,
+      message: result.message || "Refund processed successfully",
+      data: {
+        order: updatedOrder,
+        refund: {
+          refundId: result.refundId,
+          amount: result.amount,
+          status: result.status,
+          isCOD: result.isCOD,
+          notPaid: result.notPaid,
+          alreadyRefunded: result.alreadyRefunded,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Admin refund order error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error processing refund",
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Sync order status from Delhivery
+// @route   POST /api/admin/orders/:id/sync-delhivery
+// @access  Admin only
+router.post("/orders/:id/sync-delhivery", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (!order.shipment || !order.shipment.awb) {
+      return res.status(400).json({
+        success: false,
+        message: "Order does not have a shipment AWB",
+      });
+    }
+
+    const {
+      syncOrderStatusFromDelhivery,
+    } = require("../services/shipmentCancellationService");
+
+    const result = await syncOrderStatusFromDelhivery(order.shipment.awb);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Status sync failed",
+        error: result.error,
+      });
+    }
+
+    // Reload order to get updated data
+    const updatedOrder = await Order.findById(req.params.id)
+      .populate("customer", "firstName lastName email")
+      .populate("items.product", "name price images");
+
+    res.status(200).json({
+      success: true,
+      message: "Status synced successfully",
+      data: {
+        order: updatedOrder,
+        status: result.status,
+        cancellationDetected: result.cancellationDetected,
+        cancellationResult: result.cancellationResult,
+      },
+    });
+  } catch (error) {
+    console.error("Admin sync Delhivery error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error syncing order status",
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Trigger bulk sync of all orders from Delhivery
+// @route   POST /api/admin/orders/bulk-sync-delhivery
+// @access  Admin only
+router.post("/orders/bulk-sync-delhivery", async (req, res) => {
+  try {
+    const { limit } = req.body;
+
+    const { triggerManualSync } = require("../jobs/delhiveryStatusSync");
+
+    const result = await triggerManualSync({
+      limit: limit || 100,
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Bulk sync failed",
+        error: result.error,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Bulk sync completed successfully",
+      data: result.results,
+    });
+  } catch (error) {
+    console.error("Admin bulk sync Delhivery error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error performing bulk sync",
+      error: error.message,
+    });
+  }
+});
 
 // @desc    Get all products
 // @route   GET /api/admin/products
@@ -1368,15 +1687,29 @@ router.get("/analytics", async (req, res) => {
         dailyAgg.forEach((it) => {
           const dt = new Date(it._id.year, it._id.month - 1, it._id.day);
           const key = dt.toISOString().slice(0, 10);
-          const label = dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-          map[key] = { date: label, revenue: it.revenue || 0, orders: it.orders || 0 };
+          const label = dt.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+          });
+          map[key] = {
+            date: label,
+            revenue: it.revenue || 0,
+            orders: it.orders || 0,
+          };
         });
 
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
           const key = d.toISOString().slice(0, 10);
-          const label = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+          const label = d.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+          });
           const val = map[key] || { revenue: 0, orders: 0 };
-          series.push({ date: label, revenue: val.revenue, orders: val.orders });
+          series.push({
+            date: label,
+            revenue: val.revenue,
+            orders: val.orders,
+          });
         }
       } else {
         // monthly aggregation
@@ -1384,7 +1717,10 @@ router.get("/analytics", async (req, res) => {
           { $match: { createdAt: { $gte: start } } },
           {
             $group: {
-              _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+              _id: {
+                year: { $year: "$createdAt" },
+                month: { $month: "$createdAt" },
+              },
               revenue: { $sum: "$total" },
               orders: { $sum: 1 },
             },
@@ -1396,17 +1732,27 @@ router.get("/analytics", async (req, res) => {
         monthlyAggForRange.forEach((it) => {
           const key = `${it._id.year}-${String(it._id.month).padStart(2, "0")}`;
           const label = `${monthNames[it._id.month - 1]} ${it._id.year}`;
-          map[key] = { revenue: it.revenue || 0, orders: it.orders || 0, label };
+          map[key] = {
+            revenue: it.revenue || 0,
+            orders: it.orders || 0,
+            label,
+          };
         });
 
         // iterate months from start to end (inclusive)
         let cur = new Date(start.getFullYear(), start.getMonth(), 1);
         const last = new Date(end.getFullYear(), end.getMonth(), 1);
         while (cur <= last) {
-          const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`;
+          const key = `${cur.getFullYear()}-${String(
+            cur.getMonth() + 1
+          ).padStart(2, "0")}`;
           const label = `${monthNames[cur.getMonth()]} ${cur.getFullYear()}`;
           const val = map[key] || { revenue: 0, orders: 0 };
-          series.push({ date: label, revenue: val.revenue, orders: val.orders });
+          series.push({
+            date: label,
+            revenue: val.revenue,
+            orders: val.orders,
+          });
           cur.setMonth(cur.getMonth() + 1);
         }
       }
