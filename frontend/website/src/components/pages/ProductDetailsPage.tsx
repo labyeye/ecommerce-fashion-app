@@ -571,7 +571,7 @@ const ProductDetailsPage: React.FC = () => {
         /* Ensure SVG icons use the primary color for strokes. Do not force fill here
            so individual icons can control fill (e.g., filled stars use currentColor). */
           .product-detail-page svg, .product-detail-page svg * {
-            stroke: #FFF2E1 !important;
+            stroke: #95522C !important;
           }
 
         /* Buttons: background -> primary, text -> bg color for contrast, but keep only two colors */

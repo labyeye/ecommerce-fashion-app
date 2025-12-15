@@ -167,6 +167,15 @@ const Login: React.FC = () => {
           background-color: #95522C !important;
           color: #FFF2E1 !important;
         }
+
+        /* Fix Google Sign-In button - allow Google's default styling */
+        .login-page #google-signin-button,
+        .login-page #google-signin-button *,
+        .login-page #google-signin-button iframe {
+          background-color: white !important;
+          color: inherit !important;
+          border-color: inherit !important;
+        }
       `}</style>
 
         <div className="max-w-md w-full space-y-6 sm:space-y-8">

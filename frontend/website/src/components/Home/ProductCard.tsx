@@ -293,8 +293,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
             isHovered ? "opacity-100" : "opacity-0"
           } group-hover:scale-105`}
         />
+        {/* Rating overlay - Bottom right corner, Myntra style */}
+        {((product.ratings && product.ratings.count > 0) || (reviewsCount && reviewsCount > 0)) && (
+          <div className="absolute bottom-3 right-3 z-20 bg-white/90 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 shadow-sm">
+            <Star fill="currentColor" className="w-4 h-4 text-tertiary" />
+            <span className="text-md font-semibold text-gray-800 federo-numeric">
+              {((product.ratings && product.ratings.count > 0)
+                ? product.ratings.average
+                : (reviewsAvg ?? 0)
+              ).toFixed(1)}
+            </span>
+          </div>
+        )}
+        {/* View Details button - Desktop only (hidden on mobile) */}
         {isHovered && (
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute bottom-4 left-4 right-4 hidden lg:block">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -308,50 +321,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      <div className="mt-6 space-y-2 flex flex-row justify-between">
-        <div className="flex flex-col">
-          <div>
-            <span
-              className="block text-2xl sm:text-lg md:text-xl text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer"
-              onClick={handleViewDetails}
-            >
-              {product.name}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2 mt-2">
-            <span className="text-[#95522C] font-['Sans-Serif'] federo-numeric text-2xl sm:text-lg md:text-xl">
-              ₹{currentPrice.toLocaleString()}
-            </span>
-          </div>
-        </div>
-        <div className="flex space-x-2">
-          <div className="flex space-x-1 mt-[2px]">
-            {Array.from({ length: 5 }).map((_, i) => {
-              // Prefer authoritative product.ratings when available, otherwise use fetched reviewsAvg
-              const avgValue = (product.ratings && product.ratings.count > 0)
-                ? product.ratings.average
-                : (reviewsAvg ?? 0);
-              const filled = Math.round(avgValue) >= i + 1;
-              const hasReviews = (product.ratings && product.ratings.count > 0) || (reviewsCount && reviewsCount > 0);
-              return (
-                <Star
-                  key={i}
-                  fill={filled && hasReviews ? 'currentColor' : 'none'}
-                  className={`w-4 h-4 ${
-                    filled
-                      ? hasReviews
-                        ? 'text-tertiary'
-                        : 'text-[#914D26]'
-                      : 'text-[#C17237]'
-                  }`}
-                />
-              );
-            })}
-          </div>
-          <div className="text-md federo-numeric text-tertiary">
-            ({(product.ratings && product.ratings.count) || reviewsCount || 0})
-          </div>
+      <div className="mt-4 space-y-1">
+        {/* Product name and price in single row - Myntra style */}
+        <div className="flex items-start justify-between gap-2">
+          <span
+            className="text-base sm:text-sm md:text-xl text-[#95522C] font-['Sans-Serif'] leading-tight hover:text-gray-800 transition-colors cursor-pointer flex-1 line-clamp-2"
+            onClick={handleViewDetails}
+          >
+            {product.name}
+          </span>
+          <span className="text-[#95522C] font-['Sans-Serif'] font-semibold federo-numeric text-base sm:text-sm md:text-lg whitespace-nowrap">
+            ₹{currentPrice.toLocaleString()}
+          </span>
         </div>
       </div>
     </div>
