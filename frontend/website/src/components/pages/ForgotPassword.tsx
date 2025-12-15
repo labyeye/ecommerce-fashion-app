@@ -15,7 +15,7 @@ const ForgotPassword: React.FC = () => {
     try {
       const API_BASE = (import.meta.env.VITE_API_URL as string) ||
         "https://backend.flauntbynishi.com/api";
-      const url = `${API_BASE.replace(/\/+$/, "")}/auth/forgot-password`;
+      const url = `${API_BASE.replace(/\/+$/, "")}/api/auth/forgot-password`;
 
       // Normalize email to avoid mismatches (trim + lowercase)
       const normalizedEmail = (email || "").trim().toLowerCase();

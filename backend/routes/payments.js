@@ -2,6 +2,7 @@ const express = require("express");
 const { protect } = require("../middleware/auth");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const PromoCode = require("../models/PromoCode");
 const {
   createRazorpayOrder,
   verifyPaymentSignature,
@@ -83,13 +84,83 @@ router.post("/create-order", async (req, res) => {
     const taxCalculated = Math.round(((cgstCalculated + sgstCalculated + igstCalculated) + Number.EPSILON) * 100) / 100;
 
     const shippingCostCalculated = subtotalCalculated >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
-    const totalCalculated = Math.round((subtotalCalculated + taxCalculated + shippingCostCalculated + Number.EPSILON) * 100) / 100;
+    let totalBeforeDiscount = Math.round((subtotalCalculated + taxCalculated + shippingCostCalculated + Number.EPSILON) * 100) / 100;
+
+    // Validate promo code and calculate discount (server-side security)
+    let promoCodeDoc = null;
+    let promoDiscountAmount = 0;
+    
+    if (promoCode) {
+      try {
+        // Find and validate promo code
+        promoCodeDoc = await PromoCode.findValidCode(promoCode);
+        
+        if (!promoCodeDoc) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid or expired promo code",
+          });
+        }
+
+        // Check user restrictions
+        if (promoCodeDoc.userRestrictions.newUsersOnly) {
+          const userOrderCount = await Order.countDocuments({ customer: req.user._id, status: { $ne: "cancelled" } });
+          if (userOrderCount > 0) {
+            return res.status(400).json({
+              success: false,
+              message: "This promo code is only valid for new users",
+            });
+          }
+        }
+
+        // Validate promo code against order value
+        const validation = promoCodeDoc.isValid(req.user._id, totalBeforeDiscount);
+        if (!validation.valid) {
+          return res.status(400).json({
+            success: false,
+            message: validation.reason,
+          });
+        }
+
+        // Calculate discount amount
+        promoDiscountAmount = promoCodeDoc.calculateDiscount(totalBeforeDiscount, items);
+        promoDiscountAmount = Math.round((promoDiscountAmount + Number.EPSILON) * 100) / 100;
+        
+        console.log(`Promo code ${promoCode} applied: -₹${promoDiscountAmount}`);
+      } catch (promoError) {
+        console.error("Promo code validation error:", promoError);
+        return res.status(400).json({
+          success: false,
+          message: "Error validating promo code",
+        });
+      }
+    }
+
+    // Calculate Evolv points discount
+    let evolvDiscountAmount = 0;
+    if (evolvPointsToRedeem && evolvPointsToRedeem > 0) {
+      const user = await User.findById(req.user._id);
+      if (!user || !user.evolvPoints || user.evolvPoints < evolvPointsToRedeem) {
+        return res.status(400).json({
+          success: false,
+          message: "Insufficient Evolv points",
+        });
+      }
+      
+      // 1 Evolv point = ₹1 discount
+      evolvDiscountAmount = Math.round((evolvPointsToRedeem + Number.EPSILON) * 100) / 100;
+      console.log(`Evolv points ${evolvPointsToRedeem} applied: -₹${evolvDiscountAmount}`);
+    }
+
+    // Apply discounts to total
+    const totalDiscountAmount = promoDiscountAmount + evolvDiscountAmount;
+    const totalCalculated = Math.max(0, Math.round((totalBeforeDiscount - totalDiscountAmount + Number.EPSILON) * 100) / 100);
 
     // Validate required fields (use server-calculated total)
     if (!totalCalculated || totalCalculated <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order total",
+        message: "Invalid order total after discounts",
       });
     }
 
@@ -114,6 +185,7 @@ router.post("/create-order", async (req, res) => {
       igst: igstCalculated,
       taxTotal: (cgstCalculated + sgstCalculated + igstCalculated),
       shipping: { cost: shippingCostCalculated },
+      discount: totalDiscountAmount,
       total: totalCalculated,
       payment: {
         method: "razorpay",
@@ -321,6 +393,40 @@ router.post("/verify", async (req, res) => {
       paymentUpdate,
       { new: true }
     );
+
+    // Record promo code usage if promo code was applied
+    if (updatedOrderAfterPayment.promoCode) {
+      try {
+        const promoCodeDoc = await PromoCode.findValidCode(updatedOrderAfterPayment.promoCode);
+        if (promoCodeDoc) {
+          await promoCodeDoc.applyToOrder(
+            updatedOrderAfterPayment.customer,
+            updatedOrderAfterPayment._id,
+            updatedOrderAfterPayment.discount || 0
+          );
+          console.log(`Promo code ${updatedOrderAfterPayment.promoCode} usage recorded for order ${updatedOrderAfterPayment.orderNumber}`);
+        }
+      } catch (promoErr) {
+        console.error("Error recording promo code usage:", promoErr);
+        // Don't fail payment if promo recording fails
+      }
+    }
+
+    // Deduct Evolv points if they were redeemed
+    if (updatedOrderAfterPayment.evolvPointsToRedeem && updatedOrderAfterPayment.evolvPointsToRedeem > 0) {
+      try {
+        const user = await User.findById(updatedOrderAfterPayment.customer);
+        if (user && user.evolvPoints >= updatedOrderAfterPayment.evolvPointsToRedeem) {
+          user.evolvPoints -= updatedOrderAfterPayment.evolvPointsToRedeem;
+          await user.save();
+          console.log(`Deducted ${updatedOrderAfterPayment.evolvPointsToRedeem} Evolv points from user ${user._id}`);
+        }
+      } catch (evolvErr) {
+        console.error("Error deducting Evolv points:", evolvErr);
+        // Don't fail payment if Evolv points deduction fails
+      }
+    }
+
     // Decrement product stock now that payment is confirmed
     try {
       const Product = require("../models/Product");

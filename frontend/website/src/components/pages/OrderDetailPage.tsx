@@ -274,7 +274,7 @@ const OrderDetailPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/orders")}
             className="flex items-center gap-2 text-[#95522C] hover:text-[##95522C] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
