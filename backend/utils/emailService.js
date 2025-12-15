@@ -36,11 +36,11 @@ const sendMail = async (mailOptions) => {
 
 const sendVerificationEmail = async (email, firstName, verificationToken) => {
   const verificationUrl = `${
-    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
+    process.env.FRONTEND_URL || "https://www.flauntbynishi.com"
   }/verify-email?token=${verificationToken}`;
   const mailOptions = {
     from: `"Flaunt by Nishi" <${
-      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      process.env.EMAIL_FROM || "flauntbynishi@gmail.com"
     }>`,
     to: email,
     subject: "Verify Your Email Address - Flaunt by Nishi",
@@ -82,24 +82,35 @@ const sendWelcomeEmail = async (email, firstName) => {
 
 const sendPasswordResetEmail = async (email, firstName, resetToken) => {
   const resetUrl = `${
-    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
+    process.env.FRONTEND_URL || "https://www.flauntbynishi.com"
   }/reset-password?token=${resetToken}`;
   const mailOptions = {
     from: `"Flaunt By Nishi Team" <${
-      process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
+      process.env.EMAIL_FROM || "flauntbynishi@gmail.com"
     }>`,
     to: email,
     subject: "Reset your Flaunt By Nishi password",
-    html: `<div><p>Hi ${
-      firstName || ""
-    },</p><p>Reset your password: <a href="${resetUrl}">Reset</a></p></div>`,
-    text: `Reset your password: ${resetUrl}`,
+    html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
+      <h2>Password Reset Request</h2>
+      <p>Hi ${firstName || "there"},</p>
+      <p>We received a request to reset your password for your Flaunt By Nishi account.</p>
+      <p>Click the button below to reset your password:</p>
+      <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #95522C; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Reset Password</a>
+      <p>Or copy and paste this link into your browser:</p>
+      <p style="word-break: break-all;">${resetUrl}</p>
+      <p>This link will expire in 10 minutes for security reasons.</p>
+      <p>If you didn't request this password reset, please ignore this email.</p>
+      <p>Best regards,<br>Flaunt By Nishi Team</p>
+    </div>`,
+    text: `Hi ${firstName || "there"},\n\nWe received a request to reset your password.\n\nReset your password by clicking this link: ${resetUrl}\n\nThis link will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nFlaunt By Nishi Team`,
   };
   try {
+    console.log(`📧 Sending password reset email to ${email}`);
     const info = await sendMail(mailOptions);
+    console.log(`✅ Password reset email sent successfully to ${email}`);
     return { success: true, messageId: info && info.messageId };
   } catch (err) {
-    console.error("sendPasswordResetEmail error", err);
+    console.error("❌ sendPasswordResetEmail error:", err);
     throw err;
   }
 };
