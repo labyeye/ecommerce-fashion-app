@@ -52,7 +52,7 @@ const UserActivityAnalytics: React.FC = () => {
       setError("");
       try {
         // fetch graphs and summary from new activity API
-        const base = "https://ecommerce-fashion-app-som7.vercel.app";
+        const base = "https://backend.flauntbynishi.com";
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
@@ -139,7 +139,7 @@ const UserActivityAnalytics: React.FC = () => {
   // maintains a short recent-events list for the live UI. The stream is public
   // and does not require a bearer header (EventSource cannot send custom headers).
   useEffect(() => {
-    const base = "https://ecommerce-fashion-app-som7.vercel.app";
+    const base = "https://backend.flauntbynishi.com";
     let es: EventSource | null = null;
     try {
       es = new EventSource(`${base}/api/activity/stream`);

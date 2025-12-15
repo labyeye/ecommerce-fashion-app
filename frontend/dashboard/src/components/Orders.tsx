@@ -24,7 +24,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders", {
+        const response = await fetch("https://backend.flauntbynishi.com/api/admin/orders", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -83,7 +83,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
     if (!token) return;
     try {
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -132,7 +132,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
     }
     try {
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -153,7 +153,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
 
       // Refresh the orders list to get updated data
       const refreshResponse = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders",
+        "https://backend.flauntbynishi.com/api/admin/orders",
         {
           headers: {
             Authorization: `Bearer ${token}`,

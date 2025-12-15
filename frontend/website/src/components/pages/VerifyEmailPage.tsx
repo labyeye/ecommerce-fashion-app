@@ -29,7 +29,7 @@ const VerifyEmailPage: React.FC = () => {
   const verifyEmail = async () => {
     try {
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/auth/verify-email",
+        "https://backend.flauntbynishi.com/api/auth/verify-email",
         {
           method: "POST",
           headers: {
@@ -83,7 +83,7 @@ const VerifyEmailPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/auth/resend-verification",
+        "https://backend.flauntbynishi.com/api/auth/resend-verification",
         {
           method: "POST",
           headers: {

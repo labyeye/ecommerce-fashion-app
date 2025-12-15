@@ -80,7 +80,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           idsToFetch.map(async (id) => {
             try {
               const res = await fetch(
-                `https://ecommerce-fashion-app-som7.vercel.app/api/products/${id}`
+                `https://backend.flauntbynishi.com/api/products/${id}`
               );
               if (!res.ok) {
                 console.warn(`Failed to fetch product ${id}: ${res.status}`);

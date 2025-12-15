@@ -36,7 +36,7 @@ const JobDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = import.meta.env.VITE_API_BASE || 'https://ecommerce-fashion-app-som7.vercel.app/api';
+  const API_BASE = import.meta.env.VITE_API_BASE || 'https://backend.flauntbynishi.com/api';
 
   useEffect(() => {
     if (id) {

@@ -130,7 +130,7 @@ const ProductDetailsPage: React.FC = () => {
   const fetchOtherProducts = async () => {
     try {
       // Try a simple products endpoint; backend can provide better related-product API
-      const res = await axios.get(`https://ecommerce-fashion-app-som7.vercel.app/api/products?limit=6`);
+      const res = await axios.get(`https://backend.flauntbynishi.com/api/products?limit=6`);
       const data = res?.data?.data || res?.data || [];
       // Filter out current product
       const filtered = Array.isArray(data)
@@ -160,7 +160,7 @@ const ProductDetailsPage: React.FC = () => {
       setDeliveryInfo(null);
       // Use relative path so this works in dev and production (proxy or same origin)
       const res = await axios.get(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/shipping/check?pincode=${encodeURIComponent(
+        `https://backend.flauntbynishi.com/api/shipping/check?pincode=${encodeURIComponent(
           code
         )}`
       );
@@ -224,7 +224,7 @@ const ProductDetailsPage: React.FC = () => {
   const fetchProductReviews = async () => {
     try {
       const res = await axios.get(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/reviews?productId=${id}&limit=50`
+        `https://backend.flauntbynishi.com/api/reviews?productId=${id}&limit=50`
       );
       const data = res.data && res.data.data ? res.data.data : [];
       setProductReviews(data);
@@ -238,7 +238,7 @@ const ProductDetailsPage: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/orders/has-purchased/${id}`,
+        `https://backend.flauntbynishi.com/api/orders/has-purchased/${id}`,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
@@ -1392,7 +1392,7 @@ const ProductDetailsPage: React.FC = () => {
                             try {
                               const token = localStorage.getItem("token");
                               await axios.post(
-                                "https://ecommerce-fashion-app-som7.vercel.app/api/reviews",
+                                "https://backend.flauntbynishi.com/api/reviews",
                                 {
                                   productId: id,
                                   rating: reviewRating,

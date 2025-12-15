@@ -57,7 +57,7 @@ export interface BlogFilters {
   search?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ecommerce-fashion-app-som7.vercel.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://backend.flauntbynishi.com/api';
 
 export const blogService = {
   // Get all blogs with filters (admin only)

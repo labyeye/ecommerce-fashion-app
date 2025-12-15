@@ -118,7 +118,7 @@ const AddressesPage: React.FC = () => {
     }
     try {
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        "https://backend.flauntbynishi.com/api/customer/profile",
         {
           method: "PUT",
           headers: {

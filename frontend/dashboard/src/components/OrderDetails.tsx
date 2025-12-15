@@ -107,7 +107,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         setError("");
 
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -140,7 +140,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
       try {
         if (!token || !orderId) return;
         const resp = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -216,7 +216,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
     try {
       setUpdatingStatus(true);
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -442,7 +442,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                               try {
                                 setSavingInvoice(true);
                                 const resp = await fetch(
-                                  `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/invoice`,
+                                  `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/invoice`,
                                   {
                                     method: "PUT",
                                     headers: {
@@ -840,7 +840,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                     if (!token) return alert("Not authenticated");
                     try {
                       const resp = await fetch(
-                        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/create-shipment`,
+                        `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/create-shipment`,
                         {
                           method: "POST",
                           headers: {
@@ -857,7 +857,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                       alert("Shipment created successfully");
                       // refresh order details
                       const details = await fetch(
-                        `https://ecommerce-fashion-app-som7.vercel.app/api/admin/orders/${order._id}/details`,
+                        `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/details`,
                         {
                           headers: {
                             Authorization: `Bearer ${token}`,

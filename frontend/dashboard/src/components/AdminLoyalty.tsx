@@ -27,7 +27,7 @@ const AdminLoyalty: React.FC = () => {
   });
 
   const { token } = useAuth();
-  const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app/api';
+  const API_BASE_URL = 'https://backend.flauntbynishi.com/api';
 
   useEffect(() => {
     // fetchLoyaltyAccounts();

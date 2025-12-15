@@ -18,7 +18,7 @@ const ChangeEmail: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-email",
+        "https://backend.flauntbynishi.com/api/customer/change-email",
         {
           method: "POST",
           headers: {

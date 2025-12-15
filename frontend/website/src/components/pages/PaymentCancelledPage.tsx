@@ -26,7 +26,7 @@ const PaymentCancelledPage: React.FC = () => {
 
       try {
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/customer/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ const PaymentCancelledPage: React.FC = () => {
 
       // Request new Razorpay order for existing order
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/payments/retry-payment`,
+        `https://backend.flauntbynishi.com/api/payments/retry-payment`,
         {
           method: "POST",
           headers: {

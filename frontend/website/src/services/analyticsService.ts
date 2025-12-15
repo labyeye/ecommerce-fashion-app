@@ -2,7 +2,7 @@ export async function trackEvent(event: string, page?: string, meta?: any) {
   try {
     // keep payload minimal, don't send sensitive info
     // legacy analytics endpoint
-    await fetch('https://ecommerce-fashion-app-som7.vercel.app/api/analytics/track', {
+    await fetch('https://backend.flauntbynishi.com/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event, page, meta }),

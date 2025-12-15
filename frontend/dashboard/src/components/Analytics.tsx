@@ -99,7 +99,7 @@ const Analytics: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/admin/analytics?days=${timeRange}`,
+          `https://backend.flauntbynishi.com/api/admin/analytics?days=${timeRange}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

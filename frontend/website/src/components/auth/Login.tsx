@@ -74,7 +74,7 @@ const Login: React.FC = () => {
       setIsAuthenticating(true);
 
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/auth/google",
+        "https://backend.flauntbynishi.com/api/auth/google",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

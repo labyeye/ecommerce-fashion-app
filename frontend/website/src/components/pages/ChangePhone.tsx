@@ -18,7 +18,7 @@ const ChangePhone: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-phone",
+        "https://backend.flauntbynishi.com/api/customer/change-phone",
         {
           method: "POST",
           headers: {

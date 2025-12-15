@@ -32,7 +32,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       const config = getAuthConfig();
 
       const res = await axios.get(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist",
+        "https://backend.flauntbynishi.com/api/wishlist",
         config
       );
       const products = res.data.wishlist || [];
@@ -58,7 +58,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       // optimistic update of ids
       setWishlist((prev) => (prev.includes(productId) ? prev : [...prev, productId]));
       await axios.post(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/add",
+        "https://backend.flauntbynishi.com/api/wishlist/add",
         { productId },
         config
       );
@@ -81,7 +81,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
       setWishlist((prev) => prev.filter((id) => id !== productId));
       setWishlistProducts((prev) => prev.filter((p) => p._id !== productId));
       await axios.post(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/wishlist/remove",
+        "https://backend.flauntbynishi.com/api/wishlist/remove",
         { productId },
         config
       );

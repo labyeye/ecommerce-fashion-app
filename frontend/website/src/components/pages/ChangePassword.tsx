@@ -21,7 +21,7 @@ const ChangePassword: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-password",
+        "https://backend.flauntbynishi.com/api/customer/change-password",
         {
           method: "POST",
           headers: {

@@ -37,7 +37,7 @@ const sendMail = async (mailOptions) => {
 
 const sendVerificationEmail = async (email, firstName, verificationToken) => {
   const verificationUrl = `${
-    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
   }/verify-email?token=${verificationToken}`;
   const mailOptions = {
     from: `"Flaunt by Nishi" <${
@@ -83,7 +83,7 @@ const sendWelcomeEmail = async (email, firstName) => {
 
 const sendPasswordResetEmail = async (email, firstName, resetToken) => {
   const resetUrl = `${
-    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
   }/reset-password?token=${resetToken}`;
   const mailOptions = {
     from: `"Flaunt By Nishi Team" <${
@@ -144,7 +144,7 @@ const sendOrderPickedEmail = async (email, firstName, order) => {
 
 const sendOrderPlacedEmail = async (email, firstName, order) => {
   const orderUrl = `${
-    process.env.FRONTEND_URL || "https://ecommerce-fashion-app-som7.vercel.app"
+    process.env.FRONTEND_URL || "https://backend.flauntbynishi.com"
   }/orders/${order && (order._id || order.id) ? order._id || order.id : ""}`;
   const itemsHtml =
     order && order.items && order.items.length

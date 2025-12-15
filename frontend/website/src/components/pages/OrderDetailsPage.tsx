@@ -109,7 +109,7 @@ const OrderDetailsPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/customer/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -144,7 +144,7 @@ const OrderDetailsPage: React.FC = () => {
       if (!token || !orderId) return;
       try {
         const resp = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/exchange/eligibility/${orderId}`,
+          `https://backend.flauntbynishi.com/api/exchange/eligibility/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -174,7 +174,7 @@ const OrderDetailsPage: React.FC = () => {
     const fetchStatus = async () => {
       try {
         const resp = await fetch(
-          `https://ecommerce-fashion-app-som7.vercel.app/api/orders/status/${orderId}`,
+          `https://backend.flauntbynishi.com/api/orders/status/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -219,7 +219,7 @@ const OrderDetailsPage: React.FC = () => {
     try {
       setConfirmingDelivery(true);
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/customer/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -356,7 +356,7 @@ const OrderDetailsPage: React.FC = () => {
                       );
 
                       const resp = await fetch(
-                        "https://ecommerce-fashion-app-som7.vercel.app/api/exchange/request",
+                        "https://backend.flauntbynishi.com/api/exchange/request",
                         {
                           method: "POST",
                           headers: { Authorization: `Bearer ${token}` },

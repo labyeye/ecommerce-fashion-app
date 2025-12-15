@@ -66,7 +66,7 @@ const CheckoutPage: React.FC = () => {
 
       try {
         setLoadingProfile(true);
-        const response = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/auth/me", {
+        const response = await fetch("https://backend.flauntbynishi.com/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -234,7 +234,7 @@ const CheckoutPage: React.FC = () => {
       }
 
       const response = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/customer/profile",
+        "https://backend.flauntbynishi.com/api/customer/profile",
         {
           method: "PUT",
           headers: {

@@ -57,7 +57,7 @@ const Jobs: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
   const auth = useAuth();
-  const API_BASE = import.meta.env.VITE_API_BASE || 'https://ecommerce-fashion-app-som7.vercel.app/api';
+  const API_BASE = import.meta.env.VITE_API_BASE || 'https://backend.flauntbynishi.com/api';
 
   const initialFormData: JobFormData = {
     title: '',

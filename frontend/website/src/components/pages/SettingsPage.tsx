@@ -43,7 +43,7 @@ const SettingsPage: React.FC = () => {
       return setMessage("Passwords do not match");
     setLoading(true);
     try {
-      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-password", {
+      const res = await fetch("https://backend.flauntbynishi.com/api/customer/change-password", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ const SettingsPage: React.FC = () => {
     if (!newEmail || !emailPassword) return setMessage("Fill all fields");
     setLoading(true);
     try {
-      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-email", {
+      const res = await fetch("https://backend.flauntbynishi.com/api/customer/change-email", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,7 +102,7 @@ const SettingsPage: React.FC = () => {
     if (!newPhone) return setMessage("Enter phone number");
     setLoading(true);
     try {
-      const res = await fetch("https://ecommerce-fashion-app-som7.vercel.app/api/customer/change-phone", {
+      const res = await fetch("https://backend.flauntbynishi.com/api/customer/change-phone", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

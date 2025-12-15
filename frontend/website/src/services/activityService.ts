@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://ecommerce-fashion-app-som7.vercel.app';
+const API_BASE_URL = 'https://backend.flauntbynishi.com';
 
 export async function logEvent(eventType: string, metadata: any = {}) {
   try {

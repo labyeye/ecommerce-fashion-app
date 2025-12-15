@@ -20,7 +20,7 @@ const ResetPassword: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://ecommerce-fashion-app-som7.vercel.app/api/auth/reset-password",
+        "https://backend.flauntbynishi.com/api/auth/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

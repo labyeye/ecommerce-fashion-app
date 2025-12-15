@@ -96,7 +96,7 @@ const ProfilePage: React.FC = () => {
 
       const apiBase =
         import.meta.env.VITE_API_URL ||
-        "https://ecommerce-fashion-app-som7.vercel.app/api";
+        "https://backend.flauntbynishi.com/api";
 
       // Add timeout to fetch request
       const controller = new AbortController();
@@ -396,7 +396,7 @@ const ProfilePage: React.FC = () => {
         setOrdersError("");
         try {
           const response = await fetch(
-            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/orders",
+            "https://backend.flauntbynishi.com/api/customer/orders",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -465,7 +465,7 @@ const ProfilePage: React.FC = () => {
     try {
       // Request a new razorpay order for this existing order
       const response = await fetch(
-        `https://ecommerce-fashion-app-som7.vercel.app/api/payments/retry-payment`,
+        `https://backend.flauntbynishi.com/api/payments/retry-payment`,
         {
           method: "POST",
           headers: {
@@ -552,7 +552,7 @@ const ProfilePage: React.FC = () => {
       const fetchDashboardData = async () => {
         try {
           const response = await fetch(
-            "https://ecommerce-fashion-app-som7.vercel.app/api/customer/dashboard",
+            "https://backend.flauntbynishi.com/api/customer/dashboard",
             {
               headers: { Authorization: `Bearer ${token}` },
             }

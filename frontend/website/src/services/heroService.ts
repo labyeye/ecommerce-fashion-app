@@ -28,7 +28,7 @@ export interface Hero {
 }
 
 class HeroService {
-  private baseURL = 'https://ecommerce-fashion-app-som7.vercel.app/api/heroes';
+  private baseURL = 'https://backend.flauntbynishi.com/api/heroes';
 
   async getActiveHeroes(): Promise<Hero[]> {
     try {
