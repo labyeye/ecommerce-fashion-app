@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { XCircle, Clock, RefreshCw, Package } from "lucide-react";
-import razorpayService, { RazorpayResponse } from "../../services/razorpayService";
+import razorpayService, {
+  RazorpayResponse,
+} from "../../services/razorpayService";
 
 const PaymentCancelledPage: React.FC = () => {
   const navigate = useNavigate();
@@ -130,15 +132,15 @@ const PaymentCancelledPage: React.FC = () => {
             ) {
               // Payment successful - redirect to order complete
               navigate("/order-complete", {
-                state: { orderData: verificationResult.data || verificationResult },
+                state: {
+                  orderData: verificationResult.data || verificationResult,
+                },
               });
             } else {
               setError("Payment verification failed. Please contact support.");
             }
           } catch (verifyError: any) {
-            setError(
-              verifyError.message || "Payment verification failed"
-            );
+            setError(verifyError.message || "Payment verification failed");
           } finally {
             setRetrying(false);
           }
@@ -212,7 +214,9 @@ const PaymentCancelledPage: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Header Section */}
-          <div className={`p-8 ${isPending ? "bg-primary/10" : "bg-tertiary/10"}`}>
+          <div
+            className={`p-8 ${isPending ? "bg-primary/10" : "bg-tertiary/10"}`}
+          >
             <div className="flex flex-col items-center text-center">
               {isPending ? (
                 <>
@@ -222,13 +226,15 @@ const PaymentCancelledPage: React.FC = () => {
                   <span className="text-3xl font-bold text-tertiary mb-2 inline-block">
                     Payment Cancelled
                   </span>
-                  <span className="text-lg text-primary mb-2 inline-block">
+                  <span className="text-base text-primary mb-2 inline-block">
                     Your order is pending payment
                   </span>
                   {timeRemaining && (
                     <div className="flex items-center space-x-2 text-primary bg-primary/10 px-4 py-2 rounded-full">
                       <Clock className="w-4 h-4" />
-                      <span className="text-sm font-medium">{timeRemaining}</span>
+                      <span className="text-sm font-medium">
+                        {timeRemaining}
+                      </span>
                     </div>
                   )}
                 </>
@@ -240,7 +246,7 @@ const PaymentCancelledPage: React.FC = () => {
                   <span className="text-3xl font-bold text-tertiary mb-2 inline-block">
                     Order Cancelled
                   </span>
-                  <span className="text-lg text-primary inline-block">
+                  <span className="text-base text-primary inline-block">
                     This order has been automatically cancelled
                   </span>
                 </>
@@ -248,10 +254,39 @@ const PaymentCancelledPage: React.FC = () => {
             </div>
           </div>
 
+          {order?.order?.items && order.order.items.length > 0 && (
+            <div className="mb-6">
+              <span className="text-lg font-semibold text-tertiary mb-3 inline-block">
+                Items in Order
+              </span>
+              <div className="space-y-3">
+                {order.order.items.map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 p-3 bg-background-50 rounded-lg"
+                  >
+                    <Package className="w-8 h-8 text-tertiary-400" />
+                    <div className="flex-1">
+                      <span className="font-medium text-tertiary block">
+                        {item.product?.name || "Product"}
+                      </span>
+                      <span className="text-sm text-tertiary block federo-numeric">
+                        Qty: {item.quantity} × ₹{item.price?.toFixed(2)}
+                      </span>
+                    </div>
+                    <span className="font-medium text-tertiary-900 federo-numeric">
+                      ₹{(item.quantity * item.price)?.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Order Details */}
           <div className="p-8">
             <div className="mb-6">
-              <span className="text-xl font-semibold text-tertiary mb-4 inline-block">
+              <span className="text-lg font-semibold text-tertiary mb-4 inline-block">
                 Order Details
               </span>
               <div className="space-y-2 text-sm">
@@ -273,43 +308,14 @@ const PaymentCancelledPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-tertiary">Total Amount:</span>
-                  <span className="font-medium text-tertiary federo-numeric">
+                  <span className="text-xl font-medium text-tertiary federo-numeric">
                     ₹{order?.order?.total?.toFixed(2) || "0.00"}
                   </span>
                 </div>
-                
               </div>
             </div>
 
             {/* Order Items */}
-            {order?.order?.items && order.order.items.length > 0 && (
-              <div className="mb-6">
-                <span className="text-lg font-semibold text-tertiary mb-3 inline-block">
-                  Items in Order
-                </span>
-                <div className="space-y-3">
-                  {order.order.items.map((item: any, index: number) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-3 p-3 bg-background-50 rounded-lg"
-                    >
-                      <Package className="w-8 h-8 text-tertiary-400" />
-                      <div className="flex-1">
-                        <span className="font-medium text-tertiary block">
-                          {item.product?.name || "Product"}
-                        </span>
-                        <span className="text-sm text-tertiary block federo-numeric">
-                          Qty: {item.quantity} × ₹{item.price?.toFixed(2)}
-                        </span>
-                      </div>
-                      <span className="font-medium text-tertiary-900 federo-numeric">
-                        ₹{(item.quantity * item.price)?.toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {error && (
               <div className="mb-6 p-4 bg-tertiary/10 border border-tertiary/20 rounded-lg">
