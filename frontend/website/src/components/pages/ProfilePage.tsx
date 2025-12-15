@@ -27,6 +27,7 @@ import {
   Undo2,
   // Handshake,
 } from "lucide-react";
+import razorpayService, { RazorpayResponse } from "../../services/razorpayService";
 // Inline compact settings for desktop (avoid importing full SettingsPage)
 
 const ProfilePage: React.FC = () => {
@@ -35,6 +36,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [orders, setOrders] = useState<any[]>([]);
+  const [retryingOrderId, setRetryingOrderId] = useState<string | null>(null);
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] =
     useState<any>(null);
@@ -454,6 +456,96 @@ const ProfilePage: React.FC = () => {
         alert("Failed to print invoice");
       }
     }, 300);
+  };
+
+  // Retry payment for an order (opens Razorpay checkout)
+  const handleRetryOrderPayment = async (ord: any) => {
+    if (!ord || !token) return;
+    setRetryingOrderId(ord._id || ord.id || null);
+    try {
+      // Request a new razorpay order for this existing order
+      const response = await fetch(
+        `https://ecommerce-fashion-app-som7.vercel.app/api/payments/retry-payment`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderId: ord._id || ord.id }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to retry payment");
+      }
+
+      const razorpayOrder = await response.json();
+
+      const options = {
+        key: razorpayOrder.data.razorpay_key_id,
+        amount: razorpayOrder.data.amount,
+        currency: razorpayOrder.data.currency,
+        name: "Flaunt By Nishi",
+        description: "Order Payment",
+        order_id: razorpayOrder.data.id,
+        handler: async (razorpayResponse: RazorpayResponse) => {
+          try {
+            const verificationData = {
+              razorpay_order_id: razorpayResponse.razorpay_order_id,
+              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+              razorpay_signature: razorpayResponse.razorpay_signature,
+              order_id: ord._id || ord.id,
+            };
+
+            const verificationResult = await razorpayService.verifyPayment(
+              verificationData
+            );
+
+            if (
+              verificationResult.success ||
+              verificationResult.paymentStatus === "paid"
+            ) {
+              navigate("/order-complete", {
+                state: { orderData: verificationResult.data || verificationResult },
+              });
+            } else {
+              alert("Payment verification failed. Please contact support.");
+            }
+          } catch (verifyError: any) {
+            console.error("Payment verification error", verifyError);
+            alert(verifyError.message || "Payment verification failed");
+          } finally {
+            setRetryingOrderId(null);
+          }
+        },
+        prefill: {
+          name: ord.shippingAddress
+            ? `${ord.shippingAddress.firstName} ${ord.shippingAddress.lastName}`
+            : "",
+          email: ord.shippingAddress?.email || "",
+          contact: ord.shippingAddress?.phone || "",
+        },
+        notes: {
+          address: ord.shippingAddress
+            ? `${ord.shippingAddress.addressLine1 || ""}, ${ord.shippingAddress.city || ""}, ${ord.shippingAddress.state || ""} ${ord.shippingAddress.pinCode || ""}`
+            : "Retry payment",
+        },
+        theme: { color: "#95522C" },
+        modal: {
+          ondismiss: () => {
+            setRetryingOrderId(null);
+          },
+        },
+      };
+
+      await razorpayService.openCheckout(options);
+    } catch (err: any) {
+      console.error("Failed to retry payment", err);
+      alert(err.message || "Failed to retry payment");
+      setRetryingOrderId(null);
+    }
   };
   useEffect(() => {
     if (user && token) {
