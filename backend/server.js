@@ -59,7 +59,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     // Skip rate limiting for health checks
-    return req.path === '/api/health';
+    return req.path === "/api/health";
   },
 });
 app.use(limiter);
