@@ -50,7 +50,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerId, onBack })
         setLoading(true);
         setError('');
 
-        const response = await fetch(`http://localhost:3500/api/admin/users/${customerId}/details`, {
+        const response = await fetch(`https://backend.flauntbynishi.com/api/admin/users/${customerId}/details`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -118,7 +118,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         setError("");
 
         const response = await fetch(
-          `http://localhost:3500/api/admin/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
       try {
         if (!token || !orderId) return;
         const resp = await fetch(
-          `http://localhost:3500/api/admin/orders/${orderId}/details`,
+          `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -238,7 +238,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
     try {
       setCancelling(true);
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/cancel`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/cancel`,
         {
           method: "POST",
           headers: {
@@ -294,7 +294,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
     try {
       setProcessing(true);
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/refund`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/refund`,
         {
           method: "POST",
           headers: {
@@ -342,7 +342,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
     try {
       setProcessing(true);
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/sync-delhivery`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/sync-delhivery`,
         {
           method: "POST",
           headers: {
@@ -379,7 +379,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
     try {
       setUpdatingStatus(true);
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -605,7 +605,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                               try {
                                 setSavingInvoice(true);
                                 const resp = await fetch(
-                                  `http://localhost:3500/api/admin/orders/${order._id}/invoice`,
+                                  `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/invoice`,
                                   {
                                     method: "PUT",
                                     headers: {
@@ -1083,7 +1083,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                     if (!token) return alert("Not authenticated");
                     try {
                       const resp = await fetch(
-                        `http://localhost:3500/api/admin/orders/${order._id}/create-shipment`,
+                        `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/create-shipment`,
                         {
                           method: "POST",
                           headers: {
@@ -1100,7 +1100,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                       alert("Shipment created successfully");
                       // refresh order details
                       const details = await fetch(
-                        `http://localhost:3500/api/admin/orders/${order._id}/details`,
+                        `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/details`,
                         {
                           headers: {
                             Authorization: `Bearer ${token}`,

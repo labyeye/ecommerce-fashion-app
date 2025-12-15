@@ -20,7 +20,7 @@ const ResetPassword: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:3500/api/auth/reset-password",
+        "https://backend.flauntbynishi.com/api/auth/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

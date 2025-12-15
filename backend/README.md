@@ -198,7 +198,7 @@ All endpoints return consistent success responses:
 
 ### Register a Customer
 ```bash
-curl -X POST http://localhost:3500/api/auth/register \
+curl -X POST https://backend.flauntbynishi.com/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -210,7 +210,7 @@ curl -X POST http://localhost:3500/api/auth/register \
 
 ### Login
 ```bash
-curl -X POST http://localhost:3500/api/auth/login \
+curl -X POST https://backend.flauntbynishi.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -220,7 +220,7 @@ curl -X POST http://localhost:3500/api/auth/login \
 
 ### Access Protected Route
 ```bash
-curl -X GET http://localhost:3500/api/customer/dashboard \
+curl -X GET https://backend.flauntbynishi.com/api/customer/dashboard \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 

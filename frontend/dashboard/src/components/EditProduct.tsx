@@ -139,7 +139,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         }
 
         // First try to get the specific product
-        let response = await fetch(`http://localhost:3500/api/admin/products/${productId}`, {
+        let response = await fetch(`https://backend.flauntbynishi.com/api/admin/products/${productId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         // If single product endpoint doesn't exist, get all products and filter
         if (response.status === 404) {
           console.log('Single product endpoint not found, fetching all products...');
-          response = await fetch(`http://localhost:3500/api/admin/products`, {
+          response = await fetch(`https://backend.flauntbynishi.com/api/admin/products`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem('dashboard_token');
-        const response = await fetch('http://localhost:3500/api/admin/categories', {
+        const response = await fetch('https://backend.flauntbynishi.com/api/admin/categories', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -369,7 +369,7 @@ const EditProduct: React.FC<EditProductProps> = ({ productId, onBack, onSave }) 
         images: c.images || []
       }));
 
-      const response = await fetch(`http://localhost:3500/api/admin/products/${productId}`, {
+      const response = await fetch(`https://backend.flauntbynishi.com/api/admin/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

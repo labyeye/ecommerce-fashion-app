@@ -80,7 +80,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
           idsToFetch.map(async (id) => {
             try {
               const res = await fetch(
-                `http://localhost:3500/api/products/${id}`
+                `https://backend.flauntbynishi.com/api/products/${id}`
               );
               if (!res.ok) {
                 console.warn(`Failed to fetch product ${id}: ${res.status}`);

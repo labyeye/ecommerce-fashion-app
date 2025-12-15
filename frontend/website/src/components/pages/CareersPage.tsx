@@ -22,7 +22,7 @@ const CareersPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [locationFilter, setLocationFilter] = useState<string>("all");
 
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3500/api";
+  const API_BASE = import.meta.env.VITE_API_BASE || "https://backend.flauntbynishi.com/api";
 
   useEffect(() => {
     fetchJobs();

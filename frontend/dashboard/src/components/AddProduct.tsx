@@ -129,7 +129,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
       );
 
       const response = await fetch(
-        "http://localhost:3500/api/admin/categories",
+        "https://backend.flauntbynishi.com/api/admin/categories",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -239,7 +239,7 @@ const AddProduct: React.FC<AddProductProps> = ({ onBack, onSave }) => {
         "Content-Type": "application/json",
       });
 
-      const response = await fetch("http://localhost:3500/api/admin/products", {
+      const response = await fetch("https://backend.flauntbynishi.com/api/admin/products", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

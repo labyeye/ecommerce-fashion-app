@@ -40,7 +40,7 @@ const ContactSubmissions: React.FC = () => {
   const auth = useAuth();
   const contextToken = auth?.token || null;
   // API base - use Vite env var if provided, otherwise default to localhost:3500
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3500/api';
+  const API_BASE = import.meta.env.VITE_API_BASE || 'https://backend.flauntbynishi.com/api';
 
   const statusColors = {
     new: 'bg-blue-100 text-blue-800 border-blue-200',

@@ -99,7 +99,7 @@ const Analytics: React.FC = () => {
         setError("");
 
         const response = await fetch(
-          `http://localhost:3500/api/admin/analytics?days=${timeRange}`,
+          `https://backend.flauntbynishi.com/api/admin/analytics?days=${timeRange}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

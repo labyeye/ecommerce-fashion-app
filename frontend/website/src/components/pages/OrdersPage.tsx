@@ -22,7 +22,7 @@ const OrdersPage: React.FC = () => {
       setLoading(true);
       setError("");
       try {
-        const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3500";
+        const apiBase = import.meta.env.VITE_API_URL || "https://backend.flauntbynishi.com";
         const res = await fetch(`${apiBase}/api/customer/orders`, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         });

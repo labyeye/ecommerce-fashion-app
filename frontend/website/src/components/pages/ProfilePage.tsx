@@ -97,7 +97,7 @@ const ProfilePage: React.FC = () => {
       }
 
       const apiBase =
-        import.meta.env.VITE_API_URL || "http://localhost:3500/api";
+        import.meta.env.VITE_API_URL || "https://backend.flauntbynishi.com/api";
 
       // Add timeout to fetch request
       const controller = new AbortController();
@@ -397,7 +397,7 @@ const ProfilePage: React.FC = () => {
         setOrdersError("");
         try {
           const response = await fetch(
-            "http://localhost:3500/api/customer/orders",
+            "https://backend.flauntbynishi.com/api/customer/orders",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -466,7 +466,7 @@ const ProfilePage: React.FC = () => {
     try {
       // Request a new razorpay order for this existing order
       const response = await fetch(
-        `http://localhost:3500/api/payments/retry-payment`,
+        `https://backend.flauntbynishi.com/api/payments/retry-payment`,
         {
           method: "POST",
           headers: {
@@ -559,7 +559,7 @@ const ProfilePage: React.FC = () => {
       const fetchDashboardData = async () => {
         try {
           const response = await fetch(
-            "http://localhost:3500/api/customer/dashboard",
+            "https://backend.flauntbynishi.com/api/customer/dashboard",
             {
               headers: { Authorization: `Bearer ${token}` },
             }

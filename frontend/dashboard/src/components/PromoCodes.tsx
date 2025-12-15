@@ -79,7 +79,7 @@ const PromoCodes: React.FC = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter !== 'all') params.append('status', statusFilter);
 
-      const response = await fetch(`http://localhost:3500/api/admin/promo-codes?${params}`, {
+      const response = await fetch(`https://backend.flauntbynishi.com/api/admin/promo-codes?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -106,8 +106,8 @@ const PromoCodes: React.FC = () => {
 
     try {
       const url = editingPromoCode 
-        ? `http://localhost:3500/api/admin/promo-codes/${editingPromoCode._id}`
-        : 'http://localhost:3500/api/admin/promo-codes';
+        ? `https://backend.flauntbynishi.com/api/admin/promo-codes/${editingPromoCode._id}`
+        : 'https://backend.flauntbynishi.com/api/admin/promo-codes';
       
       const method = editingPromoCode ? 'PUT' : 'POST';
 
@@ -137,7 +137,7 @@ const PromoCodes: React.FC = () => {
     if (!token || !confirm(`Are you sure you want to delete promo code "${promoCode.code}"?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:3500/api/admin/promo-codes/${promoCode._id}`, {
+      const response = await fetch(`https://backend.flauntbynishi.com/api/admin/promo-codes/${promoCode._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

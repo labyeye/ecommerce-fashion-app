@@ -25,7 +25,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
       setError("");
       try {
         const response = await fetch(
-          "http://localhost:3500/api/admin/orders",
+          "https://backend.flauntbynishi.com/api/admin/orders",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
     if (!token) return;
     try {
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -135,7 +135,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
     }
     try {
       const response = await fetch(
-        `http://localhost:3500/api/admin/orders/${orderId}/status`,
+        `https://backend.flauntbynishi.com/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
@@ -156,7 +156,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
 
       // Refresh the orders list to get updated data
       const refreshResponse = await fetch(
-        "http://localhost:3500/api/admin/orders",
+        "https://backend.flauntbynishi.com/api/admin/orders",
         {
           headers: {
             Authorization: `Bearer ${token}`,

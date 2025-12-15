@@ -21,7 +21,7 @@ const ChangePassword: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:3500/api/customer/change-password",
+        "https://backend.flauntbynishi.com/api/customer/change-password",
         {
           method: "POST",
           headers: {

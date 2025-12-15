@@ -97,9 +97,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       try {
         // Fetch recent reviews (limit small to reduce payload). Use absolute backend URL
-        // to match other pages which use `http://localhost:3500`.
+        // to match other pages which use `https://backend.flauntbynishi.com`.
         const res = await axios.get(
-          `http://localhost:3500/api/reviews?productId=${product._id}&limit=20`,
+          `https://backend.flauntbynishi.com/api/reviews?productId=${product._id}&limit=20`,
           { timeout: 8000 }
         );
         const data = res?.data || {};

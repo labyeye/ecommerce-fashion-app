@@ -18,7 +18,7 @@ const ChangePhone: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:3500/api/customer/change-phone",
+        "https://backend.flauntbynishi.com/api/customer/change-phone",
         {
           method: "POST",
           headers: {

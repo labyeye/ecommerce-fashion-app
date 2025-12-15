@@ -27,7 +27,7 @@ const CategoryCards = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3500/api/categories/featured"
+          "https://backend.flauntbynishi.com/api/categories/featured"
         );
         setCategories(response.data.data);
       } catch (err) {
