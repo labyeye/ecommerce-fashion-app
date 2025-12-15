@@ -40,22 +40,27 @@ if (trustProxyEnabled) {
 
 app.use(
   helmet({
+    contentSecurityPolicy: false, // Disable CSP to avoid blocking issues
     crossOriginOpenerPolicy: {
       policy: process.env.COOP_POLICY || "same-origin-allow-popups",
     },
   })
 );
 
-// Rate limiting - More lenient for development
+// Rate limiting - More lenient to avoid 429 errors
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 100 : 500, // More requests in development
+  max: process.env.NODE_ENV === "production" ? 1000 : 2000, // Increased limit
   message: {
     success: false,
     message: "Too many requests from this IP, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/api/health';
+  },
 });
 app.use(limiter);
 
@@ -75,6 +80,8 @@ app.use(
         "https://ecommerce-fashion-app.vercel.app",
         "https://ecommerce-fashion-app-dashboard.vercel.app",
         "https://www.flauntbynishi.com",
+        "https://flauntbynishi.com",
+        "https://backend.flauntbynishi.com",
       ];
 
       const allowedHosts = [
@@ -84,6 +91,7 @@ app.use(
         "ecommerce-fashion-app-dashboard.vercel.app",
         "flauntbynishi.com",
         "www.flauntbynishi.com",
+        "backend.flauntbynishi.com",
       ];
 
       try {
