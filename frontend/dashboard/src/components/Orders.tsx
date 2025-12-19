@@ -212,7 +212,7 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
         <h3 className="text-lg font-semibold text-ds-900 mb-4">
           Order Pipeline
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="text-center p-4 bg-neutral-card rounded-lg border border-neutral-border">
             <Package className="w-8 h-8 text-primary-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-heading">
@@ -240,6 +240,13 @@ const Orders: React.FC<OrdersProps> = ({ onViewDetails }) => {
               {getStatusCount("delivered")}
             </div>
             <div className="text-sm text-subtle">Delivered</div>
+          </div>
+          <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+            <Package className="w-8 h-8 text-red-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-red-700">
+              {getStatusCount("cancelled")}
+            </div>
+            <div className="text-sm text-red-600">Cancelled</div>
           </div>
         </div>
       </div>

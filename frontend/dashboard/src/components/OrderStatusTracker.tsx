@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, ShoppingCart, CheckCircle, Box, Truck, MapPin, Package } from "lucide-react";
+import { Check, ShoppingCart, CheckCircle, Box, Truck, MapPin, Package, XCircle } from "lucide-react";
 
 interface Props {
   status: string;
@@ -16,6 +16,7 @@ const steps = [
 ];
 
 const primary = "rgb(123 63 0)";
+const cancelledColor = "rgb(220 38 38)"; // red-600
 
 const statusToIndex = (status: string) => {
   const idx = steps.findIndex((s) => s.key === status);
@@ -23,7 +24,40 @@ const statusToIndex = (status: string) => {
 };
 
 const OrderStatusTracker: React.FC<Props> = ({ status }) => {
+  const isCancelled = status === "cancelled";
   const current = statusToIndex(status || "");
+  
+  // If cancelled, show red tracker
+  if (isCancelled) {
+    return (
+      <div className="bg-red-50 rounded-lg p-4 mb-4 border-2 border-red-200">
+        <div className="flex items-center justify-center">
+          <div className="text-center">
+            <div style={{ width: 54 }} className="mx-auto">
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 9999,
+                  margin: "0 auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: cancelledColor,
+                }}
+              >
+                <XCircle className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <div className="mt-3 text-base font-bold text-red-700">
+              Order Cancelled
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="bg-white rounded-lg p-4 mb-4">
       <div className="flex items-center justify-between">

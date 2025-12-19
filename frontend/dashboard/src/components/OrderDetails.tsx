@@ -8,7 +8,6 @@ import {
   MapPin,
   CreditCard,
   User,
-  Calendar,
   Gift,
   Star,
   Award,
@@ -477,15 +476,45 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        .animate-slideIn {
+          animation: slideIn 0.4s ease-out;
+        }
+        .animate-scaleIn {
+          animation: scaleIn 0.3s ease-out;
+        }
+        .card-hover {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-slideIn">
         <div className="flex items-center space-x-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -494,12 +523,58 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
             <p className="text-gray-600 mt-1">
               Placed on {formatDate(order.createdAt)}
             </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Invoice No
+            </label>
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={invoiceNo}
+                onChange={(e) => setInvoiceNo(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter invoice number"
+              />
+              <button
+                onClick={async () => {
+                  if (!token || !order) return alert("Not authenticated");
+                  try {
+                    setSavingInvoice(true);
+                    const resp = await fetch(
+                      `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/invoice`,
+                      {
+                        method: "PUT",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ invoiceNo }),
+                      }
+                    );
+                    const json = await resp.json();
+                    if (!resp.ok)
+                      throw new Error(
+                        json.message || "Failed to save invoice number"
+                      );
+                    setOrder(json.data);
+                    alert("Invoice number saved");
+                  } catch (e: any) {
+                    console.error("Save invoice error:", e);
+                    alert(e.message || "Failed to save invoice");
+                  } finally {
+                    setSavingInvoice(false);
+                  }
+                }}
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+              >
+                {savingInvoice ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
           <OrderStatusTracker status={order.status} />
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 animate-scaleIn">
           <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+            className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition-all duration-200 hover:scale-105 ${getStatusColor(
               order.status
             )}`}
           >
@@ -561,8 +636,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Order Timeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-fadeIn">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full mr-3"></div>
               Order Timeline
             </h3>
             <div className="space-y-4">
@@ -570,11 +646,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                 order.timeline.map((step, index) => {
                   const StatusIcon = getStatusIcon(step.status);
                   return (
-                    <div key={index} className="flex items-center space-x-4">
+                    <div key={index} className="flex items-center space-x-4 group hover:bg-gray-50 p-2 rounded-lg transition-all duration-200">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 ${
                           step.status === "delivered"
                             ? "bg-green-100"
+                            : step.status === "cancelled"
+                            ? "bg-red-100"
                             : "bg-blue-100"
                         }`}
                       >
@@ -582,72 +660,35 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                           className={`w-5 h-5 ${
                             step.status === "delivered"
                               ? "text-green-600"
+                              : step.status === "cancelled"
+                              ? "text-red-600"
                               : "text-blue-600"
                           }`}
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Invoice No
-                        </label>
-                        <div className="flex space-x-2">
-                          <input
-                            type="text"
-                            value={invoiceNo}
-                            onChange={(e) => setInvoiceNo(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Enter invoice number"
-                          />
-                          <button
-                            onClick={async () => {
-                              if (!token || !order)
-                                return alert("Not authenticated");
-                              try {
-                                setSavingInvoice(true);
-                                const resp = await fetch(
-                                  `https://backend.flauntbynishi.com/api/admin/orders/${order._id}/invoice`,
-                                  {
-                                    method: "PUT",
-                                    headers: {
-                                      Authorization: `Bearer ${token}`,
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ invoiceNo }),
-                                  }
-                                );
-                                const json = await resp.json();
-                                if (!resp.ok)
-                                  throw new Error(
-                                    json.message ||
-                                      "Failed to save invoice number"
-                                  );
-                                setOrder(json.data);
-                                alert("Invoice number saved");
-                              } catch (e: any) {
-                                console.error("Save invoice error:", e);
-                                alert(e.message || "Failed to save invoice");
-                              } finally {
-                                setSavingInvoice(false);
-                              }
-                            }}
-                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-                          >
-                            {savingInvoice ? "Saving..." : "Save"}
-                          </button>
-                        </div>
-                      </div>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">
+                        <p
+                          className={`font-semibold ${
+                            step.status === "cancelled"
+                              ? "text-red-900"
+                              : "text-gray-900"
+                          }`}
+                        >
                           {step.status.charAt(0).toUpperCase() +
                             step.status.slice(1)}
                         </p>
-                        <p className="text-sm text-gray-500">{step.message}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-sm text-gray-600 mt-1">
+                          {step.message}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
                           {formatDate(step.updatedAt)}
                         </p>
                       </div>
                       {step.status === "delivered" && (
                         <CheckCircle className="w-5 h-5 text-green-600" />
+                      )}
+                      {step.status === "cancelled" && (
+                        <AlertCircle className="w-5 h-5 text-red-600" />
                       )}
                     </div>
                   );
@@ -662,54 +703,71 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           </div>
 
           {/* Order Items */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-fadeIn" style={{animationDelay: '0.1s'}}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full mr-3"></div>
               Order Items
             </h3>
             <div className="space-y-4">
-              {order.items.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
-                >
-                  {(() => {
-                    const p: any = item.product;
-                    const img =
-                      p.colors &&
-                      p.colors.length > 0 &&
-                      p.colors[0].images &&
-                      p.colors[0].images.length > 0
-                        ? p.colors[0].images[0].url
-                        : null;
-                    return (
-                      <img
-                        src={img || "/assets/img-placeholder-80.png"}
-                        alt={item.product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                    );
-                  })()}
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">
-                      {item.product.name}
-                    </h4>
-                    <p className="text-sm text-gray-500">
-                      {item.product.description}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Quantity: {item.quantity}
-                    </p>
+              {order.items.map((item) => {
+                const p: any = item.product;
+                // Try multiple image sources in priority order
+                const imageUrl =
+                  p.images?.[0]?.url ||
+                  p.colors?.[0]?.images?.[0]?.url ||
+                  (typeof p.images?.[0] === "string" ? p.images[0] : null) ||
+                  "/placeholder-product.png";
+
+                const itemData = item as any;
+                const size = itemData.size || "";
+                const color = itemData.color || "";
+
+                return (
+                  <div
+                    key={item._id}
+                    className="flex items-center space-x-4 p-4 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-[1.02] border border-transparent hover:border-blue-200"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={item.product.name}
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/placeholder-product.png";
+                      }}
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 text-base">
+                        {item.product.name}
+                      </h4>
+                      <div className="flex gap-3 mt-1">
+                        {size && (
+                          <span className="text-sm text-gray-600">
+                            Size: <span className="font-medium">{size}</span>
+                          </span>
+                        )}
+                        {color && (
+                          <span className="text-sm text-gray-600">
+                            Color: <span className="font-medium">{color}</span>
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Quantity:{" "}
+                        <span className="font-medium">{item.quantity}</span>
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900 text-lg">
+                        ₹{(item.price * item.quantity).toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        ₹{item.price.toFixed(2)} each
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      ₹{(item.price * item.quantity).toFixed(2)}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ₹{item.price.toFixed(2)} each
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Order Summary */}
@@ -745,9 +803,11 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
 
           {/* Loyalty Points Section */}
           {loyaltyInfo && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-gradient-to-br from-white via-green-50/20 to-blue-50/20 rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-fadeIn" style={{animationDelay: '0.2s'}}>
               <div className="flex items-center gap-3 mb-4">
-                <Gift className="w-6 h-6 text-green-600" />
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Gift className="w-6 h-6 text-green-600" />
+                </div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   Loyalty Points Earned
                 </h3>
@@ -832,8 +892,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           )}
 
           {/* Shipping Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-fadeIn" style={{animationDelay: '0.3s'}}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full mr-3"></div>
               Shipping Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -880,44 +941,71 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Customer Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">
+          <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-slideIn">
+            <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+              <div className="p-1.5 bg-blue-100 rounded-lg mr-2">
+                <User className="w-5 h-5 text-blue-600" />
+              </div>
               Customer Information
             </h4>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <User className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {order.customer.firstName} {order.customer.lastName}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {order.customer.email}
-                  </p>
-                </div>
-              </div>
-              {order.customer.phone && (
-                <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-900">Phone</p>
-                    <p className="text-sm text-gray-500">
-                      {order.customer.phone}
+              <div className="p-3 bg-white rounded-lg shadow-sm border border-blue-100">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-md">
+                    {(order.customer.firstName?.[0] || "?").toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">
+                      {order.customer.firstName || "N/A"}{" "}
+                      {order.customer.lastName || ""}
                     </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {order.customer.email || "No email"}
+                    </p>
+                    {order.customer.phone && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        📞 {order.customer.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
-              )}
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-sm text-gray-900">Order placed</p>
-                  <p className="text-sm text-gray-500">
-                    {formatDate(order.createdAt)}
-                  </p>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Customer ID:</span>
+                  <span className="font-mono text-xs text-gray-900">
+                    {order.customer._id}
+                  </span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Order Date:</span>
+                  <span className="font-medium text-gray-900">
+                    {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">Order Time:</span>
+                  <span className="font-medium text-gray-900">
+                    {new Date(order.createdAt).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
                 </div>
               </div>
+
               <div className="pt-3 border-t border-gray-200">
-                <button className="w-full bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
+                <button
+                  onClick={() =>
+                    (window.location.href = `/customers/${order.customer._id}`)
+                  }
+                  className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
                   View Customer Profile
                 </button>
               </div>
@@ -925,8 +1013,11 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           </div>
 
           {/* Payment Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">
+          <div className="bg-gradient-to-br from-white to-green-50/30 rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-slideIn" style={{animationDelay: '0.1s'}}>
+            <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+              <div className="p-1.5 bg-green-100 rounded-lg mr-2">
+                <CreditCard className="w-5 h-5 text-green-600" />
+              </div>
               Payment Information
             </h4>
             <div className="space-y-3">
@@ -1039,23 +1130,19 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
           </div>
 
           {/* Order Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Order Actions</h4>
+          <div className="bg-gradient-to-br from-white to-indigo-50/30 rounded-xl shadow-sm border border-gray-100 p-6 card-hover animate-slideIn" style={{animationDelay: '0.2s'}}>
+            <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+              <div className="w-1 h-5 bg-gradient-to-b from-indigo-500 to-indigo-600 rounded-full mr-3"></div>
+              Order Actions
+            </h4>
             <div className="space-y-3">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
                   Update Status
                 </label>
-                {order &&
-                (order as any).shipment &&
-                (order as any).shipment.awb ? (
-                  <div className="w-full px-3 py-2 border border-yellow-200 rounded-lg bg-yellow-50 text-yellow-800">
-                    This order is synced with Delhivery. Status will update
-                    automatically.
-                  </div>
-                ) : (
+                {order && (
                   <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:border-blue-400 font-medium"
                     value={order.status}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
                     disabled={updatingStatus}
@@ -1070,7 +1157,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                   </select>
                 )}
                 {updatingStatus && (
-                  <div className="flex items-center space-x-2 text-sm text-blue-600">
+                  <div className="flex items-center space-x-2 text-sm text-blue-600 animate-pulse">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                     <span>Updating status...</span>
                   </div>
@@ -1128,12 +1215,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                 </div>
               )}
 
-              {/* Sync Delhivery Status */}
-              {order && (order as any).shipment?.awb && (
+              {/* Sync Delhivery Status - Hide when cancelled */}
+              {order && (order as any).shipment?.awb && order.status !== "cancelled" && (
                 <button
                   onClick={handleSyncDelhivery}
                   disabled={processing}
-                  className="w-full text-left px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                  className="w-full text-left px-4 py-2.5 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 rounded-lg hover:from-indigo-100 hover:to-indigo-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between font-medium shadow-sm hover:shadow-md"
                 >
                   <span>Sync Delhivery Status</span>
                   {processing && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -1152,26 +1239,99 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBack }) => {
                 </button>
               )}
 
-              {/* Process Refund */}
-              {order.payment.status === "paid" &&
+              {/* Process Refund - Hide when cancelled */}
+              {order.status !== "cancelled" &&
+                order.payment.status === "paid" &&
                 (!order.payment.refund ||
                   order.payment.refund.status === "none" ||
                   order.payment.refund.status === "failed") && (
                   <button
                     onClick={handleProcessRefund}
                     disabled={processing}
-                    className="w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                    className="w-full text-left px-4 py-2.5 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 rounded-lg hover:from-yellow-100 hover:to-yellow-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between font-medium shadow-sm hover:shadow-md"
                   >
                     <span>Process Refund</span>
                     {processing && <Loader2 className="w-4 h-4 animate-spin" />}
                   </button>
                 )}
 
-              <button className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
+              <button
+                onClick={() => {
+                  if (order.customer?.email) {
+                    alert(
+                      `Email update will be sent to ${order.customer.email}`
+                    );
+                  }
+                }}
+                className="w-full text-left px-4 py-2.5 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              >
                 Send Update Email
               </button>
-              <button className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+              <button
+                onClick={() => {
+                  window.print();
+                }}
+                className="w-full text-left px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              >
                 Print Invoice
+              </button>
+              <button
+                onClick={() => {
+                  // Create invoice content
+                  const invoiceContent = `
+                    Invoice #${invoiceNo || order.orderNumber}
+                    Order: ${order.orderNumber}
+                    Date: ${formatDate(order.createdAt)}
+                    
+                    Customer: ${order.customer.firstName} ${
+                    order.customer.lastName
+                  }
+                    Email: ${order.customer.email}
+                    Phone: ${order.customer.phone || "N/A"}
+                    
+                    Shipping Address:
+                    ${order.shippingAddress.street}
+                    ${order.shippingAddress.city}, ${
+                    order.shippingAddress.state
+                  }
+                    ${order.shippingAddress.zipCode}, ${
+                    order.shippingAddress.country
+                  }
+                    
+                    Items:
+                    ${order.items
+                      .map(
+                        (item) =>
+                          `${item.product.name} x ${item.quantity} - ₹${(
+                            item.price * item.quantity
+                          ).toFixed(2)}`
+                      )
+                      .join("\n")}
+                    
+                    Subtotal: ₹${order.subtotal?.toFixed(2) || "0.00"}
+                    Shipping: ₹${order.shipping?.cost?.toFixed(2) || "0.00"}
+                    Tax: ₹${order.tax?.toFixed(2) || "0.00"}
+                    Total: ₹${order.total.toFixed(2)}
+                    
+                    Payment Method: ${order.payment.method}
+                    Payment Status: ${order.payment.status}
+                  `;
+
+                  const blob = new Blob([invoiceContent], {
+                    type: "text/plain",
+                  });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `invoice-${order.orderNumber}.txt`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  window.URL.revokeObjectURL(url);
+                }}
+                className="w-full text-left px-4 py-2.5 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-lg hover:from-green-100 hover:to-green-200 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              >
+                Download Invoice
               </button>
             </div>
           </div>

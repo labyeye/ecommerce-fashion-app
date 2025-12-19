@@ -616,11 +616,11 @@ router.get("/newsletters", async (req, res) => {
 router.get("/orders/:id/details", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      // .populate(
-      //   "customer",
-      //   "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
-      // )
-      .populate("items.product", "name price images description");
+      .populate(
+        "customer",
+        "firstName lastName email phone loyaltyPoints loyaltyTier evolvPoints"
+      )
+      .populate("items.product", "name price images colors");
 
     if (!order) {
       return res.status(404).json({
