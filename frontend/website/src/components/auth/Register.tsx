@@ -299,7 +299,7 @@ const Register: React.FC = () => {
 
   return (
     <div
-      className="register-page min-h-screen flex items-center justify-center px-4 py-12"
+      className="register-page min-h-screen flex items-start sm:items-center justify-center px-4 py-12"
       style={{ backgroundColor: "#FFF2E1" }}
     >
       <style>{`
@@ -320,10 +320,10 @@ const Register: React.FC = () => {
         <div className="text-center mt-20">
           {!registrationSuccess ? (
             <>
-              <span className="font-bold text-black mb-2 block text-5xl sm:text-xl md:text-2xl lg:text-5xl">
+              <span className="font-bold text-black mb-2 block text-3xl sm:text-4xl md:text-5xl">
                 Create Account
               </span>
-              <span className="text-gray-600 block text-lg sm:text-base md:text-lg">
+              <span className="text-gray-600 block text-base sm:text-lg">
                 Join Flauntbynishi for exclusive fashion
               </span>
             </>

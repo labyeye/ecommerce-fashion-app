@@ -126,7 +126,7 @@ const Login: React.FC = () => {
       />
 
       <div
-        className="login-page min-h-screen flex items-center justify-center px-4 py-8 sm:py-12"
+        className="login-page min-h-screen flex items-start sm:items-center justify-center px-4 py-8 sm:py-12"
         style={{ backgroundColor: "#FFF2E1" }}
       >
         <style>{`
@@ -178,12 +178,12 @@ const Login: React.FC = () => {
         }
       `}</style>
 
-        <div className="max-w-md w-full space-y-6 sm:space-y-8">
+        <div className="max-w-md w-full space-y-6 sm:space-y-8 mt-10">
           <div className="text-center">
-            <span className="font-bold text-black mb-2 block text-5xl sm:text-xl md:text-2xl lg:text-5xl">
+            <span className="font-bold text-black mb-2 block text-3xl sm:text-4xl md:text-5xl">
               Sign In
             </span>
-            <span className="text-gray-600 block text-lg sm:text-base md:text-lg">
+            <span className="text-gray-600 block text-base sm:text-lg">
               Sign in with Flauntbynishi for exclusive fashion
             </span>
           </div>

@@ -31,16 +31,19 @@ A modern, responsive website for Evolv's protein shake company with authenticati
 ### Installation
 
 1. **Navigate to the frontend directory**
+
    ```bash
    cd frontend/website
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -85,14 +88,17 @@ src/
 The website includes a complete authentication system:
 
 ### User Roles
+
 - **Customer**: Can browse products, add to cart, and manage profile
 - **Admin**: Can access admin dashboard and manage the business
 
 ### Default Credentials
+
 - **Admin**: `admin@vitals.com` / `admin123456`
 - **Customer**: Register a new account
 
 ### Features
+
 - JWT token-based authentication
 - Automatic token refresh
 - Protected routes
@@ -101,6 +107,7 @@ The website includes a complete authentication system:
 ## Product Features
 
 ### Protein Shake Products
+
 - **Strawberry**: Sweet and refreshing
 - **Chocolate**: Rich and indulgent
 - **Vanilla**: Smooth and versatile
@@ -108,6 +115,7 @@ The website includes a complete authentication system:
 - **Variety Pack**: All flavors in one
 
 ### Product Details
+
 - 25g complete protein per serving
 - Zero added sugar
 - Preservative free
@@ -119,6 +127,7 @@ The website includes a complete authentication system:
 Accessible only to admin users at `/dashboard`:
 
 ### Features
+
 - **Statistics Overview**: Customer count, orders, revenue
 - **Recent Orders**: View and manage recent orders
 - **Quick Actions**: Add products, view orders, manage customers
@@ -130,6 +139,7 @@ Accessible only to admin users at `/dashboard`:
 The frontend connects to the backend API at `https://backend.flauntbynishi.com/api`:
 
 ### Endpoints Used
+
 - `POST /auth/login` - User login
 - `POST /auth/register` - User registration
 - `GET /auth/me` - Get current user
@@ -168,6 +178,7 @@ VITE_API_URL=https://backend.flauntbynishi.com/api
 ## Deployment
 
 1. **Build the project**
+
    ```bash
    npm run build
    ```
@@ -186,4 +197,4 @@ VITE_API_URL=https://backend.flauntbynishi.com/api
 
 ## License
 
-MIT License 
+MIT License

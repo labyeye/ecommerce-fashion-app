@@ -112,12 +112,12 @@ const HomePage: React.FC = () => {
         {/* Shop Now CTA Section */}
         <section className="w-full py-12 sm:py-16 px-4 bg-background">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#95522C] mb-4 sm:mb-6">
+            <span className="block text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               Discover Your Style
-            </h2>
-            <p className="text-lg sm:text-xl text-[#95522C]/80 mb-6 sm:mb-8 max-w-2xl mx-auto">
+            </span>
+            <span className="block text-xl sm:text-lg md:text-xl lg:text-xl text-[#95522C]/80 mb-6 sm:mb-8 max-w-2xl mx-auto">
               Explore our complete collection of premium fashion pieces
-            </p>
+            </span>
             <button
               onClick={() => window.location.href = '/products'}
               className="bg-[#95522C] text-[#FFF2E1] px-8 sm:px-12 py-3 sm:py-4 rounded-full text-lg sm:text-xl font-semibold hover:bg-[#7a4222] transition-all duration-300 transform hover:scale-105 shadow-lg"

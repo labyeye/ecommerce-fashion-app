@@ -44,7 +44,7 @@ app.use(
     crossOriginOpenerPolicy: {
       policy: process.env.COOP_POLICY || "same-origin-allow-popups",
     },
-  })
+  }),
 );
 
 // Rate limiting - More lenient to avoid 429 errors
@@ -112,7 +112,7 @@ app.use(
       }
 
       return callback(
-        new Error("CORS policy: This origin is not allowed: " + origin)
+        new Error("CORS policy: This origin is not allowed: " + origin),
       );
     },
     credentials: true,
@@ -132,7 +132,7 @@ app.use(
       "Pragma",
     ],
     exposedHeaders: ["Set-Cookie", "Date", "ETag", "Content-type"],
-  })
+  }),
 );
 
 app.use(express.json({ limit: "10mb" }));
@@ -147,7 +147,7 @@ app.use(
     res.header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
     res.header(
       "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
     );
     res.header("Access-Control-Allow-Credentials", "true");
 
@@ -162,7 +162,7 @@ app.use(
     }
     next();
   },
-  express.static(path.join(__dirname, "uploads"))
+  express.static(path.join(__dirname, "uploads")),
 );
 
 // Database connection
@@ -196,21 +196,21 @@ mongoose
     try {
       const { syncOnce } = require("./services/delhiverySyncService");
       const syncIntervalSeconds = Number(
-        process.env.DELHIVERY_SYNC_SECONDS || 0
+        process.env.DELHIVERY_SYNC_SECONDS || 0,
       );
       const syncIntervalMinutes = Number(
-        process.env.DELHIVERY_SYNC_MINUTES || 5
+        process.env.DELHIVERY_SYNC_MINUTES || 5,
       );
       if (syncIntervalSeconds && syncIntervalSeconds > 0) {
         console.log(
-          `Starting Delhivery sync job every ${syncIntervalSeconds} seconds`
+          `Starting Delhivery sync job every ${syncIntervalSeconds} seconds`,
         );
         // initial run shortly after startup
         setTimeout(() => syncOnce(), 5 * 1000);
         setInterval(() => syncOnce(), syncIntervalSeconds * 1000);
       } else {
         console.log(
-          `Starting Delhivery sync job every ${syncIntervalMinutes} minutes`
+          `Starting Delhivery sync job every ${syncIntervalMinutes} minutes`,
         );
         setTimeout(() => syncOnce(), 10 * 1000);
         setInterval(() => syncOnce(), syncIntervalMinutes * 60 * 1000);
@@ -225,18 +225,24 @@ mongoose
       console.log("Starting automatic order cancellation job (runs hourly)");
 
       // Initial run after 2 minutes of startup
-      setTimeout(async () => {
-        console.log("Running initial order cancellation check...");
-        const result = await cancelPendingOrders();
-        console.log("Order cancellation result:", result);
-      }, 2 * 60 * 1000);
+      setTimeout(
+        async () => {
+          console.log("Running initial order cancellation check...");
+          const result = await cancelPendingOrders();
+          console.log("Order cancellation result:", result);
+        },
+        2 * 60 * 1000,
+      );
 
       // Then run every hour
-      setInterval(async () => {
-        console.log("Running scheduled order cancellation check...");
-        const result = await cancelPendingOrders();
-        console.log("Order cancellation result:", result);
-      }, 60 * 60 * 1000); // Every hour
+      setInterval(
+        async () => {
+          console.log("Running scheduled order cancellation check...");
+          const result = await cancelPendingOrders();
+          console.log("Order cancellation result:", result);
+        },
+        60 * 60 * 1000,
+      ); // Every hour
     } catch (err) {
       console.error("Failed to start order cancellation job:", err);
     }

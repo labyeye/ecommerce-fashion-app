@@ -19,7 +19,7 @@ const Features: React.FC = () => {
       <div className="w-full mx-auto px-0 relative z-10 mb-10">
         <div className="text-center w-full mx-auto max-w-full">
           <div className="text-center w-full mx-auto">
-            <span className="block text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
+            <span className=" text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-tertiary to-secondary bg-clip-text text-transparent">
               Timeless elegance, crafted with precision
             </span>
           </div>

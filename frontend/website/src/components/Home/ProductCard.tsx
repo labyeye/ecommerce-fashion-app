@@ -247,7 +247,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
       <button
-        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 bg-[#934E27] backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
+        className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 bg-[#FFF2E1] backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110`}
         onClick={handleWishlist}
         disabled={!user}
         title={
@@ -263,7 +263,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Heart: fill when wishlisted, outline otherwise. Use currentColor for fill. */}
         <Heart
           className={`w-5 h-5 transition-colors duration-300 ${
-            localWishlisted ? "text-[#FFF2E1]" : isHovered ? "text-white" : "text-[#FFF2E1]"
+            localWishlisted ? "text-[#95522C]" : isHovered ? "text-[#95522C]" : "text-[#95522C]"
           }`}
           fill={localWishlisted ? "currentColor" : "none"}
         />

@@ -1445,7 +1445,7 @@ const ProductDetailsPage: React.FC = () => {
 
         {/* Related / recommended products */}
         <div className="mt-12">
-          <span className="text-6xl font-semibold mb-6">
+          <span className="text-6xl sm:text-4xl md:text-5xl font-semibold mb-6">
             You might also like
           </span>
           {otherProducts.length === 0 ? (

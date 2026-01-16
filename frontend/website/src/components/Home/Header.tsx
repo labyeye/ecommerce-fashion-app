@@ -116,6 +116,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>([]);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -464,6 +465,13 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
       }
     };
   }, [isHomePage]);
+
+  // Close mobile dropdown when menu is closed
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setMobileDropdownOpen(null);
+    }
+  }, [isMenuOpen]);
 
   const getTextColorClass = () => {
     if (isHomePage && !isScrolled) {
@@ -986,20 +994,34 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   >
                     <h6>
                       <a
-                        href={link.url}
+                        href={link.hasDropdown ? undefined : link.url}
                         className="block text-tertiary text-2xl hover:text-fashion-accent-brown transition-colors duration-300 font-medium tracking-wide flex items-center justify-between"
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={(e) => {
+                          if (link.hasDropdown) {
+                            e.preventDefault();
+                            setMobileDropdownOpen(
+                              mobileDropdownOpen === link._id ? null : link._id
+                            );
+                          } else {
+                            setIsMenuOpen(false);
+                          }
+                        }}
                       >
                         {link.name}
                         {link.hasDropdown && (
-                          <ChevronDown className="w-6 h-6 text-fashion-dark-gray" />
+                          <ChevronDown 
+                            className={`w-6 h-6 text-fashion-dark-gray transition-transform duration-300 ${
+                              mobileDropdownOpen === link._id ? 'rotate-180' : ''
+                            }`} 
+                          />
                         )}
                       </a>
                     </h6>
 
                     {link.hasDropdown &&
                       link.dropdownItems &&
-                      link.dropdownItems.length > 0 && (
+                      link.dropdownItems.length > 0 &&
+                      mobileDropdownOpen === link._id && (
                         <div className="ml-4 mt-3 space-y-3 overflow-hidden">
                           {link.dropdownItems
                             .filter((item) => item.isActive)

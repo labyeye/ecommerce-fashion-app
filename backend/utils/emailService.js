@@ -163,7 +163,7 @@ const sendOrderPlacedEmail = async (email, firstName, order) => {
             (i) =>
               `<li>${i.quantity} × ${
                 (i.product && i.product.name) || i.name || "Item"
-              } — ₹${safeFormatPrice(i.price)}</li>`
+              } — ₹${safeFormatPrice(i.price)}</li>`,
           )
           .join("")
       : "<li>No items</li>";
@@ -188,7 +188,7 @@ const sendOrderPlacedEmail = async (email, firstName, order) => {
           <h4>Items</h4>
           <ul>${itemsHtml}</ul>
           <p><strong>Total:</strong> ₹${safeFormatPrice(
-            order && order.total
+            order && order.total,
           )}</p>
           <div style="text-align:center; margin:18px 0;"><a href="${orderUrl}" style="display:inline-block;padding:10px 16px;background:linear-gradient(90deg,#C17237,#FFF2E1);color:#fff;border-radius:8px;text-decoration:none">View Your Order</a></div>
         </div>
@@ -212,7 +212,7 @@ const sendOrderStatusUpdateEmail = async (
   firstName,
   order,
   status,
-  trackingInfo = null
+  trackingInfo = null,
 ) => {
   const trackingHtml =
     trackingInfo && (trackingInfo.awb || trackingInfo.trackingUrl)
@@ -236,8 +236,8 @@ const sendOrderStatusUpdateEmail = async (
         <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;"><p>Hi ${
           firstName || ""
         },</p><p>Your order <strong>${
-      order && order.orderNumber ? order.orderNumber : ""
-    }</strong> status is now <strong>${status}</strong>.</p>${trackingHtml}</div>
+          order && order.orderNumber ? order.orderNumber : ""
+        }</strong> status is now <strong>${status}</strong>.</p>${trackingHtml}</div>
       </div>
     `,
     text: `Hi ${firstName || ""},\n\nYour order ${
@@ -271,7 +271,7 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
             (i) =>
               `<li>${i.quantity} × ${
                 (i.product && i.product.name) || i.name || "Item"
-              } — ₹${safeFormatPrice(i.price)}</li>`
+              } — ₹${safeFormatPrice(i.price)}</li>`,
           )
           .join("")
       : "<li>No items</li>";
@@ -287,22 +287,22 @@ const sendOrderCancellationEmail = async (email, firstName, order) => {
         <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;"><p>Hi ${
           firstName || ""
         },</p><p>Your order <strong>${
-      order && order.orderNumber ? order.orderNumber : ""
-    }</strong> has been cancelled.</p>${
-      order && order.cancellationReason
-        ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>`
-        : ""
-    }${
-      isPrepaid
-        ? `<p>Aapko refund 5-7 working days ke andar mil jayega.</p>`
-        : ""
-    }<h4>Order Summary</h4><ul>${itemsHtml}</ul>${
-      isPrepaid
-        ? `<p><strong>Total refunded (if applicable):</strong> ₹${safeFormatPrice(
-            order && order.total
-          )}</p>`
-        : ""
-    }<p>If you have any questions, reply to this email or contact our support.</p></div>
+          order && order.orderNumber ? order.orderNumber : ""
+        }</strong> has been cancelled.</p>${
+          order && order.cancellationReason
+            ? `<p><strong>Reason:</strong> ${order.cancellationReason}</p>`
+            : ""
+        }${
+          isPrepaid
+            ? `<p>Aapko refund 5-7 working days ke andar mil jayega.</p>`
+            : ""
+        }<h4>Order Summary</h4><ul>${itemsHtml}</ul>${
+          isPrepaid
+            ? `<p><strong>Total refunded (if applicable):</strong> ₹${safeFormatPrice(
+                order && order.total,
+              )}</p>`
+            : ""
+        }<p>If you have any questions, reply to this email or contact our support.</p></div>
       </div>
     `,
     text: `Aapka order cancel kar diya gaya hai.${
@@ -347,11 +347,16 @@ const sendOTPEmail = async (email, otp, firstName = "") => {
  * @param {Object} order - Order document
  * @param {Object} refundResult - Refund processing result
  */
-const sendRefundNotificationEmail = async (email, firstName, order, refundResult) => {
+const sendRefundNotificationEmail = async (
+  email,
+  firstName,
+  order,
+  refundResult,
+) => {
   const refundAmount = refundResult.amount || order.total || 0;
-  const refundId = refundResult.refundId || 'N/A';
-  const refundStatus = refundResult.status || 'initiated';
-  
+  const refundId = refundResult.refundId || "N/A";
+  const refundStatus = refundResult.status || "initiated";
+
   const itemsHtml =
     order && order.items && order.items.length
       ? order.items
@@ -359,7 +364,7 @@ const sendRefundNotificationEmail = async (email, firstName, order, refundResult
             (i) =>
               `<li>${i.quantity} × ${
                 (i.product && i.product.name) || i.name || "Item"
-              } — ₹${safeFormatPrice(i.price)}</li>`
+              } — ₹${safeFormatPrice(i.price)}</li>`,
           )
           .join("")
       : "<li>No items</li>";
@@ -369,17 +374,17 @@ const sendRefundNotificationEmail = async (email, firstName, order, refundResult
       process.env.EMAIL_FROM || "noreply@flauntbynishi.com"
     }>`,
     to: email,
-    subject: `Refund ${refundStatus === 'processed' || refundStatus === 'completed' ? 'Processed' : 'Initiated'} for Order ${order.orderNumber}`,
+    subject: `Refund ${refundStatus === "processed" || refundStatus === "completed" ? "Processed" : "Initiated"} for Order ${order.orderNumber}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#FFF8FA; color:#111827;">
         <div style="background:linear-gradient(135deg,#4CAF50,#81C784); color:#fff; padding:18px; border-radius:8px; text-align:center;">
-          <h2 style="margin:0">💰 Refund ${refundStatus === 'processed' || refundStatus === 'completed' ? 'Processed' : 'Initiated'}</h2>
+          <h2 style="margin:0">💰 Refund ${refundStatus === "processed" || refundStatus === "completed" ? "Processed" : "Initiated"}</h2>
         </div>
         
         <div style="background:#fff; padding:20px; border-radius:8px; margin-top:12px;">
           <p>Hi ${firstName || "there"},</p>
           
-          <p>Your refund for order <strong>${order.orderNumber}</strong> has been ${refundStatus === 'processed' || refundStatus === 'completed' ? 'processed successfully' : 'initiated'}.</p>
+          <p>Your refund for order <strong>${order.orderNumber}</strong> has been ${refundStatus === "processed" || refundStatus === "completed" ? "processed successfully" : "initiated"}.</p>
           
           <div style="background:#F3F4F6; padding:15px; border-radius:8px; margin:20px 0;">
             <h3 style="margin:0 0 10px 0; color:#1F2937;">Refund Details</h3>
@@ -401,15 +406,19 @@ const sendRefundNotificationEmail = async (email, firstName, order, refundResult
             </table>
           </div>
 
-          ${refundStatus === 'processed' || refundStatus === 'completed' ? `
+          ${
+            refundStatus === "processed" || refundStatus === "completed"
+              ? `
             <p style="background:#E8F5E9; padding:12px; border-left:4px solid #4CAF50; margin:15px 0;">
               ✅ Your refund has been processed and should reflect in your account within <strong>5-7 business days</strong>, depending on your bank.
             </p>
-          ` : `
+          `
+              : `
             <p style="background:#FFF3CD; padding:12px; border-left:4px solid #FFC107; margin:15px 0;">
               ⏳ Your refund is being processed and will be credited to your original payment method within <strong>5-7 business days</strong>.
             </p>
-          `}
+          `
+          }
 
           <h4 style="margin-top:25px;">Order Summary</h4>
           <ul style="padding-left:20px;">${itemsHtml}</ul>
@@ -425,7 +434,7 @@ const sendRefundNotificationEmail = async (email, firstName, order, refundResult
         </div>
       </div>
     `,
-    text: `Hi ${firstName || "there"},\n\nYour refund for order ${order.orderNumber} has been ${refundStatus === 'processed' || refundStatus === 'completed' ? 'processed successfully' : 'initiated'}.\n\nRefund Amount: ₹${safeFormatPrice(refundAmount)}\nRefund ID: ${refundId}\nStatus: ${refundStatus.toUpperCase()}\n\n${refundStatus === 'processed' || refundStatus === 'completed' ? 'Your refund should reflect in your account within 5-7 business days.' : 'Your refund will be credited to your original payment method within 5-7 business days.'}\n\nThank you for shopping with Flaunt By Nishi!`,
+    text: `Hi ${firstName || "there"},\n\nYour refund for order ${order.orderNumber} has been ${refundStatus === "processed" || refundStatus === "completed" ? "processed successfully" : "initiated"}.\n\nRefund Amount: ₹${safeFormatPrice(refundAmount)}\nRefund ID: ${refundId}\nStatus: ${refundStatus.toUpperCase()}\n\n${refundStatus === "processed" || refundStatus === "completed" ? "Your refund should reflect in your account within 5-7 business days." : "Your refund will be credited to your original payment method within 5-7 business days."}\n\nThank you for shopping with Flaunt By Nishi!`,
   };
 
   try {
