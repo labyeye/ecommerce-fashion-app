@@ -49,7 +49,7 @@ function DashboardApp() {
   // Sync view with URL path so routes like /analytics work
   useEffect(() => {
     const mapPathToSection = (path: string) => {
-      const p = path.replace(/^\//, "");
+      const p = path.replace(/^\/dashboard\/?/, "").replace(/^\//, "");
       if (!p || p === "" || p === "dashboard") return "overview";
       // keep same ids as sections used in the app
       const known = [
@@ -272,7 +272,8 @@ function DashboardApp() {
     setActiveSection(section);
     setCurrentView({ section, view: "list" });
     try {
-      const newPath = section === "overview" ? "/" : `/${section}`;
+      const newPath =
+        section === "overview" ? "/dashboard" : `/dashboard/${section}`;
       window.history.pushState({}, "", newPath);
     } catch (e) {
       // ignore history push errors

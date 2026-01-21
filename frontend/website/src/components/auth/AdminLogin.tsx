@@ -1,44 +1,44 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin: React.FC = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { login, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -48,7 +48,7 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -57,11 +57,11 @@ const AdminLogin: React.FC = () => {
       const ok = await login(formData.email, formData.password);
       if (ok) {
         // Check if user is admin and redirect accordingly
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (user.role === 'admin') {
-          navigate('/dashboard');
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (user.role === "admin") {
+          window.location.href = "/dashboard";
         } else {
-          navigate('/');
+          navigate("/");
         }
       }
     } catch (error) {
@@ -74,7 +74,10 @@ const AdminLogin: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center text-[#688F4E] hover:text-[#2B463C] transition-colors duration-300 mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center text-[#688F4E] hover:text-[#2B463C] transition-colors duration-300 mb-6"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
@@ -84,9 +87,7 @@ const AdminLogin: React.FC = () => {
           <h2 className="text-3xl font-bold text-[#2B463C] mb-2">
             Admin Login
           </h2>
-          <p className="text-[#688F4E] text-sm">
-            Access Evolv admin dashboard
-          </p>
+          <p className="text-[#688F4E] text-sm">Access Evolv admin dashboard</p>
         </div>
 
         {/* Login Form */}
@@ -101,7 +102,10 @@ const AdminLogin: React.FC = () => {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#2B463C] mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-[#2B463C] mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -117,7 +121,7 @@ const AdminLogin: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent bg-white text-[#2B463C] placeholder-[#688F4E]/60 ${
-                    errors.email ? 'border-red-300' : 'border-[#B1D182]'
+                    errors.email ? "border-red-300" : "border-[#B1D182]"
                   }`}
                   placeholder="Enter your email"
                 />
@@ -129,7 +133,10 @@ const AdminLogin: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#2B463C] mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-[#2B463C] mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -139,13 +146,13 @@ const AdminLogin: React.FC = () => {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={formData.password}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#688F4E] focus:border-transparent bg-white text-[#2B463C] placeholder-[#688F4E]/60 ${
-                    errors.password ? 'border-red-300' : 'border-[#B1D182]'
+                    errors.password ? "border-red-300" : "border-[#B1D182]"
                   }`}
                   placeholder="Enter your password"
                 />
@@ -178,17 +185,23 @@ const AdminLogin: React.FC = () => {
                   Signing in...
                 </div>
               ) : (
-                'Sign In to Admin Dashboard'
+                "Sign In to Admin Dashboard"
               )}
             </button>
           </form>
 
           {/* Admin Info */}
           <div className="mt-6 p-4 bg-[#f4f1e9] rounded-lg">
-            <h4 className="text-sm font-medium text-[#2B463C] mb-2">Admin Credentials:</h4>
+            <h4 className="text-sm font-medium text-[#2B463C] mb-2">
+              Admin Credentials:
+            </h4>
             <div className="text-xs text-[#688F4E] space-y-1">
-              <p><strong>Email:</strong> admin@vitals.com</p>
-              <p><strong>Password:</strong> admin123456</p>
+              <p>
+                <strong>Email:</strong> admin@vitals.com
+              </p>
+              <p>
+                <strong>Password:</strong> admin123456
+              </p>
             </div>
           </div>
         </div>
@@ -197,4 +210,4 @@ const AdminLogin: React.FC = () => {
   );
 };
 
-export default AdminLogin; 
+export default AdminLogin;

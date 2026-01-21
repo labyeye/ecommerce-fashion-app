@@ -38,7 +38,7 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import ProductDetailsPage from "./components/pages/ProductDetailsPage";
 import OrderDetailPage from "./components/pages/OrderDetailPage";
-import Dashboard from "./components/pages/Dashboard";
+
 import NewsletterPage from "./components/pages/NewsletterPage";
 import CheckoutPage from "./components/pages/CheckoutPage";
 import VerifyEmailPage from "./components/pages/VerifyEmailPage";
@@ -96,7 +96,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/order/:id" element={<OrderDetailPage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+
                 <Route path="/newsletter" element={<NewsletterPage />} />
                 <Route path="/product/:id" element={<ProductDetailsPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
@@ -120,7 +120,10 @@ function App() {
                 <Route path="/shipping" element={<ShippingInfoPage />} />
                 <Route path="/return-policy" element={<ReturnPolicy />} />
                 <Route path="/order-complete" element={<OrderCompletePage />} />
-                <Route path="/payment-cancelled" element={<PaymentCancelledPage />} />
+                <Route
+                  path="/payment-cancelled"
+                  element={<PaymentCancelledPage />}
+                />
                 <Route path="/addresses" element={<AddressesPage />} />
                 <Route path="/wishlist" element={<Wishlist />} />
               </Routes>
@@ -144,7 +147,7 @@ function RouteTracker() {
   const { pathname } = useLocation();
   useEffect(() => {
     try {
-      logEvent('page_view', { page: pathname });
+      logEvent("page_view", { page: pathname });
     } catch (e) {}
   }, [pathname]);
   return null;

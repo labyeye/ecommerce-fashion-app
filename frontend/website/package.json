@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cd ../dashboard && npm install && npm run build && mkdir -p ../website/dist/dashboard && cp -r dist/* ../website/dist/dashboard",
     "lint": "eslint .",
     "preview": "vite preview"
   },
